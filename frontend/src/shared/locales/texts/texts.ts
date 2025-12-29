@@ -4,7 +4,7 @@
  */
 export const UI_TEXT = {
     // Branding
-    appName: "SaaS Platform",
+    appName: "SaaS PlatforMm",
     appDescription: "نظام مبيعات ومتجر إلكتروني متكامل لإدارة",
     companyName: "SaaS Company",
     copyright: "جميع الحقوق محفوظة",
