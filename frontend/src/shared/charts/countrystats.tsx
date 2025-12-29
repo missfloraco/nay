@@ -16,7 +16,7 @@ export default function CountryStats({ data = [] }: CountryStatsProps) {
             </div>
 
             <div className="h-[300px] w-full" dir="ltr">
-                <ResponsiveContainer width="100%" height="100%">
+                <ResponsiveContainer width="100%" height="100%" minWidth={0}>
                     <PieChart>
                         <Pie
                             data={data.length > 0 ? data : [{ country: 'لا توجد بيانات', count: 1 }]}

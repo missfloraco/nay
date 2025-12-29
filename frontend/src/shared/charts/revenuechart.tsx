@@ -17,7 +17,7 @@ export default function RevenueChart({ data = [] }: RevenueChartProps) {
                 </div>
             </div>
             <div className="h-[300px] w-full min-h-[300px]" dir="ltr">
-                <ResponsiveContainer width="100%" height="100%" debounce={50}>
+                <ResponsiveContainer width="100%" height="100%" debounce={50} minWidth={0}>
                     <AreaChart data={data.length > 0 ? data : [
                         { name: 'يناير', amt: 0 },
                         { name: 'فبراير', amt: 0 },
