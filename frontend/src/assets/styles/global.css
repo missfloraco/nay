@@ -1,0 +1,420 @@
+@import "tailwindcss";
+
+@theme {
+  /* MANDATORY: Color palette */
+  --color-primary: #2a8cff;
+  --color-secondary: #ffc108;
+  --color-accent1: #02aa94;
+  --color-accent2: #fb005e;
+
+  /* Dark Mode Colors - Slate based for premium navy feel */
+  --color-dark-500: #64748b;
+  --color-dark-600: #475569;
+  --color-dark-700: #334155;
+  --color-dark-800: #1e293b;
+  --color-dark-900: #0f172a;
+  --color-dark-950: #020617;
+  --font-sans: var(--theme-font, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif);
+}
+
+:root {
+  --color-primary: #2a8cff;
+  --color-secondary: #ffc108;
+  --color-accent1: #02aa94;
+  --color-accent2: #fb005e;
+}
+
+/* Enable native dark mode for form controls (scrollbars, date pickers, etc.) */
+:root {
+  color-scheme: light;
+}
+
+.dark {
+  color-scheme: dark;
+}
+
+@variant dark (&:where(.dark, .dark *));
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  @apply bg-gray-200 dark:bg-dark-700 rounded-full;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  @apply bg-gray-300 dark:bg-dark-600;
+}
+
+/* Local Font Definitions - Commented out to fix missing file errors
+@font-face {
+  font-family: 'RTA';
+  src: url('/fonts/RTA-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'RTA';
+  src: url('/fonts/RTA-Bold.ttf') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}
+*/
+
+
+
+
+body {
+  font-family: var(--theme-font, 'Alexandria', 'RTA', sans-serif);
+  @apply bg-gray-50 dark:bg-dark-950 text-gray-900 dark:text-gray-100 transition-colors duration-500;
+}
+
+@utility animate-slide-in {
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Premium Card Style - System Wide */
+.premium-card {
+  @apply bg-white dark:bg-dark-950 rounded-[2.5rem] border border-gray-100 dark:border-dark-800 backdrop-blur-xl transition-all duration-500;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.02);
+}
+
+.dark .premium-card {
+  box-shadow: none;
+}
+
+.premium-card:hover {
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.04);
+  @apply dark:border-dark-700 dark:bg-dark-900;
+}
+
+/* Sidebar Navigation Items */
+.sidebar-nav-item {
+  @apply flex items-center gap-3 px-5 py-3.5 rounded-2xl transition-all duration-500 text-gray-500 dark:text-gray-400 font-bold hover:bg-gray-50 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white;
+}
+
+.sidebar-nav-item-active {
+  @apply bg-primary/10 text-primary ring-1 ring-primary/20 scale-[1.02];
+  box-shadow: 0 10px 30px rgba(42, 140, 255, 0.15);
+}
+
+.sidebar-nav-item-active .nav-icon {
+  @apply text-primary;
+  filter: drop-shadow(0 0 8px rgba(42, 140, 255, 0.4));
+}
+
+.sidebar-nav-item-active::before {
+  content: '';
+  @apply absolute -right-3 top-1/2 -translate-y-1/2 w-1.5 h-8 bg-primary rounded-l-full z-10;
+  box-shadow: 0 0 15px rgba(42, 140, 255, 0.8);
+}
+
+/* Standard Spacing */
+.page-container {
+  @apply max-w-[1800px] mx-auto min-h-full p-4 sm:p-6 lg:p-10 xl:p-12 space-y-8 lg:space-y-12;
+}
+
+.section-head {
+  @apply mb-8 flex flex-col gap-2;
+}
+
+.section-title {
+  @apply text-2xl lg:text-3xl font-black text-gray-900 dark:text-white tracking-tight leading-none;
+}
+
+.section-desc {
+  @apply text-gray-400 dark:text-gray-500 text-sm font-medium;
+}
+
+/* Premium Input Fields */
+.input-field {
+  @apply w-full bg-white dark:bg-dark-900 border-2 border-gray-200 dark:border-dark-700 rounded-2xl px-5 py-3.5 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 transition-all duration-300 outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 focus:bg-white dark:focus:bg-dark-800 hover:border-gray-300 dark:hover:border-dark-600;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+
+.input-field:disabled {
+  @apply bg-gray-50 dark:bg-dark-900 cursor-not-allowed opacity-60;
+}
+
+.select-field {
+  @apply w-full bg-white dark:bg-dark-900 border-2 border-gray-200 dark:border-dark-700 rounded-2xl px-5 py-3.5 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 transition-all duration-300 outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 focus:bg-white dark:focus:bg-dark-800 hover:border-gray-300 dark:hover:border-dark-600 cursor-pointer;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+  background-position: left 0.75rem center;
+  background-repeat: no-repeat;
+  background-size: 1.5em 1.5em;
+  padding-left: 3rem;
+}
+
+.dark .select-field {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%239ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+}
+
+.textarea-field {
+  @apply w-full bg-white dark:bg-dark-900 border-2 border-gray-200 dark:border-dark-700 rounded-2xl px-5 py-3.5 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 transition-all duration-300 outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 focus:bg-white dark:focus:bg-dark-800 hover:border-gray-300 dark:hover:border-dark-600 resize-none;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  min-height: 120px;
+}
+
+input[type="date"].input-field,
+input[type="time"].input-field,
+input[type="datetime-local"].input-field {
+  @apply cursor-pointer;
+}
+
+input[type="number"].input-field::-webkit-inner-spin-button,
+input[type="number"].input-field::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"].input-field {
+  -moz-appearance: textfield;
+}
+
+/* Global Table Model - Framing, Sticky Headers, and High-Density Grid */
+.standard-table-container {
+  @apply w-full overflow-auto bg-white dark:bg-dark-950 border-2 border-gray-200 dark:border-dark-700 transition-colors duration-300;
+  border-radius: 0 !important;
+  max-height: 85vh;
+  /* Functional Hidden Scrollbar */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.standard-table-container::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  background: transparent;
+}
+
+.standard-table {
+  @apply w-full border-spacing-0 text-right;
+  border-collapse: separate;
+}
+
+.standard-table thead {
+  @apply sticky top-0 z-20 bg-gray-100 dark:bg-dark-900 border-b border-gray-200 dark:border-dark-700 backdrop-blur-sm;
+}
+
+.standard-table th {
+  @apply px-6 py-5 text-[11px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-[0.2em] border-x border-gray-200 dark:border-dark-700/50 bg-gray-50/80 dark:bg-dark-900/80;
+}
+
+.standard-table th:first-child,
+.standard-table td:first-child {
+  border-right: 0 !important;
+}
+
+.standard-table th:last-child,
+.standard-table td:last-child {
+  border-left: 0 !important;
+}
+
+.standard-table tbody tr {
+  @apply hover:bg-gray-50/80 dark:hover:bg-dark-900/50 transition-colors;
+}
+
+.standard-table td {
+  @apply px-6 py-5 text-base text-gray-800 dark:text-gray-200 border-x border-b border-gray-100 dark:border-dark-800/50 font-bold;
+}
+
+/* Professional Invoice V2 - Reference: uploaded_image_1766342398444.png */
+.invoice-v2 {
+  font-family: 'RTA', sans-serif !important;
+  color: #1a1a1a;
+  background: white;
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 40px;
+}
+
+.dark .invoice-v2 {
+  /* Invoices typically remain white even in dark mode for accuracy */
+  background: white;
+  color: #1a1a1a;
+  border: 1px solid #e5e7eb;
+}
+
+.invoice-v2-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.invoice-v2-logo {
+  max-width: 120px;
+  margin: 0 auto 20px;
+  display: block;
+}
+
+.invoice-v2-company-name {
+  font-size: 24px;
+  font-weight: 900;
+  margin-bottom: 30px;
+}
+
+.invoice-v2-meta {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 2px dashed #ff0000;
+  padding-bottom: 15px;
+  margin-bottom: 30px;
+  font-weight: 700;
+}
+
+.invoice-v2-details-grid {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 30px;
+  text-align: right;
+}
+
+.invoice-v2-client-info {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 10px 20px;
+  font-size: 14px;
+}
+
+.invoice-v2-client-info dt {
+  font-weight: 900;
+}
+
+.invoice-v2-client-info dd {
+  margin: 0;
+}
+
+.invoice-v2-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 30px;
+}
+
+.invoice-v2-table th {
+  background: transparent;
+  border-bottom: 2px dashed #ff0000;
+  padding: 15px 10px;
+  font-weight: 900;
+  text-align: center;
+}
+
+.invoice-v2-table td {
+  padding: 15px 10px;
+  text-align: center;
+  font-weight: 700;
+}
+
+.invoice-v2-summary {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+  border-bottom: 2px dashed #ff0000;
+  padding-bottom: 30px;
+  margin-bottom: 30px;
+}
+
+.invoice-v2-summary-row {
+  display: flex;
+  justify-content: space-between;
+  width: 250px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.invoice-v2-total-badge {
+  background: #9333ea;
+  color: white;
+  padding: 8px 20px;
+  border-radius: 4px;
+  font-weight: 900;
+  font-size: 18px;
+  margin-top: 5px;
+}
+
+
+
+/* ==========================================================================
+   Advanced Print Styles - Unified Export System (Legacy / Compatibility)
+   ========================================================================== */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+}
+
+/* Auth & Onboarding Specialized Inputs */
+.auth-input,
+.onboarding-input {
+  width: 100%;
+  padding: 1rem 1.25rem;
+  border-radius: 1rem;
+  border: 2px solid transparent;
+  background-color: #f8fafc;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: #1e293b;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  outline: none;
+}
+
+.dark .auth-input,
+.dark .onboarding-input {
+  background-color: #0f172a;
+  color: #f8fafc;
+  border-color: #1e293b;
+}
+
+.auth-input:focus,
+.onboarding-input:focus {
+  border-color: var(--color-primary);
+  background-color: #ffffff;
+  box-shadow: 0 0 0 4px rgba(42, 140, 255, 0.1);
+}
+
+.dark .auth-input:focus,
+.dark .onboarding-input:focus {
+  background-color: #1e293b;
+}
+
+.onboarding-input {
+  padding: 1.25rem 1.5rem;
+  border-radius: 1.25rem;
+}
