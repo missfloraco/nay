@@ -80,7 +80,7 @@ export default function Dashboard() {
                 </div>
 
                 {/* 2. KPI Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mt-6">
+                <div className="dashboard-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mt-6">
                     <StatCard
                         title={TEXTS_ADMIN.DASHBOARD.TOTAL_REVENUE}
                         value={`${formatNumber(stats?.totalRevenue || 0)}`}
@@ -123,7 +123,7 @@ export default function Dashboard() {
                 </div>
 
                 {/* 3. Main Charts Grid */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div className="dashboard-grid grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <div className="lg:col-span-2">
                         <RevenueChart data={revenueData} />
                     </div>
@@ -133,7 +133,7 @@ export default function Dashboard() {
                 </div>
 
                 {/* 4. Quick Actions / Real-time Info */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div className="dashboard-grid grid grid-cols-1 md:grid-cols-3 gap-8">
                     <div className="premium-card p-8 flex items-center gap-6">
                         <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
                             <Globe className="w-8 h-8" />

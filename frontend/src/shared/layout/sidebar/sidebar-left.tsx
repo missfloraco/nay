@@ -29,7 +29,7 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
 
     return (
         <aside
-            className={`hidden lg:flex lg:sticky top-0 bottom-0 left-0 w-[250px] shrink-0 h-full bg-white dark:bg-dark-900 ${noBorder ? '' : 'border-r border-gray-300 dark:border-dark-600'} z-40 transition-all duration-500 ease-in-out flex-col shadow-2xl lg:shadow-none ${contentClassName}`}
+            className={`left-sidebar-root bg-white dark:bg-dark-900 ${noBorder ? '' : 'border-r border-gray-300 dark:border-dark-600'} z-40 transition-all duration-500 ease-in-out flex flex-col w-[250px] ${contentClassName}`}
         >
             {/* Content Area - matches main sidebar nav styling */}
             <div className={`flex-1 overflow-y-auto no-scrollbar ${noPadding ? 'p-0 space-y-0' : 'p-6 space-y-1.5'}`}>

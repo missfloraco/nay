@@ -3,6 +3,8 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Response;
 use App\Models\Tenant;
 use App\Http\Controllers\Admin\PaymentController;
 
@@ -138,6 +140,41 @@ Route::prefix('admin')->group(function () {
         Route::get('/search', [App\Http\Controllers\Shared\SearchController::class, 'search'])->middleware('throttle:15,1');
     });
 });
+
+// Unified Login Route (to avoid 401 noise in console)
+Route::post('/login', function (Request $request) {
+    $credentials = $request->validate([
+        'email' => ['required', 'email'],
+        'password' => ['required'],
+    ]);
+
+    // Try Admin Guard first (usually fewer admins than tenants, or vice versa)
+    if (Auth::guard('admin')->attempt($credentials)) {
+        $request->session()->regenerate();
+        return response()->json([
+            'user' => Auth::guard('admin')->user(),
+            'type' => 'admin'
+        ], 200);
+    }
+
+    // Try Tenant Guard
+    if (Auth::guard('tenant')->attempt($credentials)) {
+        $tenant = Auth::guard('tenant')->user();
+        if ($tenant->status === 'disabled') {
+            Auth::guard('tenant')->logout();
+            return response()->json(['message' => 'Account is disabled.'], 403);
+        }
+
+        $request->session()->regenerate();
+        return response()->json([
+            'user' => $tenant,
+            'token' => $tenant->createToken('tenant_token')->plainTextToken,
+            'type' => 'tenant'
+        ], 200);
+    }
+
+    return response()->json(['message' => 'بيانات الدخول غير صحيحة'], 401);
+})->middleware('throttle:10,1');
 
 // Tenant Authentication Routes
 Route::prefix('app')->group(function () {

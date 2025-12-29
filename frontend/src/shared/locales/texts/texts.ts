@@ -1,12 +1,14 @@
+import { APP_NAME, SYSTEM_LABELS } from '@/core/config';
+
 /**
  * Centralized UI text for the entire system (Arabic only)
  * This file allows editing any text shown in the UI from one place.
  */
 export const UI_TEXT = {
     // Branding
-    appName: "SaaS PlatforMm",
-    appDescription: "نظام مبيعات ومتجر إلكتروني متكامل لإدارة",
-    companyName: "SaaS Company",
+    appName: APP_NAME,
+    appDescription: SYSTEM_LABELS.appDescription,
+    companyName: APP_NAME,
     copyright: "جميع الحقوق محفوظة",
 
     // Navigation

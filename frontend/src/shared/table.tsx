@@ -174,9 +174,9 @@ export default function Table<T>({
 
     return (
         <div className="space-y-4">
-            <div className="w-full overflow-hidden rounded-3xl border border-gray-200/60 dark:border-white/5 bg-white dark:bg-dark-900 shadow-sm transition-all duration-500">
+            <div className="standard-table-container w-full overflow-hidden rounded-3xl border border-gray-200/60 dark:border-white/5 bg-white dark:bg-dark-900 shadow-sm transition-all duration-500">
                 <div className="overflow-x-auto no-scrollbar relative">
-                    <table className="w-full text-right border-collapse text-sm">
+                    <table className="standard-table w-full text-right border-collapse text-sm">
                         <TableHeader<T>
                             columns={columns}
                             currentSort={currentSort}
@@ -192,6 +192,7 @@ export default function Table<T>({
                                     {columns.map((column, colIdx) => (
                                         <td
                                             key={colIdx}
+                                            data-label={column.header}
                                             className={`px-6 py-5 border-l border-gray-100/50 dark:border-white/5 last:border-l-0 transition-colors duration-300 group-hover:border-primary/10 ${column.className || ''}`}
                                         >
                                             <div className="relative z-10">

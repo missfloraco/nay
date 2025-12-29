@@ -27,6 +27,7 @@ interface HeaderProps {
   logoUrl?: string;
   userName?: string;
   userRole?: string;
+  className?: string;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -38,6 +39,7 @@ export const Header: React.FC<HeaderProps> = ({
   logoUrl,
   userName,
   userRole,
+  className = '',
 }) => {
   const { settings } = useSettings();
   // const { searchQuery, setSearchQuery, results, isSearching, clearSearch } = useSearch(); // Moved to GlobalSearch
@@ -82,7 +84,8 @@ export const Header: React.FC<HeaderProps> = ({
 
 
   return (
-    <header className="sticky top-0 z-50 bg-white/80 dark:bg-dark-950/80 backdrop-blur-md border-b border-gray-300 dark:border-dark-600 flex items-center justify-between transition-colors h-[90px]">
+    <header className={`sticky top-0 z-50 bg-white/80 dark:bg-dark-950/80 backdrop-blur-md border-b border-gray-300 dark:border-dark-600 flex items-center justify-between transition-colors h-[90px] ${className}`}>
+      {/* 1. Branding Section - Physically RIGHT in RTL (First Child) - Aligns with Main Nav Sidebar */}
       {/* 1. Branding Section - Physically RIGHT in RTL (First Child) - Aligns with Main Nav Sidebar */}
       <LogoHeaderRight
         appName={finalAppName}
@@ -104,17 +107,13 @@ export const Header: React.FC<HeaderProps> = ({
           <GlobalSearch />
         </div>
 
-        {/* Right Actions Section */}
+        {/* Right Actions Section - Empty now (moved to sections) */}
         <div className="flex items-center gap-3">
-          <ThemeToggle />
-
-          {/* Trial Badge for Tenant Users */}
-          {/* Trial Badge Removed as per request */}
-
         </div>
       </div>
 
       {/* 3. Actions Section - Physically LEFT in RTL (Last Child) - Aligns with Filter Sidebar */}
+      {/* 3. User Actions Section - Physically LEFT in RTL (Last Child) - Aligns with Filter Sidebar */}
       <NameHeaderLeft
         user={currentUser}
         onLogout={handleLogout}

@@ -75,7 +75,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, title = '', noPadding =
     ];
 
     return (
-        <div className={`h-screen bg-gray-50/50 dark:bg-dark-950 transition-colors duration-500 overflow-hidden flex flex-col ${isImpersonating ? 'pt-[64px]' : ''}`} dir="rtl">
+        <div className={`layout-root transition-colors duration-500 ${isImpersonating ? 'pt-[64px]' : ''}`} dir="rtl">
             {!isCheckingAdBlock && isAdBlockActive && <ShieldOverlay />}
             <ImpersonationBanner
                 tenantName={tenant?.name || '...'}
@@ -84,12 +84,13 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, title = '', noPadding =
 
             <Header
                 onMenuClick={() => { }}
+                className="global-header"
                 title={title || ''}
             />
 
-            <div className="flex h-[calc(100vh-180px)] overflow-hidden relative">
+            <div className="main-content-wrapper">
                 <aside
-                    className="hidden lg:flex lg:sticky top-0 bottom-0 w-[250px] shrink-0 h-full bg-white dark:bg-dark-900 border-l border-gray-300 dark:border-dark-600 z-40 transition-all duration-500 ease-in-out flex-col shadow-2xl lg:shadow-none"
+                    className="desktop-sidebar bg-white dark:bg-dark-900 border-l border-gray-300 dark:border-dark-600 z-40 transition-all duration-500 ease-in-out flex flex-col w-[250px]"
                 >
                     <nav className="flex-1 overflow-y-auto no-scrollbar p-6 space-y-1.5">
                         {menuItems.map((item) => {
@@ -103,8 +104,8 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, title = '', noPadding =
                                                 ? 'bg-primary text-white shadow-lg shadow-primary/30 active-nav-item'
                                                 : 'text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-dark-800/50 hover:text-gray-900 dark:hover:text-white'}`}
                                     >
-                                        <item.icon className={`w-5 h-5 transition-all duration-500 ${isActive ? 'scale-110' : 'group-hover:scale-110'}`} />
-                                        <span className="text-sm flex-1">
+                                        <item.icon className="w-5 h-5 transition-all duration-500 scale-110" />
+                                        <span className="sidebar-label-text text-sm flex-1">
                                             {item.label}
                                         </span>
                                         {(item as any).badge > 0 && (
@@ -139,9 +140,9 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, title = '', noPadding =
                     </div>
                 </aside>
 
-                <div className="flex-1 flex flex-col relative overflow-hidden bg-gray-50 dark:bg-dark-950">
-                    <main className="flex-1 overflow-hidden relative p-4">
-                        <div className={`w-full h-full bg-white dark:bg-dark-900 flex flex-col overflow-y-auto no-scrollbar ${noPadding ? 'p-0' : 'p-6 md:p-8 lg:p-12 pb-32 md:pb-40 lg:pb-48'}`}>
+                <div className="content-area-main relative overflow-hidden bg-gray-50 dark:bg-dark-950 flex-1">
+                    <main className="h-full relative p-4">
+                        <div className={`page-frame-container w-full h-full bg-white dark:bg-dark-900 flex flex-col overflow-y-auto no-scrollbar ${noPadding ? 'p-0' : 'p-6 md:p-8 lg:p-12 pb-32 md:pb-40 lg:pb-48'}`}>
                             {children}
                         </div>
                     </main>
@@ -170,7 +171,9 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, title = '', noPadding =
                 </div>
             </footer>
 
-            <BottomNav items={menuItems} />
+            <div className="mobile-only">
+                <BottomNav items={menuItems} />
+            </div>
         </div>
     );
 };

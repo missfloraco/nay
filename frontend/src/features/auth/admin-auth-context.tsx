@@ -5,7 +5,7 @@ import { User } from '@/core/models/index';
 
 export interface AdminAuthContextType {
     user: User | null;
-    login: (email: string, password: string) => Promise<void>;
+    login: (email: string, password: string, options?: { _silent?: boolean }) => Promise<void>;
     logout: () => void;
     loading: boolean;
     refreshUser: () => Promise<void>;
@@ -74,9 +74,9 @@ export const AdminAuthProvider = ({ children }: { children: ReactNode }) => {
         init();
     }, []);
 
-    const login = async (email: string, password: string) => {
+    const login = async (email: string, password: string, options: { _silent?: boolean } = {}) => {
         await initializeCsrf();
-        const res = (await api.post('/admin/login', { email, password })) as { user: any };
+        const res = (await api.post('/admin/login', { email, password }, options as any)) as { user: any };
         setUser({ ...res.user, is_admin: true });
     };
 

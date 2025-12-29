@@ -73,22 +73,25 @@ export default function AuthScreen({ initialMode = 'login' }: { initialMode?: Au
      */
     const handleUnifiedLogin = async () => {
         try {
-            // First try Tenant Login
-            try {
-                // Initialize CSRF token before login
-                await initializeCsrf();
-                await tenantAuth.login(formData.email, formData.password);
-                navigate('/app');
-                return;
-            } catch (tenantErr: any) {
-                // If Tenant login fails (likely 401 or 404), try Admin Login
-                // We re-initialize CSRF just in case, though usually not needed if session persists
-                await adminAuth.login(formData.email, formData.password);
+            await initializeCsrf();
+            const res = (await api.post('/login', {
+                email: formData.email,
+                password: formData.password
+            })) as { user: any, type: string, token?: string };
+
+            if (res.type === 'admin') {
+                // Manually update admin context since we bypassed his login method
+                // We'll just refresh him to be sure
+                await adminAuth.refreshUser();
                 navigate('/admin');
-                return;
+            } else {
+                if (res.token) {
+                    sessionStorage.setItem('tenant_token', res.token);
+                }
+                await tenantAuth.refreshUser();
+                navigate('/app');
             }
         } catch (err: any) {
-            // If both fail, throw error to be caught by handleSubmit
             throw err;
         }
     };

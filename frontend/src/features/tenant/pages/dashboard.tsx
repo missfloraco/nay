@@ -142,7 +142,7 @@ const Dashboard: React.FC = () => {
                 </div>
 
                 {/* System Status Area */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
+                <div className="dashboard-grid grid grid-cols-1 sm:grid-cols-3 gap-8">
                     <StatCard
                         title="حالة النظام"
                         value="نشط"

@@ -6,7 +6,7 @@ import { User, Tenant } from '@/core/models/index';
 export interface TenantAuthContextType {
     user: User | null;
     tenant: Tenant | null;
-    login: (email: string, password: string) => Promise<void>;
+    login: (email: string, password: string, options?: { _silent?: boolean }) => Promise<void>;
     register: (userData: any) => Promise<void>;
     logout: (shouldRedirect?: boolean) => Promise<void>;
     loading: boolean;
@@ -32,9 +32,9 @@ export const TenantAuthProvider = ({ children }: { children: ReactNode }) => {
     const [loading, setLoading] = useState(true);
     const [isImpersonating, setIsImpersonating] = useState(false);
 
-    const loadUser = async () => {
+    const loadUser = async (options?: { _silent?: boolean }) => {
         try {
-            const res = (await api.get('/app/user', { _silent: true } as any)) as any;
+            const res = (await api.get('/app/user', { _silent: true, ...options } as any)) as any;
             const appUser = { ...res.user, is_admin: false } as User;
             setUser(appUser);
             setTenant(res.tenant);
@@ -76,9 +76,9 @@ export const TenantAuthProvider = ({ children }: { children: ReactNode }) => {
         init();
     }, []);
 
-    const login = async (email: string, password: string) => {
+    const login = async (email: string, password: string, options: { _silent?: boolean } = {}) => {
         await initializeCsrf();
-        const res = (await api.post('/app/login', { email, password })) as { user: any };
+        const res = (await api.post('/app/login', { email, password }, options as any)) as { user: any };
         const appUser = { ...res.user, is_admin: false };
         setUser(appUser);
         // In the new simplified model, the user IS the tenant
