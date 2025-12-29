@@ -147,14 +147,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       } catch (e) { /* empty */ }
 
       let systemBranding: Record<string, any> = {};
-      let publicTenantData: Record<string, any> = {};
       let authenticatedData: Record<string, any> = {};
       let userInfo: (User & { tenant?: any }) | null = null;
 
       // Execute all core data fetches
       const fetches: Promise<any>[] = [
-        api.get('/public/settings/branding'),
-        api.get(`/public/tenant-info?domain=${domain}`)
+        api.get('/public/settings/branding')
       ];
 
       // Only fetch authenticated data if not on a strictly public path OR if we're on landing (to check session)
@@ -170,7 +168,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       }
 
       const results = await Promise.allSettled(fetches);
-      const [sysRes, publicRes] = results;
+      const [sysRes] = results;
 
       // Process results by index based on what we fetched
       let resultIdx = 2;
@@ -180,15 +178,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         systemBranding = (sysRes.value as any) || {};
       }
 
-      // Process Public Tenant Data
-      if (publicRes.status === 'fulfilled') {
-        publicTenantData = publicRes.value as any;
-      }
 
       // Process Authenticated Settings (Admin only for now)
-      if (isAdminPath && results[resultIdx]?.status === 'fulfilled') {
-        authenticatedData = (results[resultIdx] as any).value || {};
-        resultIdx++;
+      if (isAdminPath && results[1]?.status === 'fulfilled') {
+        authenticatedData = (results[1] as any).value || {};
+        resultIdx = 2;
+      } else {
+        resultIdx = 1;
       }
 
       // Process User Info
@@ -241,7 +237,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           appName: systemBranding.app_name !== undefined ? systemBranding.app_name : prev.appName,
 
           // Tenant specific overrides
-          storeName: userInfo?.tenant?.name || publicTenantData.name || authenticatedData.store_name || prev.storeName,
+          storeName: userInfo?.tenant?.name || authenticatedData.store_name || prev.storeName,
 
           // DYNAMIC BRANDING: Strictly controlled by Super Admin
           primaryColor: systemBranding.primary_color !== undefined ? systemBranding.primary_color : prev.primaryColor,

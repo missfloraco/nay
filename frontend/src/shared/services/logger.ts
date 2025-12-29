@@ -115,7 +115,7 @@ class Logger {
      * This is a placeholder - implement based on your chosen service
      */
     private sendToExternalService(entry: Partial<LogEntry>): void {
-        // TODO: Implement external logging service integration
+        // External logging service integration can be implemented here (e.g., Sentry)
         // Example for Sentry:
         // if (window.Sentry) {
         //     window.Sentry.captureException(entry.error, {

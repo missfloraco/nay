@@ -20,12 +20,6 @@ Route::prefix('public')->group(function () {
     Route::post('/ads/{id}/impression', [App\Http\Controllers\Admin\AdController::class, 'trackImpression']);
     Route::get('/ads/{id}/click', [App\Http\Controllers\Admin\AdController::class, 'trackClick']);
 
-    Route::get('/tenant-info', function (Request $request) {
-        // Since we removed domains, this endpoint might be redundant or needs a different logic.
-        // For now, we'll return a generic response or null since there's no domain to check.
-        // If the frontend expects this to check subdomain, that feature is now effectively disabled.
-        return response()->json(['name' => 'NaySaaS'], 200);
-    });
 
     // Texts/Translations Endpoint
     Route::get('/texts/{locale}', function ($locale) {
