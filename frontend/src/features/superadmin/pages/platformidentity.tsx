@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import AdminLayout from '@/features/superadmin/pages/adminlayout';
-import { Save, Image as ImageIcon, Layout, Loader2, Trash2, Type } from 'lucide-react';
+import { Save, Info, Key, Globe, Layout, Palette, Type, Image as ImageIcon, Trash2, CheckCircle2, AlertCircle, Link, FileType, Loader2 } from 'lucide-react';
+import InputField from '@/shared/ui/forms/input-field';
 import { useSettings } from '@/shared/contexts/app-context';
 import { useToast } from '@/shared/ui/notifications/feedback-context';
 import { SettingsService } from '@/shared/services/settingsservice';
@@ -25,7 +26,7 @@ export default function PlatformIdentity() {
         company_name: settings.companyName || '',
         company_link: settings.companyLink || '',
         custom_font_url: settings.customFontUrl || '',
-        custom_heading_font_url: settings.customHeadingFontUrl || '',
+        custom_heading_font_url: settings.headingsFontUrl || '',
     });
 
     const [logoFiles, setLogoFiles] = useState<{ [key: string]: File | null }>({
@@ -58,7 +59,7 @@ export default function PlatformIdentity() {
                 company_name: settings.companyName || '',
                 company_link: settings.companyLink || '',
                 custom_font_url: settings.customFontUrl || '',
-                custom_heading_font_url: settings.customHeadingFontUrl || '',
+                custom_heading_font_url: settings.headingsFontUrl || '',
             });
         }
     }, [settings, contextLoading]);
@@ -160,8 +161,8 @@ export default function PlatformIdentity() {
 
     return (
         <AdminLayout title="هوية المنصة" noPadding={true}>
-            <div className="h-full w-full bg-white dark:bg-dark-950 p-6 lg:p-12 animate-in fade-in duration-500 overflow-y-auto no-scrollbar pb-44">
-                <div className="max-w-6xl mx-auto space-y-12 w-full">
+            <div className="h-full w-full bg-white dark:bg-dark-950 p-6 animate-in fade-in duration-500 overflow-y-auto no-scrollbar pb-44">
+                <div className="mx-auto space-y-12 w-full">
                     <div className="flex items-center gap-6 border-b border-gray-100 dark:border-dark-800 pb-8 group">
                         <div className="p-4 bg-indigo-50 dark:bg-indigo-900/10 rounded-[2rem] text-indigo-600 shadow-inner group-hover:scale-110 transition-transform">
                             <Layout className="w-8 h-8" />
@@ -209,16 +210,12 @@ export default function PlatformIdentity() {
                         </div>
 
                         <div className="space-y-8 w-full py-2">
-                            <div className="space-y-3">
-                                <label className="text-xs font-black text-gray-400 uppercase tracking-widest mr-1">اسم المنصة</label>
-                                <input
-                                    type="text"
-                                    value={formData.app_name}
-                                    onChange={e => setFormData({ ...formData, app_name: e.target.value })}
-                                    className="input-field"
-                                    placeholder="أدخل اسم المنصة"
-                                />
-                            </div>
+                            <InputField
+                                label="اسم المنصة"
+                                value={formData.app_name}
+                                onChange={e => setFormData({ ...formData, app_name: e.target.value })}
+                                placeholder="أدخل اسم المنصة"
+                            />
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                 <div className="space-y-3">
@@ -262,13 +259,13 @@ export default function PlatformIdentity() {
 
                                         <div className="space-y-3">
                                             <label className="text-xs font-black text-gray-400 uppercase tracking-widest mr-1">رابط خط خارجي (اختياري)</label>
-                                            <input
-                                                type="url"
+                                            <InputField
+                                                label="أو رابط ملف الخط المباشر"
                                                 value={formData.custom_font_url}
                                                 onChange={e => setFormData({ ...formData, custom_font_url: e.target.value })}
-                                                placeholder="https://example.com/fonts/my-font.woff2"
-                                                className="input-field text-left dir-ltr"
-                                                dir="ltr"
+                                                placeholder="https://example.com/font.ttf"
+                                                icon={Link}
+                                                className="ltr"
                                             />
                                             <p className="text-[10px] text-gray-400">إذا تم رفع ملف، سيتم تجاهل الرابط.</p>
                                         </div>
@@ -314,13 +311,13 @@ export default function PlatformIdentity() {
 
                                         <div className="space-y-3">
                                             <label className="text-xs font-black text-gray-400 uppercase tracking-widest mr-1">رابط خط خارجي (اختياري)</label>
-                                            <input
-                                                type="url"
+                                            <InputField
+                                                label="أو رابط ملف خط العناوين المباشر"
                                                 value={formData.custom_heading_font_url}
                                                 onChange={e => setFormData({ ...formData, custom_heading_font_url: e.target.value })}
-                                                placeholder="https://example.com/fonts/heading-font.ttf"
-                                                className="input-field text-left dir-ltr"
-                                                dir="ltr"
+                                                placeholder="https://example.com/headings-font.ttf"
+                                                icon={Link}
+                                                className="ltr"
                                             />
                                             <p className="text-[10px] text-gray-400">إذا تم رفع ملف، سيتم تجاهل الرابط.</p>
                                         </div>

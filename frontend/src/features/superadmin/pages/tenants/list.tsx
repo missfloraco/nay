@@ -251,7 +251,7 @@ export default function TenantsList() {
             leftSidebarNoPadding={true}
             leftSidebarNoBorder={false}
         >
-            <div className="h-full flex flex-col p-6">
+            <div className="h-full flex flex-col">
                 <div className="flex-1 flex flex-col">
                     <Table<Tenant>
                         columns={columns}

@@ -201,22 +201,9 @@ export default function PaymentsPage() {
             }
         >
             <div className="flex flex-col h-full bg-white dark:bg-gray-900">
-                {/* Header Section */}
-                <div className="p-6 border-b border-gray-100 dark:border-gray-800">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <h2 className="text-xl font-black text-gray-900 dark:text-white">سجل الدفعات</h2>
-                            <p className="text-sm text-gray-500 font-bold mt-1">
-                                {selectedTenantId
-                                    ? `عرض المدفوعات الخاصة بـ ${tenants.find(t => t.id === Number(selectedTenantId))?.name || '...'}`
-                                    : 'إحصائيات وسجل جميع المساهمات المالية'}
-                            </p>
-                        </div>
-                    </div>
-                </div>
 
                 {/* Table */}
-                <div className="flex-1 overflow-auto p-6">
+                <div className="flex-1 overflow-auto">
                     <Table<Payment>
                         columns={columns}
                         data={filteredPayments}

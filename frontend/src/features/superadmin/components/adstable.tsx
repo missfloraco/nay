@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { AdsService, Ad } from '@/shared/services/adsservice';
-import { Plus, Trash2, Edit2, X, Image as ImageIcon, Code, Type, Megaphone, Save, Check, Loader2 } from 'lucide-react';
+import { Plus, Trash2, Edit2, X, Image as ImageIcon, Code, Type, Megaphone, Save, Check, Loader2, Link } from 'lucide-react';
 import { useFeedback } from '@/shared/ui/notifications/feedback-context';
 import Table from '@/shared/table';
 import { IdentityCell, ActionCell } from '@/shared/table-cells';
 import { EditButton, DeleteButton } from '@/shared/ui/buttons/btn-crud';
+import InputField from '@/shared/ui/forms/input-field';
 
 export default function AdsTable() {
     const [ads, setAds] = useState<Ad[]>([]);
@@ -214,7 +215,7 @@ export default function AdsTable() {
                     emptyMessage="لا توجد إعلانات مخصصة بعد"
                 />
 
-                <div className="mt-8 flex justify-end">
+                <div className="mt-8 flex justify-end px-6 md:px-10 pb-10">
                     <button
                         onClick={() => { setIsModalOpen(true); setFormData({ name: '', placement: 'ad_landing_top', type: 'script', content: '', redirect_url: '', is_active: true }); }}
                         className="flex items-center gap-3 px-10 py-5 bg-primary text-white rounded-[2rem] font-black shadow-2xl shadow-primary/30 hover:scale-105 transition-all active:scale-95 group"
@@ -255,17 +256,13 @@ export default function AdsTable() {
 
                         {/* Modal Content */}
                         <form onSubmit={handleSave} className="flex-1 overflow-y-auto p-10 space-y-6 no-scrollbar">
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] px-1">اسم الحملة</label>
-                                <input
-                                    type="text"
-                                    value={formData.name}
-                                    onChange={e => setFormData({ ...formData, name: e.target.value })}
-                                    className="w-full px-8 py-5 rounded-2xl border border-gray-100 dark:border-white/10 bg-gray-50/50 dark:bg-dark-950 outline-none focus:ring-4 focus:ring-primary/10 transition-all font-bold text-lg"
-                                    placeholder="مثال: عرض الصيف 2024"
-                                    required
-                                />
-                            </div>
+                            <InputField
+                                label="اسم الحملة"
+                                value={formData.name}
+                                onChange={e => setFormData({ ...formData, name: e.target.value })}
+                                placeholder="مثال: عرض الصيف 2024"
+                                required
+                            />
 
                             <div className="grid grid-cols-2 gap-6">
                                 <div className="space-y-2">
@@ -346,16 +343,14 @@ export default function AdsTable() {
                                             </div>
                                         </div>
                                     </div>
-                                    <div className="space-y-2">
-                                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] px-1">أو رابط الصورة المباشر</label>
-                                        <input
-                                            type="text"
-                                            value={formData.content}
-                                            onChange={e => setFormData({ ...formData, content: e.target.value })}
-                                            className="w-full px-8 py-5 rounded-2xl border border-gray-100 dark:border-white/10 bg-gray-50/50 dark:bg-dark-950 outline-none focus:ring-4 focus:ring-primary/10 transition-all font-bold ltr"
-                                            placeholder="https://example.com/banner.jpg"
-                                        />
-                                    </div>
+                                    <InputField
+                                        label="أو رابط الصورة المباشر"
+                                        value={formData.content}
+                                        onChange={e => setFormData({ ...formData, content: e.target.value })}
+                                        placeholder="https://example.com/banner.jpg"
+                                        icon={Link}
+                                        className="ltr"
+                                    />
                                 </div>
                             ) : (
                                 <div className="space-y-2 animate-in fade-in duration-500">
@@ -371,16 +366,14 @@ export default function AdsTable() {
                             )}
 
                             {formData.type === 'image' && (
-                                <div className="space-y-2 animate-in slide-in-from-top duration-300">
-                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] px-1">رابط التوجيه (Redirect URL)</label>
-                                    <input
-                                        type="text"
-                                        value={formData.redirect_url || ''}
-                                        onChange={e => setFormData({ ...formData, redirect_url: e.target.value })}
-                                        className="w-full px-8 py-5 rounded-2xl border border-gray-100 dark:border-white/10 bg-gray-50/50 dark:bg-dark-950 outline-none focus:ring-4 focus:ring-primary/10 transition-all font-bold text-lg ltr"
-                                        placeholder="https://example.com/buy-now"
-                                    />
-                                </div>
+                                <InputField
+                                    label="رابط التوجيه (Redirect URL)"
+                                    value={formData.redirect_url || ''}
+                                    onChange={e => setFormData({ ...formData, redirect_url: e.target.value })}
+                                    placeholder="https://example.com/buy-now"
+                                    icon={Link}
+                                    className="ltr"
+                                />
                             )}
 
                             {/* Modal Footer */}

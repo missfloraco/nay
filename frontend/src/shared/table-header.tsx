@@ -42,7 +42,7 @@ export function TableHeader<T>({
                     return (
                         <th
                             key={idx}
-                            className={`px-6 py-5 text-[11px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-[0.15em] border-l border-gray-200/50 dark:border-white/5 last:border-l-0 ${column.sortable ? 'cursor-pointer hover:bg-gray-100/50 dark:hover:bg-white/5 transition-colors select-none' : ''
+                            className={`px-6 py-5 text-[12px] font-black text-primary uppercase tracking-[0.2em] border-l border-gray-200/50 dark:border-white/5 last:border-l-0 ${column.sortable ? 'cursor-pointer hover:bg-gray-100/50 dark:hover:bg-white/5 transition-colors select-none' : ''
                                 } ${column.className || ''}`}
                             style={{ width: column.width }}
                             onClick={handleSort}

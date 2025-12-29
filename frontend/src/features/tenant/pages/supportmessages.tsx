@@ -152,15 +152,6 @@ const SupportMessages = () => {
                 <div className="flex flex-col h-full bg-white dark:bg-dark-900 overflow-hidden -m-6">
                     {/* Filter Sidebar */}
                     <div className="p-6 border-b border-gray-100 dark:border-dark-800 bg-gray-50/10 dark:bg-dark-800/20">
-                        <div className="flex items-center gap-3 mb-6">
-                            <div className="p-2.5 bg-primary/10 text-primary rounded-xl">
-                                <LifeBuoy className="w-5 h-5" />
-                            </div>
-                            <div>
-                                <h3 className="text-sm font-black text-gray-900 dark:text-gray-100 tracking-tight">مركز المساعدة</h3>
-                                <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mt-0.5">تصفية التذاكر</p>
-                            </div>
-                        </div>
 
                         <nav className="space-y-1">
                             {[
@@ -319,19 +310,13 @@ const SupportMessages = () => {
                                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                                         <div className="lg:col-span-8 space-y-8">
                                             {/* Subject Field */}
-                                            <div className="space-y-2 group">
-                                                <label className="text-xs font-black text-gray-400 uppercase tracking-widest px-2 group-focus-within:text-primary transition-colors">موضوع التذكرة</label>
-                                                <div className="relative">
-                                                    <input
-                                                        type="text"
-                                                        name="subject"
-                                                        required
-                                                        placeholder="لدي مشكلة في..."
-                                                        className="w-full h-16 px-6 bg-gray-50 dark:bg-dark-950/50 border-2 border-transparent hover:bg-gray-100 focus:bg-white focus:border-primary/20 focus:ring-4 focus:ring-primary/5 rounded-3xl font-bold text-lg outline-none transition-all placeholder:text-gray-300 text-right"
-                                                    />
-                                                    <Tag className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-300 group-focus-within:text-primary transition-colors" />
-                                                </div>
-                                            </div>
+                                            <InputField
+                                                label="موضوع التذكرة"
+                                                name="subject"
+                                                required
+                                                placeholder="لدي مشكلة في..."
+                                                icon={Tag}
+                                            />
 
                                             {/* Priority Selection - Visual Cards */}
                                             <div className="space-y-3">
@@ -361,21 +346,14 @@ const SupportMessages = () => {
                                                 </div>
                                             </div>
 
-                                            {/* Message Field */}
-                                            <div className="space-y-2 group flex-1">
-                                                <label className="text-xs font-black text-gray-400 uppercase tracking-widest px-2 group-focus-within:text-primary transition-colors">تفاصيل المشكلة</label>
-                                                <div className="relative h-full min-h-[200px]">
-                                                    <textarea
-                                                        name="message"
-                                                        required
-                                                        placeholder="يرجى وصف المشكلة بالتفصيل..."
-                                                        className="w-full h-full min-h-[200px] p-6 bg-gray-50 dark:bg-dark-950 border-2 border-transparent hover:bg-gray-100 dark:hover:bg-dark-900 focus:bg-white dark:focus:bg-dark-800 focus:border-primary/20 focus:ring-4 focus:ring-primary/5 rounded-3xl font-bold text-base outline-none transition-all placeholder:text-gray-300 dark:placeholder:text-gray-700 resize-none text-right text-gray-900 dark:text-white"
-                                                    />
-                                                    <div className="absolute left-6 bottom-6 pointer-events-none">
-                                                        <HelpCircle className="w-5 h-5 text-gray-300" />
-                                                    </div>
-                                                </div>
-                                            </div>
+                                            <TextareaField
+                                                label="تفاصيل المشكلة"
+                                                name="message"
+                                                required
+                                                placeholder="يرجى وصف المشكلة بالتفصيل..."
+                                                icon={HelpCircle}
+                                                className="min-h-[200px]"
+                                            />
                                         </div>
 
                                         {/* Info Sidebar (Within Form) */}
@@ -546,18 +524,14 @@ const SupportMessages = () => {
                                 ) : (
                                     <div className="p-8 bg-white dark:bg-dark-900 border-t border-gray-100 dark:border-dark-800 shrink-0">
                                         <form onSubmit={handleSendMessage} className="flex gap-4">
-                                            <div className="flex-1 relative group">
-                                                <input
-                                                    type="text"
+                                            <div className="flex-1">
+                                                <InputField
+                                                    label=""
                                                     value={message}
                                                     onChange={(e) => setMessage(e.target.value)}
                                                     placeholder="اكتب رسالتك لمدير النظام هنا..."
-                                                    className="w-full bg-gray-50 dark:bg-dark-950 border-2 border-gray-100 dark:border-dark-800 rounded-2xl px-6 py-5 text-sm font-bold focus:ring-8 focus:ring-primary/5 focus:border-primary focus:bg-white dark:focus:bg-dark-800 outline-none transition-all duration-300 text-right text-gray-900 dark:text-white"
                                                     disabled={currentTicket?.status === 'closed' || replyMutation.isPending}
                                                 />
-                                                <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none opacity-20 group-focus-within:opacity-100 transition-opacity">
-                                                    <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-                                                </div>
                                             </div>
                                             <button
                                                 type="submit"

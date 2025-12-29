@@ -1,6 +1,6 @@
 ﻿import React, { useState, useEffect } from 'react';
 import AdminLayout from '@/features/superadmin/pages/adminlayout';
-import { Save, CreditCard, Wallet, Landmark, Globe, ToggleLeft, ToggleRight, ShieldCheck, Zap, Plus, X, Search, Calendar, DollarSign, User as UserIcon } from 'lucide-react';
+import { Save, CreditCard, Wallet, Landmark, Globe, ToggleLeft, ToggleRight, ShieldCheck, Zap, Plus, X, Search, Calendar, DollarSign, User as UserIcon, Key, Lock, Globe as GlobeIcon } from 'lucide-react';
 import { useSettings } from '@/shared/contexts/app-context';
 import { useToast } from '@/shared/ui/notifications/feedback-context';
 import { useAction } from '@/shared/contexts/action-context';
@@ -9,6 +9,9 @@ import { SettingsService } from '@/shared/services/settingsservice';
 import api from '@/shared/services/api';
 import { logger } from '@/shared/services/logger';
 import { RecordPaymentModal } from '@/features/superadmin/components/record-payment-modal';
+import InputField from '@/shared/ui/forms/input-field';
+import TextareaField from '@/shared/ui/forms/textarea-field';
+import SelectField from '@/shared/ui/forms/select-field';
 
 export default function PaymentManagement() {
     const { settings, updateSettings } = useSettings();
@@ -64,8 +67,8 @@ export default function PaymentManagement() {
 
     return (
         <AdminLayout title="إدارة طرق الدفع والتكامل" noPadding={true}>
-            <div className="h-full w-full bg-white dark:bg-dark-950 p-6 lg:p-12 animate-in fade-in duration-500 overflow-y-auto no-scrollbar pb-20">
-                <div className="max-w-7xl mx-auto space-y-12 w-full">
+            <div className="h-full w-full bg-white dark:bg-dark-950 p-10 animate-in fade-in duration-500 overflow-y-auto no-scrollbar pb-20">
+                <div className="space-y-12 w-full">
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-gray-100 dark:border-dark-800 pb-8">
                         <div className="flex items-center gap-6 group">
                             <div className="p-4 bg-emerald-50 dark:bg-emerald-900/10 rounded-[2rem] text-emerald-600 shadow-inner group-hover:scale-110 transition-transform">
@@ -117,26 +120,23 @@ export default function PaymentManagement() {
                         </div>
 
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-                            <div className="space-y-3">
-                                <label className="block text-[11px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest px-1">Stripe Publishable Key</label>
-                                <input
-                                    type="text"
-                                    value={formData.stripe_key}
-                                    onChange={e => setFormData({ ...formData, stripe_key: e.target.value })}
-                                    placeholder="pk_test_..."
-                                    className="input-field ltr text-lg"
-                                />
-                            </div>
-                            <div className="space-y-3">
-                                <label className="block text-[11px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest px-1">Stripe Secret Key</label>
-                                <input
-                                    type="password"
-                                    value={formData.stripe_secret}
-                                    onChange={e => setFormData({ ...formData, stripe_secret: e.target.value })}
-                                    placeholder="sk_test_..."
-                                    className="input-field ltr text-lg"
-                                />
-                            </div>
+                            <InputField
+                                label="Stripe Publishable Key"
+                                value={formData.stripe_key}
+                                onChange={e => setFormData({ ...formData, stripe_key: e.target.value })}
+                                placeholder="pk_test_..."
+                                icon={Key}
+                                className="ltr"
+                            />
+                            <InputField
+                                type="password"
+                                label="Stripe Secret Key"
+                                value={formData.stripe_secret}
+                                onChange={e => setFormData({ ...formData, stripe_secret: e.target.value })}
+                                placeholder="sk_test_..."
+                                icon={Lock}
+                                className="ltr"
+                            />
                         </div>
                     </div>
 
@@ -162,26 +162,23 @@ export default function PaymentManagement() {
                         </div>
 
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-                            <div className="space-y-3">
-                                <label className="block text-[11px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest px-1">PayPal Client ID</label>
-                                <input
-                                    type="text"
-                                    value={formData.paypal_client_id}
-                                    onChange={e => setFormData({ ...formData, paypal_client_id: e.target.value })}
-                                    placeholder="Client ID"
-                                    className="input-field ltr text-lg"
-                                />
-                            </div>
-                            <div className="space-y-3">
-                                <label className="block text-[11px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest px-1">PayPal Secret Key</label>
-                                <input
-                                    type="password"
-                                    value={formData.paypal_secret}
-                                    onChange={e => setFormData({ ...formData, paypal_secret: e.target.value })}
-                                    placeholder="Secret Key"
-                                    className="input-field ltr text-lg"
-                                />
-                            </div>
+                            <InputField
+                                label="PayPal Client ID"
+                                value={formData.paypal_client_id}
+                                onChange={e => setFormData({ ...formData, paypal_client_id: e.target.value })}
+                                placeholder="Client ID"
+                                icon={GlobeIcon}
+                                className="ltr"
+                            />
+                            <InputField
+                                type="password"
+                                label="PayPal Secret Key"
+                                value={formData.paypal_secret}
+                                onChange={e => setFormData({ ...formData, paypal_secret: e.target.value })}
+                                placeholder="Secret Key"
+                                icon={Lock}
+                                className="ltr"
+                            />
                         </div>
                     </div>
 
@@ -207,37 +204,32 @@ export default function PaymentManagement() {
                         </div>
 
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-                            <div className="space-y-3">
-                                <label className="block text-[11px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest px-1">API Key</label>
-                                <input
-                                    type="text"
-                                    value={formData.dodopayments_api_key}
-                                    onChange={e => setFormData({ ...formData, dodopayments_api_key: e.target.value })}
-                                    placeholder="Dodo API Key"
-                                    className="input-field ltr text-lg"
-                                />
-                            </div>
-                            <div className="space-y-3">
-                                <label className="block text-[11px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest px-1">Webhook Secret</label>
-                                <input
-                                    type="text"
-                                    value={formData.dodopayments_webhook_secret}
-                                    onChange={e => setFormData({ ...formData, dodopayments_webhook_secret: e.target.value })}
-                                    placeholder="Webhook Secret"
-                                    className="input-field ltr text-lg"
-                                />
-                            </div>
-                            <div className="space-y-3">
-                                <label className="block text-[11px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest px-1">بيئة الدفع</label>
-                                <select
-                                    value={formData.dodopayments_mode}
-                                    onChange={e => setFormData({ ...formData, dodopayments_mode: e.target.value as 'test' | 'live' })}
-                                    className="select-field text-lg"
-                                >
-                                    <option value="test">بيئة التجربة (Test)</option>
-                                    <option value="live">البيئة الحية (Live)</option>
-                                </select>
-                            </div>
+                            <InputField
+                                label="API Key"
+                                value={formData.dodopayments_api_key}
+                                onChange={e => setFormData({ ...formData, dodopayments_api_key: e.target.value })}
+                                placeholder="Dodo API Key"
+                                icon={Key}
+                                className="ltr"
+                            />
+                            <InputField
+                                label="Webhook Secret"
+                                value={formData.dodopayments_webhook_secret}
+                                onChange={e => setFormData({ ...formData, dodopayments_webhook_secret: e.target.value })}
+                                placeholder="Webhook Secret"
+                                icon={Lock}
+                                className="ltr"
+                            />
+                            <SelectField
+                                label="بيئة الدفع"
+                                value={formData.dodopayments_mode}
+                                onChange={e => setFormData({ ...formData, dodopayments_mode: e.target.value as 'test' | 'live' })}
+                                icon={Zap}
+                                options={[
+                                    { value: 'test', label: 'بيئة التجربة (Test)' },
+                                    { value: 'live', label: 'البيئة الحية (Live)' }
+                                ]}
+                            />
                         </div>
                     </div>
 
@@ -262,15 +254,14 @@ export default function PaymentManagement() {
                             </button>
                         </div>
 
-                        <div className="space-y-3">
-                            <label className="block text-[11px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest px-1">تفاصيل الحسابات البنكية</label>
-                            <textarea
-                                value={formData.bank_transfer_details}
-                                onChange={e => setFormData({ ...formData, bank_transfer_details: e.target.value })}
-                                placeholder="اكتب تفاصيل البنك، رقم الحساب، و الـ IBAN..."
-                                className="textarea-field h-56 text-lg"
-                            />
-                        </div>
+                        <TextareaField
+                            label="تفاصيل الحسابات البنكية"
+                            value={formData.bank_transfer_details}
+                            onChange={e => setFormData({ ...formData, bank_transfer_details: e.target.value })}
+                            placeholder="اكتب تفاصيل البنك، رقم الحساب، و الـ IBAN..."
+                            icon={Landmark}
+                            className="min-h-[224px]"
+                        />
                     </div>
 
                 </div>

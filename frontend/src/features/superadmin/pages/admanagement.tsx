@@ -55,8 +55,8 @@ export default function AdManagement() {
     }, [saving, adsData]);
 
     return (
-        <AdminLayout title="إدارة الإعلانات">
-            <div className="h-full flex flex-col p-6 space-y-12 animate-in fade-in duration-700">
+        <AdminLayout title="إدارة الإعلانات" noPadding={true}>
+            <div className="h-full flex flex-col animate-in fade-in duration-700">
 
                 {/* 1. Ads Table at the top */}
                 <div className="flex-1 flex flex-col">
@@ -64,68 +64,70 @@ export default function AdManagement() {
                 </div>
 
                 {/* 2. AdBlock Detection Settings at the bottom */}
-                <div className="premium-card p-12 transition-all hover:shadow-2xl group/card border-t border-gray-100 dark:border-white/5">
-                    <div className="flex items-center gap-6 mb-12 border-b border-gray-50 dark:border-white/5 pb-8">
-                        <div className="p-4 rounded-3xl bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 group-hover/card:scale-110 transition-transform duration-500">
-                            <Megaphone className="w-10 h-10" />
-                        </div>
-                        <div>
-                            <h3 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight leading-none">{TEXTS_ADMIN.SETTINGS.ADBLOCK_DETECTION}</h3>
-                            <p className="text-gray-400 dark:text-gray-500 text-base font-medium mt-2">{TEXTS_ADMIN.SETTINGS.ADBLOCK_DESC}</p>
-                        </div>
-                    </div>
-
-                    <div className="flex items-center justify-between p-10 bg-white dark:bg-dark-800/40 rounded-[2.5rem] border border-gray-100 dark:border-white/5 shadow-sm hover:shadow-md transition-all duration-500">
-                        <div className="space-y-4">
-                            <div className="flex items-center gap-3">
-                                <label className="text-xl font-bold text-gray-900 dark:text-white">
-                                    {TEXTS_ADMIN.SETTINGS.ADBLOCK_ENABLED}
-                                </label>
-                                <span className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] uppercase tracking-tighter font-black transition-all duration-500 ${adsData.adblock_enabled ? 'bg-green-500/10 text-green-600 dark:text-green-400' : 'bg-gray-100 dark:bg-dark-700 text-gray-500'}`}>
-                                    <span className={`w-1.5 h-1.5 rounded-full ${adsData.adblock_enabled ? 'bg-green-500 animate-pulse' : 'bg-gray-400'}`} />
-                                    {adsData.adblock_enabled ? 'مفعل وقيد التشغيل' : 'معطل حالياً'}
-                                </span>
+                <div className="p-6 md:p-10 mb-10">
+                    <div className="premium-card p-12 transition-all hover:shadow-2xl group/card border border-gray-100 dark:border-white/5">
+                        <div className="flex items-center gap-6 mb-12 border-b border-gray-50 dark:border-white/5 pb-8">
+                            <div className="p-4 rounded-3xl bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 group-hover/card:scale-110 transition-transform duration-500">
+                                <Megaphone className="w-10 h-10" />
                             </div>
-                            <p className="text-sm font-medium text-gray-500 dark:text-gray-400 max-w-xl leading-relaxed">
-                                تفعيل خاصية الكشف الإلزامي تمنع المستخدمين من الوصول للمحتوى إلا بعد تعطيل مانع الإعلانات، مما يضمن استمرارية دعم المنصة وزيادة عوائد الإعلانات.
-                            </p>
+                            <div>
+                                <h3 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight leading-none">{TEXTS_ADMIN.SETTINGS.ADBLOCK_DETECTION}</h3>
+                                <p className="text-gray-400 dark:text-gray-500 text-base font-medium mt-2">{TEXTS_ADMIN.SETTINGS.ADBLOCK_DESC}</p>
+                            </div>
                         </div>
 
-                        <div className="flex items-center shrink-0">
-                            <button
-                                type="button"
-                                disabled={saving}
-                                onClick={async () => {
-                                    const newValue = !adsData.adblock_enabled;
-                                    setAdsData({ ...adsData, adblock_enabled: newValue });
-                                    setSaving(true);
-                                    try {
-                                        await AdsService.toggleAdBlock(newValue);
-                                        await updateSettings({}); // Refresh global state
-                                        showSuccess("تم التحديث تلقائياً بنجاح");
-                                    } catch (error) {
-                                        setAdsData({ ...adsData, adblock_enabled: !newValue }); // Rollback
-                                        showError("فشل التحديث التلقائي");
-                                    } finally {
-                                        setSaving(false);
-                                    }
-                                }}
-                                className={`flex items-center gap-3 px-8 py-4 rounded-2xl font-black text-sm transition-all duration-500 shadow-xl group hover:scale-[1.02] active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed ${adsData.adblock_enabled
-                                    ? 'bg-orange-500 text-white hover:bg-orange-600 shadow-orange-500/30'
-                                    : 'bg-white dark:bg-dark-700 text-gray-900 dark:text-white border border-gray-200 dark:border-white/10 hover:bg-gray-50 dark:hover:bg-dark-600 shadow-gray-200/20'
-                                    }`}
-                            >
-                                {saving ? (
-                                    <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                                ) : (
-                                    <Shield className={`w-5 h-5 transition-transform duration-500 group-hover:rotate-12 ${adsData.adblock_enabled ? 'text-white' : 'text-primary'}`} />
-                                )}
-                                {adsData.adblock_enabled ? (
-                                    <span>إيقاف التشغيل الفوري</span>
-                                ) : (
-                                    <span>تفعيل الكاشف (حفظ تلقائي)</span>
-                                )}
-                            </button>
+                        <div className="flex items-center justify-between p-10 bg-white dark:bg-dark-800/40 rounded-[2.5rem] border border-gray-100 dark:border-white/5 shadow-sm hover:shadow-md transition-all duration-500">
+                            <div className="space-y-4">
+                                <div className="flex items-center gap-3">
+                                    <label className="text-xl font-bold text-gray-900 dark:text-white">
+                                        {TEXTS_ADMIN.SETTINGS.ADBLOCK_ENABLED}
+                                    </label>
+                                    <span className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] uppercase tracking-tighter font-black transition-all duration-500 ${adsData.adblock_enabled ? 'bg-green-500/10 text-green-600 dark:text-green-400' : 'bg-gray-100 dark:bg-dark-700 text-gray-500'}`}>
+                                        <span className={`w-1.5 h-1.5 rounded-full ${adsData.adblock_enabled ? 'bg-green-500 animate-pulse' : 'bg-gray-400'}`} />
+                                        {adsData.adblock_enabled ? 'مفعل وقيد التشغيل' : 'معطل حالياً'}
+                                    </span>
+                                </div>
+                                <p className="text-sm font-medium text-gray-500 dark:text-gray-400 max-w-xl leading-relaxed">
+                                    تفعيل خاصية الكشف الإلزامي تمنع المستخدمين من الوصول للمحتوى إلا بعد تعطيل مانع الإعلانات، مما يضمن استمرارية دعم المنصة وزيادة عوائد الإعلانات.
+                                </p>
+                            </div>
+
+                            <div className="flex items-center shrink-0">
+                                <button
+                                    type="button"
+                                    disabled={saving}
+                                    onClick={async () => {
+                                        const newValue = !adsData.adblock_enabled;
+                                        setAdsData({ ...adsData, adblock_enabled: newValue });
+                                        setSaving(true);
+                                        try {
+                                            await AdsService.toggleAdBlock(newValue);
+                                            await updateSettings({}); // Refresh global state
+                                            showSuccess("تم التحديث تلقائياً بنجاح");
+                                        } catch (error) {
+                                            setAdsData({ ...adsData, adblock_enabled: !newValue }); // Rollback
+                                            showError("فشل التحديث التلقائي");
+                                        } finally {
+                                            setSaving(false);
+                                        }
+                                    }}
+                                    className={`flex items-center gap-3 px-8 py-4 rounded-2xl font-black text-sm transition-all duration-500 shadow-xl group hover:scale-[1.02] active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed ${adsData.adblock_enabled
+                                        ? 'bg-orange-500 text-white hover:bg-orange-600 shadow-orange-500/30'
+                                        : 'bg-white dark:bg-dark-700 text-gray-900 dark:text-white border border-gray-200 dark:border-white/10 hover:bg-gray-50 dark:hover:bg-dark-600 shadow-gray-200/20'
+                                        }`}
+                                >
+                                    {saving ? (
+                                        <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                                    ) : (
+                                        <Shield className={`w-5 h-5 transition-transform duration-500 group-hover:rotate-12 ${adsData.adblock_enabled ? 'text-white' : 'text-primary'}`} />
+                                    )}
+                                    {adsData.adblock_enabled ? (
+                                        <span>إيقاف التشغيل الفوري</span>
+                                    ) : (
+                                        <span>تفعيل الكاشف (حفظ تلقائي)</span>
+                                    )}
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>

@@ -3,8 +3,9 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/shared/services/api';
 import AdminLayout from './adminlayout';
 import { formatDate } from '@/shared/utils/helpers';
-import { MessageSquare, Send, CheckCircle, Clock, Info, Trash2, X, ChevronLeft, AlertCircle, Archive, LifeBuoy, History, Plus, Shield } from 'lucide-react';
+import { MessageSquare, Send, CheckCircle, Clock, Info, Trash2, X, ChevronLeft, AlertCircle, Archive, LifeBuoy, History, Plus, Shield, Link } from 'lucide-react';
 import { useFeedback } from '@/shared/ui/notifications/feedback-context';
+import InputField from '@/shared/ui/forms/input-field';
 
 const SupportTickets = () => {
     const queryClient = useQueryClient();
@@ -266,15 +267,6 @@ const SupportTickets = () => {
                             </div>
                         ) : (
                             <div className="p-6 border-b border-gray-100 dark:border-dark-800 bg-gray-50/10 dark:bg-dark-800/20">
-                                <div className="flex items-center gap-3 mb-6">
-                                    <div className="p-2.5 bg-gray-900 dark:bg-dark-950 text-white rounded-xl">
-                                        <Shield className="w-5 h-5" />
-                                    </div>
-                                    <div>
-                                        <h3 className="text-sm font-black text-gray-900 dark:text-gray-100 tracking-tight">إدارة الدعم</h3>
-                                        <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mt-0.5">لوحة التحكم</p>
-                                    </div>
-                                </div>
 
                                 <nav className="space-y-1">
                                     {[
@@ -448,18 +440,14 @@ const SupportTickets = () => {
                         ) : (
                             <div className="p-8 bg-white border-t shrink-0">
                                 <form onSubmit={handleSendMessage} className="flex gap-4">
-                                    <div className="flex-1 relative group">
-                                        <input
-                                            type="text"
+                                    <div className="flex-1">
+                                        <InputField
+                                            label=""
                                             value={chatMessage}
                                             onChange={(e) => setChatMessage(e.target.value)}
                                             placeholder="اكتب رد النظام هنا..."
-                                            className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-6 py-5 text-sm font-bold focus:ring-8 focus:ring-primary/5 focus:border-primary focus:bg-white outline-none transition-all duration-300"
                                             disabled={selectedTicket?.status === 'closed' || replyMutation.isPending}
                                         />
-                                        <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none opacity-20 group-focus-within:opacity-100 transition-opacity">
-                                            <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-                                        </div>
                                     </div>
                                     <button
                                         type="submit"

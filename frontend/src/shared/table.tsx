@@ -174,43 +174,41 @@ export default function Table<T>({
 
     return (
         <div className="space-y-4">
-            <div className="standard-table-container w-full overflow-hidden rounded-none transition-all duration-500">
-                <div className="overflow-x-auto no-scrollbar relative">
-                    <table className="standard-table w-full text-right border-collapse text-sm">
-                        <TableHeader<T>
-                            columns={columns}
-                            currentSort={currentSort}
-                            onSortChange={onSortChange}
-                            sticky={true}
-                        />
-                        <tbody className="divide-y divide-gray-100/80 dark:divide-white/5">
-                            {data.map((item, rowIdx) => (
-                                <tr
-                                    key={rowIdx}
-                                    className="group hover:bg-primary/[0.02] dark:hover:bg-primary/[0.05] transition-all duration-300"
-                                >
-                                    {columns.map((column, colIdx) => (
-                                        <td
-                                            key={colIdx}
-                                            data-label={column.header}
-                                            className={`px-6 py-5 border-l border-gray-100/50 dark:border-white/5 last:border-l-0 transition-colors duration-300 group-hover:border-primary/10 ${column.className || ''}`}
-                                        >
-                                            <div className="relative z-10">
-                                                {typeof column.accessor === 'function'
-                                                    ? column.accessor(item)
-                                                    : (item[column.accessor as keyof T] as React.ReactNode)}
-                                            </div>
-                                        </td>
-                                    ))}
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
+            <div className="standard-table-container w-full rounded-none transition-all duration-500">
+                <table className="standard-table w-full text-right border-collapse text-sm">
+                    <TableHeader<T>
+                        columns={columns}
+                        currentSort={currentSort}
+                        onSortChange={onSortChange}
+                        sticky={true}
+                    />
+                    <tbody className="divide-y divide-gray-100/80 dark:divide-white/5">
+                        {data.map((item, rowIdx) => (
+                            <tr
+                                key={rowIdx}
+                                className="group hover:bg-primary/[0.02] dark:hover:bg-primary/[0.05] transition-all duration-300"
+                            >
+                                {columns.map((column, colIdx) => (
+                                    <td
+                                        key={colIdx}
+                                        data-label={column.header}
+                                        className={`px-6 py-5 border-l border-gray-100/50 dark:border-white/5 last:border-l-0 transition-colors duration-300 group-hover:border-primary/10 ${column.className || ''}`}
+                                    >
+                                        <div className="relative z-10">
+                                            {typeof column.accessor === 'function'
+                                                ? column.accessor(item)
+                                                : (item[column.accessor as keyof T] as React.ReactNode)}
+                                        </div>
+                                    </td>
+                                ))}
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
 
-                    {/* Subtle Scroll Indicator Shadow */}
-                    <div className="absolute top-0 bottom-0 left-0 w-8 bg-gradient-to-r from-white dark:from-dark-900 to-transparent pointer-events-none opacity-0 lg:group-hover:opacity-100 transition-opacity" />
-                    <div className="absolute top-0 bottom-0 right-0 w-8 bg-gradient-to-l from-white dark:from-dark-900 to-transparent pointer-events-none opacity-0 lg:group-hover:opacity-100 transition-opacity" />
-                </div>
+                {/* Subtle Scroll Indicator Shadow */}
+                <div className="absolute top-0 bottom-0 left-0 w-8 bg-gradient-to-r from-white dark:from-dark-900 to-transparent pointer-events-none opacity-0 lg:group-hover:opacity-100 transition-opacity" />
+                <div className="absolute top-0 bottom-0 right-0 w-8 bg-gradient-to-l from-white dark:from-dark-900 to-transparent pointer-events-none opacity-0 lg:group-hover:opacity-100 transition-opacity" />
 
                 {/* Hidden Printable Version */}
                 <div style={{ display: 'none' }}>
