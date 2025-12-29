@@ -68,7 +68,7 @@ export default function Table<T>({
     // Prepare print columns
     const printColumns = React.useMemo(() => {
         return columns
-            .filter(col => col.header) // Keep all named columns
+            .filter(col => col.header && !col.hideInExport) // Keep named columns that are not hidden
             .map(col => ({
                 key: String(col.header),
                 label: col.header,
@@ -82,14 +82,13 @@ export default function Table<T>({
         return data.map(item => {
             const row: Record<string, any> = {};
             columns.forEach(col => {
+                if (col.hideInExport) return;
                 const key = String(col.header);
                 if (col.exportValue) {
                     row[key] = col.exportValue(item);
                 } else if (typeof col.accessor !== 'function') {
                     row[key] = String(item[col.accessor as keyof T] || '');
                 } else {
-                    // If it's a function and no export value, check common fields or return empty
-                    // We try to find if the accessor name contains a hint but we can't reliably
                     row[key] = '-';
                 }
             });
@@ -117,7 +116,7 @@ export default function Table<T>({
 
             // Prepare columns for export
             const exportableColumns = columns
-                .filter(col => col.header) // Include all columns with a header
+                .filter(col => col.header && !col.hideInExport) // Include columns with header not hidden
                 .map(col => ({
                     header: col.header,
                     accessor: (item: T) => {

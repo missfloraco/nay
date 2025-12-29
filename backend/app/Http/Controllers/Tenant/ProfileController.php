@@ -66,7 +66,7 @@ class ProfileController extends Controller
             $tenant->save();
             $bonusMessage = 'تهانينا! لقد حصلت على 7 أيام إضافية للفترة التجريبية لإكمال بيانات ملفك الشخصي. 🎉';
         } elseif ($tenant->trial_bonus_applied && (empty($tenant->whatsapp) || empty($tenant->avatar_url))) {
-            // Revoke Bonus (optional, but keep it for consistency if they remove required data)
+            // Revoke Bonus
             $tenant->trial_bonus_applied = false;
             $currentExpiry = $tenant->trial_expires_at ? \Carbon\Carbon::parse($tenant->trial_expires_at) : now();
             $tenant->trial_expires_at = $currentExpiry->subDays(7);

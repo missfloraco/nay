@@ -10,7 +10,7 @@ import { useAction } from '@/shared/contexts/action-context';
 import { UI_TEXT, TEXTS_ADMIN } from '@/shared/locales/texts';
 import { ViewButton } from '@/shared/ui/buttons/btn-crud';
 import Table from '@/shared/table';
-import { TenantStatusBadge } from '@/features/superadmin/components/tenantstatusbadge';
+import { TenantStatusBadge, STATUS_CONFIGS } from '@/features/superadmin/components/tenantstatusbadge';
 import { TenantDetailsSidebar } from '@/features/superadmin/components/tenant-details-sidebar';
 import { IdentityCell, DateCell, ActionCell } from '@/shared/table-cells';
 import InputField from '@/shared/ui/forms/input-field';
@@ -130,10 +130,35 @@ export default function TenantsList() {
     const getCountryName = (code?: string) => {
         if (!code) return '-';
         try {
-            return new Intl.DisplayNames(['ar'], { type: 'region' }).of(code);
+            const name = new Intl.DisplayNames(['ar'], { type: 'region' }).of(code);
+            return name ? name.split(' ')[0] : code;
         } catch (e) {
             return code;
         }
+    };
+
+    const getExpiryLabel = (tenant: Tenant) => {
+        const isTrial = !tenant.subscription_ends_at && tenant.trial_expires_at;
+        const date = tenant.subscription_ends_at || tenant.trial_expires_at;
+
+        if (!date) return undefined;
+
+        const expirationDate = new Date(date);
+        const now = new Date();
+        const diffTime = expirationDate.getTime() - now.getTime();
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+        if (diffDays < 0) return isTrial ? 'تجربة منتهية' : 'اشتراك منتهٍ';
+
+        const getDayLabel = (days: number) => {
+            if (days === 0) return 'اليوم';
+            if (days === 1) return 'ينتهي غداً';
+            if (days === 2) return 'بقي يومان';
+            if (days >= 3 && days <= 10) return `بقي ${days} أيام`;
+            return `بقي ${days} يوماً`;
+        };
+
+        return isTrial ? `تجربة (${getDayLabel(diffDays)})` : `نشط (${getDayLabel(diffDays)})`;
     };
 
     const handleNavigateToPayments = (tenant: Tenant) => {
@@ -193,7 +218,7 @@ export default function TenantsList() {
             accessor: (tenant: Tenant) => (
                 <TenantStatusBadge status={tenant.status} trialExpiresAt={tenant.trial_expires_at} />
             ),
-            exportValue: (tenant: Tenant) => tenant.status,
+            exportValue: (tenant: Tenant) => STATUS_CONFIGS[tenant.status]?.label || tenant.status,
             className: 'min-w-[100px]'
         },
 
@@ -212,8 +237,8 @@ export default function TenantsList() {
             accessor: (tenant: Tenant) => (
                 <DateCell
                     date={tenant.subscription_ends_at || tenant.trial_expires_at || ''}
-                    label={!tenant.subscription_ends_at && tenant.trial_expires_at ? 'فترة تجريبية' : undefined}
-                    isUrgent={!tenant.subscription_ends_at}
+                    label={getExpiryLabel(tenant)}
+                    isUrgent={!tenant.subscription_ends_at || (tenant.subscription_ends_at && new Date(tenant.subscription_ends_at).getTime() < new Date().getTime() + (7 * 24 * 60 * 60 * 1000))}
                 />
             ),
             exportValue: (tenant: Tenant) => formatDate(tenant.subscription_ends_at || tenant.trial_expires_at || ''),
@@ -233,7 +258,8 @@ export default function TenantsList() {
                     />
                 </ActionCell>
             ),
-            width: '10%'
+            width: '10%',
+            hideInExport: true
         }
     ], [getCountryName, setSelectedTenant]);
 

@@ -9,7 +9,7 @@ import { useTrialStatus } from '@/core/hooks/usetrialstatus';
 
 const Dashboard: React.FC = () => {
     const { t, settings } = useSettings();
-    const { isActive } = useTrialStatus();
+    const { isActive, isTrialActive } = useTrialStatus();
     const [isBannerDismissed, setIsBannerDismissed] = React.useState(false);
 
     React.useEffect(() => {
@@ -27,13 +27,11 @@ const Dashboard: React.FC = () => {
     return (
         <AppLayout title={t('dashboard.title', 'لوحة التحكم')}>
             <div className="animate-in fade-in duration-700 h-full flex flex-col space-y-10">
-                {/* Bonus Trial Banner - Ultra-Robust Premium Version */}
+                {/* Bonus Trial Banner - Gift Version */}
                 {settings?.currentUser?.tenant &&
                     !isActive &&
-                    !settings.currentUser.tenant.trial_bonus_applied &&
-                    (!settings.currentUser.tenant.whatsapp || !settings.currentUser.tenant.avatar_url) && (
+                    !settings.currentUser.tenant.trial_bonus_applied && (
                         <div className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-700 p-8 md:p-12 text-white shadow-2xl shadow-blue-500/20 animate-in fade-in slide-in-from-top-4 duration-1000 min-h-[300px] flex items-center">
-                            {/* Decorative Background Orbs */}
                             <div className="absolute top-0 right-0 -mr-20 -mt-20 w-80 h-80 bg-white/10 rounded-full blur-3xl animate-pulse"></div>
                             <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 bg-cyan-400/20 rounded-full blur-3xl animate-pulse delay-700"></div>
 
@@ -73,10 +71,9 @@ const Dashboard: React.FC = () => {
                         </div>
                     )}
 
-                {/* Active Subscription Banner - Premium Redesign */}
-                {settings?.currentUser?.tenant && isActive && !isBannerDismissed && (
+                {/* Active Subscription Banner - Welcome Version */}
+                {settings?.currentUser?.tenant && (isActive || (isTrialActive && settings.currentUser.tenant.trial_bonus_applied)) && !isBannerDismissed && (
                     <div className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-700 p-8 md:p-12 text-white shadow-2xl shadow-emerald-500/20 animate-in fade-in slide-in-from-top-4 duration-1000 min-h-[300px] flex items-center">
-                        {/* Dismiss Button */}
                         <button
                             onClick={dismissBanner}
                             className="absolute top-6 left-6 p-2 bg-white/10 hover:bg-white/20 rounded-full text-white/60 hover:text-white transition-all z-20 group"
@@ -84,7 +81,6 @@ const Dashboard: React.FC = () => {
                         >
                             <X className="w-6 h-6 group-hover:rotate-90 transition-transform duration-300" />
                         </button>
-                        {/* Decorative Background Orbs */}
                         <div className="absolute top-0 right-0 -mr-20 -mt-20 w-80 h-80 bg-white/10 rounded-full blur-3xl animate-pulse"></div>
                         <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 bg-emerald-400/20 rounded-full blur-3xl animate-pulse delay-700"></div>
 

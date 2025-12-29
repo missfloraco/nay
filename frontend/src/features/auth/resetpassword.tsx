@@ -146,9 +146,12 @@ export default function ResetPassword() {
                             value={formData.password}
                             onChange={e => setFormData({ ...formData, password: e.target.value })}
                             placeholder="••••••••"
-                            icon={Lock}
                             autoComplete="new-password"
+                            className="!pr-16 !pl-16"
                         />
+                        <div className="absolute right-6 top-[54px] text-gray-300 pointer-events-none z-10 transition-transform group-focus-within:scale-110 group-focus-within:text-primary">
+                            <Lock size={18} />
+                        </div>
                         <button
                             type="button"
                             onClick={() => setShowPassword(!showPassword)}
@@ -176,9 +179,12 @@ export default function ResetPassword() {
                             value={formData.confirmPassword}
                             onChange={e => setFormData({ ...formData, confirmPassword: e.target.value })}
                             placeholder="••••••••"
-                            icon={Lock}
                             autoComplete="new-password"
+                            className="!pr-16 !pl-16"
                         />
+                        <div className="absolute right-6 top-[54px] text-gray-300 pointer-events-none z-10 transition-transform group-focus-within:scale-110 group-focus-within:text-primary">
+                            <Lock size={18} />
+                        </div>
                         <button
                             type="button"
                             onClick={() => setShowConfirmPassword(!showConfirmPassword)}

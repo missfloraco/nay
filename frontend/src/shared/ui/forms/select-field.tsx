@@ -42,7 +42,7 @@ const SelectField = React.forwardRef<HTMLSelectElement, SelectFieldProps>(({
             <div className="relative">
                 {Icon && (
                     <div className={`
-                        absolute left-6 top-1/2 -translate-y-1/2 transition-all duration-500 z-10 pointer-events-none
+                        absolute right-6 top-1/2 -translate-y-1/2 transition-all duration-500 z-10 pointer-events-none
                         ${error ? 'text-red-400' : success ? 'text-emerald-400' : 'text-gray-300 group-focus-within:text-primary group-focus-within:scale-110'}
                     `}>
                         <Icon size={18} />
@@ -54,7 +54,7 @@ const SelectField = React.forwardRef<HTMLSelectElement, SelectFieldProps>(({
                     id={selectId}
                     className={`
                         select-field
-                        ${Icon ? 'pl-16' : ''} 
+                        ${Icon ? 'pr-16' : ''} 
                         ${error ? 'error' : success ? 'success' : ''} 
                         ${className}
                     `}
@@ -69,7 +69,7 @@ const SelectField = React.forwardRef<HTMLSelectElement, SelectFieldProps>(({
                     ))}
                 </select>
 
-                <div className="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400 group-focus-within:text-primary transition-colors">
+                <div className="absolute left-6 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400 group-focus-within:text-primary transition-colors">
                     <ChevronDown size={18} strokeWidth={3} />
                 </div>
             </div>

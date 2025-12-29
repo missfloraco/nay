@@ -205,13 +205,16 @@ export default function AuthScreen({ initialMode = 'login' }: { initialMode?: Au
                                     value={formData.password}
                                     onChange={e => setFormData({ ...formData, password: e.target.value })}
                                     placeholder={t(`AUTH.${mode.toUpperCase()}.PASSWORD_PLACEHOLDER`)}
-                                    icon={Lock}
                                     autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
+                                    className="!pr-16 !pl-16" // Space for both icons
                                 />
+                                <div className="absolute right-6 top-[54px] text-gray-300 pointer-events-none z-10 transition-transform group-focus-within:scale-110 group-focus-within:text-primary">
+                                    <Lock size={18} />
+                                </div>
                                 <button
                                     type="button"
                                     onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute left-6 top-[54px] text-gray-400 hover:text-primary transition-colors z-20"
+                                    className="absolute left-6 top-[54px] text-gray-400 hover:text-primary transition-colors z-20 h-5 w-5 flex items-center justify-center"
                                     title={showPassword ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور'}
                                 >
                                     {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}

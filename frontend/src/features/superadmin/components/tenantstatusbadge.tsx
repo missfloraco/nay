@@ -5,6 +5,34 @@ interface TenantStatusBadgeProps {
     trialExpiresAt?: string;
 }
 
+export const STATUS_CONFIGS = {
+    pending: {
+        icon: AlertTriangle,
+        label: 'قيد الانتظار',
+        className: 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700'
+    },
+    trial: {
+        icon: Clock,
+        label: 'تجربة',
+        className: 'bg-amber-100 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800'
+    },
+    active: {
+        icon: CheckCircle,
+        label: 'مفعّل',
+        className: 'bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-300 border-green-200 dark:border-green-800'
+    },
+    expired: {
+        icon: AlertTriangle,
+        label: 'منتهية',
+        className: 'bg-orange-100 dark:bg-orange-900/20 text-orange-700 dark:text-orange-300 border-orange-200 dark:border-orange-800'
+    },
+    disabled: {
+        icon: Ban,
+        label: 'معطّل',
+        className: 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700'
+    }
+};
+
 export function TenantStatusBadge({ status, trialExpiresAt }: TenantStatusBadgeProps) {
     const getDaysRemaining = () => {
         if (!trialExpiresAt) return 0;
@@ -15,46 +43,7 @@ export function TenantStatusBadge({ status, trialExpiresAt }: TenantStatusBadgeP
         return Math.max(0, diffDays);
     };
 
-    const getDayLabel = (days: number) => {
-        if (days === 1) return 'يوم واحد';
-        if (days === 2) return 'يومان';
-        if (days >= 3 && days <= 10) return `${days} أيام`;
-        return `${days} يوماً`;
-    };
-
-    const daysRemaining = status === 'trial' ? getDaysRemaining() : 0;
-
-    const configs = {
-        pending: {
-            icon: AlertTriangle,
-            label: 'قيد الانتظار',
-            className: 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700'
-        },
-        trial: {
-            icon: Clock,
-            label: `تجربة (${getDayLabel(daysRemaining)})`,
-            className: daysRemaining <= 3
-                ? 'bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-300 border-red-200 dark:border-red-800'
-                : 'bg-amber-100 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800'
-        },
-        active: {
-            icon: CheckCircle,
-            label: 'مفعّل',
-            className: 'bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-300 border-green-200 dark:border-green-800'
-        },
-        expired: {
-            icon: AlertTriangle,
-            label: 'تجربة منتهية (معلق)',
-            className: 'bg-orange-100 dark:bg-orange-900/20 text-orange-700 dark:text-orange-300 border-orange-200 dark:border-orange-800'
-        },
-        disabled: {
-            icon: Ban,
-            label: 'معطّل',
-            className: 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700'
-        }
-    };
-
-    const config = configs[status];
+    const config = STATUS_CONFIGS[status];
     const Icon = config.icon;
 
     return (
