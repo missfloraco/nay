@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { X, User as UserIcon, DollarSign, Calendar } from 'lucide-react';
+import { X, User as UserIcon, DollarSign, Calendar, MessageSquare, CreditCard } from 'lucide-react';
 import { useToast } from '@/shared/ui/notifications/feedback-context';
 import api from '@/shared/services/api';
 import { logger } from '@/shared/services/logger';
+import InputField from '@/shared/ui/forms/input-field';
+import SelectField from '@/shared/ui/forms/select-field';
+import TextareaField from '@/shared/ui/forms/textarea-field';
 
 interface RecordPaymentModalProps {
     onClose: () => void;
@@ -87,121 +90,105 @@ export const RecordPaymentModal = ({ onClose, onSuccess, initialTenantId }: Reco
                     </button>
                 </div>
 
-                <form onSubmit={handleSubmit} className="p-6 space-y-6">
+                <form onSubmit={handleSubmit} className="p-8 space-y-8 max-h-[85vh] overflow-y-auto no-scrollbar">
                     {/* Tenant Selection */}
-                    <div className="space-y-2">
-                        <label className="text-xs font-black text-gray-400 uppercase tracking-widest px-1">المستأجر</label>
-                        <div className="relative">
-                            <select
-                                value={formData.tenant_id}
-                                onChange={e => setFormData({ ...formData, tenant_id: e.target.value })}
-                                disabled={!!initialTenantId}
-                                className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-white/10 bg-gray-50/50 dark:bg-white/5 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all appearance-none font-bold"
-                            >
-                                <option value="">اختر المستأجر...</option>
-                                {tenants.map(t => (
-                                    <option key={t.id} value={t.id}>{t.name} ({t.domain})</option>
-                                ))}
-                            </select>
-                            <UserIcon className="absolute left-4 top-3.5 w-5 h-5 text-gray-400 pointer-events-none" />
-                        </div>
-                    </div>
+                    <SelectField
+                        label="المستأجر"
+                        value={formData.tenant_id}
+                        onChange={e => setFormData({ ...formData, tenant_id: e.target.value })}
+                        disabled={!!initialTenantId}
+                        icon={UserIcon}
+                        options={[
+                            { value: '', label: 'اختر المستأجر...' },
+                            ...tenants.map(t => ({ value: t.id, label: `${t.name} (${t.domain})` }))
+                        ]}
+                    />
 
                     {/* Amount */}
-                    <div className="space-y-2">
-                        <label className="text-xs font-black text-gray-400 uppercase tracking-widest px-1">المبلغ (ILS)</label>
-                        <div className="relative">
-                            <input
-                                type="number"
-                                min="0"
-                                value={formData.amount}
-                                onChange={e => setFormData({ ...formData, amount: e.target.value })}
-                                className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-white/10 bg-gray-50/50 dark:bg-white/5 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-bold ltr text-right"
-                                placeholder="0.00"
-                                required
-                            />
-                            <DollarSign className="absolute left-4 top-3.5 w-5 h-5 text-gray-400 pointer-events-none" />
-                        </div>
-                    </div>
+                    <InputField
+                        label="المبلغ (ILS)"
+                        type="number"
+                        min="0"
+                        value={formData.amount}
+                        onChange={e => setFormData({ ...formData, amount: e.target.value })}
+                        placeholder="0.00"
+                        icon={DollarSign}
+                        className="ltr"
+                        required
+                    />
 
                     {/* Extension Mode Toggle */}
-                    <div className="grid grid-cols-2 gap-2 p-1 bg-gray-100 dark:bg-white/5 rounded-xl">
-                        <button
-                            type="button"
-                            onClick={() => setMode('duration')}
-                            className={`py-2 text-sm font-bold rounded-lg transition-all ${mode === 'duration' ? 'bg-white dark:bg-dark-800 shadow text-primary' : 'text-gray-500'}`}
-                        >
-                            مدة بالأشهر
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => setMode('date')}
-                            className={`py-2 text-sm font-bold rounded-lg transition-all ${mode === 'date' ? 'bg-white dark:bg-dark-800 shadow text-primary' : 'text-gray-500'}`}
-                        >
-                            تاريخ انتهاء محدد
-                        </button>
+                    <div className="space-y-3">
+                        <label className="text-xs font-black text-gray-400 uppercase tracking-widest px-1">طريقة احتساب الاشتراك</label>
+                        <div className="grid grid-cols-2 gap-2 p-1.5 bg-gray-100 dark:bg-white/5 rounded-2xl">
+                            <button
+                                type="button"
+                                onClick={() => setMode('duration')}
+                                className={`py-3 text-sm font-bold rounded-xl transition-all ${mode === 'duration' ? 'bg-white dark:bg-dark-800 shadow-sm text-primary' : 'text-gray-500'}`}
+                            >
+                                مدة بالأشهر
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setMode('date')}
+                                className={`py-3 text-sm font-bold rounded-xl transition-all ${mode === 'date' ? 'bg-white dark:bg-dark-800 shadow-sm text-primary' : 'text-gray-500'}`}
+                            >
+                                تاريخ انتهاء محدد
+                            </button>
+                        </div>
                     </div>
 
                     {/* Duration / Date Input */}
-                    <div className="space-y-2">
-                        {mode === 'duration' ? (
-                            <>
-                                <label className="text-xs font-black text-gray-400 uppercase tracking-widest px-1">المدة (أشهر)</label>
-                                <div className="relative">
-                                    <input
-                                        type="number"
-                                        min="1"
-                                        value={formData.duration}
-                                        onChange={e => setFormData({ ...formData, duration: e.target.value })}
-                                        className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-white/10 bg-gray-50/50 dark:bg-white/5 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-bold"
-                                        required
-                                    />
-                                    <Calendar className="absolute left-4 top-3.5 w-5 h-5 text-gray-400 pointer-events-none" />
-                                </div>
-                            </>
-                        ) : (
-                            <>
-                                <label className="text-xs font-black text-gray-400 uppercase tracking-widest px-1">تاريخ انتهاء الاشتراك الجديد</label>
-                                <div className="relative">
-                                    <input
-                                        type="date"
-                                        value={formData.subscription_end_date}
-                                        onChange={e => setFormData({ ...formData, subscription_end_date: e.target.value })}
-                                        className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-white/10 bg-gray-50/50 dark:bg-white/5 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-bold"
-                                        required
-                                    />
-                                </div>
-                            </>
-                        )}
-                    </div>
-
-                    {/* Notes (Added to prevent 500 error if backend validation failed before) */}
-                    <div className="space-y-2">
-                        <label className="text-xs font-black text-gray-400 uppercase tracking-widest px-1">ملاحظات (اختياري)</label>
-                        <textarea
-                            value={formData.notes}
-                            onChange={e => setFormData({ ...formData, notes: e.target.value })}
-                            className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-white/10 bg-gray-50/50 dark:bg-white/5 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-medium h-24 resize-none"
-                            placeholder="أي تفاصيل إضافية..."
+                    {mode === 'duration' ? (
+                        <InputField
+                            label="المدة (أشهر)"
+                            type="number"
+                            min="1"
+                            value={formData.duration}
+                            onChange={e => setFormData({ ...formData, duration: e.target.value })}
+                            icon={Calendar}
+                            required
                         />
-                    </div>
+                    ) : (
+                        <InputField
+                            label="تاريخ انتهاء الاشتراك الجديد"
+                            type="date"
+                            value={formData.subscription_end_date}
+                            onChange={e => setFormData({ ...formData, subscription_end_date: e.target.value })}
+                            icon={Calendar}
+                            required
+                        />
+                    )}
+
+                    {/* Notes */}
+                    <TextareaField
+                        label="ملاحظات (اختياري)"
+                        value={formData.notes}
+                        onChange={e => setFormData({ ...formData, notes: e.target.value })}
+                        placeholder="أي تفاصيل إضافية عن الدفعة..."
+                        icon={MessageSquare}
+                        className="min-h-[100px]"
+                    />
 
                     {/* Method */}
-                    <div className="space-y-2">
+                    <div className="space-y-3">
                         <label className="text-xs font-black text-gray-400 uppercase tracking-widest px-1">طريقة الدفع</label>
                         <div className="grid grid-cols-3 gap-3">
-                            {['cash', 'bank_transfer', 'check'].map(method => (
+                            {[
+                                { id: 'cash', label: 'نقد' },
+                                { id: 'bank_transfer', label: 'تحويل' },
+                                { id: 'check', label: 'شيك' }
+                            ].map(method => (
                                 <button
-                                    key={method}
+                                    key={method.id}
                                     type="button"
-                                    onClick={() => setFormData({ ...formData, payment_method: method })}
-                                    className={`px-3 py-2 rounded-lg text-sm font-bold border transition-all ${formData.payment_method === method
-                                        ? 'bg-primary/10 border-primary text-primary'
+                                    onClick={() => setFormData({ ...formData, payment_method: method.id })}
+                                    className={`px-3 py-3 rounded-xl text-sm font-bold border transition-all flex items-center justify-center gap-2 ${formData.payment_method === method.id
+                                        ? 'bg-primary/10 border-primary text-primary shadow-sm shadow-primary/5'
                                         : 'bg-transparent border-gray-200 dark:border-white/10 text-gray-500 hover:border-gray-300'}`}
                                 >
-                                    {method === 'cash' && 'نقد'}
-                                    {method === 'bank_transfer' && 'تحويل بنكي'}
-                                    {method === 'check' && 'شيك'}
+                                    <CreditCard className="w-4 h-4" />
+                                    {method.label}
                                 </button>
                             ))}
                         </div>
@@ -210,8 +197,9 @@ export const RecordPaymentModal = ({ onClose, onSuccess, initialTenantId }: Reco
                     <button
                         type="submit"
                         disabled={loading}
-                        className="w-full py-4 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-black shadow-lg shadow-emerald-500/20 transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2"
+                        className="w-full py-5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-2xl font-black shadow-xl shadow-emerald-500/20 transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-3 text-lg"
                     >
+                        {loading ? <div className="w-6 h-6 border-3 border-white border-t-transparent rounded-full animate-spin" /> : <DollarSign className="w-6 h-6" />}
                         {loading ? 'جاري التسجيل...' : 'تسجيل الدفعة وتمديد الاشتراك'}
                     </button>
                 </form>

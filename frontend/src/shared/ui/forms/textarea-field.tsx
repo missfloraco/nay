@@ -5,36 +5,80 @@ interface TextareaFieldProps extends React.TextareaHTMLAttributes<HTMLTextAreaEl
     label: string;
     icon?: LucideIcon;
     error?: string;
+    success?: boolean;
+    hint?: string;
 }
 
-const TextareaField: React.FC<TextareaFieldProps> = ({
+const TextareaField = React.forwardRef<HTMLTextAreaElement, TextareaFieldProps>(({
     label,
     icon: Icon,
     error,
+    success,
+    hint,
     className = '',
+    id,
     ...props
-}) => {
+}, ref) => {
+    const textareaId = id || label.replace(/\s+/g, '-').toLowerCase();
+
     return (
-        <div className="space-y-3 group">
-            {label && (
-                <label className="block text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest px-1 group-focus-within:text-primary transition-colors">
+        <div className="space-y-2.5 group w-full">
+            <div className="flex justify-between items-end px-1">
+                <label
+                    htmlFor={textareaId}
+                    className="form-label group-focus-within:text-primary"
+                >
                     {label}
                 </label>
-            )}
+                {success && !error && (
+                    <span className="text-[9px] font-black text-emerald-500 uppercase tracking-widest animate-in fade-in zoom-in-95">
+                        تم الحفظ
+                    </span>
+                )}
+            </div>
+
             <div className="relative">
                 {Icon && (
-                    <div className="absolute left-6 top-6 text-gray-400 group-focus-within:text-primary transition-colors z-10 pointer-events-none">
+                    <div className={`
+                        absolute left-6 top-6 transition-all duration-500 z-10 pointer-events-none
+                        ${error ? 'text-red-400' : success ? 'text-emerald-400' : 'text-gray-300 group-focus-within:text-primary group-focus-within:scale-110'}
+                    `}>
                         <Icon size={18} />
                     </div>
                 )}
+
                 <textarea
-                    className={`w-full bg-slate-50/50 dark:bg-dark-900/40 border border-slate-200 dark:border-white/5 rounded-2xl px-6 py-5 text-[15px] font-bold outline-none transition-all duration-300 resize-none hover:bg-white dark:hover:bg-dark-800/60 focus:bg-white dark:focus:bg-dark-800 focus:border-primary/20 focus:ring-[8px] focus:ring-primary/5 focus:shadow-[0_10px_25px_rgba(var(--primary-rgb),0.05)] ${Icon ? 'pl-14' : ''} ${error ? 'border-red-500/50 focus:border-red-500/50 focus:ring-red-500/5' : ''} ${className}`}
+                    ref={ref}
+                    id={textareaId}
+                    className={`
+                        textarea-field
+                        ${Icon ? 'pl-16' : ''} 
+                        ${error ? 'error' : success ? 'success' : ''} 
+                        ${className}
+                    `}
+                    aria-invalid={!!error}
+                    aria-describedby={error ? `${textareaId}-error` : hint ? `${textareaId}-hint` : undefined}
                     {...props}
                 />
             </div>
-            {error && <p className="text-[10px] text-red-500/80 font-bold px-1">{error}</p>}
+
+            {error ? (
+                <p
+                    id={`${textareaId}-error`}
+                    className="text-[10px] text-red-500 font-black px-2 animate-in fade-in slide-in-from-top-1"
+                >
+                    {error}
+                </p>
+            ) : hint ? (
+                <p
+                    id={`${textareaId}-hint`}
+                    className="text-[10px] text-gray-400 font-bold px-2"
+                >
+                    {hint}
+                </p>
+            ) : null}
         </div>
     );
-};
+});
 
 export default TextareaField;

@@ -180,8 +180,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
 
       // Process Authenticated Settings (Admin only for now)
-      if (isAdminPath && results[1]?.status === 'fulfilled') {
-        authenticatedData = (results[1] as any).value || {};
+      if (isAdminPath) {
+        if (results[1]?.status === 'fulfilled') {
+          authenticatedData = (results[1] as any).value || {};
+        }
         resultIdx = 2;
       } else {
         resultIdx = 1;

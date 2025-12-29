@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import AdminLayout from '@/features/superadmin/pages/adminlayout';
-import { Save, Globe, Loader2, Image as ImageIcon } from 'lucide-react';
+import { Save, Globe, Loader2, Image as ImageIcon, Twitter, Facebook, Search, Hash, Link as LinkIcon, Eye } from 'lucide-react';
 import { useFeedback } from '@/shared/ui/notifications/feedback-context';
 import api from '@/shared/services/api';
 import { useSEO } from '@/shared/hooks/useSEO';
+import InputField from '@/shared/ui/forms/input-field';
+import SelectField from '@/shared/ui/forms/select-field';
+import TextareaField from '@/shared/ui/forms/textarea-field';
 
 export default function SeoManagement() {
     const { showSuccess, showError } = useFeedback();
@@ -89,159 +92,140 @@ export default function SeoManagement() {
                         </div>
                     </div>
 
-                    <form onSubmit={handleSubmit} className="space-y-12">
+                    <form onSubmit={handleSubmit} className="space-y-14">
                         {/* Basic SEO */}
-                        <div className="space-y-6">
-                            <h4 className="text-xl font-black text-gray-900 dark:text-white flex items-center gap-2">
-                                <span className="w-1.5 h-6 bg-blue-500 rounded-full"></span>
-                                معلومات SEO الأساسية
-                            </h4>
+                        <div className="space-y-8 animate-in slide-in-from-bottom-4 duration-500">
+                            <div className="flex items-center gap-3">
+                                <span className="w-2 h-8 bg-blue-500 rounded-full"></span>
+                                <h4 className="text-2xl font-black text-gray-900 dark:text-white">معلومات SEO الأساسية</h4>
+                            </div>
 
-                            <div className="space-y-3">
-                                <label className="text-xs font-black text-gray-400 uppercase tracking-widest mr-1">عنوان الصفحة (Title)</label>
-                                <input
-                                    type="text"
+                            <div className="grid grid-cols-1 gap-8">
+                                <InputField
+                                    label="عنوان الصفحة (Title)"
                                     value={formData.title}
                                     onChange={(e) => handleChange('title', e.target.value)}
-                                    className="input-field"
                                     placeholder="منصة SaaS - نظام إدارة ذكي"
                                     maxLength={60}
+                                    icon={Search}
+                                    hint={`الطول الموصى به: 50-60 حرف (${formData.title.length}/60)`}
                                 />
-                                <p className="text-xs text-gray-400 mr-1">الطول الموصى به: 50-60 حرف ({formData.title.length}/60)</p>
-                            </div>
 
-                            <div className="space-y-3">
-                                <label className="text-xs font-black text-gray-400 uppercase tracking-widest mr-1">الوصف (Description)</label>
-                                <textarea
+                                <TextareaField
+                                    label="الوصف (Description)"
                                     value={formData.description}
                                     onChange={(e) => handleChange('description', e.target.value)}
-                                    className="input-field min-h-[100px]"
                                     placeholder="منصتك الشاملة لإدارة وتطوير مشروعك بسهولة..."
                                     maxLength={160}
+                                    icon={Eye}
+                                    hint={`الطول الموصى به: 150-160 حرف (${formData.description.length}/160)`}
                                 />
-                                <p className="text-xs text-gray-400 mr-1">الطول الموصى به: 150-160 حرف ({formData.description.length}/160)</p>
-                            </div>
 
-                            <div className="space-y-3">
-                                <label className="text-xs font-black text-gray-400 uppercase tracking-widest mr-1">الكلمات المفتاحية (Keywords)</label>
-                                <input
-                                    type="text"
+                                <InputField
+                                    label="الكلمات المفتاحية (Keywords)"
                                     value={formData.keywords}
                                     onChange={(e) => handleChange('keywords', e.target.value)}
-                                    className="input-field"
                                     placeholder="نظام نقاط البيع, إدارة المبيعات, SaaS, POS"
+                                    icon={Hash}
+                                    hint="افصل الكلمات بفاصلة (,)"
                                 />
-                                <p className="text-xs text-gray-400 mr-1">افصل الكلمات بفاصلة (,)</p>
-                            </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div className="space-y-3">
-                                    <label className="text-xs font-black text-gray-400 uppercase tracking-widest mr-1">Canonical URL</label>
-                                    <input
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                    <InputField
+                                        label="Canonical URL"
                                         type="url"
                                         value={formData.canonical_url}
                                         onChange={(e) => handleChange('canonical_url', e.target.value)}
-                                        className="input-field text-left dir-ltr"
+                                        className="ltr"
                                         placeholder="https://example.com"
-                                        dir="ltr"
+                                        icon={LinkIcon}
                                     />
-                                </div>
 
-                                <div className="space-y-3">
-                                    <label className="text-xs font-black text-gray-400 uppercase tracking-widest mr-1">Robots</label>
-                                    <select
+                                    <SelectField
+                                        label="Robots"
                                         value={formData.robots}
                                         onChange={(e) => handleChange('robots', e.target.value)}
-                                        className="input-field"
-                                    >
-                                        <option value="index,follow">Index, Follow (موصى به)</option>
-                                        <option value="noindex,follow">No Index, Follow</option>
-                                        <option value="index,nofollow">Index, No Follow</option>
-                                        <option value="noindex,nofollow">No Index, No Follow</option>
-                                    </select>
+                                        icon={Globe}
+                                        options={[
+                                            { value: 'index,follow', label: 'Index, Follow (موصى به)' },
+                                            { value: 'noindex,follow', label: 'No Index, Follow' },
+                                            { value: 'index,nofollow', label: 'Index, No Follow' },
+                                            { value: 'noindex,nofollow', label: 'No Index, No Follow' }
+                                        ]}
+                                    />
                                 </div>
                             </div>
                         </div>
 
                         {/* Open Graph */}
-                        <div className="pt-8 border-t border-gray-50 dark:border-dark-800 space-y-6">
-                            <h4 className="text-xl font-black text-gray-900 dark:text-white flex items-center gap-2">
-                                <span className="w-1.5 h-6 bg-purple-500 rounded-full"></span>
-                                Open Graph (Facebook)
-                            </h4>
+                        <div className="pt-12 border-t border-gray-100 dark:border-dark-800 space-y-8 animate-in slide-in-from-bottom-4 duration-700">
+                            <div className="flex items-center gap-3">
+                                <span className="w-2 h-8 bg-purple-500 rounded-full"></span>
+                                <h4 className="text-2xl font-black text-gray-900 dark:text-white">Open Graph (Facebook)</h4>
+                            </div>
 
-                            <div className="space-y-3">
-                                <label className="text-xs font-black text-gray-400 uppercase tracking-widest mr-1">OG Title</label>
-                                <input
-                                    type="text"
+                            <div className="grid grid-cols-1 gap-8">
+                                <InputField
+                                    label="OG Title"
                                     value={formData.og_title}
                                     onChange={(e) => handleChange('og_title', e.target.value)}
-                                    className="input-field"
                                     placeholder="اتركه فارغاً لاستخدام العنوان الأساسي"
+                                    icon={Facebook}
                                 />
-                            </div>
 
-                            <div className="space-y-3">
-                                <label className="text-xs font-black text-gray-400 uppercase tracking-widest mr-1">OG Description</label>
-                                <textarea
+                                <TextareaField
+                                    label="OG Description"
                                     value={formData.og_description}
                                     onChange={(e) => handleChange('og_description', e.target.value)}
-                                    className="input-field min-h-[80px]"
                                     placeholder="اتركه فارغاً لاستخدام الوصف الأساسي"
+                                    icon={Facebook}
                                 />
-                            </div>
 
-                            <div className="space-y-3">
-                                <label className="text-xs font-black text-gray-400 uppercase tracking-widest mr-1">OG Image URL</label>
-                                <input
+                                <InputField
+                                    label="OG Image URL"
                                     type="url"
                                     value={formData.og_image}
                                     onChange={(e) => handleChange('og_image', e.target.value)}
-                                    className="input-field text-left dir-ltr"
+                                    className="ltr"
                                     placeholder="https://example.com/image.jpg"
-                                    dir="ltr"
+                                    icon={ImageIcon}
+                                    hint="الحجم الموصى به: 1200x630 بكسل"
                                 />
-                                <p className="text-xs text-gray-400 mr-1">الحجم الموصى به: 1200x630 بكسل</p>
                             </div>
                         </div>
 
                         {/* Twitter Card */}
-                        <div className="pt-8 border-t border-gray-50 dark:border-dark-800 space-y-6">
-                            <h4 className="text-xl font-black text-gray-900 dark:text-white flex items-center gap-2">
-                                <span className="w-1.5 h-6 bg-cyan-500 rounded-full"></span>
-                                Twitter Card
-                            </h4>
+                        <div className="pt-12 border-t border-gray-100 dark:border-dark-800 space-y-8 animate-in slide-in-from-bottom-4 duration-1000">
+                            <div className="flex items-center gap-3">
+                                <span className="w-2 h-8 bg-cyan-500 rounded-full"></span>
+                                <h4 className="text-2xl font-black text-gray-900 dark:text-white">Twitter Card</h4>
+                            </div>
 
-                            <div className="space-y-3">
-                                <label className="text-xs font-black text-gray-400 uppercase tracking-widest mr-1">Twitter Title</label>
-                                <input
-                                    type="text"
+                            <div className="grid grid-cols-1 gap-8">
+                                <InputField
+                                    label="Twitter Title"
                                     value={formData.twitter_title}
                                     onChange={(e) => handleChange('twitter_title', e.target.value)}
-                                    className="input-field"
                                     placeholder="اتركه فارغاً لاستخدام العنوان الأساسي"
+                                    icon={Twitter}
                                 />
-                            </div>
 
-                            <div className="space-y-3">
-                                <label className="text-xs font-black text-gray-400 uppercase tracking-widest mr-1">Twitter Description</label>
-                                <textarea
+                                <TextareaField
+                                    label="Twitter Description"
                                     value={formData.twitter_description}
                                     onChange={(e) => handleChange('twitter_description', e.target.value)}
-                                    className="input-field min-h-[80px]"
                                     placeholder="اتركه فارغاً لاستخدام الوصف الأساسي"
+                                    icon={Twitter}
                                 />
-                            </div>
 
-                            <div className="space-y-3">
-                                <label className="text-xs font-black text-gray-400 uppercase tracking-widest mr-1">Twitter Image URL</label>
-                                <input
+                                <InputField
+                                    label="Twitter Image URL"
                                     type="url"
                                     value={formData.twitter_image}
                                     onChange={(e) => handleChange('twitter_image', e.target.value)}
-                                    className="input-field text-left dir-ltr"
+                                    className="ltr"
                                     placeholder="https://example.com/image.jpg"
-                                    dir="ltr"
+                                    icon={ImageIcon}
                                 />
                             </div>
                         </div>
@@ -251,7 +235,7 @@ export default function SeoManagement() {
                             <button
                                 type="submit"
                                 disabled={updateMutation.isPending}
-                                className="w-full md:w-auto px-12 h-16 flex items-center justify-center gap-3 bg-primary hover:bg-primary-hover text-white rounded-[1.5rem] font-black shadow-2xl shadow-primary/30 transition-all active:scale-95 disabled:opacity-50 min-w-[240px] text-lg"
+                                className="w-full md:w-auto px-12 h-16 flex items-center justify-center gap-3 bg-primary hover:bg-primary/90 text-white rounded-[1.5rem] font-black shadow-2xl shadow-primary/30 transition-all active:scale-95 disabled:opacity-50 min-w-[240px] text-lg"
                             >
                                 {updateMutation.isPending ? <Loader2 className="w-6 h-6 animate-spin" /> : <Save className="w-6 h-6" />}
                                 <span>{updateMutation.isPending ? 'جاري الحفظ...' : 'حفظ التعديلات'}</span>

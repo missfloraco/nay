@@ -1,53 +1,96 @@
 import React from 'react';
-import { LucideIcon } from 'lucide-react';
+import { LucideIcon, ChevronDown } from 'lucide-react';
 
 interface SelectFieldProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
     label: string;
     icon?: LucideIcon;
     error?: string;
+    success?: boolean;
+    hint?: string;
     options: { value: string; label: string }[];
 }
 
-const SelectField: React.FC<SelectFieldProps> = ({
+const SelectField = React.forwardRef<HTMLSelectElement, SelectFieldProps>(({
     label,
     icon: Icon,
     error,
+    success,
+    hint,
     options,
     className = '',
+    id,
     ...props
-}) => {
+}, ref) => {
+    const selectId = id || label.replace(/\s+/g, '-').toLowerCase();
+
     return (
-        <div className="space-y-3 group">
-            {label && (
-                <label className="block text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest px-1 group-focus-within:text-primary transition-colors">
+        <div className="space-y-2.5 group w-full">
+            <div className="flex justify-between items-end px-1">
+                <label
+                    htmlFor={selectId}
+                    className="form-label group-focus-within:text-primary"
+                >
                     {label}
                 </label>
-            )}
+                {success && !error && (
+                    <span className="text-[9px] font-black text-emerald-500 uppercase tracking-widest animate-in fade-in zoom-in-95">
+                        تم الاختيار
+                    </span>
+                )}
+            </div>
+
             <div className="relative">
                 {Icon && (
-                    <div className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary transition-colors pointer-events-none z-10">
+                    <div className={`
+                        absolute left-6 top-1/2 -translate-y-1/2 transition-all duration-500 z-10 pointer-events-none
+                        ${error ? 'text-red-400' : success ? 'text-emerald-400' : 'text-gray-300 group-focus-within:text-primary group-focus-within:scale-110'}
+                    `}>
                         <Icon size={18} />
                     </div>
                 )}
+
                 <select
-                    className={`w-full bg-slate-50/50 dark:bg-dark-900/40 border border-slate-200 dark:border-white/5 rounded-2xl px-6 py-4.5 text-[15px] font-bold outline-none transition-all duration-300 appearance-none hover:bg-white dark:hover:bg-dark-800/60 focus:bg-white dark:focus:bg-dark-800 focus:border-primary/20 focus:ring-[8px] focus:ring-primary/5 focus:shadow-[0_10px_25px_rgba(var(--primary-rgb),0.05)] ${Icon ? 'pl-14' : ''} ${error ? 'border-red-500/50 focus:border-red-500/50 focus:ring-red-500/5' : ''} ${className}`}
+                    ref={ref}
+                    id={selectId}
+                    className={`
+                        select-field
+                        ${Icon ? 'pl-16' : ''} 
+                        ${error ? 'error' : success ? 'success' : ''} 
+                        ${className}
+                    `}
+                    aria-invalid={!!error}
+                    aria-describedby={error ? `${selectId}-error` : hint ? `${selectId}-hint` : undefined}
                     {...props}
                 >
                     {options.map((opt) => (
-                        <option key={opt.value} value={opt.value} className="bg-white dark:bg-dark-900">
+                        <option key={opt.value} value={opt.value} className="bg-white dark:bg-dark-900 text-gray-900 dark:text-gray-100">
                             {opt.label}
                         </option>
                     ))}
                 </select>
-                <div className="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M19 9l-7 7-7-7" />
-                    </svg>
+
+                <div className="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400 group-focus-within:text-primary transition-colors">
+                    <ChevronDown size={18} strokeWidth={3} />
                 </div>
             </div>
-            {error && <p className="text-[10px] text-red-500/80 font-bold px-1">{error}</p>}
+
+            {error ? (
+                <p
+                    id={`${selectId}-error`}
+                    className="text-[10px] text-red-500 font-black px-2 animate-in fade-in slide-in-from-top-1"
+                >
+                    {error}
+                </p>
+            ) : hint ? (
+                <p
+                    id={`${selectId}-hint`}
+                    className="text-[10px] text-gray-400 font-bold px-2"
+                >
+                    {hint}
+                </p>
+            ) : null}
         </div>
     );
-};
+});
 
 export default SelectField;

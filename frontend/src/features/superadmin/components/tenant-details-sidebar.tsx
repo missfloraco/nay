@@ -3,7 +3,7 @@ import {
     X, Save, Play, Ban, CheckCircle, Clock, LogIn, Trash2,
     HardDrive, Users, Shield,
     AlertTriangle, DollarSign, Mail, Fingerprint, Phone, Globe, Image as ImageIcon,
-    Loader2, Upload
+    Loader2, Upload, Key, Calendar
 } from 'lucide-react';
 import { formatDate, resolveAssetUrl } from '@/shared/utils/helpers';
 import { useFeedback } from '@/shared/ui/notifications/feedback-context';
@@ -12,6 +12,8 @@ import { TenantStatusBadge } from './tenantstatusbadge';
 import { TEXTS_ADMIN } from '@/shared/locales/texts';
 import { CircularImageUpload } from '@/shared/components/circularimageupload';
 import { COUNTRIES } from '@/shared/constants';
+import InputField from '@/shared/ui/forms/input-field';
+import SelectField from '@/shared/ui/forms/select-field';
 
 interface Tenant {
     id: number;
@@ -203,6 +205,11 @@ export function TenantDetailsSidebar({ tenant, tenants, onSelect, onUpdate, onNa
         setRemoveAvatar(true);
     };
 
+    const countryOptions = [
+        ...COUNTRIES.map(c => ({ value: c.code, label: c.name })),
+        { value: 'other', label: 'أخرى' }
+    ];
+
     return (
         <div className="h-full flex flex-col bg-white dark:bg-gray-800 overflow-hidden relative">
             {/* Sidebar Header: Identity & Selection */}
@@ -235,7 +242,7 @@ export function TenantDetailsSidebar({ tenant, tenants, onSelect, onUpdate, onNa
                             {/* Info Sections */}
                             <div className="space-y-0.5 mt-4">
                                 {/* Row: Account Status */}
-                                <div className="p-8 space-y-4">
+                                <div className="p-8 space-y-6">
                                     <div className="flex items-center gap-2 text-primary font-black text-xs uppercase tracking-widest">
                                         <Shield className="w-4 h-4" />
                                         حالة الحساب والاشتراك
@@ -244,7 +251,7 @@ export function TenantDetailsSidebar({ tenant, tenants, onSelect, onUpdate, onNa
                                         <button
                                             type="button"
                                             onClick={() => setEditForm({ ...editForm, status: 'trial' })}
-                                            className={`py-3 rounded-2xl border-2 transition-all font-bold text-xs flex items-center justify-center gap-2 ${editForm.status === 'trial' ? 'border-primary bg-primary/5 text-primary' : 'border-gray-100 bg-gray-50 text-gray-400 opacity-60'}`}
+                                            className={`py-4 rounded-2xl border-2 transition-all font-black text-xs flex items-center justify-center gap-2 ${editForm.status === 'trial' ? 'border-primary bg-primary/5 text-primary shadow-sm shadow-primary/5' : 'border-gray-100 dark:border-white/5 bg-gray-50/50 dark:bg-white/5 text-gray-400'}`}
                                         >
                                             <Clock className="w-4 h-4" />
                                             فترة تجريبية
@@ -252,7 +259,7 @@ export function TenantDetailsSidebar({ tenant, tenants, onSelect, onUpdate, onNa
                                         <button
                                             type="button"
                                             onClick={() => setEditForm({ ...editForm, status: 'active' })}
-                                            className={`py-3 rounded-2xl border-2 transition-all font-bold text-xs flex items-center justify-center gap-2 ${editForm.status === 'active' ? 'border-emerald-600 bg-emerald-50 text-emerald-600' : 'border-gray-100 bg-gray-50 text-gray-400 opacity-60'}`}
+                                            className={`py-4 rounded-2xl border-2 transition-all font-black text-xs flex items-center justify-center gap-2 ${editForm.status === 'active' ? 'border-emerald-600 bg-emerald-50 text-emerald-600 shadow-sm shadow-emerald-500/5' : 'border-gray-100 dark:border-white/5 bg-gray-50/50 dark:bg-white/5 text-gray-400'}`}
                                         >
                                             <CheckCircle className="w-4 h-4" />
                                             اشتراك مفعّل
@@ -262,56 +269,45 @@ export function TenantDetailsSidebar({ tenant, tenants, onSelect, onUpdate, onNa
 
                                 {/* Row: Expiration Dates */}
                                 <div className="p-8 pt-0 grid grid-cols-1 gap-6">
-                                    <div className="flex flex-col gap-2">
-                                        <label className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">تاريخ نهاية التجربة</label>
-                                        <input
-                                            type="date"
-                                            value={editForm.trial_expires_at}
-                                            onChange={(e) => setEditForm({ ...editForm, trial_expires_at: e.target.value })}
-                                            className="w-full p-4 rounded-2xl bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-700 text-sm font-bold focus:ring-2 focus:ring-primary/20 transition-all"
-                                        />
-                                    </div>
-                                    <div className="flex flex-col gap-2">
-                                        <label className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">تاريخ نهاية الاشتراك</label>
-                                        <input
-                                            type="date"
-                                            value={editForm.subscription_ends_at}
-                                            onChange={(e) => setEditForm({ ...editForm, subscription_ends_at: e.target.value })}
-                                            className="w-full p-4 rounded-2xl bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-700 text-sm font-bold focus:ring-2 focus:ring-primary/20 transition-all"
-                                        />
-                                    </div>
+                                    <InputField
+                                        label="تاريخ نهاية التجربة"
+                                        type="date"
+                                        value={editForm.trial_expires_at}
+                                        onChange={(e) => setEditForm({ ...editForm, trial_expires_at: e.target.value })}
+                                        icon={Calendar}
+                                    />
+                                    <InputField
+                                        label="تاريخ نهاية الاشتراك"
+                                        type="date"
+                                        value={editForm.subscription_ends_at}
+                                        onChange={(e) => setEditForm({ ...editForm, subscription_ends_at: e.target.value })}
+                                        icon={Calendar}
+                                    />
                                 </div>
 
                                 {/* Row: Contact Trio */}
                                 <div className="p-8 pt-0 flex flex-col gap-6">
-                                    <div className="flex flex-col gap-2">
-                                        <label className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">واتساب التواصل</label>
-                                        <input
-                                            type="tel"
-                                            value={editForm.whatsapp}
-                                            onChange={(e) => setEditForm({ ...editForm, whatsapp: e.target.value })}
-                                            className="w-full p-4 rounded-2xl bg-gray-50 dark:bg-gray-900 border border-transparent text-sm font-black dir-ltr text-right"
-                                        />
-                                    </div>
-                                    <div className="flex flex-col gap-2">
-                                        <label className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">الدولة والمنطقة</label>
-                                        <select
-                                            value={editForm.country_code}
-                                            onChange={(e) => setEditForm({ ...editForm, country_code: e.target.value })}
-                                            className="onboarding-input-small p-4 rounded-2xl bg-gray-50 dark:bg-gray-900 border border-transparent text-sm font-bold appearance-none cursor-pointer"
-                                        >
-                                            {COUNTRIES.map(c => (
-                                                <option key={c.code} value={c.code}>{c.name}</option>
-                                            ))}
-                                            <option value="other">أخرى</option>
-                                        </select>
-                                    </div>
+                                    <InputField
+                                        label="واتساب التواصل"
+                                        type="tel"
+                                        value={editForm.whatsapp}
+                                        onChange={(e) => setEditForm({ ...editForm, whatsapp: e.target.value })}
+                                        icon={Phone}
+                                        className="ltr"
+                                    />
+                                    <SelectField
+                                        label="الدولة والمنطقة"
+                                        value={editForm.country_code}
+                                        onChange={(e) => setEditForm({ ...editForm, country_code: e.target.value })}
+                                        options={countryOptions}
+                                        icon={Globe}
+                                    />
                                 </div>
 
                                 {/* Row: Ad Control Status */}
                                 <div className="mx-8 p-6 rounded-3xl bg-blue-50/30 dark:bg-blue-900/10 flex items-center justify-between border border-blue-100/50 dark:border-blue-900/20">
                                     <div className="flex items-center gap-3">
-                                        <div className={`p-2.5 rounded-xl ${editForm.ads_enabled ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-400 opacity-50'}`}>
+                                        <div className={`p-2.5 rounded-xl ${editForm.ads_enabled ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 dark:bg-dark-700 text-gray-400 opacity-50'}`}>
                                             <ImageIcon className="w-5 h-5" />
                                         </div>
                                         <div>
@@ -333,14 +329,14 @@ export function TenantDetailsSidebar({ tenant, tenants, onSelect, onUpdate, onNa
                                 </div>
 
                                 {/* Row: Security / Password */}
-                                <div className="p-8 flex flex-col gap-2">
-                                    <label className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">تغيير كلمة المرور</label>
-                                    <input
+                                <div className="p-8">
+                                    <InputField
+                                        label="تغيير كلمة المرور"
                                         type="password"
                                         placeholder="اتركه فارغاً للتجاهل"
                                         value={editForm.password}
                                         onChange={(e) => setEditForm({ ...editForm, password: e.target.value })}
-                                        className="w-full p-4 rounded-2xl bg-gray-50 dark:bg-gray-900 border border-transparent focus:border-primary/30 text-sm"
+                                        icon={Key}
                                     />
                                 </div>
                             </div>
@@ -418,5 +414,4 @@ export function TenantDetailsSidebar({ tenant, tenants, onSelect, onUpdate, onNa
             )}
         </div>
     );
-
 }

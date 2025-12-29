@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import AdminLayout from '@/features/superadmin/pages/adminlayout';
 import { Save, Info, Key, Globe, Layout, Palette, Type, Image as ImageIcon, Trash2, CheckCircle2, AlertCircle, Link, FileType, Loader2 } from 'lucide-react';
 import InputField from '@/shared/ui/forms/input-field';
+import FileUpload from '@/shared/ui/forms/file-upload';
 import { useSettings } from '@/shared/contexts/app-context';
 import { useToast } from '@/shared/ui/notifications/feedback-context';
 import { SettingsService } from '@/shared/services/settingsservice';
@@ -26,7 +27,7 @@ export default function PlatformIdentity() {
         company_name: settings.companyName || '',
         company_link: settings.companyLink || '',
         custom_font_url: settings.customFontUrl || '',
-        custom_heading_font_url: settings.headingsFontUrl || '',
+        custom_heading_font_url: settings.customHeadingFontUrl || '',
     });
 
     const [logoFiles, setLogoFiles] = useState<{ [key: string]: File | null }>({
@@ -59,7 +60,7 @@ export default function PlatformIdentity() {
                 company_name: settings.companyName || '',
                 company_link: settings.companyLink || '',
                 custom_font_url: settings.customFontUrl || '',
-                custom_heading_font_url: settings.headingsFontUrl || '',
+                custom_heading_font_url: settings.customHeadingFontUrl || '',
             });
         }
     }, [settings, contextLoading]);
@@ -215,174 +216,153 @@ export default function PlatformIdentity() {
                                 value={formData.app_name}
                                 onChange={e => setFormData({ ...formData, app_name: e.target.value })}
                                 placeholder="أدخل اسم المنصة"
+                                hint="يظهر هذا الاسم في شريط العنوان ورسائل البريد الإلكتروني"
                             />
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                <div className="space-y-3">
-                                    <label className="text-xs font-black text-gray-400 uppercase tracking-widest mr-1">اللون الأساسي</label>
-                                    <div className="flex items-center gap-4 p-4 rounded-2xl bg-white dark:bg-dark-900 border-2 border-gray-200 dark:border-dark-700 transition-all hover:border-primary/30">
+                                <div className="space-y-1.5">
+                                    <label className="form-label mr-1">اللون الأساسي</label>
+                                    <div className="flex items-center gap-4 p-4 rounded-2xl bg-slate-50/50 dark:bg-dark-900/40 border border-slate-200 dark:border-white/5 transition-all hover:bg-white dark:hover:bg-dark-800/60 focus-within:border-primary/50">
                                         <input type="color" value={formData.primary_color} onChange={e => setFormData({ ...formData, primary_color: e.target.value })} className="w-12 h-12 rounded-xl cursor-pointer bg-transparent border-none p-0 overflow-hidden" />
-                                        <span className="text-sm font-black dir-ltr text-gray-600 dark:text-gray-300">{formData.primary_color}</span>
+                                        <span className="text-sm font-black dir-ltr text-gray-600 dark:text-gray-300 uppercase">{formData.primary_color}</span>
                                     </div>
                                 </div>
 
-                                <div className="space-y-3">
-                                    <label className="text-xs font-black text-gray-400 uppercase tracking-widest mr-1">اللون الثانوي</label>
-                                    <div className="flex items-center gap-4 p-4 rounded-2xl bg-white dark:bg-dark-900 border-2 border-gray-200 dark:border-dark-700 transition-all hover:border-secondary/30">
+                                <div className="space-y-1.5">
+                                    <label className="form-label mr-1">اللون الثانوي</label>
+                                    <div className="flex items-center gap-4 p-4 rounded-2xl bg-slate-50/50 dark:bg-dark-900/40 border border-slate-200 dark:border-white/5 transition-all hover:bg-white dark:hover:bg-dark-800/60 focus-within:border-secondary/50">
                                         <input type="color" value={formData.secondary_color} onChange={e => setFormData({ ...formData, secondary_color: e.target.value })} className="w-12 h-12 rounded-xl cursor-pointer bg-transparent border-none p-0 overflow-hidden" />
-                                        <span className="text-sm font-black dir-ltr text-gray-600 dark:text-gray-300">{formData.secondary_color}</span>
+                                        <span className="text-sm font-black dir-ltr text-gray-600 dark:text-gray-300 uppercase">{formData.secondary_color}</span>
                                     </div>
                                 </div>
                             </div>
 
                             {/* Font Selection Section - Dual Fonts */}
-                            <div className="pt-8 border-t border-gray-50 dark:border-dark-800 space-y-8">
+                            <div className="pt-8 border-t border-gray-50 dark:border-dark-800 space-y-10">
                                 {/* Body Font */}
-                                <div className="flex items-center gap-10 p-8 rounded-[2rem] bg-indigo-50/30 dark:bg-indigo-900/10 border border-indigo-100/50 dark:border-indigo-900/20 animate-in slide-in-from-top-4 duration-500">
-                                    <CircularImageUpload
-                                        image={removeCustomFont ? null : (logoFiles.custom_font ? 'font-uploaded' : (settings.customFontFile ? 'font-existing' : null))}
-                                        onImageChange={(f) => handleLogoChange('custom_font', f)}
-                                        onRemove={() => handleRemoveLogo('custom_font')}
-                                        uploadId="custom-font-upload"
-                                        label="ملف الخط"
-                                        size="md"
-                                        variant="square"
-                                        isImage={false}
-                                        accept=".ttf,.woff,.woff2,.otf"
-                                        fallbackIcon={<Type className="w-8 h-8 text-indigo-400" />}
-                                    />
-                                    <div className="flex-1 space-y-4">
-                                        <div>
-                                            <h4 className="text-lg font-black text-gray-900 dark:text-white">خط النصوص والفقرات (Body Font)</h4>
-                                            <p className="text-sm font-medium text-gray-500 mt-1.5">قم برفع ملف الخط (.ttf, .woff, .otf) أو أدخل رابط مباشر لملف الخط.</p>
-                                        </div>
+                                <div className="grid lg:grid-cols-[300px_1fr] gap-x-12 gap-y-8 p-8 rounded-[2.5rem] bg-indigo-50/20 dark:bg-indigo-950/20 border border-indigo-100/50 dark:border-indigo-900/30">
+                                    <div className="space-y-4">
+                                        <h4 className="text-lg font-black text-gray-900 dark:text-white flex items-center gap-3">
+                                            <Type className="w-5 h-5 text-indigo-500" />
+                                            خط النصوص والفقرات
+                                        </h4>
+                                        <p className="text-xs font-bold text-gray-500 leading-relaxed">
+                                            يتحكم هذا الخيار بالخط الرئيسي المستخدم في المنصة لجميع النصوص والفقرات والقوائم.
+                                        </p>
 
-                                        <div className="space-y-3">
-                                            <label className="text-xs font-black text-gray-400 uppercase tracking-widest mr-1">رابط خط خارجي (اختياري)</label>
-                                            <InputField
-                                                label="أو رابط ملف الخط المباشر"
-                                                value={formData.custom_font_url}
-                                                onChange={e => setFormData({ ...formData, custom_font_url: e.target.value })}
-                                                placeholder="https://example.com/font.ttf"
-                                                icon={Link}
-                                                className="ltr"
-                                            />
-                                            <p className="text-[10px] text-gray-400">إذا تم رفع ملف، سيتم تجاهل الرابط.</p>
-                                        </div>
-
-                                        {logoFiles.custom_font && (
-                                            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 text-xs font-black">
-                                                تم اختيار ملف: {logoFiles.custom_font.name}
-                                            </div>
-                                        )}
-                                        {/* Status Indicator */}
                                         {!removeCustomFont && (settings.customFontFile || logoFiles.custom_font || formData.custom_font_url) ? (
-                                            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green-100 dark:bg-green-900/40 text-green-600 dark:text-green-400 text-xs font-black">
-                                                <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-                                                خط النصوص مفعل
+                                            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 text-[10px] font-black uppercase tracking-wider">
+                                                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
+                                                مفعل حالياً
                                             </div>
                                         ) : (
-                                            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 text-xs font-black">
-                                                يتم استخدام الخط الافتراضي للنصوص
+                                            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 text-[10px] font-black uppercase tracking-wider">
+                                                الخط الافتراضي (Cairo)
                                             </div>
                                         )}
+                                    </div>
+
+                                    <div className="space-y-8">
+                                        <FileUpload
+                                            label="رفع ملف الخط (Body)"
+                                            accept=".ttf,.woff,.woff2,.otf"
+                                            initialPreview={settings.customFontFile ? 'font-exists' : undefined}
+                                            onChange={(f) => {
+                                                if (f) handleLogoChange('custom_font', f);
+                                                else handleRemoveLogo('custom_font');
+                                            }}
+                                            hint="ارفع ملف الخط بتنسيق TTF أو WOFF للهواتف والمتصفحات"
+                                        />
+
+                                        <InputField
+                                            label="أو رابط خارجي للهاتف (Body URL)"
+                                            value={formData.custom_font_url}
+                                            onChange={e => setFormData({ ...formData, custom_font_url: e.target.value })}
+                                            placeholder="https://example.com/font.ttf"
+                                            icon={Link}
+                                            className="ltr"
+                                            hint="في حال استخدام روابط Google Fonts المباشرة للملفات"
+                                        />
                                     </div>
                                 </div>
 
                                 {/* Heading Font */}
-                                <div className="flex items-center gap-10 p-8 rounded-[2rem] bg-pink-50/30 dark:bg-pink-900/10 border border-pink-100/50 dark:border-pink-900/20 animate-in slide-in-from-top-4 duration-500 delay-100">
-                                    <CircularImageUpload
-                                        image={removeCustomHeadingFont ? null : (logoFiles.custom_heading_font ? 'font-uploaded' : (settings.customHeadingFontFile ? 'font-existing' : null))}
-                                        onImageChange={(f) => handleLogoChange('custom_heading_font', f)}
-                                        onRemove={() => handleRemoveLogo('custom_heading_font')}
-                                        uploadId="custom-heading-font-upload"
-                                        label="ملف خط العناوين"
-                                        size="md"
-                                        variant="square"
-                                        isImage={false}
-                                        accept=".ttf,.woff,.woff2,.otf"
-                                        fallbackIcon={<Type className="w-8 h-8 text-pink-400" />}
-                                    />
-                                    <div className="flex-1 space-y-4">
-                                        <div>
-                                            <h4 className="text-lg font-black text-gray-900 dark:text-white">خط العناوين (Heading Font)</h4>
-                                            <p className="text-sm font-medium text-gray-500 mt-1.5">قم برفع ملف الخط أو أدخل رابط مباشر لاستخدامه للعناوين.</p>
-                                        </div>
+                                <div className="grid lg:grid-cols-[300px_1fr] gap-x-12 gap-y-8 p-8 rounded-[2.5rem] bg-pink-50/20 dark:bg-pink-950/20 border border-pink-100/50 dark:border-pink-900/30">
+                                    <div className="space-y-4">
+                                        <h4 className="text-lg font-black text-gray-900 dark:text-white flex items-center gap-3">
+                                            <FileType className="w-5 h-5 text-pink-500" />
+                                            خط العناوين (Headings)
+                                        </h4>
+                                        <p className="text-xs font-bold text-gray-500 leading-relaxed">
+                                            يمكنك تخصيص خط منفصل للعناوين الكبيرة والمتوسطة لإعطاء المنصة طابعاً بصرياً مميزاً.
+                                        </p>
 
-                                        <div className="space-y-3">
-                                            <label className="text-xs font-black text-gray-400 uppercase tracking-widest mr-1">رابط خط خارجي (اختياري)</label>
-                                            <InputField
-                                                label="أو رابط ملف خط العناوين المباشر"
-                                                value={formData.custom_heading_font_url}
-                                                onChange={e => setFormData({ ...formData, custom_heading_font_url: e.target.value })}
-                                                placeholder="https://example.com/headings-font.ttf"
-                                                icon={Link}
-                                                className="ltr"
-                                            />
-                                            <p className="text-[10px] text-gray-400">إذا تم رفع ملف، سيتم تجاهل الرابط.</p>
-                                        </div>
-
-                                        {logoFiles.custom_heading_font && (
-                                            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-pink-100 dark:bg-pink-900/40 text-pink-600 dark:text-pink-400 text-xs font-black">
-                                                تم اختيار ملف: {logoFiles.custom_heading_font.name}
-                                            </div>
-                                        )}
-                                        {/* Status Indicator */}
                                         {!removeCustomHeadingFont && (settings.customHeadingFontFile || logoFiles.custom_heading_font || formData.custom_heading_font_url) ? (
-                                            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green-100 dark:bg-green-900/40 text-green-600 dark:text-green-400 text-xs font-black">
-                                                <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-                                                خط العناوين مفعل
+                                            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 text-[10px] font-black uppercase tracking-wider">
+                                                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
+                                                مفعل حالياً
                                             </div>
                                         ) : (
-                                            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 text-xs font-black">
-                                                سيتم استخدام خط النصوص للعناوين أيضاً
+                                            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 text-[10px] font-black uppercase tracking-wider">
+                                                يتبع خط النصوص
                                             </div>
                                         )}
+                                    </div>
+
+                                    <div className="space-y-8">
+                                        <FileUpload
+                                            label="رفع ملف الخط (Heading)"
+                                            accept=".ttf,.woff,.woff2,.otf"
+                                            initialPreview={settings.customHeadingFontFile ? 'font-exists' : undefined}
+                                            onChange={(f) => {
+                                                if (f) handleLogoChange('custom_heading_font', f);
+                                                else handleRemoveLogo('custom_heading_font');
+                                            }}
+                                            hint="يفضل استخدام النسخة العريضة (Bold) من الخط للعناوين"
+                                        />
+
+                                        <InputField
+                                            label="أو رابط خارجي للعناوين (Heading URL)"
+                                            value={formData.custom_heading_font_url}
+                                            onChange={e => setFormData({ ...formData, custom_heading_font_url: e.target.value })}
+                                            placeholder="https://example.com/heading.ttf"
+                                            icon={Link}
+                                            className="ltr"
+                                            hint="سيتم تطبيق هذا الخط على جميع العناوين في المنصة"
+                                        />
                                     </div>
                                 </div>
                             </div>
 
 
                             {/* Company Rights Section - New */}
-                            <div className="pt-8 border-t border-gray-50 dark:border-dark-800 space-y-6">
-                                <h3 className="text-lg font-black text-gray-900 dark:text-white flex items-center gap-2">
+                            <div className="pt-8 border-t border-gray-50 dark:border-dark-800 space-y-8">
+                                <h3 className="text-lg font-black text-gray-900 dark:text-white flex items-center gap-2 px-1">
                                     <span className="w-1.5 h-6 bg-purple-500 rounded-full"></span>
                                     حقوق النشر والملكية
                                 </h3>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div className="space-y-3">
-                                        <label className="text-xs font-black text-gray-400 uppercase tracking-widest mr-1">اسم الشركة المالكة</label>
-                                        <div className="relative group">
-                                            <input
-                                                type="text"
-                                                value={formData.company_name}
-                                                onChange={e => setFormData({ ...formData, company_name: e.target.value })}
-                                                className="input-field pl-10"
-                                                placeholder="مثال: اسم الشركة المالكة"
-                                            />
-                                        </div>
-                                        <p className="text-[10px] font-bold text-gray-400 mr-1">سيظهر في ذيل الصفحة: أحد مشاريع شركة [الاسم]</p>
-                                    </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                    <InputField
+                                        label="اسم الشركة المالكة"
+                                        value={formData.company_name}
+                                        onChange={e => setFormData({ ...formData, company_name: e.target.value })}
+                                        placeholder="مثال: ناي للحلول التقنية"
+                                        hint="سيظهر في ذيل الصفحة: أحد مشاريع شركة [الاسم]"
+                                    />
 
-                                    <div className="space-y-3">
-                                        <label className="text-xs font-black text-gray-400 uppercase tracking-widest mr-1">رابط الشركة (اختياري)</label>
-                                        <div className="relative group">
-                                            <input
-                                                type="url"
-                                                value={formData.company_link}
-                                                onChange={e => setFormData({ ...formData, company_link: e.target.value })}
-                                                onBlur={() => {
-                                                    if (formData.company_link && !/^https?:\/\//i.test(formData.company_link)) {
-                                                        setFormData(prev => ({ ...prev, company_link: `https://${formData.company_link}` }));
-                                                    }
-                                                }}
-                                                className="input-field pl-10 text-left"
-                                                dir="ltr"
-                                                placeholder="https://example.com"
-                                            />
-                                        </div >
-                                        <p className="text-[10px] font-bold text-gray-400 mr-1">عند الضغط على اسم الشركة سيتم التوجيه لهذا الرابط.</p>
-                                    </div >
+                                    <InputField
+                                        label="رابط الشركة (URL)"
+                                        value={formData.company_link}
+                                        onChange={e => setFormData({ ...formData, company_link: e.target.value })}
+                                        onBlur={() => {
+                                            if (formData.company_link && !/^https?:\/\//i.test(formData.company_link)) {
+                                                setFormData(prev => ({ ...prev, company_link: `https://${formData.company_link}` }));
+                                            }
+                                        }}
+                                        placeholder="https://example.com"
+                                        className="ltr"
+                                        hint="سيتم توجيه المستخدم لهذا الرابط عند الضغط على اسم الشركة"
+                                    />
                                 </div >
                             </div >
 
@@ -390,10 +370,10 @@ export default function PlatformIdentity() {
                                 <button
                                     onClick={handleSubmit}
                                     disabled={saving}
-                                    className="w-full md:w-auto px-12 h-16 flex items-center justify-center gap-3 bg-primary hover:bg-primary-hover text-white rounded-[1.5rem] font-black shadow-2xl shadow-primary/30 transition-all active:scale-95 disabled:opacity-50 min-w-[240px] text-lg"
+                                    className="w-full md:w-auto px-12 h-16 flex items-center justify-center gap-4 bg-primary hover:bg-primary/90 text-white rounded-3xl font-black shadow-2xl shadow-primary/20 transition-all hover:scale-[1.02] active:scale-95 disabled:opacity-50 min-w-[280px] text-lg"
                                 >
                                     {saving ? <Loader2 className="w-6 h-6 animate-spin" /> : <Save className="w-6 h-6" />}
-                                    <span>حفظ التعديلات</span>
+                                    <span>تحديث بيانات المنصة</span>
                                 </button>
                             </div>
                         </div >

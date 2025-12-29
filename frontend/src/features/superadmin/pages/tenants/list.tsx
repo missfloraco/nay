@@ -1,7 +1,7 @@
 ﻿import { resolveAssetUrl } from '@/shared/utils/helpers';
 import { useState, useEffect, useMemo } from 'react';
 import { formatDate } from '@/shared/utils/helpers';
-import { Users, Search, Filter, Plus, Mail, CheckCircle, XCircle, Trash2, Edit, ExternalLink, Shield, Loader2, MoreVertical, LayoutGrid, List as ListIcon, Calendar, Check, X, AlertTriangle, AlertCircle, Info, Database, HardDrive, Eye, Save, Clock } from 'lucide-react';
+import { Users, User, Lock, Globe, Sparkles, Search, Filter, Plus, Mail, CheckCircle, XCircle, Trash2, Edit, ExternalLink, Shield, Loader2, MoreVertical, LayoutGrid, List as ListIcon, Calendar, Check, X, AlertTriangle, AlertCircle, Info, Database, HardDrive, Eye, Save, Clock } from 'lucide-react';
 import AdminLayout from '@/features/superadmin/pages/adminlayout';
 import { useFeedback } from '@/shared/ui/notifications/feedback-context';
 import api from '@/shared/services/api';
@@ -13,6 +13,7 @@ import Table from '@/shared/table';
 import { TenantStatusBadge } from '@/features/superadmin/components/tenantstatusbadge';
 import { TenantDetailsSidebar } from '@/features/superadmin/components/tenant-details-sidebar';
 import { IdentityCell, DateCell, ActionCell } from '@/shared/table-cells';
+import InputField from '@/shared/ui/forms/input-field';
 
 interface Tenant {
     id: number;
@@ -284,144 +285,121 @@ export default function TenantsList() {
                         </div>
 
                         <div className="p-6 space-y-6">
-                            <form onSubmit={handleCreate} className="space-y-4">
-                                <div>
-                                    <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
-                                        {TEXTS_ADMIN.TENANTS.TENANT_NAME}
-                                    </label>
-                                    <input
-                                        type="text"
+                            <div className="p-8 space-y-8">
+                                <form onSubmit={handleCreate} className="space-y-6">
+                                    <InputField
+                                        label={TEXTS_ADMIN.TENANTS.TENANT_NAME}
                                         value={formData.name}
                                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                        className="w-full p-3 rounded-xl border border-gray-200 dark:border-gray-700 dark:bg-gray-900 dark:text-white"
+                                        icon={User}
                                         required
+                                        placeholder="اسم المتجر أو المؤسسة"
                                     />
-                                </div>
 
+                                    <div className="space-y-4">
+                                        <label className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest px-1">
+                                            نوع الحساب والحالة
+                                        </label>
+                                        <div className="grid grid-cols-2 gap-3">
+                                            <button
+                                                type="button"
+                                                onClick={() => setFormData({ ...formData, status: 'trial' })}
+                                                className={`py-4 rounded-2xl border-2 transition-all font-black text-sm flex items-center justify-center gap-2 ${formData.status === 'trial' ? 'border-primary bg-primary/5 text-primary shadow-sm shadow-primary/5' : 'border-gray-100 dark:border-white/5 bg-gray-50/50 dark:bg-white/5 text-gray-400'}`}
+                                            >
+                                                <Clock className="w-5 h-5" />
+                                                فترة تجريبية
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => setFormData({ ...formData, status: 'active' })}
+                                                className={`py-4 rounded-2xl border-2 transition-all font-black text-sm flex items-center justify-center gap-2 ${formData.status === 'active' ? 'border-emerald-600 bg-emerald-50 text-emerald-600 shadow-sm shadow-emerald-500/5' : 'border-gray-100 dark:border-white/5 bg-gray-50/50 dark:bg-white/5 text-gray-400'}`}
+                                            >
+                                                <Shield className="w-5 h-5" />
+                                                اشتراك نشط
+                                            </button>
+                                        </div>
 
-
-                                <div>
-                                    <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
-                                        نوع الحساب والحالة
-                                    </label>
-                                    <div className="flex gap-2 mb-4">
-                                        <button
-                                            type="button"
-                                            onClick={() => setFormData({ ...formData, status: 'trial' })}
-                                            className={`flex-1 py-3 rounded-xl border-2 transition-all font-bold flex items-center justify-center gap-2 ${formData.status === 'trial' ? 'border-primary bg-primary/5 text-primary' : 'border-gray-100 bg-gray-50 text-gray-400'}`}
-                                        >
-                                            <Clock className="w-5 h-5" />
-                                            فترة تجريبية
-                                        </button>
-                                        <button
-                                            type="button"
-                                            onClick={() => setFormData({ ...formData, status: 'active' })}
-                                            className={`flex-1 py-3 rounded-xl border-2 transition-all font-bold flex items-center justify-center gap-2 ${formData.status === 'active' ? 'border-emerald-600 bg-emerald-50 text-emerald-600' : 'border-gray-100 bg-gray-50 text-gray-400'}`}
-                                        >
-                                            <Shield className="w-5 h-5" />
-                                            اشتراك نشط
-                                        </button>
+                                        <div className="pt-2">
+                                            <InputField
+                                                type="date"
+                                                label={`تاريخ ${formData.status === 'trial' ? 'انتهاء التجربة' : 'انتهاء الاشتراك'}`}
+                                                value={formData.status === 'trial' ? formData.trial_expires_at : formData.subscription_ends_at}
+                                                onChange={(e) => {
+                                                    if (formData.status === 'trial') setFormData({ ...formData, trial_expires_at: e.target.value });
+                                                    else setFormData({ ...formData, subscription_ends_at: e.target.value });
+                                                }}
+                                                icon={Calendar}
+                                                required
+                                            />
+                                            <div className="flex gap-2 mt-4">
+                                                {[
+                                                    { label: 'شهر', months: 1, color: 'blue' },
+                                                    { label: 'سنة', months: 12, color: 'purple' },
+                                                    { label: 'مداهمة', months: 1200, color: 'green', special: 'مدى الحياة' }
+                                                ].map((btn) => (
+                                                    <button
+                                                        key={btn.label}
+                                                        type="button"
+                                                        onClick={() => {
+                                                            const date = new Date();
+                                                            date.setMonth(date.getMonth() + btn.months);
+                                                            const dateStr = date.toISOString().split('T')[0];
+                                                            if (formData.status === 'trial') setFormData({ ...formData, trial_expires_at: dateStr });
+                                                            else setFormData({ ...formData, subscription_ends_at: dateStr });
+                                                        }}
+                                                        className={`px-4 py-2 text-[10px] font-black uppercase tracking-tighter rounded-xl bg-${btn.color}-50 text-${btn.color}-600 dark:bg-${btn.color}-900/20 dark:text-${btn.color}-400 hover:scale-105 transition-all border border-${btn.color}-100 dark:border-${btn.color}-900/30`}
+                                                    >
+                                                        {btn.special || `+ ${btn.label}`}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
                                     </div>
 
-                                    <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
-                                        تاريخ {formData.status === 'trial' ? 'انتهاء التجربة' : 'انتهاء الاشتراك'}
-                                    </label>
-                                    <div className="flex gap-2 mb-2">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-gray-100 dark:border-white/5 mt-6">
+                                        <InputField
+                                            label={TEXTS_ADMIN.TENANTS.ADMIN_EMAIL}
+                                            type="email"
+                                            value={formData.admin_email}
+                                            onChange={(e) => setFormData({ ...formData, admin_email: e.target.value })}
+                                            icon={Mail}
+                                            required
+                                            placeholder="email@example.com"
+                                        />
+                                        <InputField
+                                            label={TEXTS_ADMIN.TENANTS.ADMIN_PASSWORD}
+                                            type="password"
+                                            value={formData.admin_password}
+                                            onChange={(e) => setFormData({ ...formData, admin_password: e.target.value })}
+                                            icon={Lock}
+                                            required
+                                            placeholder="••••••••"
+                                        />
+                                    </div>
+
+                                    <div className="flex gap-4 pt-10">
                                         <button
-                                            type="button"
-                                            onClick={() => {
-                                                const date = new Date();
-                                                date.setMonth(date.getMonth() + 1);
-                                                const dateStr = date.toISOString().split('T')[0];
-                                                if (formData.status === 'trial') setFormData({ ...formData, trial_expires_at: dateStr });
-                                                else setFormData({ ...formData, subscription_ends_at: dateStr });
-                                            }}
-                                            className="px-3 py-1 text-xs rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 dark:bg-blue-900/20 dark:hover:bg-blue-900/30 transition-colors"
+                                            type="submit"
+                                            disabled={createLoading}
+                                            className="flex-1 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-[2rem] py-5 font-black hover:opacity-90 transition-all disabled:opacity-50 flex items-center justify-center gap-3 shadow-2xl active:scale-95 group"
                                         >
-                                            شهر واحد
+                                            {createLoading ? (
+                                                <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                                            ) : (
+                                                <Sparkles className="w-5 h-5 group-hover:rotate-12 transition-transform" />
+                                            )}
+                                            {createLoading ? TEXTS_ADMIN.BUTTONS.SAVING : TEXTS_ADMIN.TENANTS.CREATE_TENANT}
                                         </button>
                                         <button
                                             type="button"
-                                            onClick={() => {
-                                                const date = new Date();
-                                                date.setFullYear(date.getFullYear() + 1);
-                                                const dateStr = date.toISOString().split('T')[0];
-                                                if (formData.status === 'trial') setFormData({ ...formData, trial_expires_at: dateStr });
-                                                else setFormData({ ...formData, subscription_ends_at: dateStr });
-                                            }}
-                                            className="px-3 py-1 text-xs rounded-lg bg-purple-50 text-purple-600 hover:bg-purple-100 dark:bg-purple-900/20 dark:hover:bg-purple-900/30 transition-colors"
+                                            onClick={() => setIsCreateModalOpen(false)}
+                                            className="px-8 bg-gray-100 dark:bg-white/5 text-gray-500 dark:text-gray-400 rounded-2xl py-5 font-black hover:bg-gray-200 dark:hover:bg-white/10 transition-colors"
                                         >
-                                            سنة واحدة
-                                        </button>
-                                        <button
-                                            type="button"
-                                            onClick={() => {
-                                                const date = new Date();
-                                                date.setFullYear(date.getFullYear() + 100);
-                                                const dateStr = date.toISOString().split('T')[0];
-                                                if (formData.status === 'trial') setFormData({ ...formData, trial_expires_at: dateStr });
-                                                else setFormData({ ...formData, subscription_ends_at: dateStr });
-                                            }}
-                                            className="px-3 py-1 text-xs rounded-lg bg-green-50 text-green-600 hover:bg-green-100 dark:bg-green-900/20 dark:hover:bg-green-900/30 transition-colors"
-                                        >
-                                            مدى الحياة
+                                            {TEXTS_ADMIN.BUTTONS.CANCEL}
                                         </button>
                                     </div>
-                                    <input
-                                        type="date"
-                                        value={formData.status === 'trial' ? formData.trial_expires_at : formData.subscription_ends_at}
-                                        onChange={(e) => {
-                                            if (formData.status === 'trial') setFormData({ ...formData, trial_expires_at: e.target.value });
-                                            else setFormData({ ...formData, subscription_ends_at: e.target.value });
-                                        }}
-                                        className="w-full p-3 rounded-xl border border-gray-200 dark:border-gray-700 dark:bg-gray-900 dark:text-white font-bold"
-                                    />
-                                </div>
-
-                                <div>
-                                    <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
-                                        {TEXTS_ADMIN.TENANTS.ADMIN_EMAIL}
-                                    </label>
-                                    <input
-                                        type="email"
-                                        value={formData.admin_email}
-                                        onChange={(e) => setFormData({ ...formData, admin_email: e.target.value })}
-                                        className="w-full p-3 rounded-xl border border-gray-200 dark:border-gray-700 dark:bg-gray-900 dark:text-white"
-                                        required
-                                    />
-                                </div>
-
-                                <div>
-                                    <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
-                                        {TEXTS_ADMIN.TENANTS.ADMIN_PASSWORD}
-                                    </label>
-                                    <input
-                                        type="password"
-                                        value={formData.admin_password}
-                                        onChange={(e) => setFormData({ ...formData, admin_password: e.target.value })}
-                                        className="w-full p-3 rounded-xl border border-gray-200 dark:border-gray-700 dark:bg-gray-900 dark:text-white"
-                                        required
-                                    />
-                                </div>
-
-                                <div className="flex gap-3 pt-4">
-                                    <button
-                                        type="submit"
-                                        disabled={createLoading}
-                                        className="flex-1 bg-primary text-white rounded-xl py-3 font-bold hover:bg-primary/90 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
-                                    >
-                                        <Save className="w-5 h-5" />
-                                        {createLoading ? TEXTS_ADMIN.BUTTONS.SAVING : TEXTS_ADMIN.TENANTS.CREATE_TENANT}
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={() => setIsCreateModalOpen(false)}
-                                        className="px-6 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl py-3 font-bold hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
-                                    >
-                                        {TEXTS_ADMIN.BUTTONS.CANCEL}
-                                    </button>
-                                </div>
-                            </form>
+                                </form>
+                            </div>
                         </div>
                     </div>
                 </div>
