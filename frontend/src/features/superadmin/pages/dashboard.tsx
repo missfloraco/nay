@@ -31,7 +31,7 @@ export default function Dashboard() {
 
     const loadDashboardData = async () => {
         try {
-            const data = await api.get('/admin/dashboard');
+            const data = await api.get('/admin/dashboard') as any;
 
             setStats(data.stats || null);
 

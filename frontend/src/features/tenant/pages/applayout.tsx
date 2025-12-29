@@ -44,14 +44,9 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, title = '', noPadding =
     const handleExitImpersonation = async () => {
         try {
             await logoutTenant(false);
-            // Assuming setTenants is available in this scope or passed as a prop if needed.
-            // For this specific file, setTenants is not defined, so this line would cause an error.
-            // Keeping it commented out or removed if it's not part of this component's state/props.
-            // const res = await api.get('/admin/tenants');
-            // setTenants(res.data || []);
-        } catch (error) {
-            logger.error(error);
-        } finally {
+            window.location.href = '/admin/tenants';
+        } catch (e) {
+            logger.error('Exit impersonation failed', e);
             window.location.href = '/admin/tenants';
         }
     };
@@ -148,29 +143,6 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, title = '', noPadding =
                     <main className="flex-1 overflow-hidden relative p-4">
                         <div className={`w-full h-full bg-white dark:bg-dark-900 flex flex-col overflow-y-auto no-scrollbar ${noPadding ? 'p-0' : 'p-6 md:p-8 lg:p-12 pb-32 md:pb-40 lg:pb-48'}`}>
                             {children}
-                            {/* The following block was part of the instruction but is syntactically incorrect here.
-                                It seems to be a misplaced snippet from another context, likely related to fetching tenants.
-                                If `setTenants` and `showToast` are defined in this scope, it should be placed in a proper function/effect.
-                                For now, it's commented out to maintain syntactical correctness of this file.
-                            try {
-                                const res: any = await api.get('/admin/tenants');
-                                setTenants(res.data || []);
-                            } catch (e) { logger.error('Failed to load tenants', e); }
-                            };
-                            try {
-                                // Assuming this is part of a function that handles some action, e.g., a payment.
-                                // The `notes: ''` line suggests it might be related to form submission or state.
-                                // This block is placed here as per instruction, but its context is unclear.
-                                // If `showToast` is not defined, it would cause an error.
-                                // For now, it's commented out to maintain syntactical correctness.
-                                // notes: ''
-                            } catch (err: any) {
-                                logger.error(err);
-                                // showToast(err.response?.data?.message || 'فشل تسجيل الدفعة', 'error');
-                            } finally {
-                                // Any cleanup or final actions
-                            }
-                            */}
                         </div>
                     </main>
                 </div>
