@@ -268,7 +268,7 @@ export function TenantDetailsSidebar({ tenant, tenants, onSelect, onUpdate, onNa
                                             type="date"
                                             value={editForm.trial_expires_at}
                                             onChange={(e) => setEditForm({ ...editForm, trial_expires_at: e.target.value })}
-                                            className="w-full p-4 rounded-2xl bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-700 text-sm font-bold focus:ring-2 focus:ring-primary/20 transition-all font-mono"
+                                            className="w-full p-4 rounded-2xl bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-700 text-sm font-bold focus:ring-2 focus:ring-primary/20 transition-all"
                                         />
                                     </div>
                                     <div className="flex flex-col gap-2">
@@ -277,7 +277,7 @@ export function TenantDetailsSidebar({ tenant, tenants, onSelect, onUpdate, onNa
                                             type="date"
                                             value={editForm.subscription_ends_at}
                                             onChange={(e) => setEditForm({ ...editForm, subscription_ends_at: e.target.value })}
-                                            className="w-full p-4 rounded-2xl bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-700 text-sm font-bold focus:ring-2 focus:ring-primary/20 transition-all font-mono"
+                                            className="w-full p-4 rounded-2xl bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-700 text-sm font-bold focus:ring-2 focus:ring-primary/20 transition-all"
                                         />
                                     </div>
                                 </div>
@@ -340,7 +340,7 @@ export function TenantDetailsSidebar({ tenant, tenants, onSelect, onUpdate, onNa
                                         placeholder="اتركه فارغاً للتجاهل"
                                         value={editForm.password}
                                         onChange={(e) => setEditForm({ ...editForm, password: e.target.value })}
-                                        className="w-full p-4 rounded-2xl bg-gray-50 dark:bg-gray-900 border border-transparent focus:border-primary/30 text-sm font-mono"
+                                        className="w-full p-4 rounded-2xl bg-gray-50 dark:bg-gray-900 border border-transparent focus:border-primary/30 text-sm"
                                     />
                                 </div>
                             </div>

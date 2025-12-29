@@ -225,7 +225,7 @@ export default function PlatformIdentity() {
                                     <label className="text-xs font-black text-gray-400 uppercase tracking-widest mr-1">اللون الأساسي</label>
                                     <div className="flex items-center gap-4 p-4 rounded-2xl bg-white dark:bg-dark-900 border-2 border-gray-200 dark:border-dark-700 transition-all hover:border-primary/30">
                                         <input type="color" value={formData.primary_color} onChange={e => setFormData({ ...formData, primary_color: e.target.value })} className="w-12 h-12 rounded-xl cursor-pointer bg-transparent border-none p-0 overflow-hidden" />
-                                        <span className="font-mono text-sm font-black dir-ltr text-gray-600 dark:text-gray-300">{formData.primary_color}</span>
+                                        <span className="text-sm font-black dir-ltr text-gray-600 dark:text-gray-300">{formData.primary_color}</span>
                                     </div>
                                 </div>
 
@@ -233,7 +233,7 @@ export default function PlatformIdentity() {
                                     <label className="text-xs font-black text-gray-400 uppercase tracking-widest mr-1">اللون الثانوي</label>
                                     <div className="flex items-center gap-4 p-4 rounded-2xl bg-white dark:bg-dark-900 border-2 border-gray-200 dark:border-dark-700 transition-all hover:border-secondary/30">
                                         <input type="color" value={formData.secondary_color} onChange={e => setFormData({ ...formData, secondary_color: e.target.value })} className="w-12 h-12 rounded-xl cursor-pointer bg-transparent border-none p-0 overflow-hidden" />
-                                        <span className="font-mono text-sm font-black dir-ltr text-gray-600 dark:text-gray-300">{formData.secondary_color}</span>
+                                        <span className="text-sm font-black dir-ltr text-gray-600 dark:text-gray-300">{formData.secondary_color}</span>
                                     </div>
                                 </div>
                             </div>

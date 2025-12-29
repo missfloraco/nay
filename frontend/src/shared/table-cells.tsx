@@ -40,7 +40,7 @@ export const IdentityCell = ({ name, avatar, subtext, email, uid, highlight }: I
                 </div>
             )}
             {uid && (
-                <div className="text-[10px] font-mono text-primary/60 dark:text-primary/40 font-bold">
+                <div className="text-[10px] text-primary/60 dark:text-primary/40 font-bold">
                     ID: {uid}
                 </div>
             )}
@@ -85,7 +85,7 @@ interface CurrencyCellProps {
 }
 
 export const CurrencyCell = ({ amount, currency = 'ILS', isFree }: CurrencyCellProps) => (
-    <span className={`font-black font-mono text-base ${!amount || Number(amount) === 0 ? 'text-gray-400' : 'text-emerald-600'}`}>
+    <span className={`font-black text-base ${!amount || Number(amount) === 0 ? 'text-gray-400' : 'text-emerald-600'}`}>
         {!amount || Number(amount) === 0 ? 'مجاني' : `${formatNumber(amount)} ${currency}`}
     </span>
 );

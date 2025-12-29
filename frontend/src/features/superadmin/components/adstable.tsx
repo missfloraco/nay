@@ -363,7 +363,7 @@ export default function AdsTable() {
                                     <textarea
                                         value={formData.content}
                                         onChange={e => setFormData({ ...formData, content: e.target.value })}
-                                        className="w-full h-40 px-8 py-5 rounded-[2rem] border border-gray-100 dark:border-white/10 bg-gray-50/50 dark:bg-dark-950 outline-none focus:ring-4 focus:ring-primary/10 transition-all font-mono text-xs ltr no-scrollbar"
+                                        className="w-full h-40 px-8 py-5 rounded-[2rem] border border-gray-100 dark:border-white/10 bg-gray-50/50 dark:bg-dark-950 outline-none focus:ring-4 focus:ring-primary/10 transition-all text-xs ltr no-scrollbar"
                                         placeholder={formData.type === 'script' ? '<script src="..."></script>' : '<div>...</div>'}
                                         required
                                     />

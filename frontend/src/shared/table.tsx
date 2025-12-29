@@ -143,7 +143,7 @@ export default function Table<T>({
 
     if (isLoading) {
         return (
-            <div className="w-full overflow-hidden rounded-3xl border border-gray-200/60 dark:border-white/5 bg-white dark:bg-dark-900 shadow-sm">
+            <div className="standard-table-container w-full overflow-hidden rounded-none">
                 <table className="w-full text-right border-collapse">
                     <TableHeader<T>
                         columns={columns}
@@ -162,7 +162,7 @@ export default function Table<T>({
 
     if (!data || data.length === 0) {
         return (
-            <div className="flex flex-col items-center justify-center py-24 bg-gray-50/30 dark:bg-white/[0.02] border-2 border-dashed border-gray-200/60 dark:border-white/5 rounded-[40px] text-center px-6 group transition-all duration-500 hover:border-primary/30">
+            <div className="flex flex-col items-center justify-center py-24 bg-gray-50/30 dark:bg-white/[0.02] border-2 border-dashed border-gray-200/60 dark:border-white/5 rounded-none text-center px-6 group transition-all duration-500 hover:border-primary/30">
                 <div className="w-20 h-20 bg-white dark:bg-dark-900 rounded-[32px] shadow-xl shadow-gray-200/50 dark:shadow-none flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-500 border border-gray-100 dark:border-white/5">
                     <Database className="w-9 h-9 text-gray-300 dark:text-dark-600 group-hover:text-primary transition-colors duration-500" />
                 </div>
@@ -174,7 +174,7 @@ export default function Table<T>({
 
     return (
         <div className="space-y-4">
-            <div className="standard-table-container w-full overflow-hidden rounded-3xl border border-gray-200/60 dark:border-white/5 bg-white dark:bg-dark-900 shadow-sm transition-all duration-500">
+            <div className="standard-table-container w-full overflow-hidden rounded-none transition-all duration-500">
                 <div className="overflow-x-auto no-scrollbar relative">
                     <table className="standard-table w-full text-right border-collapse text-sm">
                         <TableHeader<T>
@@ -240,7 +240,7 @@ export default function Table<T>({
 
             {/* Pagination Controls */}
             {paginationMeta && paginationMeta.last_page > 1 && onPageChange && (
-                <div className="flex items-center justify-between px-6 py-4 bg-gray-50/30 dark:bg-white/[0.02] border-t border-gray-200/60 dark:border-white/5 rounded-b-3xl">
+                <div className="flex items-center justify-between px-6 py-4 bg-gray-50/30 dark:bg-white/[0.02] border-t border-gray-200/60 dark:border-white/5 rounded-none">
                     <div className="text-xs text-gray-500 dark:text-gray-400 font-bold">
                         عرض {paginationMeta.from || 0} - {paginationMeta.to || 0} من أصل {paginationMeta.total}
                     </div>

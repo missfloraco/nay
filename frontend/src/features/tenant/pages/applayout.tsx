@@ -141,7 +141,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, title = '', noPadding =
                 </aside>
 
                 <div className="content-area-main relative overflow-hidden bg-gray-50 dark:bg-dark-950 flex-1">
-                    <main className="h-full relative p-4">
+                    <main className="h-full relative p-4 md:p-6 lg:p-8">
                         <div className={`page-frame-container w-full h-full bg-white dark:bg-dark-900 flex flex-col overflow-y-auto no-scrollbar ${noPadding ? 'p-0' : ''}`}>
                             {children}
                         </div>

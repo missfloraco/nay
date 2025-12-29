@@ -157,7 +157,7 @@ export default function TenantsList() {
         {
             header: 'البريد الإلكتروني',
             accessor: (tenant: Tenant) => (
-                <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400 font-mono text-sm">
+                <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400 text-sm">
                     <Mail className="w-3 h-3 text-gray-400" />
                     {tenant.email}
                 </div>
@@ -180,7 +180,7 @@ export default function TenantsList() {
         {
             header: 'رقم الهاتف / واتساب',
             accessor: (tenant: Tenant) => (
-                <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400 font-mono text-sm" dir="ltr">
+                <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400 text-sm" dir="ltr">
                     {tenant.whatsapp || '-'}
                 </div>
             ),

@@ -31,7 +31,7 @@ export const LogoHeaderRight: React.FC<LogoHeaderRightProps> = ({ appName, logoU
                         />
                     ) : null}
                     <span
-                        className="text-base font-black text-gray-900 dark:text-white transition-colors truncate hidden xl:block"
+                        className="text-lg font-black text-gray-900 dark:text-white transition-colors truncate hidden xl:block tracking-tight"
                     >
                         {appName}
                     </span>
