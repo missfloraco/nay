@@ -249,7 +249,7 @@ export default function TenantsList() {
                 />
             }
             leftSidebarNoPadding={true}
-            leftSidebarNoBorder={true}
+            leftSidebarNoBorder={false}
         >
             <div className="h-full flex flex-col p-6">
                 <div className="flex-1 flex flex-col">

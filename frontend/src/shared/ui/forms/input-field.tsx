@@ -26,7 +26,7 @@ const InputField: React.FC<InputFieldProps> = ({
                     </div>
                 )}
                 <input
-                    className={`w-full bg-gray-50 dark:bg-dark-900 border-2 border-gray-100 dark:border-dark-800 rounded-2xl px-6 py-4 text-sm font-bold focus:ring-8 focus:ring-primary/5 focus:border-primary outline-none transition-all duration-300 ${Icon ? 'pl-14' : ''} ${error ? 'border-red-500 focus:border-red-500 focus:ring-red-500/5' : ''} ${className}`}
+                    className={`w-full bg-gray-50 dark:bg-dark-900 border border-gray-200 dark:border-dark-800 rounded-2xl px-5 py-3.5 text-sm font-bold focus:ring-4 focus:ring-primary/5 focus:border-primary outline-none transition-all duration-300 ${Icon ? 'pl-14' : ''} ${error ? 'border-red-500 focus:border-red-500 focus:ring-red-500/5' : ''} ${className}`}
                     {...props}
                 />
             </div>

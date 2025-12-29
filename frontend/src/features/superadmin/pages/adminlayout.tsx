@@ -156,7 +156,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title, noPadding = 
                 <div className="content-area-main relative overflow-hidden bg-gray-50 dark:bg-dark-950 flex-1">
                     <main className="h-full relative p-4">
                         {/* Fixed Page Frame Container (Border-less) */}
-                        <div className={`page-frame-container w-full h-full bg-white dark:bg-dark-900 flex flex-col overflow-y-auto no-scrollbar ${noPadding ? 'p-0' : 'p-6 md:p-8 lg:p-12 pb-32 md:pb-40 lg:pb-48'}`}>
+                        <div className={`page-frame-container w-full h-full bg-white dark:bg-dark-900 flex flex-col overflow-y-auto no-scrollbar ${noPadding ? 'p-0' : ''}`}>
                             {children}
                         </div>
                     </main>

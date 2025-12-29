@@ -102,9 +102,10 @@ export const Header: React.FC<HeaderProps> = ({
           </h1>
         </div>
 
-        {/* Middle Section: Search Bar */}
-        <div className="flex items-center justify-center flex-1">
+        {/* Middle Section: Search Bar & Theme Toggle */}
+        <div className="flex items-center justify-center flex-1 gap-4">
           <GlobalSearch />
+          <ThemeToggle />
         </div>
 
         {/* Right Actions Section - Empty now (moved to sections) */}

@@ -1,7 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-import ThemeToggle from '@/shared/theme-toggle';
 
 interface LogoHeaderRightProps {
     appName: string;
@@ -39,7 +38,6 @@ export const LogoHeaderRight: React.FC<LogoHeaderRightProps> = ({ appName, logoU
                 </div>
             </Link>
 
-            <ThemeToggle />
         </div>
     );
 };
