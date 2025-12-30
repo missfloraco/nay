@@ -31,27 +31,8 @@ class ProfileController extends Controller
             'remove_avatar' => 'nullable|boolean'
         ]);
 
-        $emailChanged = $tenant->email !== $data['email'];
-
         $tenant->name = $data['name'];
-
-        if ($emailChanged) {
-            $tenant->email = $data['email'];
-            $tenant->email_verified_at = null; // Unverify
-
-            // Generate OTP
-            $code = random_int(100000, 999999);
-            $tenant->verification_code = $code;
-            $tenant->verification_code_expires_at = now()->addMinutes(15);
-
-            // Send OTP
-            try {
-                \Illuminate\Support\Facades\Mail::to($tenant->email)->send(new \App\Mail\VerificationCodeMail($code));
-            } catch (\Exception $e) {
-                \Illuminate\Support\Facades\Log::error('Failed to send verification email on update: ' . $e->getMessage());
-            }
-        }
-
+        $tenant->email = $data['email'];
         if (array_key_exists('whatsapp', $data))
             $tenant->whatsapp = $data['whatsapp'];
         if (array_key_exists('country_code', $data))

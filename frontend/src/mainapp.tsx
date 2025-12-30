@@ -18,6 +18,7 @@ const AuthScreen = lazy(() => import('@/features/auth/authscreen'));
 
 const ForgotPassword = lazy(() => import('@/features/auth/forgotpassword'));
 const ResetPassword = lazy(() => import('@/features/auth/resetpassword'));
+
 const LandingPage = lazy(() => import('@/features/landing/pages/home'));
 const Forbidden = lazy(() => import('@/shared/pages/forbidden'));
 
@@ -35,7 +36,6 @@ const TenantSettings = lazy(() => import('@/features/tenant/pages/settings'));
 const TenantSupportMessages = lazy(() => import('@/features/tenant/pages/supportmessages'));
 const TrialExpired = lazy(() => import('@/features/tenant/trial-expired'));
 const ActivationWaiting = lazy(() => import('@/features/tenant/pages/activation-waiting'));
-
 // Unified Trash Page
 const Trash = lazy(() => import('@/shared/pages/trash'));
 
@@ -92,6 +92,7 @@ function LoginRedirector() {
     return <AuthScreen initialMode="login" />;
 }
 
+
 import { useTrialStatus } from '@/core/hooks/usetrialstatus';
 
 import { FeedbackProvider } from '@/shared/ui/notifications/feedback-context';
@@ -119,9 +120,10 @@ function MainAppContent() {
     const { settings, loadingSettings } = useSettings();
     const location = useLocation();
     const loadingLogoutSuccess = location.search.includes('logout=success');
-
-    // Hook for trial status
     const { isTrialExpired } = useTrialStatus();
+
+    // Lazy load overlay
+    const VerificationOverlay = lazy(() => import('@/features/auth/components/verification-overlay'));
 
     if (appLoading || adminLoading || loadingSettings) {
         return (
@@ -131,7 +133,7 @@ function MainAppContent() {
         );
     }
 
-    // Check trial/activation status for tenant users - Bypass if impersonating
+    // Tenant Blocking Logic (Pending / Expired / Disabled)
     if (appUser && tenant && !isImpersonating) {
         if (tenant.status === 'pending') {
             return (
@@ -143,7 +145,6 @@ function MainAppContent() {
             );
         }
 
-        // Show blocker if status is expired/disabled OR if trial date has passed
         if (tenant.status === 'expired' || tenant.status === 'disabled' || isTrialExpired) {
             return (
                 <HelmetProvider>
@@ -155,6 +156,10 @@ function MainAppContent() {
         }
     }
 
+    // Verification Overlay Logic
+    // Show overlay if tenant user, not impersonating, and email NOT verified
+    const showVerificationOverlay = appUser && tenant && !isImpersonating && !(tenant as any).email_verified_at;
+
     return (
         <HelmetProvider>
             <AnalyticsProvider>
@@ -163,6 +168,10 @@ function MainAppContent() {
                         <ScriptInjector />
                         <ExportModal />
                         <Suspense fallback={<PageLoader />}>
+
+                            {/* Verification Overlay - Sits on top of the app */}
+                            {showVerificationOverlay && <VerificationOverlay />}
+
                             <Routes>
                                 <Route path="/" element={<LandingPage />} />
 

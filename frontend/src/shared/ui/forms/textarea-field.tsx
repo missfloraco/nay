@@ -40,7 +40,8 @@ const TextareaField = React.forwardRef<HTMLTextAreaElement, TextareaFieldProps>(
             <div className="relative">
                 {Icon && (
                     <div className={`
-                        absolute right-6 top-6 transition-all duration-500 z-10 pointer-events-none
+                        absolute top-6 transition-all duration-500 z-10 pointer-events-none
+                        start-6
                         ${error ? 'text-red-400' : success ? 'text-emerald-400' : 'text-gray-300 group-focus-within:text-primary group-focus-within:scale-110'}
                     `}>
                         <Icon size={18} />
@@ -52,7 +53,7 @@ const TextareaField = React.forwardRef<HTMLTextAreaElement, TextareaFieldProps>(
                     id={textareaId}
                     className={`
                         textarea-field
-                        ${Icon ? 'pr-16' : ''} 
+                        ${Icon ? 'ps-16' : ''} 
                         ${error ? 'error' : success ? 'success' : ''} 
                         ${className}
                     `}

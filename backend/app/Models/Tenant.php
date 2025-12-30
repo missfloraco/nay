@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Traits\HasUid;
@@ -35,6 +36,8 @@ class Tenant extends Authenticatable
         'subscription_ends_at',
         'ads_enabled',
         'trial_bonus_applied',
+        'verification_code',
+        'verification_code_expires_at',
     ];
 
     protected $hidden = [
@@ -55,6 +58,7 @@ class Tenant extends Authenticatable
         'settings' => 'array',
         'ads_enabled' => 'boolean',
         'trial_bonus_applied' => 'boolean',
+        'verification_code_expires_at' => 'datetime',
     ];
 
     /**

@@ -14,6 +14,7 @@ use App\Http\Controllers\Admin\PaymentController;
 |--------------------------------------------------------------------------
 */
 
+
 // Public routes
 Route::prefix('public')->group(function () {
     Route::get('/settings/branding', [App\Http\Controllers\Admin\BrandingController::class, 'index']);
@@ -180,57 +181,10 @@ Route::post('/login', function (Request $request) {
 Route::prefix('app')->group(function () {
     // ... (Login/Register remain same) ...
     // Login
-    Route::post('/login', function (Request $request) {
-        $credentials = $request->validate([
-            'email' => ['required', 'email'],
-            'password' => ['required'],
-        ]);
-
-        if (Auth::guard('tenant')->attempt($credentials)) {
-            $request->session()->regenerate();
-
-            // Check status
-            $tenant = Auth::guard('tenant')->user();
-            if ($tenant->status === 'disabled') {
-                Auth::guard('tenant')->logout();
-                return response()->json(['message' => 'Account is disabled.'], 403);
-            }
-
-            return response()->json([
-                'user' => Auth::guard('tenant')->user(),
-                'token' => Auth::guard('tenant')->user()->createToken('tenant_token')->plainTextToken
-            ], 200);
-        }
-
-        return response()->json(['message' => 'The provided credentials do not match our records.'], 401);
-    })->middleware('throttle:6,1');
+    Route::post('/login', [App\Http\Controllers\Tenant\AuthController::class, 'login'])->middleware('throttle:6,1');
 
     // Register
-    Route::post('/register', function (Request $request) {
-        $data = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:tenants'],
-            'password' => ['required', 'string', 'min:8'],
-            'country' => ['nullable', 'string', 'size:2'],
-        ]);
-
-        $tenant = \App\Models\Tenant::create([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'password' => Hash::make($data['password']),
-            'country_code' => $data['country'] ?? 'PS',
-            'status' => 'trial',
-            'trial_expires_at' => now()->addDays(7),
-        ]);
-
-        Auth::guard('tenant')->login($tenant);
-        $request->session()->regenerate();
-
-        return response()->json([
-            'user' => $tenant,
-            'token' => $tenant->createToken('tenant_token')->plainTextToken
-        ], 201);
-    })->middleware('throttle:3,1'); // stricter for registration
+    Route::post('/register', [App\Http\Controllers\Tenant\AuthController::class, 'register'])->middleware('throttle:3,1');
 
     // Forgot Password Placeholder
     Route::post('/forgot-password', function (Request $request) {
@@ -241,6 +195,16 @@ Route::prefix('app')->group(function () {
 
     // Protected Tenant Routes
     Route::middleware(['auth:sanctum,tenant', 'tenant.only'])->group(function () {
+
+        // Email Verification Routes (OTP)
+        Route::post('/email/verify', [App\Http\Controllers\Tenant\AuthController::class, 'verify'])
+            ->middleware(['throttle:6,1'])
+            ->name('verification.verify');
+
+        Route::post('/email/verification-notification', [App\Http\Controllers\Tenant\AuthController::class, 'sendVerificationEmail'])
+            ->middleware(['throttle:6,1'])
+            ->name('verification.send');
+
         Route::get('/user', function (Request $request) {
             return response()->json([
                 'user' => $request->user(),
@@ -281,18 +245,8 @@ Route::prefix('app')->group(function () {
             return response()->json(['message' => 'Preferences updated']);
         });
 
-        Route::post('/logout', function (Request $request) {
-            if ($request->user()) {
-                // Revoke current token (important for impersonation exit)
-                $token = $request->user()->currentAccessToken();
-                if ($token) {
-                    $token->delete();
-                }
-            }
-            Auth::guard('tenant')->logout();
-            $request->session()->invalidate();
-            $request->session()->regenerateToken();
-            return response()->json(['message' => 'Logged out']);
-        });
+        Route::post('/logout', [App\Http\Controllers\Tenant\AuthController::class, 'logout']);
     });
 });
+
+

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { AuthCard } from './components/authcard';
+import { AuthSplitLayout } from './components/auth-split-layout';
 import {
     Lock, Eye, EyeOff, Loader2, CheckCircle2, AlertCircle, KeyRound
 } from 'lucide-react';
@@ -82,7 +82,7 @@ export default function ResetPassword() {
 
     if (success) {
         return (
-            <AuthCard
+            <AuthSplitLayout
                 title="تم بنجاح!"
                 subtitle="تم إعادة تعيين كلمة المرور بنجاح"
             >
@@ -96,16 +96,16 @@ export default function ResetPassword() {
                         سيتم تحويلك إلى صفحة تسجيل الدخول...
                     </p>
                 </div>
-            </AuthCard>
+            </AuthSplitLayout>
         );
     }
 
     return (
-        <AuthCard
+        <AuthSplitLayout
             title="إعادة تعيين كلمة المرور"
             subtitle="أدخل كلمة المرور الجديدة لحسابك"
         >
-            <form onSubmit={handleSubmit} className="space-y-6 animate-in fade-in slide-in-from-right-5 duration-500">
+            <form onSubmit={handleSubmit} className="space-y-6 animate-in fade-in slide-in-from-bottom-5 duration-500">
 
                 {/* Status Message */}
                 {error && (
@@ -147,18 +147,17 @@ export default function ResetPassword() {
                             onChange={e => setFormData({ ...formData, password: e.target.value })}
                             placeholder="••••••••"
                             autoComplete="new-password"
-                            className="!pr-16 !pl-16"
+                            className="!pe-16"
+                            endContent={
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="text-gray-400 hover:text-primary transition-colors h-5 w-5 flex items-center justify-center p-0"
+                                >
+                                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                </button>
+                            }
                         />
-                        <div className="absolute right-6 top-[54px] text-gray-300 pointer-events-none z-10 transition-transform group-focus-within:scale-110 group-focus-within:text-primary">
-                            <Lock size={18} />
-                        </div>
-                        <button
-                            type="button"
-                            onClick={() => setShowPassword(!showPassword)}
-                            className="absolute left-6 top-[54px] text-gray-400 hover:text-primary transition-colors z-20"
-                        >
-                            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                        </button>
                     </div>
 
                     {/* Password Strength Indicator */}
@@ -180,18 +179,17 @@ export default function ResetPassword() {
                             onChange={e => setFormData({ ...formData, confirmPassword: e.target.value })}
                             placeholder="••••••••"
                             autoComplete="new-password"
-                            className="!pr-16 !pl-16"
+                            className="!pe-16"
+                            endContent={
+                                <button
+                                    type="button"
+                                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                    className="text-gray-400 hover:text-primary transition-colors h-5 w-5 flex items-center justify-center p-0"
+                                >
+                                    {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                </button>
+                            }
                         />
-                        <div className="absolute right-6 top-[54px] text-gray-300 pointer-events-none z-10 transition-transform group-focus-within:scale-110 group-focus-within:text-primary">
-                            <Lock size={18} />
-                        </div>
-                        <button
-                            type="button"
-                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                            className="absolute left-6 top-[54px] text-gray-400 hover:text-primary transition-colors z-20"
-                        >
-                            {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                        </button>
                     </div>
 
                     {/* Password Match Indicator */}
@@ -239,6 +237,6 @@ export default function ResetPassword() {
                     </button>
                 </div>
             </form>
-        </AuthCard>
+        </AuthSplitLayout>
     );
 }

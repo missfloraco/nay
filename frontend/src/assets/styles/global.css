@@ -243,7 +243,7 @@
 .input-field,
 .textarea-field,
 .select-field {
-  @apply w-full bg-slate-50/50 dark:bg-dark-900/40 border border-slate-200 dark:border-white/5 rounded-2xl px-6 py-4.5 text-[15px] font-bold outline-none transition-all duration-500;
+  @apply w-full bg-slate-50/50 dark:bg-dark-900/40 border border-slate-200 dark:border-white/5 rounded-2xl px-6 py-4.5 text-[15px] font-bold outline-none transition-all duration-500 text-start;
   @apply hover:bg-white dark:hover:bg-dark-800/60 hover:border-slate-300 dark:hover:border-white/10;
 }
 
@@ -269,20 +269,11 @@
 }
 
 .textarea-field {
-  @apply resize-none min-h-[120px];
+  @apply resize-none min-h-[120px] px-6;
 }
 
 .select-field {
-  @apply appearance-none bg-no-repeat;
-  background-position: left 1.5rem center;
-}
-
-[dir="rtl"] .select-field {
-  background-position: left 1.5rem center;
-}
-
-[dir="ltr"] .select-field {
-  background-position: right 1.5rem center;
+  @apply appearance-none;
 }
 
 @media (min-width: 769px) {

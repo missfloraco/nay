@@ -61,7 +61,7 @@ export default function LandingLayout({ children }: LandingLayoutProps) {
     }, [lastScrollY]);
 
     return (
-        <div className="min-h-screen bg-white dark:bg-gray-950 font-sans text-gray-900 dark:text-gray-100 selection:bg-primary/20 selection:text-primary transition-colors duration-300">
+        <div className="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 selection:bg-primary/20 selection:text-primary transition-colors duration-300">
             {!isCheckingAdBlock && isAdBlockActive && <ShieldOverlay />}
 
             <>
@@ -211,7 +211,14 @@ export default function LandingLayout({ children }: LandingLayoutProps) {
                         {/* Bottom Copyright Bar */}
                         <div className="pt-10 border-t border-gray-200 dark:border-white/5 flex flex-col md:flex-row items-center justify-between gap-8">
                             <p className="text-base text-gray-600 dark:text-gray-400 font-bold order-last md:order-first">
-                                {finalAppName} © {new Date().getFullYear()} أحد مشاريع <span className="text-blue-500">شركة مسلفورا</span>
+                                {finalAppName} © {new Date().getFullYear()} أحد مشاريع{' '}
+                                {settings.companyLink ? (
+                                    <a href={settings.companyLink} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
+                                        {settings.companyName || 'شركة مسلفورا'}
+                                    </a>
+                                ) : (
+                                    <span className="text-blue-500">{settings.companyName || 'شركة مسلفورا'}</span>
+                                )}
                             </p>
                             <div className="flex gap-8 text-gray-600 dark:text-gray-400 font-black text-xs md:mr-auto">
                                 <a href="#" className="hover:text-primary transition-colors">سياسة الخصوصية</a>
@@ -221,6 +228,6 @@ export default function LandingLayout({ children }: LandingLayoutProps) {
                     </div>
                 </footer>
             </>
-        </div>
+        </div >
     );
 }

@@ -7,6 +7,7 @@ interface InputFieldProps extends React.InputHTMLAttributes<HTMLInputElement> {
     error?: string;
     success?: boolean;
     hint?: string;
+    endContent?: React.ReactNode;
 }
 
 const InputField = React.forwardRef<HTMLInputElement, InputFieldProps>(({
@@ -15,6 +16,7 @@ const InputField = React.forwardRef<HTMLInputElement, InputFieldProps>(({
     error,
     success,
     hint,
+    endContent,
     className = '',
     id,
     ...props
@@ -40,7 +42,8 @@ const InputField = React.forwardRef<HTMLInputElement, InputFieldProps>(({
             <div className="relative">
                 {Icon && (
                     <div className={`
-                        absolute right-6 top-1/2 -translate-y-1/2 transition-all duration-500 z-10 pointer-events-none
+                        absolute top-1/2 -translate-y-1/2 transition-all duration-500 z-10 pointer-events-none
+                        end-6
                         ${error ? 'text-red-400' : success ? 'text-emerald-400' : 'text-gray-300 group-focus-within:text-primary group-focus-within:scale-110'}
                     `}>
                         <Icon size={18} />
@@ -51,7 +54,7 @@ const InputField = React.forwardRef<HTMLInputElement, InputFieldProps>(({
                     id={inputId}
                     className={`
                         input-field
-                        ${Icon ? 'pr-16' : ''} 
+                        ${Icon ? 'pe-16' : ''} 
                         ${error ? 'error' : success ? 'success' : ''} 
                         ${className}
                     `}
@@ -59,9 +62,15 @@ const InputField = React.forwardRef<HTMLInputElement, InputFieldProps>(({
                     aria-describedby={error ? `${inputId}-error` : hint ? `${inputId}-hint` : undefined}
                     {...props}
                 />
+                {endContent && (
+                    <div className="absolute top-1/2 -translate-y-1/2 end-6 z-20">
+                        {endContent}
+                    </div>
+                )}
             </div>
 
             {error ? (
+                // ...
                 <p
                     id={`${inputId}-error`}
                     className="text-[10px] text-red-500 font-black px-2 animate-in fade-in slide-in-from-top-1"

@@ -50,7 +50,7 @@ export const GlobalSearch: React.FC = () => {
             ref={searchRef}
             className={`relative flex items-center bg-gray-100 dark:bg-gray-800 rounded-full px-4 py-2 w-full max-w-md border transition-all shadow-sm ${showResults ? 'border-primary ring-2 ring-primary/10 bg-white dark:bg-gray-900' : 'border-transparent'}`}
         >
-            <Search className={`w-4 h-4 ml-2 transition-colors ${showResults ? 'text-primary' : 'text-gray-400'}`} />
+            <Search className={`w-4 h-4 ms-2 transition-colors ${showResults ? 'text-primary' : 'text-gray-400'}`} />
             <input
                 ref={inputRef}
                 type="text"
@@ -61,9 +61,9 @@ export const GlobalSearch: React.FC = () => {
                     setShowResults(true);
                 }}
                 placeholder={t('common.search', 'بحث ...')}
-                className="bg-transparent border-none outline-none text-sm w-full text-gray-700 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500"
+                className="bg-transparent border-none outline-none text-sm w-full text-gray-700 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500 text-start"
             />
-            {isSearching && <Loader2 className="w-4 h-4 text-primary animate-spin mr-2" />}
+            {isSearching && <Loader2 className="w-4 h-4 text-primary animate-spin me-2" />}
 
             {/* Results Dropdown */}
             {showResults && searchQuery.length >= 2 && (
@@ -78,7 +78,7 @@ export const GlobalSearch: React.FC = () => {
                                         setShowResults(false);
                                         clearSearch();
                                     }}
-                                    className="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors text-right"
+                                    className="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors text-start"
                                 >
                                     <div className="w-10 h-10 rounded-lg bg-gray-50 dark:bg-dark-900 flex items-center justify-center flex-shrink-0 overflow-hidden border border-gray-100 dark:border-dark-700">
                                         {res.image ? (
