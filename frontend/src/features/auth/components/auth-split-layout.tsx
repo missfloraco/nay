@@ -14,7 +14,7 @@ export const AuthSplitLayout: React.FC<AuthSplitLayoutProps> = ({ children, titl
     const [logoError, setLogoError] = useState(false);
 
     return (
-        <div className="min-h-screen grid lg:grid-cols-2 bg-white dark:bg-dark-950 font-sans rtl" dir="rtl">
+        <div className="min-h-screen grid lg:grid-cols-2 bg-white dark:bg-dark-950 rtl" dir="rtl">
 
             {/* Right Side (Branding) - Start in RTL */}
             <div className="hidden lg:flex flex-col relative overflow-hidden bg-gray-50 dark:bg-dark-900 border-e border-gray-100 dark:border-white/5">

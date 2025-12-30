@@ -2,80 +2,86 @@ import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Save, User, Shield, Loader2, Trash2, Mail, Phone, Globe, Lock } from 'lucide-react';
-import { CircularImageUpload } from '@/shared/components/circularimageupload';
+import { Save, User, Shield, Loader2, Trash2, Mail, Phone, Globe, Lock, CheckCircle2, AlertTriangle } from 'lucide-react';
 import api from '@/shared/services/api';
-import { useToast } from '@/shared/ui/notifications/feedback-context';
-import { resolveAssetUrl } from '@/shared/utils/helpers';
-import { useTrialStatus } from '@/core/hooks/usetrialstatus';
-import { COUNTRIES } from '@/shared/constants';
 import InputField from '@/shared/ui/forms/input-field';
 import SelectField from '@/shared/ui/forms/select-field';
+import { CircularImageUpload } from '@/shared/components/circularimageupload';
+import { COUNTRIES } from '@/shared/constants';
+import { useFeedback } from '@/shared/ui/notifications/feedback-context';
+import { useTrialStatus } from '@/core/hooks/usetrialstatus';
+import { useTenantAuth } from '@/features/auth/tenant-auth-context';
 
-// Props Interface
-interface ProfileSettingsFormProps {
-    initialData: {
-        name?: string;
-        email: string;
-        avatarUrl?: string | null;
-        [key: string]: any;
-    };
-    apiEndpoint: string;
-    isTenant?: boolean; // To handle specific fields like Store Name labelling
-    extraFields?: React.ReactNode; // For Country, Whatsapp, etc.
-    onSuccess?: (data?: any) => void;
-}
+const resolveAssetUrl = (path: string | null) => {
+    if (!path) return null;
+    if (path.startsWith('http')) return path;
+    return `${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/storage/${path}`;
+};
 
-// Schemas
-const baseObject = z.object({
+const formSchema = z.object({
+    name: z.string().min(2, 'الاسم يجب أن يكون حرفين على الأقل'),
     email: z.string().email('البريد الإلكتروني غير صالح'),
+    whatsapp: z.string().optional(),
+    country_code: z.string().optional(),
     password: z.string().optional(),
     confirm_password: z.string().optional(),
-});
-
-const passwordRefinement = (data: any) => {
+}).refine((data) => {
     if (data.password && data.password !== data.confirm_password) {
         return false;
     }
     return true;
-};
-
-const passwordRefinementOptions = {
+}, {
     message: "كلمات المرور غير متطابقة",
     path: ["confirm_password"],
-};
+});
 
-export const ProfileSettingsForm: React.FC<ProfileSettingsFormProps> = ({
+type FormData = z.infer<typeof formSchema>;
+
+interface ProfileSettingsFormProps {
+    initialData: {
+        name: string;
+        email: string;
+        avatarUrl?: string | null;
+        whatsapp?: string;
+        country_code?: string;
+        [key: string]: any;
+    };
+    apiEndpoint: string;
+    isTenant?: boolean;
+    extraFields?: React.ReactNode;
+    onSuccess?: (data: any) => void;
+}
+
+export default function ProfileSettingsForm({
     initialData,
     apiEndpoint,
     isTenant = false,
     extraFields,
     onSuccess
-}) => {
-    const { showToast } = useToast();
+}: ProfileSettingsFormProps) {
+    const { showToast } = useFeedback();
     const [loading, setLoading] = useState(false);
     const [avatarFile, setAvatarFile] = useState<File | null>(null);
-    const [avatarPreview, setAvatarPreview] = useState<string | null>(resolveAssetUrl(initialData.avatarUrl) || null);
+    const [avatarPreview, setAvatarPreview] = useState<string | null>(resolveAssetUrl(initialData.avatarUrl));
     const [removeAvatar, setRemoveAvatar] = useState(false);
+    const [showOTPModal, setShowOTPModal] = useState(false);
+    const [pendingEmail, setPendingEmail] = useState<string | null>(null);
+    const [otpCode, setOtpCode] = useState(['', '', '', '', '', '']);
+    const [verifyingOTP, setVerifyingOTP] = useState(false);
 
-    // Dynamic Schema based on role
-    const formSchema = baseObject.extend({
-        name: z.string().min(2, 'الاسم مطلوب'),
-        whatsapp: isTenant ? z.string().optional() : z.string().optional(),
-        country_code: isTenant ? z.string().optional() : z.string().optional(),
-    }).refine(passwordRefinement, passwordRefinementOptions);
+    const tenantAuth = useTenantAuth();
 
-    type FormData = z.infer<typeof formSchema>;
-
-    const { register, handleSubmit, formState: { errors }, reset, setValue } = useForm<FormData>({
+    const { register, handleSubmit, watch, formState: { errors }, reset, setValue } = useForm<FormData>({
         resolver: zodResolver(formSchema),
         defaultValues: {
             name: initialData.name || '',
             email: initialData.email || '',
-            whatsapp: (initialData as any).whatsapp || '',
-            country_code: (initialData as any).country_code || '',
+            whatsapp: initialData.whatsapp || '',
+            country_code: initialData.country_code || '',
         }
     });
+
+    const emailValue = watch('email');
 
     const { isTrialActive } = useTrialStatus();
 
@@ -102,6 +108,31 @@ export const ProfileSettingsForm: React.FC<ProfileSettingsFormProps> = ({
         setAvatarPreview(null);
         setRemoveAvatar(true);
     };
+
+    const handleOTPVerify = async (code: string) => {
+        if (code.length !== 6 || verifyingOTP) return;
+        setVerifyingOTP(true);
+        try {
+            await tenantAuth.verifyProfileEmail(code);
+            showToast('تم تحديث البريد الإلكتروني بنجاح', 'success');
+            setShowOTPModal(false);
+            setOtpCode(['', '', '', '', '', '']);
+            // Trigger success to update local state in parent
+            onSuccess?.({ ...initialData, email: pendingEmail || initialData.email });
+        } catch (err: any) {
+            showToast(err.response?.data?.message || 'رمز التحقق غير صحيح', 'error');
+        } finally {
+            setVerifyingOTP(false);
+        }
+    };
+
+    // Auto-submit when code is full
+    useEffect(() => {
+        const fullCode = otpCode.join('');
+        if (showOTPModal && fullCode.length === 6) {
+            handleOTPVerify(fullCode);
+        }
+    }, [otpCode, showOTPModal]);
 
     const onSubmit = async (data: any) => {
         setLoading(true);
@@ -132,6 +163,13 @@ export const ProfileSettingsForm: React.FC<ProfileSettingsFormProps> = ({
             const response = await api.post(apiEndpoint, formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             }) as any;
+
+            if (response.require_verification) {
+                setPendingEmail(response.pending_email);
+                setShowOTPModal(true);
+                showToast(response.message, 'info');
+                return;
+            }
 
             if (response.bonus_message) {
                 showToast(response.bonus_message, 'success');
@@ -197,13 +235,34 @@ export const ProfileSettingsForm: React.FC<ProfileSettingsFormProps> = ({
                                 icon={User}
                             />
 
-                            <InputField
-                                label="البريد الإلكتروني"
-                                type="email"
-                                {...register('email')}
-                                error={errors.email?.message}
-                                icon={Mail}
-                            />
+                            <div className="space-y-4">
+                                <InputField
+                                    label="البريد الإلكتروني"
+                                    type="email"
+                                    {...register('email')}
+                                    error={errors.email?.message}
+                                    icon={Mail}
+                                    labelExtras={
+                                        (initialData as any).email_verified_at && emailValue === initialData.email ? (
+                                            <div className="flex items-center gap-1.5 px-2 py-0.5 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-black rounded-full border border-emerald-100 dark:border-emerald-500/20 whitespace-nowrap animate-in fade-in zoom-in-95" title="البريد الإلكتروني مؤكد">
+                                                <CheckCircle2 className="w-3 h-3" />
+                                                <span>مؤكد</span>
+                                            </div>
+                                        ) : (
+                                            <div className="flex items-center gap-1.5 px-2 py-0.5 bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 text-[10px] font-black rounded-full border border-amber-100 dark:border-amber-500/20 whitespace-nowrap animate-in fade-in zoom-in-95" title="البريد الإلكتروني غير مؤكد">
+                                                <AlertTriangle className="w-3 h-3" />
+                                                <span>غير مؤكد</span>
+                                            </div>
+                                        )
+                                    }
+                                />
+
+                                {emailValue !== initialData.email && (
+                                    <p className="text-xs font-bold text-amber-600 dark:text-amber-400 animate-in fade-in slide-in-from-top-1">
+                                        * سيتم إرسال رمز تحقق للبريد الجديد لتأكيد التغيير
+                                    </p>
+                                )}
+                            </div>
                         </div>
 
                         {/* Tenant-specific fields */}
@@ -277,6 +336,72 @@ export const ProfileSettingsForm: React.FC<ProfileSettingsFormProps> = ({
                     <span>حفظ التعديلات</span>
                 </button>
             </div>
+            {/* OTP Verification Modal */}
+            {showOTPModal && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+                    <div className="absolute inset-0 bg-dark-950/60 backdrop-blur-md" onClick={() => setShowOTPModal(false)} />
+                    <div className="relative w-full max-w-md bg-white dark:bg-dark-900 rounded-[2.5rem] shadow-2xl border border-gray-100 dark:border-dark-800 p-10 animate-in zoom-in-95 duration-300">
+                        <div className="text-center space-y-4">
+                            <div className="inline-flex items-center justify-center p-4 bg-primary/10 rounded-[1.5rem] text-primary">
+                                <Mail className="w-8 h-8" />
+                            </div>
+                            <h3 className="text-2xl font-black text-gray-900 dark:text-white">تأكيد البريد الإلكتروني</h3>
+                            <p className="text-sm text-gray-500 dark:text-gray-400">
+                                أدخل الرمز المرسل إلى بريدك الجديد <br />
+                                <span className="text-gray-900 dark:text-white font-bold">{pendingEmail}</span>
+                            </p>
+                        </div>
+
+                        <div className="mt-10 flex justify-between gap-2" dir="ltr">
+                            {otpCode.map((digit, idx) => (
+                                <input
+                                    key={idx}
+                                    id={`profile-otp-${idx}`}
+                                    type="text"
+                                    maxLength={1}
+                                    value={digit}
+                                    onChange={(e) => {
+                                        const val = e.target.value.replace(/\D/g, '').slice(-1);
+                                        const newCode = [...otpCode];
+                                        newCode[idx] = val;
+                                        setOtpCode(newCode);
+                                        if (val && idx < 5) document.getElementById(`profile-otp-${idx + 1}`)?.focus();
+                                    }}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Backspace' && !digit && idx > 0) document.getElementById(`profile-otp-${idx - 1}`)?.focus();
+                                    }}
+                                    onPaste={(e) => {
+                                        e.preventDefault();
+                                        const pastedData = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
+                                        if (pastedData) {
+                                            const newCode = [...otpCode];
+                                            pastedData.split('').forEach((char, i) => {
+                                                if (i < 6) newCode[i] = char;
+                                            });
+                                            setOtpCode(newCode);
+                                            // Focus last filled or next empty
+                                            const lastIdx = Math.min(pastedData.length - 1, 5);
+                                            document.getElementById(`profile-otp-${lastIdx}`)?.focus();
+                                        }
+                                    }}
+                                    className="w-12 h-16 text-center text-2xl font-black bg-gray-50 dark:bg-dark-950 border-2 border-transparent focus:border-primary focus:bg-white dark:focus:bg-dark-800 rounded-2xl transition-all outline-none"
+                                    autoFocus={idx === 0}
+                                />
+                            ))}
+                        </div>
+
+                        <button
+                            type="button"
+                            disabled={verifyingOTP || otpCode.join('').length !== 6}
+                            onClick={() => handleOTPVerify(otpCode.join(''))}
+                            className="w-full mt-10 h-14 bg-primary text-white rounded-2xl font-black shadow-lg shadow-primary/25 hover:shadow-xl transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                        >
+                            {verifyingOTP ? <Loader2 className="w-5 h-5 animate-spin" /> : <CheckCircle2 className="w-5 h-5" />}
+                            <span>تأكيد التغيير</span>
+                        </button>
+                    </div>
+                </div>
+            )}
         </form>
     );
-};
+}

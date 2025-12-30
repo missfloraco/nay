@@ -22,9 +22,11 @@ createRoot(document.getElementById('root')!).render(
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <UIProvider>
-          <AppProvider>
-            <MainApp />
-          </AppProvider>
+          <FeedbackProvider>
+            <AppProvider>
+              <MainApp />
+            </AppProvider>
+          </FeedbackProvider>
         </UIProvider>
       </BrowserRouter>
     </QueryClientProvider>

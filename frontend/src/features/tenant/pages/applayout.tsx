@@ -90,7 +90,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, title = '', noPadding =
 
             <div className="main-content-wrapper">
                 <aside
-                    className="desktop-sidebar bg-white dark:bg-dark-900 border-l border-gray-300 dark:border-dark-600 z-40 transition-all duration-500 ease-in-out flex flex-col w-[250px]"
+                    className="desktop-sidebar bg-white dark:bg-dark-900 border-l border-gray-200 dark:border-dark-700 z-40 transition-all duration-500 ease-in-out flex flex-col w-[250px]"
                 >
                     <nav className="flex-1 overflow-y-auto no-scrollbar p-6 space-y-1.5">
                         {menuItems.map((item) => {
@@ -119,7 +119,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, title = '', noPadding =
                         })}
                     </nav>
 
-                    <div className="flex flex-col border-t border-gray-100 dark:border-dark-700 bg-gray-50/30 dark:bg-dark-800/20">
+                    <div className="flex flex-col border-t border-gray-200 dark:border-dark-700 bg-gray-50/30 dark:bg-dark-800/20">
                         <div className="h-[90px] px-6 flex items-center justify-center">
                             {(() => {
                                 const btnColorClass = 'bg-primary shadow-primary/30';
@@ -153,7 +153,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, title = '', noPadding =
                 </LeftSidebar>
             </div>
 
-            <footer className="flex h-[90px] border-t border-gray-300 dark:border-dark-600 bg-white dark:bg-dark-900 items-center justify-between transition-all z-50">
+            <footer className="flex h-[90px] border-t border-gray-200 dark:border-dark-700 bg-white dark:bg-dark-900 items-center justify-between transition-all z-50">
                 <div className="flex h-full items-center w-full">
                     <CopyrightFooterRight />
 

@@ -33,24 +33,31 @@ class ProfileController extends Controller
 
         $emailChanged = $tenant->email !== $data['email'];
 
-        $tenant->name = $data['name'];
-
         if ($emailChanged) {
-            $tenant->email = $data['email'];
-            $tenant->email_verified_at = null; // Unverify
-
-            // Generate OTP
+            // Generate OTP for new email
             $code = random_int(100000, 999999);
-            $tenant->verification_code = $code;
-            $tenant->verification_code_expires_at = now()->addMinutes(15);
 
-            // Send OTP
+            // Store pending change in cache for 30 minutes
+            \Illuminate\Support\Facades\Cache::put('pending_email_change_' . $tenant->id, [
+                'new_email' => $data['email'],
+                'code' => $code
+            ], 1800);
+
+            // Send OTP to NEW email
             try {
-                \Illuminate\Support\Facades\Mail::to($tenant->email)->send(new \App\Mail\VerificationCodeMail($code));
+                \Illuminate\Support\Facades\Mail::to($data['email'])->send(new \App\Mail\VerificationCodeMail($code));
             } catch (\Exception $e) {
                 \Illuminate\Support\Facades\Log::error('Failed to send verification email on update: ' . $e->getMessage());
+                return response()->json(['message' => 'Failed to send verification email.'], 500);
             }
+
+            // Don't update email yet, return requirement
+            $requireVerification = true;
+        } else {
+            $requireVerification = false;
         }
+
+        $tenant->name = $data['name'];
 
         if (array_key_exists('whatsapp', $data))
             $tenant->whatsapp = $data['whatsapp'];
@@ -93,8 +100,37 @@ class ProfileController extends Controller
         }
 
         return response()->json([
-            'message' => 'تم تحديث الملف الشخصي بنجاح',
+            'message' => $requireVerification ? 'يرجى تأكيد البريد الإلكتروني الجديد' : 'تم تحديث الملف الشخصي بنجاح',
             'bonus_message' => $bonusMessage,
+            'user' => $tenant,
+            'require_verification' => $requireVerification,
+            'pending_email' => $requireVerification ? $data['email'] : null
+        ]);
+    }
+
+    public function verifyEmailChange(Request $request)
+    {
+        $tenant = auth()->user();
+        $request->validate([
+            'code' => 'required|string|size:6'
+        ]);
+
+        $pending = \Illuminate\Support\Facades\Cache::get('pending_email_change_' . $tenant->id);
+
+        if (!$pending || $pending['code'] != $request->code) {
+            return response()->json(['message' => 'رمز التحقق غير صحيح أو منتهي الصلاحية.'], 400);
+        }
+
+        // Update actual email
+        $tenant->email = $pending['new_email'];
+        $tenant->email_verified_at = now();
+        $tenant->save();
+
+        // Clear cache
+        \Illuminate\Support\Facades\Cache::forget('pending_email_change_' . $tenant->id);
+
+        return response()->json([
+            'message' => 'تم تأكيد البريد الإلكتروني وتحديثه بنجاح',
             'user' => $tenant
         ]);
     }

@@ -11,7 +11,8 @@ export interface TenantAuthContextType {
     logout: (shouldRedirect?: boolean) => Promise<void>;
     loading: boolean;
     forgotPassword: (email: string) => Promise<void>;
-    refreshUser: () => Promise<void>;
+    completeRegistration: (email: string, code: string) => Promise<void>;
+    resendOTP: (email: string) => Promise<void>;
     updateProfile: (data: any) => Promise<void>;
     updateLocalUser: (data: any) => void;
     loginWithToken: (token: string) => Promise<void>;
@@ -88,10 +89,34 @@ export const TenantAuthProvider = ({ children }: { children: ReactNode }) => {
     const register = async (userData: any) => {
         await initializeCsrf();
         const isFormData = userData instanceof FormData;
-        // In backend we expect specific fields, FormData is handled by axios automatically usually but let's be sure
         const res = (await api.post('/app/register', userData, {
             headers: isFormData ? { 'Content-Type': 'multipart/form-data' } : {}
-        })) as { user: any };
+        })) as { user: any, require_verification?: boolean };
+
+        if (res.require_verification) {
+            return res; // Return early, let the UI handle the verification step
+        }
+
+        const appUser = { ...res.user, is_admin: false };
+        setUser(appUser);
+        setTenant(res.user);
+        return res;
+    };
+
+    const completeRegistration = async (email: string, code: string) => {
+        await initializeCsrf();
+        const res = (await api.post('/app/register/complete', { email, code })) as { user: any };
+        const appUser = { ...res.user, is_admin: false };
+        setUser(appUser);
+        setTenant(res.user);
+    };
+
+    const resendOTP = async (email: string) => {
+        await api.post('/app/register/resend-otp', { email });
+    };
+
+    const verifyProfileEmail = async (code: string) => {
+        const res = (await api.post('/app/profile/verify-email', { code })) as { user: any };
         const appUser = { ...res.user, is_admin: false };
         setUser(appUser);
         setTenant(res.user);
@@ -144,6 +169,9 @@ export const TenantAuthProvider = ({ children }: { children: ReactNode }) => {
             tenant,
             login,
             register,
+            completeRegistration,
+            resendOTP,
+            verifyProfileEmail,
             logout,
             loading,
             forgotPassword: async (email: string) => { await api.post('/app/forgot-password', { email }); },

@@ -115,6 +115,8 @@ export interface Tenant {
   onboarding_completed: boolean;
   app_type: string;
   settings?: any;
+  created_at?: string;
+  subscription_ends_at?: string;
 }
 
 export interface Permission {
@@ -144,6 +146,7 @@ export interface User {
   last_login_at?: string;
   preferences?: any;
   is_admin?: boolean;
+  created_at?: string;
 }
 
 // ------------------------------------------------------------------

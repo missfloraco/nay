@@ -35,34 +35,97 @@ class AuthController extends Controller
 
         $code = random_int(100000, 999999);
 
-        $tenant = Tenant::create([
+        // Store registration data in Cache for 30 minutes
+        $registrationData = [
             'name' => $request->name,
             'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'country_code' => $request->country ?? 'PS',
+            'password' => $request->password, // Raw password, will hash on create
+            'country' => $request->country ?? 'PS',
+            'code' => $code
+        ];
+
+        \Illuminate\Support\Facades\Cache::put('temp_reg_' . $request->email, $registrationData, 1800);
+
+        try {
+            \Illuminate\Support\Facades\Mail::to($request->email)->send(new \App\Mail\VerificationCodeMail($code));
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Failed to send verification email: ' . $e->getMessage());
+            return response()->json(['message' => 'Failed to send verification email.'], 500);
+        }
+
+        return response()->json([
+            'message' => 'Please verify your email to complete registration.',
+            'require_verification' => true,
+            'email' => $request->email
+        ], 200);
+    }
+
+    /**
+     * Complete registration after OTP verification.
+     */
+    public function completeRegistration(Request $request)
+    {
+        $request->validate([
+            'email' => ['required', 'email'],
+            'code' => ['required', 'string', 'size:6']
+        ]);
+
+        $cachedData = \Illuminate\Support\Facades\Cache::get('temp_reg_' . $request->email);
+
+        if (!$cachedData || $cachedData['code'] != $request->code) {
+            return response()->json(['message' => 'رمز التحقق غير صحيح أو منتهي الصلاحية.'], 400);
+        }
+
+        // Create actual Tenant record
+        $tenant = Tenant::create([
+            'name' => $cachedData['name'],
+            'email' => $cachedData['email'],
+            'password' => Hash::make($cachedData['password']),
+            'country_code' => $cachedData['country'] ?? 'PS',
             'status' => 'trial',
             'trial_expires_at' => now()->addDays(7),
             'ads_enabled' => true,
-            'verification_code' => $code,
-            'verification_code_expires_at' => now()->addMinutes(15),
+            'email_verified_at' => now(),
         ]);
 
-        event(new Registered($tenant));
+        // Clear cache
+        \Illuminate\Support\Facades\Cache::forget('temp_reg_' . $request->email);
 
-        try {
-            \Illuminate\Support\Facades\Mail::to($tenant->email)->send(new \App\Mail\VerificationCodeMail($code));
-        } catch (\Exception $e) {
-            // Log error but don't fail registration
-            \Illuminate\Support\Facades\Log::error('Failed to send verification email: ' . $e->getMessage());
-        }
+        event(new Registered($tenant));
 
         Auth::guard('tenant')->login($tenant);
 
         return response()->json([
             'user' => $tenant,
             'token' => $tenant->createToken('tenant_token')->plainTextToken,
-            'message' => 'Registration successful. Please check your email for the verification code.'
+            'message' => 'Registration successful.'
         ], 201);
+    }
+
+    /**
+     * Resend registration OTP.
+     */
+    public function resendOTP(Request $request)
+    {
+        $request->validate(['email' => 'required|email']);
+
+        $cachedData = \Illuminate\Support\Facades\Cache::get('temp_reg_' . $request->email);
+
+        if (!$cachedData) {
+            return response()->json(['message' => 'جلسة التسجيل انتهت. يرجى البدء من جديد.'], 404);
+        }
+
+        $code = random_int(100000, 999999);
+        $cachedData['code'] = $code;
+        \Illuminate\Support\Facades\Cache::put('temp_reg_' . $request->email, $cachedData, 1800);
+
+        try {
+            \Illuminate\Support\Facades\Mail::to($request->email)->send(new \App\Mail\VerificationCodeMail($code));
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Failed to send email.'], 500);
+        }
+
+        return response()->json(['message' => 'تم إرسال رمز تحقق جديد.']);
     }
 
     /**
@@ -110,61 +173,5 @@ class AuthController extends Controller
 
         return response()->json(['message' => 'Logged out successfully']);
     }
-
-    /**
-     * Resend verification code.
-     */
-    public function sendVerificationEmail(Request $request)
-    {
-        if ($request->user()->hasVerifiedEmail()) {
-            return response()->json(['message' => 'Email already verified.']);
-        }
-
-        $code = random_int(100000, 999999);
-        $user = $request->user();
-        $user->verification_code = $code;
-        $user->verification_code_expires_at = now()->addMinutes(15);
-        $user->save();
-
-        try {
-            \Illuminate\Support\Facades\Mail::to($user->email)->send(new \App\Mail\VerificationCodeMail($code));
-        } catch (\Exception $e) {
-            return response()->json(['message' => 'Failed to send email.'], 500);
-        }
-
-        return response()->json(['message' => 'Verification code sent!']);
-    }
-
-    /**
-     * Verify the email using the code.
-     */
-    public function verify(Request $request)
-    {
-        $request->validate([
-            'code' => ['required', 'string', 'size:6'],
-        ]);
-
-        $user = $request->user();
-
-        if ($user->hasVerifiedEmail()) {
-            return response()->json(['message' => 'Email already verified.']);
-        }
-
-        if ($user->verification_code !== $request->code) {
-            return response()->json(['message' => 'Invalid verification code.'], 400);
-        }
-
-        if ($user->verification_code_expires_at && $user->verification_code_expires_at->isPast()) {
-            return response()->json(['message' => 'Verification code expired.'], 400);
-        }
-
-        if ($user->markEmailAsVerified()) {
-            $user->verification_code = null;
-            $user->verification_code_expires_at = null;
-            $user->save();
-            event(new Verified($user));
-        }
-
-        return response()->json(['message' => 'Email verified successfully!']);
-    }
 }
+

@@ -95,19 +95,17 @@ function LoginRedirector() {
 
 import { useTrialStatus } from '@/core/hooks/usetrialstatus';
 
-import { FeedbackProvider } from '@/shared/ui/notifications/feedback-context';
+import { FeedbackProvider, TrialAlert } from '@/shared/ui/notifications/feedback-context';
 
 export default function MainApp() {
     return (
         <AdminAuthProvider>
             <TenantAuthProvider>
-                <FeedbackProvider>
-                    <TextProvider>
-                        <ExportProvider>
-                            <MainAppContent />
-                        </ExportProvider>
-                    </TextProvider>
-                </FeedbackProvider>
+                <TextProvider>
+                    <ExportProvider>
+                        <MainAppContent />
+                    </ExportProvider>
+                </TextProvider>
             </TenantAuthProvider>
         </AdminAuthProvider>
     );
@@ -122,8 +120,6 @@ function MainAppContent() {
     const loadingLogoutSuccess = location.search.includes('logout=success');
     const { isTrialExpired } = useTrialStatus();
 
-    // Lazy load overlay
-    const VerificationOverlay = lazy(() => import('@/features/auth/components/verification-overlay'));
 
     if (appLoading || adminLoading || loadingSettings) {
         return (
@@ -156,9 +152,6 @@ function MainAppContent() {
         }
     }
 
-    // Verification Overlay Logic
-    // Show overlay if tenant user, not impersonating, and email NOT verified
-    const showVerificationOverlay = appUser && tenant && !isImpersonating && !(tenant as any).email_verified_at;
 
     return (
         <HelmetProvider>
@@ -167,10 +160,9 @@ function MainAppContent() {
                     <SearchProvider>
                         <ScriptInjector />
                         <ExportModal />
+                        <TrialAlert />
                         <Suspense fallback={<PageLoader />}>
 
-                            {/* Verification Overlay - Sits on top of the app */}
-                            {showVerificationOverlay && <VerificationOverlay />}
 
                             <Routes>
                                 <Route path="/" element={<LandingPage />} />

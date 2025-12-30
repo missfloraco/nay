@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/shared/services/api';
 import AdminLayout from './adminlayout';
 import { formatDate } from '@/shared/utils/helpers';
-import { MessageSquare, Send, CheckCircle, Clock, Info, Trash2, X, ChevronLeft, AlertCircle, Archive, LifeBuoy, History, Plus, Shield, Link } from 'lucide-react';
+import { MessageSquare, Send, SendHorizontal, CheckCircle, Clock, Info, Trash2, X, ChevronLeft, AlertCircle, Archive, LifeBuoy, History, Plus, Shield, Link, ShieldCheck } from 'lucide-react';
 import { useFeedback } from '@/shared/ui/notifications/feedback-context';
 import InputField from '@/shared/ui/forms/input-field';
 
@@ -186,13 +186,13 @@ const SupportTickets = () => {
                                 <div className="space-y-5">
                                     <div>
                                         <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">تحديث الحالة</label>
-                                        <div className="grid grid-cols-1 gap-2">
+                                        <div className="grid grid-cols-2 gap-2">
                                             {['open', 'in_progress', 'resolved', 'closed'].map((status) => (
                                                 <button
                                                     key={status}
                                                     onClick={() => updateStatusMutation.mutate({ status })}
                                                     disabled={!!selectedTicket?.deleted_at}
-                                                    className={`px-3 py-2.5 rounded-xl text-[11px] font-bold transition-all border-2 ${selectedTicket?.status === status
+                                                    className={`px-3 py-2.5 rounded-xl text-[10px] font-bold transition-all border-2 ${selectedTicket?.status === status
                                                         ? 'bg-primary text-white border-primary shadow-lg shadow-primary/10'
                                                         : 'bg-white dark:bg-dark-800 text-gray-500 dark:text-gray-400 border-gray-100 dark:border-dark-700 hover:border-gray-300 dark:hover:border-dark-600 hover:bg-gray-50 dark:hover:bg-dark-700'
                                                         } ${selectedTicket?.deleted_at ? 'opacity-50 grayscale' : ''}`}
@@ -268,7 +268,7 @@ const SupportTickets = () => {
                         ) : (
                             <div className="p-6 border-b border-gray-100 dark:border-dark-800 bg-gray-50/10 dark:bg-dark-800/20">
 
-                                <nav className="space-y-1">
+                                <nav className="grid grid-cols-2 gap-2">
                                     {[
                                         { id: 'all', label: 'الكل', icon: MessageSquare, color: 'text-gray-400' },
                                         { id: 'open', label: 'مفتوحة', icon: AlertCircle, color: 'text-blue-500' },
@@ -282,17 +282,14 @@ const SupportTickets = () => {
                                             <button
                                                 key={item.id}
                                                 onClick={() => setStatusFilter(item.id)}
-                                                className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl transition-all font-bold text-xs relative group
+                                                className={`flex items-center gap-2 px-3 py-2.5 rounded-xl transition-all font-bold text-[10px] relative group
                                                 ${isActive
-                                                        ? 'bg-primary/10 dark:bg-primary/20 text-primary ring-1 ring-primary/20 dark:ring-primary/40 shadow-lg shadow-primary/5'
-                                                        : 'text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-dark-800/50 hover:text-gray-900 dark:hover:text-white'
+                                                        ? 'bg-primary/10 dark:bg-primary/20 text-primary ring-1 ring-primary/20 dark:ring-primary/40 shadow-sm'
+                                                        : 'bg-gray-50/50 dark:bg-dark-800/30 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-800 hover:text-gray-900 dark:hover:text-white'
                                                     }`}
                                             >
-                                                <item.icon className={`w-4 h-4 ${isActive ? 'text-primary' : item.color}`} />
-                                                <span className={`flex-1 text-right ${isActive ? 'text-primary' : ''}`}>{item.label}</span>
-                                                {isActive && (
-                                                    <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-                                                )}
+                                                <item.icon className={`w-3.5 h-3.5 shrink-0 ${isActive ? 'text-primary' : item.color}`} />
+                                                <span className={`flex-1 text-right truncate ${isActive ? 'text-primary' : ''}`}>{item.label}</span>
                                             </button>
                                         );
                                     })}
@@ -366,6 +363,63 @@ const SupportTickets = () => {
                     </div>
                 ) : (
                     <div className="flex flex-col h-full overflow-hidden">
+                        {/* Chat Header - Sticky with Tenant Info */}
+                        <div className="bg-white/80 dark:bg-dark-900/80 backdrop-blur-md border-b border-gray-100 dark:border-dark-800 p-4 px-6 flex justify-between items-center shrink-0 z-20">
+                            <div className="flex items-center gap-4">
+                                <div className="w-14 h-14 rounded-2xl bg-white dark:bg-dark-800 border-2 border-gray-100 dark:border-dark-700 flex items-center justify-center shadow-lg shrink-0 overflow-hidden group-hover:scale-110 transition-transform relative">
+                                    {selectedTicket?.tenant?.avatar_url ? (
+                                        <img src={selectedTicket.tenant.avatar_url} alt="" className="w-full h-full object-cover" />
+                                    ) : (
+                                        <span className="text-lg font-black text-primary">
+                                            {selectedTicket?.tenant?.name?.substring(0, 2).toUpperCase() || 'U'}
+                                        </span>
+                                    )}
+                                    <div className="absolute bottom-0 right-0 w-4 h-4 bg-green-500 border-2 border-white dark:border-dark-900 rounded-full shadow-sm" />
+                                </div>
+                                <div className="flex flex-col gap-1.5">
+                                    <div className="flex items-center gap-3">
+                                        <h3 className="font-black text-[18px] text-gray-900 dark:text-white leading-tight">{selectedTicket?.tenant?.name}</h3>
+                                        <span className={`px-2 py-0.5 rounded-full text-[8px] font-black uppercase border shrink-0 ${selectedTicket?.tenant?.status === 'active' ? 'bg-green-100/50 text-green-700 border-green-200' : 'bg-gray-100/50 text-gray-700 border-gray-200'}`}>
+                                            {selectedTicket?.tenant?.status || 'Active'}
+                                        </span>
+                                    </div>
+                                    <div className="flex items-center gap-3 text-[10px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-widest leading-none">
+                                        {selectedTicket?.tenant?.uid && (
+                                            <div className="flex items-center gap-1.5 bg-gray-100 dark:bg-dark-800 px-2.5 py-1 rounded-md border border-gray-200 dark:border-dark-700">
+                                                <Shield className="w-3 h-3 text-primary/60" />
+                                                <span className="text-gray-700 dark:text-gray-300 antialiased">{selectedTicket?.tenant?.uid}</span>
+                                            </div>
+                                        )}
+                                        {selectedTicket?.tenant?.email && (
+                                            <>
+                                                <span className="opacity-30">•</span>
+                                                <div className="flex items-center gap-1.5 hover:text-primary transition-colors cursor-default bg-primary/5 dark:bg-primary/10 px-2.5 py-1 rounded-md border border-primary/10">
+                                                    <Link className="w-3 h-3 text-primary/60" />
+                                                    <span className="lowercase text-primary/80">{selectedTicket?.tenant?.email}</span>
+                                                </div>
+                                            </>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                                <div className="hidden lg:flex flex-col items-end px-4 border-r border-gray-100 dark:border-dark-800">
+                                    <span className="text-[9px] font-black text-gray-400 uppercase tracking-tighter">موضوع التذكرة</span>
+                                    <span className="text-[12px] font-black text-gray-900 dark:text-gray-100 line-clamp-1 max-w-[200px]">{selectedTicket?.subject}</span>
+                                </div>
+                                <div className="flex items-center gap-2 p-1.5 bg-gray-50 dark:bg-dark-800 rounded-2xl border border-gray-100 dark:border-dark-700">
+                                    <button
+                                        onClick={() => updateStatusMutation.mutate({ status: 'resolved' })}
+                                        className="px-4 py-2 bg-white dark:bg-dark-900 text-green-600 border border-transparent hover:border-green-200 dark:hover:border-green-900/30 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm active:scale-95"
+                                    >
+                                        Mark Resolved
+                                    </button>
+                                    <div className={`w-2 h-2 rounded-full mx-1 ${selectedTicket?.status === 'open' ? 'bg-blue-500' : selectedTicket?.status === 'in_progress' ? 'bg-yellow-500' : 'bg-green-500'} animate-pulse`} />
+                                </div>
+                            </div>
+                        </div>
+
                         {/* Messages Container */}
                         <div className="flex-1 overflow-y-auto p-10 space-y-10 bg-gray-50/30 dark:bg-dark-800/30 no-scrollbar">
                             {isLoadingChat && !selectedTicket ? (
@@ -380,36 +434,54 @@ const SupportTickets = () => {
                                             key={msg.id}
                                             className={`flex animate-in fade-in slide-in-from-bottom-2 duration-500 ${msg.is_admin_reply ? 'justify-end' : 'justify-start'}`}
                                         >
-                                            <div
-                                                className={`max-w-[75%] rounded-[32px] px-8 py-6 shadow-sm relative transition-all hover:shadow-md ${msg.is_admin_reply
-                                                    ? 'bg-gradient-to-br from-primary to-primary/80 dark:from-primary/90 dark:to-primary/70 text-white rounded-tr-none shadow-xl shadow-primary/30'
-                                                    : 'bg-white dark:bg-dark-800 text-gray-800 dark:text-gray-100 border-2 border-gray-100 dark:border-dark-700 rounded-tl-none ring-1 ring-dark-950/50 dark:ring-white/5'
-                                                    }`}
-                                            >
+                                            <div className="flex flex-col max-w-[85%] lg:max-w-[80%] group">
                                                 {!msg.is_admin_reply && (
-                                                    <div className="flex items-center gap-3 mb-4">
-                                                        <div className="w-8 h-8 rounded-full bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center border border-blue-100 dark:border-blue-900/30">
-                                                            <MessageSquare className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                                                        </div>
-                                                        <div className="flex flex-col">
-                                                            <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">رسالة العميل</span>
-                                                            <span className="text-[11px] font-bold text-blue-600 dark:text-blue-400">{selectedTicket?.tenant?.name}</span>
-                                                        </div>
+                                                    <div className="flex items-center gap-2 mb-1.5 px-1 animate-in slide-in-from-right-2 duration-300">
+                                                        <span className="text-[10px] font-black text-gray-900 dark:text-white uppercase tracking-tighter bg-gray-100 dark:bg-dark-700 px-2 py-0.5 rounded-md shadow-sm">{selectedTicket?.tenant?.name}</span>
+                                                        <span className="text-[9px] font-black text-primary/60 dark:text-primary/40 tracking-widest">{selectedTicket?.tenant?.uid}</span>
                                                     </div>
                                                 )}
-                                                <p className="text-[14px] leading-relaxed whitespace-pre-wrap font-bold">{msg.message}</p>
-                                                <div className={`text-[9px] mt-4 flex items-center justify-end gap-3 font-black uppercase tracking-tighter ${msg.is_admin_reply ? 'text-primary-foreground/70' : 'text-gray-400 dark:text-gray-500'}`}>
-                                                    <div className="flex items-center gap-1.5 order-2">
+                                                <div className="flex items-end gap-3 mb-1">
+                                                    {!msg.is_admin_reply && (
+                                                        <div className="w-10 h-10 rounded-2xl bg-white dark:bg-dark-800 border-2 border-gray-100 dark:border-dark-700 flex items-center justify-center shadow-lg shrink-0 overflow-hidden group-hover:scale-110 transition-transform">
+                                                            {selectedTicket?.tenant?.avatar_url ? (
+                                                                <img src={selectedTicket.tenant.avatar_url} alt="" className="w-full h-full object-cover" />
+                                                            ) : (
+                                                                <span className="text-xs font-black text-primary">
+                                                                    {selectedTicket?.tenant?.name?.substring(0, 2).toUpperCase() || 'U'}
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                    )}
+                                                    <div
+                                                        className={`relative rounded-[24px] px-6 py-4 shadow-md transition-all hover:shadow-xl ring-1 ${msg.is_admin_reply
+                                                            ? 'bg-primary text-white rounded-bl-none shadow-primary/20 ring-primary/10'
+                                                            : 'bg-white dark:bg-dark-800 text-gray-900 dark:text-gray-100 border-2 border-gray-200 dark:border-dark-700 rounded-br-none ring-gray-100 dark:ring-dark-700'
+                                                            }`}
+                                                    >
+                                                        <p className="text-[15px] leading-relaxed whitespace-pre-wrap font-bold antialiased">{msg.message}</p>
+                                                    </div>
+                                                    {msg.is_admin_reply && (
+                                                        <div className="w-10 h-10 rounded-2xl bg-primary flex items-center justify-center shadow-lg shadow-primary/20 shrink-0 group-hover:scale-110 transition-transform border-4 border-white dark:border-dark-900">
+                                                            <ShieldCheck className="w-5 h-5 text-white" />
+                                                        </div>
+                                                    )}
+                                                </div>
+                                                <div className={`mt-1.5 flex items-center gap-3 font-black uppercase tracking-widest ${msg.is_admin_reply ? 'justify-end text-primary/70' : 'justify-start text-gray-400 dark:text-gray-600'}`}>
+                                                    <div className="flex items-center gap-2 order-2">
                                                         {msg.is_admin_reply ? (
-                                                            <CheckCircle className="w-3.5 h-3.5 text-white/40" />
+                                                            <div className="flex items-center gap-1.5 bg-primary/5 px-2 py-0.5 rounded-full border border-primary/10">
+                                                                <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+                                                                <span className="text-[8px]">تم الإرسال</span>
+                                                            </div>
                                                         ) : (
-                                                            <div className="flex items-center gap-1">
-                                                                <div className="w-1.5 h-1.5 rounded-full bg-blue-400" />
-                                                                تم الاستلام
+                                                            <div className="flex items-center gap-1.5 bg-gray-100 dark:bg-dark-800 px-2 py-0.5 rounded-full border border-gray-200 dark:border-dark-700">
+                                                                <CheckCircle className="w-3.5 h-3.5 text-blue-500" />
+                                                                <span className="text-[8px] opacity-80">تم الاستلام</span>
                                                             </div>
                                                         )}
                                                     </div>
-                                                    <div className="order-1 text-right">
+                                                    <div className="order-1 text-[9px] bg-white/50 dark:bg-dark-950/20 px-2 py-0.5 rounded-full border border-gray-100 dark:border-dark-800">
                                                         {renderTimestamp(msg.created_at)}
                                                     </div>
                                                 </div>
@@ -422,12 +494,12 @@ const SupportTickets = () => {
 
                         {/* Chat Input */}
                         {selectedTicket?.deleted_at ? (
-                            <div className="p-8 bg-gray-50 border-t flex items-center justify-between gap-4">
+                            <div className="p-8 bg-gray-50 dark:bg-dark-950 border-t-2 border-gray-200 dark:border-dark-700 flex items-center justify-between gap-4">
                                 <div className="flex items-center gap-4">
-                                    <div className="p-3 bg-red-50 text-red-600 rounded-2xl">
+                                    <div className="p-3 bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 rounded-2xl">
                                         <Info className="w-5 h-5" />
                                     </div>
-                                    <p className="text-xs font-black text-red-700 uppercase tracking-widest">هذه التذكرة مؤرشفة للقراءة فقط</p>
+                                    <p className="text-xs font-black text-red-700 dark:text-red-400 uppercase tracking-widest">هذه التذكرة مؤرشفة للقراءة فقط</p>
                                 </div>
                                 <button
                                     onClick={() => restoreTicketMutation.mutate()}
@@ -438,7 +510,7 @@ const SupportTickets = () => {
                                 </button>
                             </div>
                         ) : (
-                            <div className="p-8 bg-white border-t shrink-0">
+                            <div className="p-8 bg-white dark:bg-dark-900 border-t-2 border-gray-200 dark:border-dark-700 shrink-0">
                                 <form onSubmit={handleSendMessage} className="flex gap-4">
                                     <div className="flex-1">
                                         <InputField
@@ -447,21 +519,20 @@ const SupportTickets = () => {
                                             onChange={(e) => setChatMessage(e.target.value)}
                                             placeholder="اكتب رد النظام هنا..."
                                             disabled={selectedTicket?.status === 'closed' || replyMutation.isPending}
+                                            className="bg-gray-50 dark:bg-dark-800 border-none shadow-none focus-within:ring-2 ring-primary/20"
                                         />
                                     </div>
                                     <button
                                         type="submit"
                                         disabled={!chatMessage.trim() || replyMutation.isPending || selectedTicket?.status === 'closed'}
-                                        className="w-16 h-16 flex items-center justify-center bg-primary text-white rounded-2xl hover:bg-primary/90 disabled:opacity-30 disabled:grayscale transition-all shadow-2xl shadow-primary/30 group overflow-hidden"
+                                        className="h-[48px] w-[48px] flex items-center justify-center bg-primary text-white rounded-2xl hover:bg-primary/90 disabled:opacity-30 disabled:grayscale transition-all shadow-xl shadow-primary/20 group overflow-hidden active:scale-95 shrink-0"
+                                        title="إرسال الرد"
                                     >
-                                        <div className="relative z-10">
-                                            {replyMutation.isPending ? (
-                                                <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                            ) : (
-                                                <Send className="w-6 h-6 -rotate-90 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-                                            )}
-                                        </div>
-                                        <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/5 to-white/25 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                        {replyMutation.isPending ? (
+                                            <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                        ) : (
+                                            <SendHorizontal className="w-5 h-5 -rotate-90 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                                        )}
                                     </button>
                                 </form>
                             </div>
@@ -469,7 +540,7 @@ const SupportTickets = () => {
                     </div>
                 )}
             </div>
-        </AdminLayout>
+        </AdminLayout >
     );
 };
 

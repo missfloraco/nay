@@ -32,6 +32,7 @@ interface Tenant {
     onboarding_completed?: boolean;
     admin_email?: string;
     ads_enabled?: boolean;
+    email_verified_at?: string;
 }
 
 interface TenantDetailsSidebarProps {
@@ -232,9 +233,22 @@ export function TenantDetailsSidebar({ tenant, tenants, onSelect, onUpdate, onNa
                                 />
                                 <div className="flex flex-col gap-0.5 overflow-hidden">
                                     <h2 className="font-black text-gray-900 dark:text-white text-base truncate">{tenant.name}</h2>
-                                    <div className="flex items-center gap-1.5 text-[10px] text-gray-400 font-bold uppercase tracking-wider truncate">
-                                        <Mail className="w-3 h-3 opacity-50" />
-                                        {tenant.email}
+                                    <div className="flex items-center gap-2">
+                                        <div className="flex items-center gap-1.5 text-[10px] text-gray-400 font-bold uppercase tracking-wider truncate">
+                                            <Mail className="w-3 h-3 opacity-50" />
+                                            {tenant.email}
+                                        </div>
+                                        {tenant.email_verified_at ? (
+                                            <div className="flex items-center gap-1 text-[9px] font-black text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 px-1.5 py-0.5 rounded-full border border-emerald-100 dark:border-emerald-500/20">
+                                                <CheckCircle className="w-2 h-2" />
+                                                <span>مؤكد</span>
+                                            </div>
+                                        ) : (
+                                            <div className="flex items-center gap-1 text-[9px] font-black text-amber-500 bg-amber-50 dark:bg-amber-500/10 px-1.5 py-0.5 rounded-full border border-amber-100 dark:border-amber-500/20">
+                                                <AlertTriangle className="w-2 h-2" />
+                                                <span>غير مؤكد</span>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             </div>

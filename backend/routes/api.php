@@ -29,15 +29,35 @@ Route::prefix('public')->group(function () {
         // In a real app, this would load from lang files or DB
         // For now, return basic structure to satisfy frontend
         return response()->json([
-            'auth' => [
-                'login' => [
-                    'title' => 'تسجيل الدخول',
-                    'subtitle' => 'مرحباً بك مجدداً! سجل دخولك للمتابعة',
-                    'email_label' => 'البريد الإلكتروني',
-                    'password_label' => 'كلمة المرور',
-                    'submit' => 'تسجيل الدخول',
+            'AUTH' => [
+                'LOGIN' => [
+                    'TITLE' => 'تسجيل الدخول',
+                    'SUBTITLE' => 'مرحباً بك مجدداً! سجل دخولك للمتابعة',
+                    'EMAIL_LABEL' => 'البريد الإلكتروني',
+                    'PASSWORD_LABEL' => 'كلمة المرور',
+                    'SUBMIT' => 'تسجيل الدخول',
                 ],
-                // Add more as needed
+                'REGISTER' => [
+                    'TITLE' => 'إنشاء حساب جديد',
+                    'SUBTITLE' => 'ابدأ رحلتك معنا اليوم',
+                    'EMAIL_LABEL' => 'البريد الإلكتروني',
+                    'PASSWORD_LABEL' => 'كلمة المرور',
+                    'SUBMIT' => 'تسجيل حساب',
+                    'FULL_NAME_LABEL' => 'الاسم الكامل',
+                    'FULL_NAME_PLACEHOLDER' => 'الاسم الكامل',
+                    'COUNTRY_LABEL' => 'الدولة',
+                ],
+                'VERIFICATION' => [
+                    'TITLE' => 'تأكيد الحساب',
+                    'SUBTITLE' => 'يرجى إدخال رمز التحقق الذي تم إرساله إلى بريدك الإلكتروني',
+                    'SUBMIT' => 'تأكيد الحساب',
+                ],
+                'FORGOT_PASSWORD' => [
+                    'TITLE' => 'نسيت كلمة المرور؟',
+                    'SUBTITLE' => 'أدخل بريدك الإلكتروني لاستعادة حسابك',
+                    'EMAIL_LABEL' => 'البريد الإلكتروني',
+                    'SUBMIT' => 'إرسال رابط الاستعادة',
+                ],
             ]
         ]);
     });
@@ -45,6 +65,48 @@ Route::prefix('public')->group(function () {
     // SEO Settings Endpoint (Public - for landing page)
     Route::get('/seo/{pageKey}', [App\Http\Controllers\Admin\SeoSettingController::class, 'show']);
 });
+
+// Unified Login Route (Admin & Tenant)
+Route::post('/login', function (Request $request) {
+    $credentials = $request->validate([
+        'email' => ['required', 'email'],
+        'password' => ['required'],
+    ]);
+
+    // 1. Try Admin (Session-based)
+    if (Auth::guard('admin')->attempt($credentials)) {
+        $request->session()->regenerate();
+        return response()->json([
+            'type' => 'admin',
+            'user' => Auth::guard('admin')->user()
+        ]);
+    }
+
+    // 2. Try Tenant (Token-based)
+    $tenant = Tenant::where('email', $request->email)->first();
+    if ($tenant && Hash::check($request->password, $tenant->password)) {
+        if ($tenant->status === 'disabled') {
+            return response()->json(['message' => 'حسابك معطل. يرجى الاتصال بالدعم.'], 403);
+        }
+
+        // Allow login even if unverified? Check requirement.
+        // Previous verification logic was: register -> verify -> DB. 
+        // So if they are in DB, they are verified (or trial).
+        // But checking email_verified_at might be good if we have old data.
+        // For now, consistent with DB existence = verified.
+
+        Auth::guard('tenant')->login($tenant);
+        $token = $tenant->createToken('tenant_token')->plainTextToken;
+
+        return response()->json([
+            'type' => 'tenant',
+            'user' => $tenant,
+            'token' => $token
+        ]);
+    }
+
+    return response()->json(['message' => 'بيانات الدخول غير صحيحة.'], 401);
+})->middleware('throttle:10,1');
 
 // Admin Authentication Routes
 Route::prefix('admin')->group(function () {
@@ -142,40 +204,7 @@ Route::prefix('admin')->group(function () {
     });
 });
 
-// Unified Login Route (to avoid 401 noise in console)
-Route::post('/login', function (Request $request) {
-    $credentials = $request->validate([
-        'email' => ['required', 'email'],
-        'password' => ['required'],
-    ]);
 
-    // Try Admin Guard first (usually fewer admins than tenants, or vice versa)
-    if (Auth::guard('admin')->attempt($credentials)) {
-        $request->session()->regenerate();
-        return response()->json([
-            'user' => Auth::guard('admin')->user(),
-            'type' => 'admin'
-        ], 200);
-    }
-
-    // Try Tenant Guard
-    if (Auth::guard('tenant')->attempt($credentials)) {
-        $tenant = Auth::guard('tenant')->user();
-        if ($tenant->status === 'disabled') {
-            Auth::guard('tenant')->logout();
-            return response()->json(['message' => 'Account is disabled.'], 403);
-        }
-
-        $request->session()->regenerate();
-        return response()->json([
-            'user' => $tenant,
-            'token' => $tenant->createToken('tenant_token')->plainTextToken,
-            'type' => 'tenant'
-        ], 200);
-    }
-
-    return response()->json(['message' => 'بيانات الدخول غير صحيحة'], 401);
-})->middleware('throttle:10,1');
 
 // Tenant Authentication Routes
 Route::prefix('app')->group(function () {
@@ -185,6 +214,8 @@ Route::prefix('app')->group(function () {
 
     // Register
     Route::post('/register', [App\Http\Controllers\Tenant\AuthController::class, 'register'])->middleware('throttle:3,1');
+    Route::post('/register/complete', [App\Http\Controllers\Tenant\AuthController::class, 'completeRegistration'])->middleware('throttle:5,1');
+    Route::post('/register/resend-otp', [App\Http\Controllers\Tenant\AuthController::class, 'resendOTP'])->middleware('throttle:3,1');
 
     // Forgot Password Placeholder
     Route::post('/forgot-password', function (Request $request) {
@@ -196,14 +227,6 @@ Route::prefix('app')->group(function () {
     // Protected Tenant Routes
     Route::middleware(['auth:sanctum,tenant', 'tenant.only'])->group(function () {
 
-        // Email Verification Routes (OTP)
-        Route::post('/email/verify', [App\Http\Controllers\Tenant\AuthController::class, 'verify'])
-            ->middleware(['throttle:6,1'])
-            ->name('verification.verify');
-
-        Route::post('/email/verification-notification', [App\Http\Controllers\Tenant\AuthController::class, 'sendVerificationEmail'])
-            ->middleware(['throttle:6,1'])
-            ->name('verification.send');
 
         Route::get('/user', function (Request $request) {
             return response()->json([
@@ -214,6 +237,7 @@ Route::prefix('app')->group(function () {
         });
 
         Route::post('/profile', [App\Http\Controllers\Tenant\ProfileController::class, 'update'])->middleware('throttle:5,1');
+        Route::post('/profile/verify-email', [App\Http\Controllers\Tenant\ProfileController::class, 'verifyEmailChange'])->middleware('throttle:5,1');
 
         // Trash Management Routes
         Route::prefix('trash')->group(function () {

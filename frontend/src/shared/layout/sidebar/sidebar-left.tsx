@@ -29,7 +29,7 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
 
     return (
         <aside
-            className={`left-sidebar-root bg-white dark:bg-dark-900 ${noBorder ? '' : 'border-r border-gray-300 dark:border-dark-600'} z-40 transition-all duration-500 ease-in-out flex flex-col w-[250px] ${contentClassName}`}
+            className={`left-sidebar-root bg-white dark:bg-dark-950 ${noBorder ? '' : 'border-r border-gray-200 dark:border-dark-700'} z-40 transition-all duration-500 ease-in-out flex flex-col w-[250px] ${contentClassName}`}
         >
             {/* Content Area - matches main sidebar nav styling */}
             <div className={`flex-1 overflow-y-auto no-scrollbar ${noPadding ? 'p-0 space-y-0' : 'p-6 space-y-1.5'}`}>
@@ -76,7 +76,7 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
             {!window.location.pathname.startsWith('/admin') && (
                 <AdSlot
                     placement="ad_sidebar_square"
-                    className="w-[250px] h-[250px] aspect-square border-t border-gray-100 dark:border-white/5 mt-auto"
+                    className="w-[250px] h-[250px] aspect-square border-t border-gray-200 dark:border-dark-700 mt-auto"
                     showPlaceholder={false}
                 />
             )}

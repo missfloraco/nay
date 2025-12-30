@@ -3,6 +3,7 @@ import { LucideIcon } from 'lucide-react';
 
 interface InputFieldProps extends React.InputHTMLAttributes<HTMLInputElement> {
     label: string;
+    labelExtras?: React.ReactNode;
     icon?: LucideIcon;
     error?: string;
     success?: boolean;
@@ -12,6 +13,7 @@ interface InputFieldProps extends React.InputHTMLAttributes<HTMLInputElement> {
 
 const InputField = React.forwardRef<HTMLInputElement, InputFieldProps>(({
     label,
+    labelExtras,
     icon: Icon,
     error,
     success,
@@ -25,13 +27,16 @@ const InputField = React.forwardRef<HTMLInputElement, InputFieldProps>(({
 
     return (
         <div className="space-y-2.5 group w-full">
-            <div className="flex justify-between items-end px-1">
-                <label
-                    htmlFor={inputId}
-                    className="form-label group-focus-within:text-primary"
-                >
-                    {label}
-                </label>
+            <div className="flex justify-between items-center px-1">
+                <div className="flex items-center gap-2">
+                    <label
+                        htmlFor={inputId}
+                        className="form-label group-focus-within:text-primary mb-0"
+                    >
+                        {label}
+                    </label>
+                    {labelExtras}
+                </div>
                 {success && !error && (
                     <span className="text-[9px] font-black text-emerald-500 uppercase tracking-widest animate-in fade-in zoom-in-95">
                         تم التحقق

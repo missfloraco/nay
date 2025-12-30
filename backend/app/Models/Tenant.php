@@ -38,6 +38,7 @@ class Tenant extends Authenticatable
         'trial_bonus_applied',
         'verification_code',
         'verification_code_expires_at',
+        'email_verified_at',
     ];
 
     protected $hidden = [

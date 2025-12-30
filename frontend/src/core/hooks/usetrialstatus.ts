@@ -9,7 +9,9 @@ export interface TrialStatus {
     isPending: boolean;
     isActive: boolean;
     daysRemaining: number;
+    subDaysRemaining: number;
     trialExpiresAt: string | null;
+    subscriptionEndsAt: string | null;
 }
 
 /**
@@ -20,6 +22,7 @@ export function useTrialStatus(): TrialStatus {
 
     const status = user?.status ?? null;
     const trialExpiresAt = user?.trial_expires_at ?? null;
+    const subscriptionEndsAt = (user as any)?.subscription_ends_at ?? null;
 
     const isTrialExpired = status === 'expired' || (trialExpiresAt !== null && new Date(trialExpiresAt) < new Date());
     const isDisabled = status === 'disabled';
@@ -30,15 +33,20 @@ export function useTrialStatus(): TrialStatus {
     const isTrialActive = status === 'trial' && trialExpiresAt !== null && new Date(trialExpiresAt) > new Date();
 
     const daysRemaining = useMemo(() => {
-        if (!user?.trial_expires_at) return 0;
-
-        const expirationDate = new Date(user.trial_expires_at);
+        if (!trialExpiresAt) return 0;
+        const expirationDate = new Date(trialExpiresAt);
         const now = new Date();
         const diffTime = expirationDate.getTime() - now.getTime();
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        return Math.max(0, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
+    }, [trialExpiresAt]);
 
-        return Math.max(0, diffDays);
-    }, [user?.trial_expires_at]);
+    const subDaysRemaining = useMemo(() => {
+        if (!subscriptionEndsAt) return 0;
+        const expirationDate = new Date(subscriptionEndsAt);
+        const now = new Date();
+        const diffTime = expirationDate.getTime() - now.getTime();
+        return Math.max(0, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
+    }, [subscriptionEndsAt]);
 
     return {
         status,
@@ -48,6 +56,8 @@ export function useTrialStatus(): TrialStatus {
         isPending,
         isActive,
         daysRemaining,
-        trialExpiresAt: user?.trial_expires_at ?? null,
+        subDaysRemaining,
+        trialExpiresAt,
+        subscriptionEndsAt,
     };
 }

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="https://lucide.dev/logo.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script>
+    (function () {
+      // Set favicon from localStorage
+      const savedFavicon = localStorage.getItem('app_favicon');
+      if (savedFavicon) {
+        const link = document.querySelector("link[rel*='icon']") || document.createElement('link');
+        link.rel = 'icon';
+        link.href = savedFavicon;
+        if (!link.parentNode) document.head.appendChild(link);
+      }
+
+      // Set SEO title from cache IMMEDIATELY for landing page
+      if (window.location.pathname === '/') {
+        try {
+          const cachedSEO = localStorage.getItem('seo_landing');
+          if (cachedSEO) {
+            const seoData = JSON.parse(cachedSEO);
+            if (seoData.title) {
+              document.title = seoData.title;
+            }
+          }
+        } catch (e) {
+          console.error('Failed to load cached SEO title:', e);
+        }
+      }
+    })();
+  </script>
+  <!-- Local Fonts: RTA -->
+  <style>
+    /* Smooth scrolling and scrollbar customization */
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background-color: #f3f4f6;
+    }
+
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 3px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+  </style>
+  <script type="module" crossorigin src="/assets/index-3tzHmsOf.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-GGRP2yUl.css">
+</head>
+
+<body>
+  <div id="root"></div>
+</body>
+
+</html>

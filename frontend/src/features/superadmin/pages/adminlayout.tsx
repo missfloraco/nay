@@ -103,7 +103,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title, noPadding = 
             <div className="main-content-wrapper">
                 {/* 1. Main Navigation Sidebar (Fixed 250px) - Physically RIGHT in RTL (First Child) */}
                 <aside
-                    className="desktop-sidebar bg-white dark:bg-dark-900 border-l border-gray-300 dark:border-dark-600 z-40 transition-all duration-500 ease-in-out flex flex-col w-[250px]"
+                    className="desktop-sidebar bg-white dark:bg-dark-950 border-l border-gray-200 dark:border-dark-700 z-40 transition-all duration-500 ease-in-out flex flex-col w-[250px]"
                 >
                     <nav className="flex-1 overflow-y-auto no-scrollbar p-6 space-y-1.5">
                         {navItems.map((item) => {
@@ -134,7 +134,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title, noPadding = 
                     </nav>
 
                     {/* Anchored Primary Action */}
-                    <div className="flex flex-col border-t border-gray-100 dark:border-dark-700 bg-gray-50/30 dark:bg-dark-800/20">
+                    <div className="flex flex-col border-t border-gray-200 dark:border-dark-700 bg-gray-50/30 dark:bg-dark-800/20">
                         <div className="h-[90px] px-6 flex items-center justify-center">
                             {primaryAction ? (
                                 <button
@@ -155,7 +155,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title, noPadding = 
                 {/* 2. Main Content Area - Full Width */}
                 <div className="content-area-main relative overflow-hidden bg-gray-50 dark:bg-dark-950 flex-1">
                     <main className="h-full relative p-4">
-                        <div className={`page-frame-container w-full h-full bg-white dark:bg-dark-900 flex flex-col overflow-auto no-scrollbar p-0`}>
+                        <div className={`page-frame-container w-full h-full bg-white dark:bg-dark-950 flex flex-col overflow-auto no-scrollbar p-0`}>
                             {children}
                         </div>
                     </main>
@@ -168,7 +168,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title, noPadding = 
             </div>
 
             {/* 3. Global Footer - Full Width, Fixed Bottom */}
-            <footer className="flex h-[90px] border-t border-gray-300 dark:border-dark-600 bg-white dark:bg-dark-900 items-center justify-between transition-all z-50">
+            <footer className="flex h-[90px] border-t border-gray-200 dark:border-dark-700 bg-white dark:bg-dark-950 items-center justify-between transition-all z-50">
                 <div className="flex h-full items-center w-full">
                     {/* 1. Copyright Area - Physically RIGHT in RTL (First Child) */}
                     <CopyrightFooterRight />

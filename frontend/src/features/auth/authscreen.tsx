@@ -6,7 +6,7 @@ import api, { initializeCsrf } from '@/shared/services/api';
 import { logger } from '@/shared/services/logger';
 import { useText } from '@/shared/contexts/text-context';
 import { AuthSplitLayout } from '@/features/auth/components/auth-split-layout';
-import { Lock, Mail, User, Globe, AlertCircle, CheckCircle2, Eye, EyeOff, Loader2, ArrowLeft } from 'lucide-react';
+import { Lock, Mail, User, Globe, AlertCircle, CheckCircle2, Eye, EyeOff, Loader2, ArrowLeft, Moon, Sun } from 'lucide-react';
 
 import { COUNTRIES } from '@/shared/constants';
 import { LoginSchema, RegisterSchema, ForgotPasswordSchema } from '@/shared/utils/validation';
@@ -14,7 +14,7 @@ import { PasswordStrengthIndicator } from './components/passwordstrengthindicato
 import InputField from '@/shared/ui/forms/input-field';
 import SelectField from '@/shared/ui/forms/select-field';
 
-type AuthMode = 'login' | 'register' | 'forgot-password';
+type AuthMode = 'login' | 'register' | 'forgot-password' | 'verification';
 
 export default function AuthScreen({ initialMode = 'login' }: { initialMode?: AuthMode }) {
     const [mode, setMode] = useState<AuthMode>(initialMode);
@@ -40,6 +40,8 @@ export default function AuthScreen({ initialMode = 'login' }: { initialMode?: Au
     });
 
     const [passwordStrength, setPasswordStrength] = useState<'weak' | 'medium' | 'strong'>('weak');
+    const [verificationCode, setVerificationCode] = useState(['', '', '', '', '', '']);
+    const [resendCountdown, setResendCountdown] = useState(0);
 
     useEffect(() => {
         const pass = formData.password;
@@ -50,6 +52,21 @@ export default function AuthScreen({ initialMode = 'login' }: { initialMode?: Au
     }, [formData.password]);
 
     // Check for Impersonation Token
+    useEffect(() => {
+        if (resendCountdown > 0) {
+            const timer = setTimeout(() => setResendCountdown(resendCountdown - 1), 1000);
+            return () => clearTimeout(timer);
+        }
+    }, [resendCountdown]);
+
+    // Auto-submit when code is full
+    useEffect(() => {
+        const code = verificationCode.join('');
+        if (mode === 'verification' && code.length === 6 && !loading) {
+            handleSubmit({ preventDefault: () => { } } as React.FormEvent);
+        }
+    }, [verificationCode, mode]);
+
     useEffect(() => {
         const params = new URLSearchParams(location.search);
         const token = params.get('impersonate_token');
@@ -99,6 +116,8 @@ export default function AuthScreen({ initialMode = 'login' }: { initialMode?: Au
         setSuccess('');
         setLoading(true);
 
+        console.log('handleSubmit called', { mode, formData });
+
         try {
             // Validation
             if (mode === 'login') {
@@ -113,7 +132,20 @@ export default function AuthScreen({ initialMode = 'login' }: { initialMode?: Au
                 data.append('country', formData.country);
                 data.append('currency', 'ILS');
 
-                await tenantAuth.register(data);
+                const res = await tenantAuth.register(data);
+                if (res?.require_verification) {
+                    setMode('verification');
+                    setSuccess('تم إرسال رمز التحقق إلى بريدك الإلكتروني');
+                    return;
+                }
+                navigate('/app/dashboard');
+            } else if (mode === 'verification') {
+                const code = verificationCode.join('');
+                if (code.length !== 6) {
+                    setError('يرجى إدخال رمز التحقق المكون من 6 أرقام');
+                    return;
+                }
+                await tenantAuth.completeRegistration(formData.email, code);
                 navigate('/app/dashboard');
             } else if (mode === 'forgot-password') {
                 ForgotPasswordSchema.parse({ email: formData.email });
@@ -121,12 +153,16 @@ export default function AuthScreen({ initialMode = 'login' }: { initialMode?: Au
                 setSuccess(t('AUTH.FORGOT_PASSWORD.SUCCESS_MESSAGE'));
             }
         } catch (err: any) {
+            console.error('Auth error:', err);
             if (err.errors) {
                 // Zod Error
                 setError(err.errors[0].message);
+            } else if (err.response && err.response.data && err.response.data.message) {
+                // API Error - Use specific message from backend
+                setError(err.response.data.message);
             } else {
-                // API Error
-                setError(err.response?.data?.message || 'البيانات المدخلة غير صحيحة. يرجى التأكد من البريد الإلكتروني وكلمة المرور.');
+                // Fallback
+                setError('حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.');
             }
         } finally {
             setLoading(false);
@@ -146,6 +182,22 @@ export default function AuthScreen({ initialMode = 'login' }: { initialMode?: Au
             title={t(`AUTH.${mode === 'forgot-password' ? 'FORGOT_PASSWORD' : mode.toUpperCase()}.TITLE`)}
             subtitle={t(`AUTH.${mode === 'forgot-password' ? 'FORGOT_PASSWORD' : mode.toUpperCase()}.SUBTITLE`)}
         >
+            {/* Dark Mode Toggle */}
+            <div className="absolute top-4 left-4 z-50">
+                <button
+                    type="button"
+                    onClick={() => {
+                        const isDark = document.documentElement.classList.toggle('dark');
+                        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+                    }}
+                    className="p-2 rounded-full bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-white/20 transition-all"
+                    title="تبديل الوضع الليلي"
+                >
+                    <span className="dark:hidden"><Moon size={20} /></span>
+                    <span className="hidden dark:inline"><Sun size={20} /></span>
+                </button>
+            </div>
+
             <form onSubmit={handleSubmit} className="space-y-8 animate-in fade-in slide-in-from-bottom-5 duration-500">
 
                 {/* Status Messages */}
@@ -162,93 +214,181 @@ export default function AuthScreen({ initialMode = 'login' }: { initialMode?: Au
 
                 {/* Form Fields Container */}
                 <div className="space-y-6">
-                    {/* Full Name Field - Register Only */}
-                    {mode === 'register' && (
-                        <InputField
-                            label={t('AUTH.REGISTER.FULL_NAME_LABEL')}
-                            id="fullName"
-                            type="text"
-                            required
-                            value={formData.fullName}
-                            onChange={e => setFormData({ ...formData, fullName: e.target.value })}
-                            placeholder={t('AUTH.REGISTER.FULL_NAME_PLACEHOLDER')}
-                            icon={User}
-                            autoComplete="name"
-                        />
-                    )}
-
-                    {/* Email Field */}
-                    <InputField
-                        label={t(`AUTH.${mode === 'forgot-password' ? 'FORGOT_PASSWORD' : mode.toUpperCase()}.EMAIL_LABEL`)}
-                        id="email"
-                        type="email"
-                        required
-                        value={formData.email}
-                        onChange={e => setFormData({ ...formData, email: e.target.value })}
-                        placeholder={t(`AUTH.${mode === 'register' ? 'REGISTER' : 'LOGIN'}.EMAIL_PLACEHOLDER`)}
-                        icon={Mail}
-                        autoComplete="email"
-                    />
-
-                    {/* Password Field - Not for Forgot Password */}
-                    {mode !== 'forgot-password' && (
-                        <div className="space-y-4">
-                            <div className="relative group">
-                                <InputField
-                                    label={t(`AUTH.${mode.toUpperCase()}.PASSWORD_LABEL`)}
-                                    id="password"
-                                    type={showPassword ? 'text' : 'password'}
-                                    required
-                                    value={formData.password}
-                                    onChange={e => setFormData({ ...formData, password: e.target.value })}
-                                    placeholder={t(`AUTH.${mode.toUpperCase()}.PASSWORD_PLACEHOLDER`)}
-                                    autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
-                                    className="!pe-16" // Space for Eye icon
-                                    endContent={
-                                        <button
-                                            type="button"
-                                            onClick={() => setShowPassword(!showPassword)}
-                                            className="text-gray-400 hover:text-primary transition-colors h-5 w-5 flex items-center justify-center p-0"
-                                            title={showPassword ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور'}
-                                        >
-                                            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                                        </button>
-                                    }
-                                />
+                    {/* Verification OTP Digits - Professional UI */}
+                    {mode === 'verification' && (
+                        <div className="space-y-8 animate-in fade-in zoom-in-95 duration-500">
+                            <div className="text-center space-y-2">
+                                <div className="inline-flex items-center justify-center p-3 bg-primary/10 rounded-2xl mb-2 text-primary">
+                                    <Mail className="w-8 h-8" />
+                                </div>
+                                <h3 className="text-xl font-black text-gray-900 dark:text-white">رمز التحقق</h3>
+                                <p className="text-sm text-gray-500 dark:text-gray-400">
+                                    أدخل الرمز المكون من 6 أرقام المرسل إلى <br />
+                                    <span className="text-gray-900 dark:text-white font-bold">{formData.email}</span>
+                                </p>
                             </div>
 
-                            {mode === 'login' && (
-                                <div className="flex justify-end">
-                                    <button
-                                        type="button"
-                                        onClick={() => toggleMode('forgot-password')}
-                                        className="text-sm font-bold text-gray-500 hover:text-primary transition-colors"
-                                    >
-                                        {t('AUTH.LOGIN.FORGOT_PASSWORD')}
-                                    </button>
-                                </div>
-                            )}
+                            <div className="flex justify-between gap-2" dir="ltr">
+                                {verificationCode.map((digit, idx) => (
+                                    <input
+                                        key={idx}
+                                        id={`otp-${idx}`}
+                                        type="text"
+                                        maxLength={1}
+                                        value={digit}
+                                        onChange={(e) => {
+                                            const val = e.target.value;
+                                            if (/^\d*$/.test(val)) {
+                                                const newCode = [...verificationCode];
+                                                newCode[idx] = val.slice(-1); // Only take last char if somehow more
+                                                setVerificationCode(newCode);
+                                                // Auto focus next
+                                                if (val && idx < 5) {
+                                                    document.getElementById(`otp-${idx + 1}`)?.focus();
+                                                }
+                                            }
+                                        }}
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Backspace' && !digit && idx > 0) {
+                                                document.getElementById(`otp-${idx - 1}`)?.focus();
+                                            }
+                                        }}
+                                        onPaste={(e) => {
+                                            e.preventDefault();
+                                            const pastedData = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
+                                            if (pastedData) {
+                                                const newCode = [...verificationCode];
+                                                pastedData.split('').forEach((char, i) => {
+                                                    if (i < 6) newCode[i] = char;
+                                                });
+                                                setVerificationCode(newCode);
+                                                // Focus last filled or next empty
+                                                const lastIdx = Math.min(pastedData.length - 1, 5);
+                                                document.getElementById(`otp-${lastIdx}`)?.focus();
+                                            }
+                                        }}
+                                        className="w-12 h-16 text-center text-2xl font-black bg-gray-50 dark:bg-dark-900 border-2 border-transparent focus:border-primary focus:bg-white dark:focus:bg-dark-800 rounded-2xl transition-all outline-none"
+                                        autoFocus={idx === 0}
+                                    />
+                                ))}
+                            </div>
 
-                            {/* Password Strength Indicator */}
-                            {mode === 'register' && (
-                                <PasswordStrengthIndicator
-                                    strength={passwordStrength}
-                                    passwordLength={formData.password.length}
-                                />
-                            )}
+                            <div className="text-center">
+                                <button
+                                    type="button"
+                                    disabled={resendCountdown > 0 || loading}
+                                    onClick={async () => {
+                                        setLoading(true);
+                                        try {
+                                            await tenantAuth.resendOTP(formData.email);
+                                            setSuccess('تم إرسال كود جديد');
+                                            setResendCountdown(60);
+                                        } catch (err: any) {
+                                            setError(err.response?.data?.message || 'فشل إرسال الكود');
+                                        } finally {
+                                            setLoading(false);
+                                        }
+                                    }}
+                                    className="text-sm font-bold text-gray-400 hover:text-primary transition-colors disabled:opacity-50"
+                                >
+                                    {resendCountdown > 0 ? `إعادة الإرسال خلال ${resendCountdown} ثانية` : 'إعادة إرسال الكود؟'}
+                                </button>
+                            </div>
                         </div>
                     )}
 
-                    {/* Country Field - Register Only */}
-                    {mode === 'register' && (
-                        <SelectField
-                            label={t('AUTH.REGISTER.COUNTRY_LABEL')}
-                            id="country"
-                            value={formData.country}
-                            onChange={e => setFormData({ ...formData, country: e.target.value })}
-                            options={countryOptions}
-                            icon={Globe}
-                        />
+                    {/* Registration/Login Fields */}
+                    {mode !== 'verification' && (
+                        <>
+                            {/* Full Name Field - Register Only */}
+                            {mode === 'register' && (
+                                <InputField
+                                    label={t('AUTH.REGISTER.FULL_NAME_LABEL')}
+                                    id="fullName"
+                                    type="text"
+                                    required
+                                    value={formData.fullName}
+                                    onChange={e => setFormData({ ...formData, fullName: e.target.value })}
+                                    placeholder={t('AUTH.REGISTER.FULL_NAME_PLACEHOLDER')}
+                                    icon={User}
+                                    autoComplete="name"
+                                />
+                            )}
+
+                            {/* Email Field - Hide in Verification Mode */}
+                            <InputField
+                                label={t(`AUTH.${mode === 'forgot-password' ? 'FORGOT_PASSWORD' : mode.toUpperCase()}.EMAIL_LABEL`)}
+                                id="email"
+                                type="email"
+                                required
+                                value={formData.email}
+                                onChange={e => setFormData({ ...formData, email: e.target.value })}
+                                placeholder={t(`AUTH.${mode === 'register' ? 'REGISTER' : 'LOGIN'}.EMAIL_PLACEHOLDER`)}
+                                icon={Mail}
+                                autoComplete="email"
+                            />
+
+                            {/* Password Field - Not for Forgot Password */}
+                            {mode !== 'forgot-password' && (
+                                <div className="space-y-4">
+                                    <div className="relative group">
+                                        <InputField
+                                            label={t(`AUTH.${mode.toUpperCase()}.PASSWORD_LABEL`)}
+                                            id="password"
+                                            type={showPassword ? 'text' : 'password'}
+                                            required
+                                            value={formData.password}
+                                            onChange={e => setFormData({ ...formData, password: e.target.value })}
+                                            placeholder={t(`AUTH.${mode.toUpperCase()}.PASSWORD_PLACEHOLDER`)}
+                                            autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
+                                            className="!pe-16" // Space for Eye icon
+                                            endContent={
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setShowPassword(!showPassword)}
+                                                    className="text-gray-400 hover:text-primary transition-colors h-5 w-5 flex items-center justify-center p-0"
+                                                    title={showPassword ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور'}
+                                                >
+                                                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                                </button>
+                                            }
+                                        />
+                                    </div>
+
+                                    {mode === 'login' && (
+                                        <div className="flex justify-end">
+                                            <button
+                                                type="button"
+                                                onClick={() => toggleMode('forgot-password')}
+                                                className="text-sm font-bold text-gray-500 hover:text-primary transition-colors"
+                                            >
+                                                {t('AUTH.LOGIN.FORGOT_PASSWORD')}
+                                            </button>
+                                        </div>
+                                    )}
+
+                                    {/* Password Strength Indicator */}
+                                    {mode === 'register' && (
+                                        <PasswordStrengthIndicator
+                                            strength={passwordStrength}
+                                            passwordLength={formData.password.length}
+                                        />
+                                    )}
+                                </div>
+                            )}
+
+                            {/* Country Field - Register Only */}
+                            {mode === 'register' && (
+                                <SelectField
+                                    label={t('AUTH.REGISTER.COUNTRY_LABEL')}
+                                    id="country"
+                                    value={formData.country}
+                                    onChange={e => setFormData({ ...formData, country: e.target.value })}
+                                    options={countryOptions}
+                                    icon={Globe}
+                                />
+                            )}
+                        </>
                     )}
                 </div>
 
@@ -264,39 +404,11 @@ export default function AuthScreen({ initialMode = 'login' }: { initialMode?: Au
                             <span>جاري المعالجة...</span>
                         </>
                     ) : (
-                        t(`AUTH.${mode === 'forgot-password' ? 'FORGOT_PASSWORD' : mode.toUpperCase()}.SUBMIT`)
+                        mode === 'verification' ? 'تأكيد الحساب' :
+                            t(`AUTH.${mode === 'forgot-password' ? 'FORGOT_PASSWORD' : mode.toUpperCase()}.SUBMIT`)
                     )}
                 </button>
 
-                {/* Social Login Section */}
-                {mode !== 'forgot-password' && (
-                    <div className="space-y-6 pt-4">
-                        <div className="relative flex items-center justify-center">
-                            <div className="absolute inset-x-0 h-px bg-gray-100 dark:bg-white/5 top-1/2" />
-                            <span className="relative bg-white dark:bg-dark-950 px-4 text-xs font-bold text-gray-400 uppercase tracking-wider">
-                                أو تابع باستخدام
-                            </span>
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-4">
-                            <button type="button" className="flex items-center justify-center gap-3 h-12 bg-gray-50 dark:bg-dark-900 border border-gray-100 dark:border-white/5 hover:bg-white dark:hover:bg-dark-800 rounded-xl text-sm font-bold text-gray-700 dark:text-gray-300 transition-all hover:shadow-md group">
-                                <svg className="w-5 h-5 transition-transform group-hover:scale-110" viewBox="0 0 24 24">
-                                    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
-                                    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
-                                    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
-                                    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
-                                </svg>
-                                <span>Google</span>
-                            </button>
-                            <button type="button" className="flex items-center justify-center gap-3 h-12 bg-gray-50 dark:bg-dark-900 border border-gray-100 dark:border-white/5 hover:bg-white dark:hover:bg-dark-800 rounded-xl text-sm font-bold text-gray-700 dark:text-gray-300 transition-all hover:shadow-md group">
-                                <svg className="w-5 h-5 text-gray-900 dark:text-white transition-transform group-hover:scale-110" viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-.33-.16-1.14-.52-2.18-.54-1.12.02-1.95.42-2.31.59-1.02.48-2.12.57-3.09-.38-1.91-1.89-3.32-6.52-1.39-9.92.97-1.7 2.7-2.83 4.67-2.85 1.09 0 2 .59 2.62.59.57 0 1.63-.64 2.8-.52 1.18.11 2.21.69 2.87 1.65-2.61 1.57-2.18 5.76.62 6.89-.52 1.53-1.22 3.05-2.15 3.99l.62.1zm-3.41-16.5c.66-1.44 2.37-2.22 2.37-2.22-.05 1.95-1.76 3.4-3.14 3.47-.46-1.63 1.11-2.69 1.77-1.25z" />
-                                </svg>
-                                <span>Apple</span>
-                            </button>
-                        </div>
-                    </div>
-                )}
 
 
                 {/* Mode Toggle Links */}

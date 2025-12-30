@@ -32,6 +32,7 @@ interface Tenant {
     whatsapp?: string;
     country_code?: string;
     ads_enabled?: boolean;
+    email_verified_at?: string;
 }
 
 export default function TenantsList() {
@@ -173,6 +174,7 @@ export default function TenantsList() {
                 <IdentityCell
                     name={tenant.name}
                     avatar={tenant.avatar_url}
+                    uid={tenant.uid}
                 />
             ),
             exportValue: (tenant: Tenant) => tenant.name,
@@ -183,9 +185,22 @@ export default function TenantsList() {
         {
             header: 'البريد الإلكتروني',
             accessor: (tenant: Tenant) => (
-                <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400 text-sm">
-                    <Mail className="w-3 h-3 text-gray-400" />
-                    {tenant.email}
+                <div className="flex flex-col gap-1">
+                    <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400 text-sm">
+                        <Mail className="w-3 h-3 text-gray-400" />
+                        {tenant.email}
+                    </div>
+                    {tenant.email_verified_at ? (
+                        <div className="flex items-center gap-1 text-[10px] font-black text-emerald-600 dark:text-emerald-400">
+                            <CheckCircle className="w-2.5 h-2.5" />
+                            <span>مؤكد</span>
+                        </div>
+                    ) : (
+                        <div className="flex items-center gap-1 text-[10px] font-black text-amber-500">
+                            <AlertCircle className="w-2.5 h-2.5" />
+                            <span>غير مؤكد</span>
+                        </div>
+                    )}
                 </div>
             ),
             exportValue: (tenant: Tenant) => tenant.email,

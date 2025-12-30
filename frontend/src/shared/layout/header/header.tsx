@@ -84,7 +84,7 @@ export const Header: React.FC<HeaderProps> = ({
 
 
   return (
-    <header className={`sticky top-0 z-50 bg-white/80 dark:bg-dark-950/80 backdrop-blur-md border-b border-gray-300 dark:border-dark-600 flex items-center justify-between transition-colors h-[90px] ${className}`}>
+    <header className={`sticky top-0 z-50 bg-white/80 dark:bg-dark-950/80 backdrop-blur-md border-b border-gray-200 dark:border-dark-700 flex items-center justify-between transition-colors h-[90px] ${className}`}>
       {/* 1. Branding Section - Physically RIGHT in RTL (First Child) - Aligns with Main Nav Sidebar */}
       {/* 1. Branding Section - Physically RIGHT in RTL (First Child) - Aligns with Main Nav Sidebar */}
       <LogoHeaderRight

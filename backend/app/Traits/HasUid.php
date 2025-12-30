@@ -27,21 +27,33 @@ trait HasUid
         $prefix = defined('static::UID_PREFIX') ? static::UID_PREFIX : 'GEN';
         $prefix = Str::upper(Str::limit($prefix, 3, ''));
 
-        // Get the last record to determine the next sequence
-        // Check if model uses SoftDeletes trait before calling withTrashed()
+        // Start with a base guess based on latest ID to maintain rough sequentiality
         $query = static::query();
-        
+
         if (method_exists(static::class, 'withTrashed')) {
             $query = static::withTrashed();
         }
-        
+
         $lastRecord = $query->latest('id')->first();
+        $nextNumber = $lastRecord ? ($lastRecord->id + 1) : 1;
 
-        $nextId = $lastRecord ? ($lastRecord->id + 1) : 1;
+        do {
+            $sequence = str_pad((string) $nextNumber, 6, '0', STR_PAD_LEFT);
+            $uid = "{$prefix}-{$sequence}";
 
-        // Ensure 6 digits
-        $sequence = str_pad((string) $nextId, 6, '0', STR_PAD_LEFT);
+            // Check if this specific UID already exists
+            // We use a fresh query clone for the check
+            $existsQuery = static::query();
+            if (method_exists(static::class, 'withTrashed')) {
+                $existsQuery = static::withTrashed();
+            }
+            $exists = $existsQuery->where('uid', $uid)->exists();
 
-        return "{$prefix}-{$sequence}";
+            if ($exists) {
+                $nextNumber++;
+            }
+        } while ($exists);
+
+        return $uid;
     }
 }

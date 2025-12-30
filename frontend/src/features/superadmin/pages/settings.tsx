@@ -1,6 +1,6 @@
 ﻿import React from 'react';
 import AdminLayout from '@/features/superadmin/pages/adminlayout';
-import { ProfileSettingsForm } from '@/shared/components/profile-settings-form';
+import ProfileSettingsForm from '@/shared/components/profile-settings-form';
 import { useSettings } from '@/shared/contexts/app-context';
 import { useAction } from '@/shared/contexts/action-context';
 import { useEffect } from 'react';
@@ -26,7 +26,8 @@ export default function AdminSettings() {
                         initialData={{
                             name: settings.currentUser.name,
                             email: settings.currentUser.email,
-                            avatarUrl: settings.currentUser.avatarUrl
+                            avatarUrl: settings.currentUser.avatarUrl,
+                            email_verified_at: settings.currentUser.email_verified_at
                         }}
                         apiEndpoint="/admin/profile"
                         onSuccess={(data) => {

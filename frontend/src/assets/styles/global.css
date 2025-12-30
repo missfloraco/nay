@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./responsive.css";
 
 @theme {
   --color-primary: #2a8cff;
@@ -9,11 +10,11 @@
   --color-error: #ef4444;
 
   --color-dark-500: #64748b;
-  --color-dark-600: #475569;
-  --color-dark-700: #334155;
-  --color-dark-800: #1e293b;
-  --color-dark-900: #0f172a;
-  --color-dark-950: #020617;
+  --color-dark-600: #334155;
+  --color-dark-700: #1e293b;
+  --color-dark-800: #0f172a;
+  --color-dark-900: #0a0b14;
+  --color-dark-950: #05060b;
   --shadow-premium: 0 0 50px rgba(0, 0, 0, 0.02);
 }
 
@@ -80,136 +81,6 @@
   @apply px-6 py-5 text-base text-gray-800 dark:text-gray-200 border-x border-b border-gray-100 dark:border-dark-800/50 font-bold;
 }
 
-/* 
-  ==========================================================================
-  Responsive System (Consolidated)
-  ========================================================================== 
-*/
-
-@media (max-width: 768px) {
-  .layout-root {
-    @apply h-auto min-h-screen bg-gray-50 dark:bg-dark-950 flex flex-col;
-    height: auto !important;
-    min-height: 100vh !important;
-    display: flex !important;
-    flex-direction: column !important;
-    overflow-x: hidden !important;
-  }
-
-  .main-content-wrapper {
-    @apply flex-col h-auto;
-    display: flex !important;
-    flex-direction: column !important;
-    height: auto !important;
-  }
-
-  .global-header {
-    @apply h-[70px] px-4 flex items-center justify-between;
-    @apply bg-white/95 dark:bg-dark-950/95 backdrop-blur-xl border-b border-gray-100 dark:border-dark-800;
-    height: 70px !important;
-    padding-left: 1rem !important;
-    padding-right: 1rem !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: space-between !important;
-  }
-
-  .desktop-sidebar,
-  .left-sidebar-root,
-  .header-user-section {
-    display: none !important;
-  }
-
-  .content-area-main {
-    @apply w-full flex-none;
-    width: 100% !important;
-    flex: none !important;
-  }
-
-  .page-frame-container {
-    @apply p-4 pb-32;
-    padding: 1rem !important;
-    padding-bottom: 8rem !important;
-    min-height: calc(100vh - 70px);
-  }
-
-  .standard-table-container {
-    @apply border-0 bg-transparent shadow-none overflow-visible;
-    border-width: 0 !important;
-    background-color: transparent !important;
-    box-shadow: none !important;
-    overflow: visible !important;
-  }
-
-  .standard-table {
-    @apply block w-full;
-    display: block !important;
-    width: 100% !important;
-  }
-
-  .standard-table thead {
-    @apply hidden;
-    display: none !important;
-  }
-
-  .standard-table tbody {
-    @apply block space-y-4;
-    display: block !important;
-  }
-
-  .standard-table tr {
-    @apply block bg-white dark:bg-dark-900 rounded-3xl p-6 shadow-sm border border-gray-100 dark:border-dark-800 relative overflow-hidden transition-all;
-    display: block !important;
-  }
-
-  .standard-table td {
-    @apply flex justify-between items-center py-2 px-0 border-0;
-    @apply text-sm;
-    display: flex !important;
-    justify-content: space-between !important;
-    align-items: center !important;
-    padding: 0.5rem 0 !important;
-    border-width: 0 !important;
-    text-align: right !important;
-  }
-
-  .standard-table td::before {
-    content: attr(data-label);
-    @apply font-black text-gray-400 dark:text-gray-500 uppercase text-[10px] tracking-widest pl-4;
-    font-weight: 900 !important;
-    text-transform: uppercase !important;
-    padding-left: 1rem !important;
-  }
-
-  .dashboard-grid {
-    @apply grid-cols-1 gap-4;
-    grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
-    gap: 1rem !important;
-  }
-}
-
-@media (min-width: 769px) and (max-width: 1024px) {
-  .desktop-sidebar {
-    width: 80px !important;
-  }
-
-  .sidebar-label-text {
-    display: none !important;
-  }
-
-  .sidebar-nav-item {
-    @apply justify-center px-0;
-    justify-content: center !important;
-    padding-left: 0 !important;
-    padding-right: 0 !important;
-  }
-}
-
-@media (min-width: 1025px) {
-  .mobile-only {
-    display: none !important;
-  }
-}
 
 /* Animations */
 @keyframes mobileFadeIn {
@@ -224,11 +95,6 @@
   }
 }
 
-@media (max-width: 768px) {
-  .mobile-animate {
-    animation: mobileFadeIn 0.4s ease-out forwards;
-  }
-}
 
 /* 
   ==========================================================================
@@ -274,6 +140,20 @@
 
 .select-field {
   @apply appearance-none;
+}
+
+@keyframes progress {
+  from {
+    width: 0%;
+  }
+
+  to {
+    width: 100%;
+  }
+}
+
+.animate-progress {
+  animation-name: progress;
 }
 
 @media (min-width: 769px) {

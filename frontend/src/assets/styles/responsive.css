@@ -1,0 +1,147 @@
+/* 
+  ==========================================================================
+  Responsive System (Consolidated)
+  ========================================================================== 
+*/
+
+@media (max-width: 768px) {
+    .layout-root {
+        @apply h-auto min-h-screen bg-gray-50 dark:bg-dark-950 flex flex-col;
+        height: auto !important;
+        min-height: 100vh !important;
+        display: flex !important;
+        flex-direction: column !important;
+        overflow-x: hidden !important;
+    }
+
+    .main-content-wrapper {
+        @apply flex-col h-auto;
+        display: flex !important;
+        flex-direction: column !important;
+        height: auto !important;
+    }
+
+    .global-header {
+        @apply h-[70px] px-4 flex items-center justify-between;
+        @apply bg-white/95 dark:bg-dark-950/95 backdrop-blur-xl border-b border-gray-100 dark:border-dark-800;
+        height: 70px !important;
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+    }
+
+    .desktop-sidebar,
+    .left-sidebar-root,
+    .header-user-section {
+        display: none !important;
+    }
+
+    .content-area-main {
+        @apply w-full flex-none;
+        width: 100% !important;
+        flex: none !important;
+    }
+
+    .page-frame-container {
+        @apply p-4 pb-32;
+        padding: 1rem !important;
+        padding-bottom: 8rem !important;
+        min-height: calc(100vh - 70px);
+    }
+
+    .standard-table-container {
+        @apply border-0 bg-transparent shadow-none overflow-visible;
+        border-width: 0 !important;
+        background-color: transparent !important;
+        box-shadow: none !important;
+        overflow: visible !important;
+    }
+
+    .standard-table {
+        @apply block w-full;
+        display: block !important;
+        width: 100% !important;
+    }
+
+    .standard-table thead {
+        @apply hidden;
+        display: none !important;
+    }
+
+    .standard-table tbody {
+        @apply block space-y-4;
+        display: block !important;
+    }
+
+    .standard-table tr {
+        @apply block bg-white dark:bg-dark-900 rounded-[2rem] p-8 mb-6 shadow-[0_10px_40px_rgba(0,0,0,0.03)] border border-gray-100 dark:border-white/5 relative overflow-hidden transition-all active:scale-[0.98];
+        display: block !important;
+    }
+
+    .standard-table tr::after {
+        content: '';
+        @apply absolute top-0 left-0 w-1.5 h-full bg-primary/20;
+    }
+
+    .standard-table td {
+        @apply flex justify-between items-center py-3 px-0 border-0;
+        @apply text-base font-bold text-gray-800 dark:text-gray-200;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        padding: 0.75rem 0 !important;
+        border-width: 0 !important;
+    }
+
+    .standard-table td::before {
+        content: attr(data-label);
+        @apply font-black text-gray-400 dark:text-gray-500 uppercase text-[10px] tracking-[0.2em] pl-4;
+        font-weight: 900 !important;
+        text-transform: uppercase !important;
+        padding-left: 1rem !important;
+    }
+
+    .dashboard-grid {
+        @apply grid-cols-1 gap-6;
+        grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
+        gap: 1.5rem !important;
+    }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+    .desktop-sidebar {
+        width: 80px !important;
+    }
+
+    .sidebar-label-text {
+        display: none !important;
+    }
+
+    .sidebar-nav-item {
+        @apply justify-center px-0;
+        justify-content: center !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+}
+
+@media (min-width: 1025px) {
+    .mobile-only {
+        display: none !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .mobile-animate {
+        animation: mobileFadeIn 0.4s ease-out forwards;
+    }
+}
+
+@media (min-width: 769px) {
+    .page-frame-container {
+        @apply w-full max-w-full mx-auto p-0;
+        @apply border border-gray-100 dark:border-white/5 shadow-premium dark:shadow-none;
+    }
+}

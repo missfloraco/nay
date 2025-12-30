@@ -1,6 +1,6 @@
 ﻿import React from 'react';
 import AppLayout from '@/features/tenant/pages/applayout';
-import { ProfileSettingsForm } from '@/shared/components/profile-settings-form';
+import ProfileSettingsForm from '@/shared/components/profile-settings-form';
 import { useTenantAuth } from '@/features/auth/tenant-auth-context';
 import { useAction } from '@/shared/contexts/action-context';
 import { useEffect } from 'react';
@@ -32,7 +32,8 @@ export default function TenantSettings() {
                             avatarUrl: tenant.avatar_url,
                             logo_url: tenant.logo_url,
                             whatsapp: tenant.whatsapp,
-                            country_code: tenant.country_code
+                            country_code: tenant.country_code,
+                            email_verified_at: tenant.email_verified_at
                         }}
                         apiEndpoint="/app/profile"
                         isTenant={true}
