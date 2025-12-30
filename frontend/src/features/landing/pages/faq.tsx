@@ -1,5 +1,5 @@
-﻿import { useState } from 'react';
-import { ChevronDown } from 'lucide-react';
+﻿import React, { useState } from 'react';
+import { Plus } from 'lucide-react';
 import { useSettings } from '@/shared/contexts/app-context';
 
 const faqs = [
@@ -29,49 +29,44 @@ export default function FAQ() {
     const [openIndex, setOpenIndex] = useState<number | null>(null);
     const { settings } = useSettings();
 
+    const displayFAQs = settings.landing_faq
+        ? JSON.parse(settings.landing_faq as string)
+        : faqs;
+
     return (
-        <section id="faq" className="py-24 lg:py-32 bg-white dark:bg-[#0a0a0a] transition-colors duration-500">
-            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="text-center mb-16 lg:mb-20">
-                    <span className="inline-flex items-center px-4 py-1.5 rounded-full bg-primary/10 text-primary font-semibold text-xs tracking-widest uppercase mb-6">
-                        الأسئلة الأكثر شيوعاً
+        <section id="faq" className="py-24 lg:py-40 bg-white dark:bg-[#0a0a0a] transition-colors duration-500 relative overflow-hidden">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                {/* Header - Right Aligned like Hero */}
+                <div className="text-right max-w-4xl mb-20 lg:mb-32">
+                    <span className="inline-flex items-center px-6 py-2 rounded-xl bg-blue-500/10 text-blue-500 dark:text-blue-400 font-black text-sm tracking-widest uppercase mb-8 border border-blue-500/20">
+                        الأسئلة الشائعة
                     </span>
-                    <h2 className="text-4xl lg:text-5xl font-black text-gray-900 dark:text-white mb-6">
-                        الإجابات التي تبحث عنها
+                    <h2 className="text-5xl lg:text-7xl font-black text-gray-900 dark:text-white mb-8 tracking-tighter leading-[1.1]">
+                        هنا تجد إجابات للأسئلة التي قد تراودك
                     </h2>
-                    <p className="text-gray-500 dark:text-gray-400 text-lg lg:text-xl font-medium max-w-2xl mx-auto">
-                        كل ما تحتاج معرفته عن نظام {settings.appName || 'SaaS Platform'} وكيف يمكنه مساعدتك في تطوير تجارتك باحترافية.
-                    </p>
                 </div>
 
-                <div className="space-y-4 lg:space-y-6">
-                    {(settings.landing_faq ? JSON.parse(settings.landing_faq as string) : faqs).map((faq: any, index: number) => (
+                {/* FAQ List - Simple Accordion */}
+                <div className="space-y-4">
+                    {displayFAQs.map((faq: any, index: number) => (
                         <div
                             key={index}
-                            className={`rounded-[1.5rem] lg:rounded-[2.5rem] border transition-all duration-500 overflow-hidden ${openIndex === index
-                                ? 'bg-primary/5 dark:bg-white/5 border-primary/20 shadow-2xl shadow-primary/5'
-                                : 'bg-gray-50 dark:bg-white/5 border-gray-100 dark:border-white/5 hover:border-primary/20 dark:hover:border-white/10'
-                                }`}
+                            className="bg-gray-50/50 dark:bg-[#1a1c1e] border border-gray-200 dark:border-white/5 rounded-2xl overflow-hidden transition-all duration-500 hover:border-primary/20 dark:hover:border-primary/20"
                         >
                             <button
                                 onClick={() => setOpenIndex(openIndex === index ? null : index)}
-                                className="w-full px-6 lg:px-10 py-6 lg:py-8 flex items-center justify-between gap-6 text-right transition-all"
+                                className="w-full px-8 lg:px-10 py-6 lg:py-7 flex items-center justify-between gap-8 text-right transition-all outline-none group"
                             >
-                                <span className={`text-lg lg:text-xl font-bold transition-colors ${openIndex === index ? 'text-primary' : 'text-gray-900 dark:text-white'
-                                    }`}>
+                                <span className="text-lg lg:text-xl font-bold text-gray-900 dark:text-white text-right flex-1">
                                     {faq.question}
                                 </span>
-                                <div className={`w-10 h-10 lg:w-12 lg:h-12 rounded-2xl flex items-center justify-center transition-all duration-500 flex-shrink-0 ${openIndex === index
-                                    ? 'bg-primary text-white rotate-180 shadow-lg shadow-primary/30'
-                                    : 'bg-white dark:bg-white/10 text-gray-400 dark:text-gray-500 border border-gray-100 dark:border-white/10'
-                                    }`}>
-                                    <ChevronDown className="w-5 h-5 lg:w-6 lg:h-6" />
+                                <div className="w-8 h-8 flex items-center justify-center flex-shrink-0 text-gray-400 dark:text-white/50 group-hover:text-primary transition-colors">
+                                    <Plus className={`w-6 h-6 transition-transform duration-300 ${openIndex === index ? 'rotate-45' : ''}`} />
                                 </div>
                             </button>
 
-                            <div className={`transition-all duration-500 ease-in-out ${openIndex === index ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'
-                                }`}>
-                                <div className="px-6 lg:px-10 pb-8 lg:pb-10 text-gray-600 dark:text-gray-400 leading-relaxed font-normal text-lg lg:text-xl border-t border-gray-200/50 dark:border-white/10 pt-6 lg:pt-8 bg-white/50 dark:bg-transparent">
+                            <div className={`transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${openIndex === index ? 'max-h-[800px] opacity-100' : 'max-h-0 opacity-0'}`}>
+                                <div className="px-8 lg:px-10 pb-6 lg:pb-7 text-gray-600 dark:text-gray-400 leading-relaxed font-normal text-base lg:text-lg text-right border-t border-gray-200 dark:border-white/5 pt-6">
                                     {faq.answer}
                                 </div>
                             </div>

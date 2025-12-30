@@ -1,6 +1,8 @@
 ﻿import LandingLayout from '@/features/landing/pages/landinglayout';
 import Hero from '@/features/landing/pages/hero';
 import Features from '@/features/landing/pages/features';
+import AboutUs from '@/features/landing/pages/about';
+import Pricing from '@/features/landing/pages/pricing';
 import Testimonials from '@/features/landing/pages/testimonials';
 import ValueProp from '@/features/landing/pages/valueprop';
 import FAQ from '@/features/landing/pages/faq';
@@ -17,6 +19,8 @@ export default function LandingPage() {
             <LandingLayout>
                 <Hero />
                 <Features />
+                <AboutUs />
+                <Pricing />
                 <ValueProp />
                 <Testimonials />
                 <FAQ />

@@ -78,9 +78,9 @@ export default function Hero() {
                     <div className="order-2 relative h-full flex items-center justify-center lg:justify-start">
                         <div className="relative w-full max-w-lg lg:max-w-none aspect-[4/5] lg:aspect-auto lg:h-[750px]">
                             <img
-                                src={settings.landing_hero_image as string || "/landing_hero_pos_saas.png"}
-                                alt="Modern POS System"
-                                className="w-full h-full object-contain relative z-10 drop-shadow-2xl scale-110 lg:scale-125 transition-transform duration-700 hover:scale-115 lg:hover:scale-130"
+                                src="/landing_hero_dashboard.png"
+                                alt="Modern Dashboard System"
+                                className="w-full h-auto object-contain relative z-10 drop-shadow-[0_20px_50px_rgba(0,0,0,0.15)] dark:drop-shadow-[0_20px_50px_rgba(59,130,246,0.2)] rounded-3xl lg:rotate-[-2deg] scale-110 lg:scale-135 transition-all duration-700 hover:scale-115 lg:hover:scale-140 hover:rotate-0"
                             />
                             {/* Decorative glow behind image - Theme Aware */}
                             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[110%] h-[110%] bg-primary/10 dark:bg-blue-600/5 rounded-full blur-[120px] -z-10" />
