@@ -19,7 +19,8 @@ import {
     Loader2,
     X,
     Sparkles,
-    Code
+    Code,
+    Shield
 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import api from '@/shared/services/api';
@@ -43,9 +44,10 @@ interface AdminLayoutProps {
     leftSidebarContent?: ReactNode; // محتوى مخصص للشريط الأيسر
     leftSidebarNoPadding?: boolean;
     leftSidebarNoBorder?: boolean;
+    hideLeftSidebar?: boolean;
 }
 
-const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title, noPadding = false, leftSidebarContent, leftSidebarNoPadding = false, leftSidebarNoBorder = false }) => {
+const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title, noPadding = false, leftSidebarContent, leftSidebarNoPadding = false, leftSidebarNoBorder = false, hideLeftSidebar = false }) => {
     const location = useLocation();
     const navigate = useNavigate();
     const { user, loading, logout } = useAdminAuth();
@@ -90,6 +92,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title, noPadding = 
         { icon: BarChart3, label: 'إدارة SEO', path: '/admin/seo', color: 'text-blue-600' },
         { icon: Megaphone, label: t('admin.NAV.ADS', 'إدارة الإعلانات'), path: '/admin/ads', color: 'text-[#fb005e]' },
         { icon: Code, label: 'الأكواد والنصوص', path: '/admin/scripts', color: 'text-amber-600' },
+        { icon: Shield, label: 'إعدادات الحماية', path: '/admin/security', color: 'text-rose-600' },
         { icon: MessageSquare, label: t('admin.NAV.SUPPORT', 'رسائل الدعم'), path: '/admin/support', color: 'text-[#fb005e]', badge: unreadCount },
         { icon: Trash2, label: t('admin.NAV.RECYCLE_BIN', 'سلة المحذوفات'), path: '/admin/trash', color: 'text-red-600 font-black', badge: trashCount },
     ];
@@ -232,9 +235,11 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title, noPadding = 
                 </div>
 
                 {/* 3. Left Sidebar (Fixed 250px) - Physically LEFT in RTL (Last Child) */}
-                <LeftSidebar noPadding={leftSidebarNoPadding} noBorder={leftSidebarNoBorder}>
-                    {leftSidebarContent}
-                </LeftSidebar>
+                {!hideLeftSidebar && (
+                    <LeftSidebar noPadding={leftSidebarNoPadding} noBorder={leftSidebarNoBorder}>
+                        {leftSidebarContent}
+                    </LeftSidebar>
+                )}
             </div>
 
             {/* 3. Global Footer - Full Width, Fixed Bottom */}

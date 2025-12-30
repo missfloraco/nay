@@ -79,7 +79,7 @@ export default function SeoManagement() {
     }
 
     return (
-        <AdminLayout title="إدارة SEO" noPadding={true}>
+        <AdminLayout title="إدارة SEO" noPadding={true} hideLeftSidebar={true}>
             <div className="h-full w-full bg-white dark:bg-dark-950 p-6 lg:p-12 animate-in fade-in duration-500 overflow-y-auto no-scrollbar pb-44">
                 <div className="max-w-6xl mx-auto space-y-12 w-full">
                     <div className="flex items-center gap-6 border-b border-gray-100 dark:border-dark-800 pb-8 group">

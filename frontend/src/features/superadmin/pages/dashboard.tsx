@@ -54,7 +54,7 @@ export default function Dashboard() {
 
     if (loading) {
         return (
-            <AdminLayout>
+            <AdminLayout hideLeftSidebar={true}>
                 <div className="p-10 flex items-center justify-center min-h-[60vh]">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
                 </div>
@@ -63,7 +63,7 @@ export default function Dashboard() {
     }
 
     return (
-        <AdminLayout>
+        <AdminLayout hideLeftSidebar={true}>
             <div className="space-y-10">
                 {/* 1. Header */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">

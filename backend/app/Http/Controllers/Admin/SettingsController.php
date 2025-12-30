@@ -140,8 +140,23 @@ class SettingsController extends Controller
             'company_link',
             'primary_color',
             'secondary_color',
-            'custom_font_url',
             'custom_heading_font_url',
+            // Content Protection (Granular)
+            'protect_right_click_admin',
+            'protect_right_click_app',
+            'protect_right_click_landing',
+            'protect_selection_admin',
+            'protect_selection_app',
+            'protect_selection_landing',
+            'protect_drag_admin',
+            'protect_drag_app',
+            'protect_drag_landing',
+            'protect_copy_paste_admin',
+            'protect_copy_paste_app',
+            'protect_copy_paste_landing',
+            'protect_devtools_admin',
+            'protect_devtools_app',
+            'protect_devtools_landing',
         ];
 
         $data = $request->only($allowedKeys);

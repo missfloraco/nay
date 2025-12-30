@@ -31,6 +31,7 @@ const AdManagement = lazy(() => import('@/features/superadmin/pages/admanagement
 const SupportTickets = lazy(() => import('@/features/superadmin/pages/supporttickets'));
 const SeoManagement = lazy(() => import('@/features/superadmin/pages/seomanagement'));
 const ScriptsManager = lazy(() => import('@/features/superadmin/pages/scripts'));
+const SecurityManagement = lazy(() => import('@/features/superadmin/pages/securitymanagement'));
 
 const TenantDashboard = lazy(() => import('@/features/tenant/pages/dashboard'));
 const TenantSettings = lazy(() => import('@/features/tenant/pages/settings'));
@@ -43,6 +44,7 @@ const Trash = lazy(() => import('@/shared/pages/trash'));
 // Security: Import ProtectedRoute for backend-verified route protection
 import { ProtectedRoute } from '@/shared/components/protectedroute';
 import ScriptInjector from '@/shared/script-injector';
+import { useContentProtection } from '@/shared/hooks/use-content-protection';
 
 // Loading Fallback Component
 const PageLoader = () => (
@@ -63,6 +65,7 @@ function AdminRoutes() {
             <Route path="/identity" element={<PlatformIdentity />} />
             <Route path="/seo" element={<SeoManagement />} />
             <Route path="/scripts" element={<ScriptsManager />} />
+            <Route path="/security" element={<SecurityManagement />} />
             <Route path="/trash" element={<Trash />} />
             <Route path="*" element={<Navigate to="/admin" />} />
         </Routes>
@@ -121,6 +124,9 @@ function MainAppContent() {
     const location = useLocation();
     const loadingLogoutSuccess = location.search.includes('logout=success');
     const { isTrialExpired } = useTrialStatus();
+
+    // Enable Protection Site-Wide
+    useContentProtection();
 
 
     if (appLoading || adminLoading || (loadingSettings && !localStorage.getItem('app_merged_settings'))) {

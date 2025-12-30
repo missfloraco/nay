@@ -50,7 +50,36 @@ class BrandingController extends Controller
                 'login_title' => 'مرحباً بعودتك',
                 'login_subtitle' => 'سجل دخولك للمتابعة',
             ],
-            'adblock_enabled' => Ad::where('placement', 'config_adblock')->first()?->is_active ?? false,
+            // Content Protection (Granular)
+            'protect_right_click_admin' => Setting::get('protect_right_click_admin', '0'),
+            'protect_right_click_app' => Setting::get('protect_right_click_app', '0'),
+            'protect_right_click_landing' => Setting::get('protect_right_click_landing', '0'),
+
+            'protect_selection_admin' => Setting::get('protect_selection_admin', '0'),
+            'protect_selection_app' => Setting::get('protect_selection_app', '0'),
+            'protect_selection_landing' => Setting::get('protect_selection_landing', '0'),
+
+            'protect_drag_admin' => Setting::get('protect_drag_admin', '0'),
+            'protect_drag_app' => Setting::get('protect_drag_app', '0'),
+            'protect_drag_landing' => Setting::get('protect_drag_landing', '0'),
+
+            'protect_copy_paste_admin' => Setting::get('protect_copy_paste_admin', '0'),
+            'protect_copy_paste_app' => Setting::get('protect_copy_paste_app', '0'),
+            'protect_copy_paste_landing' => Setting::get('protect_copy_paste_landing', '0'),
+
+            'protect_devtools_admin' => Setting::get('protect_devtools_admin', '0'),
+            'protect_devtools_app' => Setting::get('protect_devtools_app', '0'),
+            'protect_devtools_landing' => Setting::get('protect_devtools_landing', '0'),
+
+            // AdBlock Detection (Granular)
+            'protect_adblock_admin' => Setting::get('protect_adblock_admin', '0'),
+            'protect_adblock_app' => Setting::get('protect_adblock_app', '0'),
+            'protect_adblock_landing' => Setting::get('protect_adblock_landing', '0'),
+
+            // Maintain legacy key for compatibility
+            'adblock_enabled' => (Setting::get('protect_adblock_admin', '0') === '1' ||
+                Setting::get('protect_adblock_app', '0') === '1' ||
+                Setting::get('protect_adblock_landing', '0') === '1') ? '1' : (Ad::where('placement', 'config_adblock')->first()?->is_active ? '1' : '0'),
         ], $bundled));
     }
 }

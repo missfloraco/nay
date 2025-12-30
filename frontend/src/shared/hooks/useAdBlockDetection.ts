@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
  * Custom Hook for AdBlock Detection
  * Extracted from AppContext for better code organization
  */
-export function useAdBlockDetection(adblockEnabled: boolean | string | number) {
+export function useAdBlockDetection(settings: any) {
     const [isAdBlockActive, setIsAdBlockActive] = useState(false);
     const [isCheckingAdBlock, setIsCheckingAdBlock] = useState(true);
     const adBlockActiveRef = useRef(isAdBlockActive);
@@ -19,14 +19,23 @@ export function useAdBlockDetection(adblockEnabled: boolean | string | number) {
     }, [isAdBlockActive]);
 
     useEffect(() => {
-        const isEnabled = adblockEnabled === 'true' ||
-            adblockEnabled === true ||
-            adblockEnabled === '1' ||
-            adblockEnabled === 1;
+        const path = window.location.pathname;
+        const isAdmin = path.startsWith('/admin');
+        const isApp = path.startsWith('/app');
+        const isLanding = path === '/' || (!isAdmin && !isApp);
 
-        const isAdmin = window.location.pathname.startsWith('/admin');
+        let isEnabled = false;
+        if (isAdmin) isEnabled = settings.protect_adblock_admin === '1' || settings.protect_adblock_admin === true;
+        else if (isApp) isEnabled = settings.protect_adblock_app === '1' || settings.protect_adblock_app === true;
+        else if (isLanding) isEnabled = settings.protect_adblock_landing === '1' || settings.protect_adblock_landing === true;
 
-        if (!isEnabled || isAdmin) {
+        // Fallback to legacy key for safety
+        if (!isEnabled && (settings.adblock_enabled === 'true' || settings.adblock_enabled === true || settings.adblock_enabled === '1' || settings.adblock_enabled === 1)) {
+            // Only use legacy if we are on landing/app and it wasn't explicitly disabled by granular keys
+            if (!isAdmin) isEnabled = true;
+        }
+
+        if (!isEnabled) {
             if (isAdBlockActive) setIsAdBlockActive(false);
             setIsCheckingAdBlock(false);
             return;
@@ -37,9 +46,13 @@ export function useAdBlockDetection(adblockEnabled: boolean | string | number) {
 
         const checkAdBlock = async () => {
             try {
-                const isEnabled = String(adblockEnabled) === 'true' || adblockEnabled === '1' || adblockEnabled === 1 || adblockEnabled === true;
+                const isEnabled = String(settings.adblock_enabled) === 'true' || settings.adblock_enabled === '1' || settings.adblock_enabled === 1 || settings.adblock_enabled === true;
 
-                if (!isEnabled || isAdmin) {
+                if (!isEnabled &&
+                    settings.protect_adblock_admin !== '1' && settings.protect_adblock_admin !== true &&
+                    settings.protect_adblock_app !== '1' && settings.protect_adblock_app !== true &&
+                    settings.protect_adblock_landing !== '1' && settings.protect_adblock_landing !== true
+                ) {
                     setIsAdBlockActive(false);
                     setIsCheckingAdBlock(false);
                     return;
@@ -120,7 +133,7 @@ export function useAdBlockDetection(adblockEnabled: boolean | string | number) {
             clearInterval(interval);
             observer.disconnect();
         };
-    }, [adblockEnabled]); // REMOVED isAdBlockActive and isCheckingAdBlock from dependencies!
+    }, [settings.protect_adblock_admin, settings.protect_adblock_app, settings.protect_adblock_landing, settings.adblock_enabled]); // REMOVED isAdBlockActive and isCheckingAdBlock from dependencies!
 
     return { isAdBlockActive, isCheckingAdBlock };
 }

@@ -3,9 +3,10 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/shared/services/api';
 import AdminLayout from './adminlayout';
 import { formatDate } from '@/shared/utils/helpers';
-import { MessageSquare, Send, SendHorizontal, CheckCircle, Clock, Info, Trash2, X, ChevronLeft, AlertCircle, Archive, LifeBuoy, History, Plus, Shield, Link, ShieldCheck } from 'lucide-react';
+import { MessageSquare, SendHorizontal, CheckCircle, Clock, Info, Trash2, X, AlertCircle, Archive, Shield, Link, ShieldCheck, Search, Filter } from 'lucide-react';
 import { useFeedback } from '@/shared/ui/notifications/feedback-context';
 import InputField from '@/shared/ui/forms/input-field';
+import Modal from '@/shared/ui/modals/modal';
 
 const SupportTickets = () => {
     const queryClient = useQueryClient();
@@ -144,7 +145,6 @@ const SupportTickets = () => {
         return labels[priority] || priority;
     };
 
-    // Helper to split date and time for display
     const renderTimestamp = (dateString: string) => {
         const full = formatDate(dateString, true);
         const parts = full.split('|');
@@ -161,329 +161,207 @@ const SupportTickets = () => {
     return (
         <AdminLayout
             title="إدارة رسائل الدعم"
-            noPadding={true}
-            leftSidebarContent={
-                <div className="flex flex-col h-full bg-white dark:bg-dark-900 overflow-hidden -m-6">
-                    {/* Management Sidebar */}
-                    <div className="flex-1 flex flex-col overflow-hidden">
-                        {/* Management Header (Visible when selected) */}
-                        {selectedTicketId ? (
-                            <div className="p-6 bg-gray-50/50 dark:bg-dark-800/50 border-b-2 border-gray-100 dark:border-dark-700 space-y-5 animate-in fade-in duration-500">
-                                <div className="flex justify-between items-start">
-                                    <div className="flex-1 min-w-0">
-                                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1 block">إدارة التذكرة</span>
-                                        <h4 className="text-lg font-black text-primary mb-1"># {selectedTicketId}</h4>
-                                        <p className="text-xs font-bold text-gray-800 truncate">مع: {selectedTicket?.tenant?.name || '...'}</p>
-                                    </div>
-                                    <button
-                                        onClick={() => setSelectedTicketId(null)}
-                                        className="p-2 bg-white dark:bg-dark-800 border border-gray-100 dark:border-dark-700 hover:bg-gray-100 dark:hover:bg-dark-700 rounded-lg transition-all shadow-sm"
-                                    >
-                                        <X className="w-4 h-4" />
-                                    </button>
-                                </div>
+            noPadding={false}
+            hideLeftSidebar={true}
+        >
+            <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in duration-700">
 
-                                <div className="space-y-5">
-                                    <div>
-                                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">تحديث الحالة</label>
-                                        <div className="grid grid-cols-2 gap-2">
-                                            {['open', 'in_progress', 'resolved', 'closed'].map((status) => (
-                                                <button
-                                                    key={status}
-                                                    onClick={() => updateStatusMutation.mutate({ status })}
-                                                    disabled={!!selectedTicket?.deleted_at}
-                                                    className={`px-3 py-2.5 rounded-xl text-[10px] font-bold transition-all border-2 ${selectedTicket?.status === status
-                                                        ? 'bg-primary text-white border-primary shadow-lg shadow-primary/10'
-                                                        : 'bg-white dark:bg-dark-800 text-gray-500 dark:text-gray-400 border-gray-100 dark:border-dark-700 hover:border-gray-300 dark:hover:border-dark-600 hover:bg-gray-50 dark:hover:bg-dark-700'
-                                                        } ${selectedTicket?.deleted_at ? 'opacity-50 grayscale' : ''}`}
-                                                >
-                                                    {getStatusLabel(status)}
-                                                </button>
-                                            ))}
-                                        </div>
-                                    </div>
-
-                                    {selectedTicket?.deleted_at ? (
-                                        <div className="flex flex-col gap-2">
-                                            <button
-                                                onClick={() => restoreTicketMutation.mutate()}
-                                                disabled={restoreTicketMutation.isPending}
-                                                className="w-full flex items-center justify-center gap-2 py-3.5 bg-green-600 text-white rounded-xl font-black text-[11px] hover:bg-green-700 transition-all shadow-xl shadow-green-100 group active:scale-[0.98]"
-                                            >
-                                                <CheckCircle className="w-4 h-4 group-hover:rotate-12 transition-transform" />
-                                                استعادة من الأرشيف
-                                            </button>
-                                            <button
-                                                onClick={async () => {
-                                                    const confirmed = await showConfirm({
-                                                        title: 'حذف نهائي',
-                                                        message: 'هل أنت متأكد من حذف هذه التذكرة نهائياً؟ لا يمكن التراجع عن هذا الإجراء.',
-                                                        isDestructive: true
-                                                    });
-                                                    if (confirmed) {
-                                                        forceDeleteMutation.mutate();
-                                                    }
-                                                }}
-                                                disabled={forceDeleteMutation.isPending}
-                                                className="w-full flex items-center justify-center gap-2 py-3.5 bg-red-100 text-red-600 rounded-xl font-black text-[11px] hover:bg-red-200 transition-all border border-red-200 group active:scale-[0.98]"
-                                            >
-                                                <Trash2 className="w-4 h-4 group-hover:scale-110 transition-transform" />
-                                                حذف نهائي
-                                            </button>
-                                        </div>
-                                    ) : (
-                                        <button
-                                            onClick={async () => {
-                                                const confirmed = await showConfirm({
-                                                    title: 'أرشفة التذكرة',
-                                                    message: 'هل أنت متأكد من نقل هذه التذكرة للأرشيف؟',
-                                                    isDestructive: true
-                                                });
-                                                if (confirmed) {
-                                                    deleteTicketMutation.mutate();
-                                                }
-                                            }}
-                                            disabled={deleteTicketMutation.isPending}
-                                            className="w-full flex items-center justify-center gap-2 py-3.5 bg-red-600 text-white rounded-xl font-black text-[11px] hover:bg-red-700 transition-all shadow-xl shadow-red-100 group active:scale-[0.98]"
-                                        >
-                                            <Trash2 className="w-4 h-4 group-hover:rotate-12 transition-transform" />
-                                            أرشفة التذكرة
-                                        </button>
-                                    )}
-
-                                    <div className="grid grid-cols-1 gap-3 bg-white dark:bg-dark-800 p-4 rounded-2xl border border-gray-100 dark:border-dark-700 shadow-sm">
-                                        <div className="flex justify-between items-center">
-                                            <span className="text-[9px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">الأولوية</span>
-                                            <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${selectedTicket?.priority === 'urgent' ? 'bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400' : 'bg-gray-50 dark:bg-dark-700 text-gray-700 dark:text-gray-300'}`}>
-                                                {getPriorityLabel(selectedTicket?.priority || '')}
-                                            </span>
-                                        </div>
-                                        <div className="flex justify-between items-center border-t border-gray-50 dark:border-dark-700 pt-3">
-                                            <span className="text-[9px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">التاريخ</span>
-                                            <span className="text-[10px] font-bold text-gray-600 dark:text-gray-400">{formatDate(selectedTicket?.created_at).split('|')[1]?.trim() || ''}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        ) : (
-                            <div className="p-6 border-b border-gray-100 dark:border-dark-800 bg-gray-50/10 dark:bg-dark-800/20">
-
-                                <nav className="grid grid-cols-2 gap-2">
-                                    {[
-                                        { id: 'all', label: 'الكل', icon: MessageSquare, color: 'text-gray-400' },
-                                        { id: 'open', label: 'مفتوحة', icon: AlertCircle, color: 'text-blue-500' },
-                                        { id: 'in_progress', label: 'قيد المعالجة', icon: Clock, color: 'text-yellow-500' },
-                                        { id: 'resolved', label: 'محلولة', icon: CheckCircle, color: 'text-green-500' },
-                                        { id: 'closed', label: 'مغلقة', icon: X, color: 'text-gray-500' },
-                                        { id: 'archived', label: 'الأرشيف', icon: Archive, color: 'text-red-400' },
-                                    ].map((item) => {
-                                        const isActive = statusFilter === item.id;
-                                        return (
-                                            <button
-                                                key={item.id}
-                                                onClick={() => setStatusFilter(item.id)}
-                                                className={`flex items-center gap-2 px-3 py-2.5 rounded-xl transition-all font-bold text-[10px] relative group
-                                                ${isActive
-                                                        ? 'bg-primary/10 dark:bg-primary/20 text-primary ring-1 ring-primary/20 dark:ring-primary/40 shadow-sm'
-                                                        : 'bg-gray-50/50 dark:bg-dark-800/30 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-800 hover:text-gray-900 dark:hover:text-white'
-                                                    }`}
-                                            >
-                                                <item.icon className={`w-3.5 h-3.5 shrink-0 ${isActive ? 'text-primary' : item.color}`} />
-                                                <span className={`flex-1 text-right truncate ${isActive ? 'text-primary' : ''}`}>{item.label}</span>
-                                            </button>
-                                        );
-                                    })}
-                                </nav>
-                            </div>
-                        )}
-
-                        {/* Ticket List Section */}
-                        <div className="flex-1 overflow-y-auto no-scrollbar p-5 space-y-4 bg-gray-50/10 dark:bg-dark-900/20">
-                            {isLoadingList && !ticketsData ? (
-                                <div className="flex flex-col items-center justify-center py-20 text-gray-400 font-bold">
-                                    <div className="animate-spin w-8 h-8 border-4 border-gray-200 border-t-gray-400 rounded-full mb-4" />
-                                    <span className="text-[9px] uppercase tracking-widest font-black">جاري التحديث...</span>
-                                </div>
-                            ) : ticketsData?.data?.length === 0 ? (
-                                <div className="text-center py-24 text-gray-300">
-                                    <MessageSquare className="w-10 h-10 mx-auto mb-6 opacity-20" />
-                                    <p className="text-[9px] font-black uppercase tracking-[0.2em]">لا توجد تذاكر</p>
-                                </div>
-                            ) : (
-                                <div className="space-y-4">
-                                    {ticketsData?.data?.map((ticket: any) => (
-                                        <div
-                                            key={ticket.id}
-                                            onClick={() => setSelectedTicketId(ticket.id)}
-                                            className={`p-5 rounded-[28px] cursor-pointer transition-all border-2 group relative overflow-hidden ${selectedTicketId === ticket.id
-                                                ? 'bg-white dark:bg-dark-800 border-primary shadow-2xl shadow-primary/5 scale-[1.02]'
-                                                : 'bg-white dark:bg-dark-900 border-transparent hover:border-gray-100 dark:hover:border-dark-800 shadow-sm'
-                                                }`}
-                                        >
-                                            <div className="flex justify-between items-start mb-3">
-                                                <div className="flex flex-col min-w-0">
-                                                    <span className="text-[9px] font-black text-gray-300 uppercase tracking-widest mb-1 group-hover:text-primary transition-colors">#{ticket.id}</span>
-                                                    <h4 className={`font-black text-[13px] line-clamp-1 transition-colors ${selectedTicketId === ticket.id ? 'text-primary' : 'text-gray-900 dark:text-gray-100 group-hover:text-primary'}`}>
-                                                        {ticket.subject}
-                                                    </h4>
-                                                </div>
-                                            </div>
-
-                                            <div className="flex justify-between items-center bg-gray-50/50 dark:bg-dark-800/50 p-3 rounded-2xl border border-gray-100/50 dark:border-dark-700/50">
-                                                <div className="flex items-center gap-2 min-w-0">
-                                                    <div className="w-7 h-7 shrink-0 rounded-xl bg-white dark:bg-dark-900 border border-gray-100 dark:border-dark-700 flex items-center justify-center font-black text-[10px] text-primary shadow-sm group-hover:rotate-6 transition-transform">
-                                                        {ticket.tenant?.name?.substring(0, 2).toUpperCase()}
-                                                    </div>
-                                                    <span className="text-[10px] font-black text-gray-700 dark:text-gray-300 truncate">{ticket.tenant?.name}</span>
-                                                </div>
-                                                <div className={`px-2 py-0.5 rounded-full text-[8px] font-black uppercase border shrink-0 ${getStatusColor(ticket.status, !!ticket.deleted_at)}`}>
-                                                    {getStatusLabel(ticket.status, !!ticket.deleted_at)}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
+                {/* Filters Section */}
+                <div className="flex flex-col md:flex-row items-center justify-between gap-6 bg-white dark:bg-dark-900 p-6 rounded-[2rem] border border-gray-100 dark:border-white/5 shadow-sm">
+                    <div className="flex items-center gap-4">
+                        <div className="p-3 bg-primary/10 rounded-2xl text-primary">
+                            <Filter className="w-6 h-6" />
                         </div>
+                        <div>
+                            <h3 className="font-black text-xl text-gray-900 dark:text-white">تصفية التذاكر</h3>
+                            <p className="text-xs font-bold text-gray-400">تحكم في عرض التذاكر حسب حالتـها الحالية</p>
+                        </div>
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-2">
+                        {[
+                            { id: 'all', label: 'الكل', icon: MessageSquare, color: 'text-gray-400' },
+                            { id: 'open', label: 'مفتوحة', icon: AlertCircle, color: 'text-blue-500' },
+                            { id: 'in_progress', label: 'قيد المعالجة', icon: Clock, color: 'text-yellow-500' },
+                            { id: 'resolved', label: 'محلولة', icon: CheckCircle, color: 'text-green-500' },
+                            { id: 'closed', label: 'مغلقة', icon: X, color: 'text-gray-500' },
+                            { id: 'archived', label: 'الأرشيف', icon: Archive, color: 'text-red-400' },
+                        ].map((item) => {
+                            const isActive = statusFilter === item.id;
+                            return (
+                                <button
+                                    key={item.id}
+                                    onClick={() => setStatusFilter(item.id)}
+                                    className={`flex items-center gap-2 px-6 py-3 rounded-2xl transition-all font-black text-xs relative group
+                                    ${isActive
+                                            ? 'bg-primary text-white shadow-xl shadow-primary/20 scale-105'
+                                            : 'bg-gray-50 dark:bg-dark-800 text-gray-500 dark:text-gray-400 hover:bg-white dark:hover:bg-dark-750 border border-transparent hover:border-gray-100 dark:hover:border-white/5 shadow-sm'
+                                        }`}
+                                >
+                                    <item.icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : item.color}`} />
+                                    <span>{item.label}</span>
+                                </button>
+                            );
+                        })}
                     </div>
                 </div>
-            }
-        >
-            <div className="flex flex-col h-full bg-white dark:bg-dark-900 overflow-hidden relative">
-                {!selectedTicketId ? (
-                    <div className="flex-1 flex flex-col items-center justify-center text-gray-400 p-10 text-center bg-gray-50/20 dark:bg-dark-800/20">
-                        <div className="relative mb-6">
-                            <MessageSquare className="w-24 h-24 opacity-5" />
-                            <div className="absolute inset-0 flex items-center justify-center">
-                                <div className="w-3 h-3 rounded-full bg-primary/20 animate-ping" />
-                            </div>
+
+                {/* Ticket Grid List */}
+                {isLoadingList && !ticketsData ? (
+                    <div className="flex flex-col items-center justify-center py-32 bg-white dark:bg-dark-900 rounded-[3rem] border border-gray-100 dark:border-white/5 border-dashed">
+                        <div className="animate-spin w-10 h-10 border-4 border-primary border-t-transparent rounded-full mb-6" />
+                        <span className="text-sm font-black text-gray-400 uppercase tracking-[0.2em] animate-pulse">جاري جلب الرسائل...</span>
+                    </div>
+                ) : ticketsData?.data?.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-32 bg-white dark:bg-dark-900 rounded-[3rem] border border-gray-100 dark:border-white/5 border-dashed text-center">
+                        <div className="p-8 bg-gray-50 dark:bg-dark-800 rounded-[2.5rem] mb-8 opacity-20 group-hover:scale-110 transition-transform duration-700">
+                            <MessageSquare className="w-20 h-20" />
                         </div>
-                        <h3 className="text-xl font-bold text-gray-300">اختر تذكرة لبدء المتابعة</h3>
-                        <p className="mt-2 text-sm max-w-sm">سيظهر محتوى المحادثة والردود هنا بمجرد اختيار تذكرة من القائمة الجانبية</p>
+                        <h3 className="text-2xl font-black text-gray-300">لا توجد رسائل دعم حالياً</h3>
+                        <p className="text-gray-400 font-bold mt-2">سيتم عرض التذاكر هنا بمجرد استلام طلبات من المشتركين</p>
                     </div>
                 ) : (
-                    <div className="flex flex-col h-full overflow-hidden">
-                        {/* Chat Header - Sticky with Tenant Info */}
-                        <div className="bg-white/80 dark:bg-dark-900/80 backdrop-blur-md border-b border-gray-100 dark:border-dark-800 p-4 px-6 flex justify-between items-center shrink-0 z-20">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {ticketsData?.data?.map((ticket: any) => (
+                            <div
+                                key={ticket.id}
+                                onClick={() => setSelectedTicketId(ticket.id)}
+                                className="group relative bg-white dark:bg-dark-900 p-8 rounded-[2.5rem] border border-gray-100 dark:border-white/5 shadow-sm hover:shadow-2xl hover:shadow-primary/5 hover:-translate-y-2 transition-all duration-500 cursor-pointer overflow-hidden"
+                            >
+                                {/* Ticket Status & ID */}
+                                <div className="flex justify-between items-center mb-6">
+                                    <span className="px-3 py-1 rounded-full bg-gray-50 dark:bg-dark-800 text-[10px] font-black text-gray-400 uppercase tracking-widest border border-gray-100 dark:border-white/5">
+                                        #{ticket.id}
+                                    </span>
+                                    <div className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider border shadow-sm ${getStatusColor(ticket.status, !!ticket.deleted_at)}`}>
+                                        {getStatusLabel(ticket.status, !!ticket.deleted_at)}
+                                    </div>
+                                </div>
+
+                                {/* Subject & Info */}
+                                <div className="space-y-4 mb-8">
+                                    <h4 className="text-lg font-black text-gray-900 dark:text-white line-clamp-2 leading-tight group-hover:text-primary transition-colors">
+                                        {ticket.subject}
+                                    </h4>
+                                    <div className="flex items-center gap-3 p-3 bg-gray-50/50 dark:bg-dark-800/30 rounded-2xl border border-gray-100/50 dark:border-white/5">
+                                        <div className="w-10 h-10 rounded-xl bg-white dark:bg-dark-800 border-2 border-primary/10 flex items-center justify-center font-black text-xs text-primary shadow-sm group-hover:scale-110 transition-transform">
+                                            {ticket.tenant?.name?.substring(0, 2).toUpperCase()}
+                                        </div>
+                                        <div className="flex flex-col">
+                                            <span className="text-[11px] font-black text-gray-900 dark:text-white">{ticket.tenant?.name}</span>
+                                            <span className="text-[9px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">{ticket.tenant?.uid}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Footer Info */}
+                                <div className="flex items-center justify-between pt-6 border-t border-gray-50 dark:border-white/5">
+                                    <div className="flex items-center gap-2 text-gray-400">
+                                        <Clock className="w-4 h-4" />
+                                        <span className="text-[10px] font-black">{formatDate(ticket.created_at).split('|')[1]?.trim()}</span>
+                                    </div>
+                                    <div className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-tighter ${ticket.priority === 'urgent' ? 'bg-red-50 text-red-600' : 'bg-gray-100 text-gray-500'}`}>
+                                        <AlertCircle className="w-3 h-3" />
+                                        {getPriorityLabel(ticket.priority)}
+                                    </div>
+                                </div>
+
+                                {/* Hover Glow */}
+                                <div className="absolute inset-0 bg-gradient-to-tr from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </div>
+
+            {/* Ticket Conversation Modal */}
+            <Modal
+                isOpen={!!selectedTicketId}
+                onClose={() => setSelectedTicketId(null)}
+                title="محادثة الدعم الفني"
+                size="full"
+            >
+                <div className="flex flex-col lg:flex-row h-full gap-8 bg-gray-50/20 dark:bg-dark-950/20">
+
+                    {/* Chat Content (Left/Center) */}
+                    <div className="flex-1 flex flex-col bg-white dark:bg-dark-900 rounded-[2.5rem] border border-gray-100 dark:border-white/5 shadow-2xl overflow-hidden min-h-0">
+                        {/* Modal Chat Header */}
+                        <div className="p-6 bg-white dark:bg-dark-900 border-b border-gray-100 dark:border-white/5 flex flex-col md:flex-row justify-between items-center gap-6 shrink-0 z-20">
                             <div className="flex items-center gap-4">
-                                <div className="w-14 h-14 rounded-2xl bg-white dark:bg-dark-800 border-2 border-gray-100 dark:border-dark-700 flex items-center justify-center shadow-lg shrink-0 overflow-hidden group-hover:scale-110 transition-transform relative">
+                                <div className="w-16 h-16 rounded-[1.5rem] bg-gray-50 dark:bg-dark-800 border-2 border-gray-100 dark:border-white/5 flex items-center justify-center shadow-lg overflow-hidden shrink-0">
                                     {selectedTicket?.tenant?.avatar_url ? (
                                         <img src={selectedTicket.tenant.avatar_url} alt="" className="w-full h-full object-cover" />
                                     ) : (
-                                        <span className="text-lg font-black text-primary">
+                                        <span className="text-xl font-black text-primary">
                                             {selectedTicket?.tenant?.name?.substring(0, 2).toUpperCase() || 'U'}
                                         </span>
                                     )}
-                                    <div className="absolute bottom-0 right-0 w-4 h-4 bg-green-500 border-2 border-white dark:border-dark-900 rounded-full shadow-sm" />
                                 </div>
-                                <div className="flex flex-col gap-1.5">
+                                <div className="flex flex-col gap-1">
+                                    <h3 className="font-black text-xl text-gray-900 dark:text-white leading-tight">{selectedTicket?.tenant?.name}</h3>
                                     <div className="flex items-center gap-3">
-                                        <h3 className="font-black text-[18px] text-gray-900 dark:text-white leading-tight">{selectedTicket?.tenant?.name}</h3>
-                                        <span className={`px-2 py-0.5 rounded-full text-[8px] font-black uppercase border shrink-0 ${selectedTicket?.tenant?.status === 'active' ? 'bg-green-100/50 text-green-700 border-green-200' : 'bg-gray-100/50 text-gray-700 border-gray-200'}`}>
-                                            {selectedTicket?.tenant?.status || 'Active'}
-                                        </span>
-                                    </div>
-                                    <div className="flex items-center gap-3 text-[10px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-widest leading-none">
-                                        {selectedTicket?.tenant?.uid && (
-                                            <div className="flex items-center gap-1.5 bg-gray-100 dark:bg-dark-800 px-2.5 py-1 rounded-md border border-gray-200 dark:border-dark-700">
-                                                <Shield className="w-3 h-3 text-primary/60" />
-                                                <span className="text-gray-700 dark:text-gray-300 antialiased">{selectedTicket?.tenant?.uid}</span>
-                                            </div>
-                                        )}
-                                        {selectedTicket?.tenant?.email && (
-                                            <>
-                                                <span className="opacity-30">•</span>
-                                                <div className="flex items-center gap-1.5 hover:text-primary transition-colors cursor-default bg-primary/5 dark:bg-primary/10 px-2.5 py-1 rounded-md border border-primary/10">
-                                                    <Link className="w-3 h-3 text-primary/60" />
-                                                    <span className="lowercase text-primary/80">{selectedTicket?.tenant?.email}</span>
-                                                </div>
-                                            </>
-                                        )}
+                                        <div className="flex items-center gap-1.5 bg-primary/5 dark:bg-primary/10 px-2.5 py-1 rounded-lg border border-primary/10">
+                                            <Shield className="w-3 h-3 text-primary/60" />
+                                            <span className="text-[10px] font-black text-primary/80 uppercase tracking-widest">{selectedTicket?.tenant?.uid}</span>
+                                        </div>
+                                        <div className="flex items-center gap-1.5 bg-gray-50 dark:bg-dark-800 px-2.5 py-1 rounded-lg border border-gray-100 dark:border-white/5">
+                                            <Clock className="w-3 h-3 text-gray-400" />
+                                            <span className="text-[10px] font-bold text-gray-500 uppercase tracking-tighter">آخر ظهور: {selectedTicket?.tenant?.country_code || 'SA'}</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <div className="flex items-center gap-2">
-                                <div className="hidden lg:flex flex-col items-end px-4 border-r border-gray-100 dark:border-dark-800">
-                                    <span className="text-[9px] font-black text-gray-400 uppercase tracking-tighter">موضوع التذكرة</span>
-                                    <span className="text-[12px] font-black text-gray-900 dark:text-gray-100 line-clamp-1 max-w-[200px]">{selectedTicket?.subject}</span>
+                            <div className="flex items-center gap-4 bg-gray-50/50 dark:bg-dark-800/50 p-3 rounded-[1.75rem] border border-gray-100 dark:border-white/5">
+                                <div className="px-4 border-r border-gray-200 dark:border-white/5 hidden md:block">
+                                    <span className="block text-[9px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1">الموضوع</span>
+                                    <span className="text-sm font-black text-gray-900 dark:text-white line-clamp-1 max-w-[250px]">{selectedTicket?.subject}</span>
                                 </div>
-                                <div className="flex items-center gap-2 p-1.5 bg-gray-50 dark:bg-dark-800 rounded-2xl border border-gray-100 dark:border-dark-700">
-                                    <button
-                                        onClick={() => updateStatusMutation.mutate({ status: 'resolved' })}
-                                        className="px-4 py-2 bg-white dark:bg-dark-900 text-green-600 border border-transparent hover:border-green-200 dark:hover:border-green-900/30 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm active:scale-95"
-                                    >
-                                        Mark Resolved
-                                    </button>
-                                    <div className={`w-2 h-2 rounded-full mx-1 ${selectedTicket?.status === 'open' ? 'bg-blue-500' : selectedTicket?.status === 'in_progress' ? 'bg-yellow-500' : 'bg-green-500'} animate-pulse`} />
+                                <div className={`px-4 py-2 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-sm ring-4 ring-white dark:ring-dark-900 ${getStatusColor(selectedTicket?.status || '', !!selectedTicket?.deleted_at)}`}>
+                                    {getStatusLabel(selectedTicket?.status || '', !!selectedTicket?.deleted_at)}
                                 </div>
                             </div>
                         </div>
 
                         {/* Messages Container */}
-                        <div className="flex-1 overflow-y-auto p-10 space-y-10 bg-gray-50/30 dark:bg-dark-800/30 no-scrollbar">
+                        <div className="flex-1 overflow-y-auto px-10 py-12 space-y-12 bg-gray-50/20 dark:bg-dark-800/10 no-scrollbar">
                             {isLoadingChat && !selectedTicket ? (
-                                <div className="flex flex-col items-center justify-center h-full">
-                                    <div className="animate-spin w-12 h-12 border-4 border-primary border-t-transparent rounded-full mb-4" />
-                                    <p className="text-xs font-black text-gray-400 uppercase tracking-widest">جاري تحميل المحادثة...</p>
+                                <div className="flex flex-col items-center justify-center h-full gap-4 text-gray-400">
+                                    <div className="animate-spin w-10 h-10 border-4 border-primary border-t-transparent rounded-full" />
+                                    <span className="text-xs font-black uppercase tracking-widest">تحميل المحادثة...</span>
                                 </div>
                             ) : (
-                                <div className="space-y-10">
+                                <div className="space-y-12">
                                     {selectedTicket?.messages?.map((msg: any) => (
                                         <div
                                             key={msg.id}
-                                            className={`flex animate-in fade-in slide-in-from-bottom-2 duration-500 ${msg.is_admin_reply ? 'justify-end' : 'justify-start'}`}
+                                            className={`flex animate-in fade-in slide-in-from-bottom-4 duration-700 ${msg.is_admin_reply ? 'justify-end' : 'justify-start'}`}
                                         >
-                                            <div className="flex flex-col max-w-[85%] lg:max-w-[80%] group">
-                                                {!msg.is_admin_reply && (
-                                                    <div className="flex items-center gap-2 mb-1.5 px-1 animate-in slide-in-from-right-2 duration-300">
-                                                        <span className="text-[10px] font-black text-gray-900 dark:text-white uppercase tracking-tighter bg-gray-100 dark:bg-dark-700 px-2 py-0.5 rounded-md shadow-sm">{selectedTicket?.tenant?.name}</span>
-                                                        <span className="text-[9px] font-black text-primary/60 dark:text-primary/40 tracking-widest">{selectedTicket?.tenant?.uid}</span>
-                                                    </div>
-                                                )}
-                                                <div className="flex items-end gap-3 mb-1">
+                                            <div className={`flex flex-col max-w-[85%] lg:max-w-[75%] gap-2 ${msg.is_admin_reply ? 'items-end' : 'items-start'}`}>
+                                                <div className="flex items-end gap-3 px-2">
                                                     {!msg.is_admin_reply && (
-                                                        <div className="w-10 h-10 rounded-2xl bg-white dark:bg-dark-800 border-2 border-gray-100 dark:border-dark-700 flex items-center justify-center shadow-lg shrink-0 overflow-hidden group-hover:scale-110 transition-transform">
-                                                            {selectedTicket?.tenant?.avatar_url ? (
-                                                                <img src={selectedTicket.tenant.avatar_url} alt="" className="w-full h-full object-cover" />
-                                                            ) : (
-                                                                <span className="text-xs font-black text-primary">
-                                                                    {selectedTicket?.tenant?.name?.substring(0, 2).toUpperCase() || 'U'}
-                                                                </span>
-                                                            )}
+                                                        <div className="w-10 h-10 rounded-2xl bg-white dark:bg-dark-800 border-2 border-gray-100 dark:border-white/5 flex items-center justify-center shadow-lg shrink-0">
+                                                            <span className="text-[10px] font-black text-primary">{selectedTicket?.tenant?.name?.substring(0, 1)}</span>
                                                         </div>
                                                     )}
                                                     <div
-                                                        className={`relative rounded-[24px] px-6 py-4 shadow-md transition-all hover:shadow-xl ring-1 ${msg.is_admin_reply
-                                                            ? 'bg-primary text-white rounded-bl-none shadow-primary/20 ring-primary/10'
-                                                            : 'bg-white dark:bg-dark-800 text-gray-900 dark:text-gray-100 border-2 border-gray-200 dark:border-dark-700 rounded-br-none ring-gray-100 dark:ring-dark-700'
+                                                        className={`relative rounded-[2rem] px-8 py-5 shadow-sm transition-all hover:shadow-xl ${msg.is_admin_reply
+                                                            ? 'bg-primary text-white rounded-bl-none shadow-primary/20'
+                                                            : 'bg-white dark:bg-dark-800 text-gray-900 dark:text-gray-100 border-2 border-gray-100 dark:border-white/10 rounded-br-none'
                                                             }`}
                                                     >
-                                                        <p className="text-[15px] leading-relaxed whitespace-pre-wrap font-bold antialiased">{msg.message}</p>
+                                                        <p className="text-[15px] leading-relaxed whitespace-pre-wrap font-bold">{msg.message}</p>
                                                     </div>
                                                     {msg.is_admin_reply && (
-                                                        <div className="w-10 h-10 rounded-2xl bg-primary flex items-center justify-center shadow-lg shadow-primary/20 shrink-0 group-hover:scale-110 transition-transform border-4 border-white dark:border-dark-900">
+                                                        <div className="w-10 h-10 rounded-2xl bg-primary flex items-center justify-center shadow-lg shadow-primary/20 shrink-0 border-4 border-white dark:border-dark-900">
                                                             <ShieldCheck className="w-5 h-5 text-white" />
                                                         </div>
                                                     )}
                                                 </div>
-                                                <div className={`mt-1.5 flex items-center gap-3 font-black uppercase tracking-widest ${msg.is_admin_reply ? 'justify-end text-primary/70' : 'justify-start text-gray-400 dark:text-gray-600'}`}>
-                                                    <div className="flex items-center gap-2 order-2">
-                                                        {msg.is_admin_reply ? (
-                                                            <div className="flex items-center gap-1.5 bg-primary/5 px-2 py-0.5 rounded-full border border-primary/10">
-                                                                <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-                                                                <span className="text-[8px]">تم الإرسال</span>
-                                                            </div>
-                                                        ) : (
-                                                            <div className="flex items-center gap-1.5 bg-gray-100 dark:bg-dark-800 px-2 py-0.5 rounded-full border border-gray-200 dark:border-dark-700">
-                                                                <CheckCircle className="w-3.5 h-3.5 text-blue-500" />
-                                                                <span className="text-[8px] opacity-80">تم الاستلام</span>
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                    <div className="order-1 text-[9px] bg-white/50 dark:bg-dark-950/20 px-2 py-0.5 rounded-full border border-gray-100 dark:border-dark-800">
-                                                        {renderTimestamp(msg.created_at)}
-                                                    </div>
+                                                <div className="flex items-center gap-3 px-4">
+                                                    <span className="text-[9px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">{formatDate(msg.created_at, true)}</span>
+                                                    {msg.is_admin_reply && <div className="w-1 h-1 rounded-full bg-primary/30" />}
+                                                    {msg.is_admin_reply && <span className="text-[8px] font-black text-primary/50 uppercase">Admin Response</span>}
                                                 </div>
                                             </div>
                                         </div>
@@ -492,25 +370,27 @@ const SupportTickets = () => {
                             )}
                         </div>
 
-                        {/* Chat Input */}
-                        {selectedTicket?.deleted_at ? (
-                            <div className="p-8 bg-gray-50 dark:bg-dark-950 border-t-2 border-gray-200 dark:border-dark-700 flex items-center justify-between gap-4">
-                                <div className="flex items-center gap-4">
-                                    <div className="p-3 bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 rounded-2xl">
-                                        <Info className="w-5 h-5" />
+                        {/* Modal Chat Input */}
+                        <div className="p-10 bg-white dark:bg-dark-900 border-t border-gray-100 dark:border-white/5 shrink-0">
+                            {selectedTicket?.deleted_at ? (
+                                <div className="p-8 bg-red-50/30 dark:bg-red-900/10 rounded-[2rem] border-2 border-dashed border-red-100 dark:border-red-900/20 flex items-center justify-between gap-8">
+                                    <div className="flex items-center gap-6">
+                                        <div className="p-4 bg-red-500 text-white rounded-[1.25rem] shadow-xl shadow-red-500/20 animat-pulse">
+                                            <Info className="w-6 h-6" />
+                                        </div>
+                                        <div>
+                                            <h4 className="text-lg font-black text-red-700 dark:text-red-400">هذه التذكرة مؤرشفة حالياً</h4>
+                                            <p className="text-xs font-bold text-red-600/60 dark:text-red-400/50 uppercase tracking-wider">لا يمكن إرسال ردود جديدة إلا بعد استعادة التذكرة من الأرشيف</p>
+                                        </div>
                                     </div>
-                                    <p className="text-xs font-black text-red-700 dark:text-red-400 uppercase tracking-widest">هذه التذكرة مؤرشفة للقراءة فقط</p>
+                                    <button
+                                        onClick={() => restoreTicketMutation.mutate()}
+                                        className="px-8 py-4 bg-red-600 text-white rounded-2xl font-black text-xs hover:bg-red-700 transition-all shadow-xl shadow-red-600/20 active:scale-95"
+                                    >
+                                        استعادة التذكرة الآن
+                                    </button>
                                 </div>
-                                <button
-                                    onClick={() => restoreTicketMutation.mutate()}
-                                    disabled={restoreTicketMutation.isPending}
-                                    className="px-6 py-3 bg-primary text-white rounded-xl font-black text-[11px] hover:bg-primary/90 transition-all shadow-lg shadow-primary/20"
-                                >
-                                    {restoreTicketMutation.isPending ? 'جاري الاستعادة...' : 'استعادة التذكرة الآن'}
-                                </button>
-                            </div>
-                        ) : (
-                            <div className="p-8 bg-white dark:bg-dark-900 border-t-2 border-gray-200 dark:border-dark-700 shrink-0">
+                            ) : (
                                 <form onSubmit={handleSendMessage} className="flex gap-4">
                                     <div className="flex-1">
                                         <InputField
@@ -519,28 +399,132 @@ const SupportTickets = () => {
                                             onChange={(e) => setChatMessage(e.target.value)}
                                             placeholder="اكتب رد النظام هنا..."
                                             disabled={selectedTicket?.status === 'closed' || replyMutation.isPending}
-                                            className="bg-gray-50 dark:bg-dark-800 border-none shadow-none focus-within:ring-2 ring-primary/20"
+                                            className="bg-gray-50 dark:bg-dark-800 border-none shadow-none focus-within:ring-4 ring-primary/5 h-[64px] rounded-[1.75rem] px-8 text-base font-bold"
                                         />
                                     </div>
                                     <button
                                         type="submit"
                                         disabled={!chatMessage.trim() || replyMutation.isPending || selectedTicket?.status === 'closed'}
-                                        className="h-[48px] w-[48px] flex items-center justify-center bg-primary text-white rounded-2xl hover:bg-primary/90 disabled:opacity-30 disabled:grayscale transition-all shadow-xl shadow-primary/20 group overflow-hidden active:scale-95 shrink-0"
-                                        title="إرسال الرد"
+                                        className="h-[64px] w-[64px] flex items-center justify-center bg-primary text-white rounded-[1.75rem] hover:bg-primary/90 disabled:opacity-30 disabled:grayscale transition-all shadow-2xl shadow-primary/30 group active:scale-95 shrink-0"
                                     >
                                         {replyMutation.isPending ? (
-                                            <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                            <div className="w-6 h-6 border-3 border-white/30 border-t-white rounded-full animate-spin" />
                                         ) : (
-                                            <SendHorizontal className="w-5 h-5 -rotate-90 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                                            <SendHorizontal className="w-6 h-6 -rotate-90 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
                                         )}
                                     </button>
                                 </form>
-                            </div>
-                        )}
+                            )}
+                        </div>
                     </div>
-                )}
-            </div>
-        </AdminLayout >
+
+                    {/* Management Sidebar (Right) */}
+                    <div className="lg:w-96 flex flex-col gap-6 shrink-0">
+                        {/* Admin Action Card */}
+                        <div className="bg-white dark:bg-dark-900 rounded-[2.5rem] border border-gray-100 dark:border-white/5 shadow-2xl overflow-hidden animate-in slide-in-from-left-4 duration-700">
+                            <div className="p-8 bg-gray-50/50 dark:bg-dark-800/50 border-b border-gray-100 dark:border-white/5">
+                                <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block">إجراءات الإدارة</span>
+                                <h4 className="text-xl font-black text-primary leading-tight">التحكم في التذكرة</h4>
+                            </div>
+
+                            <div className="p-8 space-y-8">
+                                {/* Status Toggle */}
+                                <div>
+                                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4 px-2">تغيير حالة التذكرة</label>
+                                    <div className="flex flex-col gap-2">
+                                        {['open', 'in_progress', 'resolved', 'closed'].map((status) => (
+                                            <button
+                                                key={status}
+                                                onClick={() => updateStatusMutation.mutate({ status })}
+                                                disabled={!!selectedTicket?.deleted_at}
+                                                className={`flex items-center justify-between px-6 py-4 rounded-2xl text-xs font-black transition-all border-2 ${selectedTicket?.status === status
+                                                    ? 'bg-primary/5 text-primary border-primary shadow-lg shadow-primary/5'
+                                                    : 'bg-white dark:bg-dark-800 text-gray-500 border-gray-100 dark:border-white/5 hover:border-gray-200'
+                                                    } ${selectedTicket?.deleted_at ? 'opacity-50 grayscale' : ''}`}
+                                            >
+                                                <span>{getStatusLabel(status)}</span>
+                                                {selectedTicket?.status === status && <CheckCircle className="w-4 h-4" />}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Danger Actions */}
+                                <div className="pt-8 border-t border-gray-100 dark:border-white/5 space-y-3">
+                                    {selectedTicket?.deleted_at ? (
+                                        <>
+                                            <button
+                                                onClick={() => restoreTicketMutation.mutate()}
+                                                className="w-full h-16 bg-emerald-600 text-white rounded-2xl font-black text-sm hover:bg-emerald-700 transition-all shadow-xl shadow-emerald-600/20 flex items-center justify-center gap-3"
+                                            >
+                                                <History className="w-5 h-5" />
+                                                استعادة التذكرة
+                                            </button>
+                                            <button
+                                                onClick={async () => {
+                                                    const confirmed = await showConfirm({
+                                                        title: 'حذف نهائي',
+                                                        message: 'لا يمكن التراجع عن هذا الإجراء، هل أنت متأكد؟',
+                                                        isDestructive: true
+                                                    });
+                                                    if (confirmed) forceDeleteMutation.mutate();
+                                                }}
+                                                className="w-full h-16 bg-red-100 dark:bg-red-500/10 text-red-600 rounded-2xl font-black text-sm hover:bg-red-200 transition-all flex items-center justify-center gap-3"
+                                            >
+                                                <Trash2 className="w-5 h-5" />
+                                                حذف التذكرة نهائياً
+                                            </button>
+                                        </>
+                                    ) : (
+                                        <button
+                                            onClick={async () => {
+                                                const confirmed = await showConfirm({
+                                                    title: 'أرشفة التذكرة',
+                                                    message: 'هل تريد نقل هذه التذكرة إلى الأرشيف؟',
+                                                    isDestructive: true
+                                                });
+                                                if (confirmed) deleteTicketMutation.mutate();
+                                            }}
+                                            className="w-full h-16 bg-red-50 dark:bg-red-500/10 text-red-600 border border-red-100 dark:border-red-900/20 rounded-2xl font-black text-sm hover:bg-red-100 transition-all flex items-center justify-center gap-3"
+                                        >
+                                            <Archive className="w-5 h-5" />
+                                            نقل إلى الأرشيف
+                                        </button>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Summary Details Card */}
+                        <div className="bg-primary/5 rounded-[2.5rem] border-2 border-primary/10 p-8 space-y-6 animate-in slide-in-from-left-6 duration-700">
+                            <div className="flex items-center gap-4">
+                                <div className="w-12 h-12 bg-white dark:bg-dark-900 rounded-2xl flex items-center justify-center shadow-lg">
+                                    <Info className="w-6 h-6 text-primary" />
+                                </div>
+                                <h4 className="font-black text-gray-900 dark:text-white uppercase tracking-wider text-xs">ملخص التذكرة</h4>
+                            </div>
+
+                            <div className="space-y-4">
+                                <div className="flex justify-between items-center text-[11px] font-bold">
+                                    <span className="text-gray-400">تاريخ الإنشاء:</span>
+                                    <span className="text-gray-900 dark:text-white">{formatDate(selectedTicket?.created_at || '').split('|')[0]}</span>
+                                </div>
+                                <div className="flex justify-between items-center text-[11px] font-bold">
+                                    <span className="text-gray-400">الأولوية:</span>
+                                    <span className={`px-2 py-0.5 rounded-md ${selectedTicket?.priority === 'urgent' ? 'bg-red-500 text-white' : 'bg-white dark:bg-dark-800 text-primary'}`}>
+                                        {getPriorityLabel(selectedTicket?.priority || '')}
+                                    </span>
+                                </div>
+                                <div className="flex justify-between items-center text-[11px] font-bold">
+                                    <span className="text-gray-400">عدد الرسائل:</span>
+                                    <span className="text-gray-900 dark:text-white">{selectedTicket?.messages?.length || 0} رسالة</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </Modal>
+        </AdminLayout>
     );
 };
 

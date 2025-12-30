@@ -161,7 +161,7 @@ export default function PlatformIdentity() {
     };
 
     return (
-        <AdminLayout title="هوية المنصة" noPadding={true}>
+        <AdminLayout title="هوية المنصة" noPadding={true} hideLeftSidebar={true}>
             <div className="h-full w-full bg-white dark:bg-dark-950 p-6 animate-in fade-in duration-500 overflow-y-auto no-scrollbar pb-44">
                 <div className="mx-auto space-y-12 w-full">
                     <div className="flex items-center gap-6 border-b border-gray-100 dark:border-dark-800 pb-8 group">

@@ -61,35 +61,37 @@
     display: none !important;
 }
 
-/* Table Responsiveness (Stack Mode) */
-.standard-table-container {
-    @apply !border-0 !bg-transparent !shadow-none;
-}
+/* Table Responsiveness (Stack Mode - Only on Mobile < 640px) */
+@media (max-width: 639px) {
+    .standard-table-container {
+        @apply !border-0 !bg-transparent !shadow-none;
+    }
 
-.standard-table {
-    @apply !block !w-full;
-}
+    .standard-table {
+        @apply !block !w-full;
+    }
 
-.standard-table thead {
-    display: none !important;
-}
+    .standard-table thead {
+        display: none !important;
+    }
 
-.standard-table tbody {
-    @apply !block !space-y-4;
-}
+    .standard-table tbody {
+        @apply !block !space-y-4;
+    }
 
-.standard-table tr {
-    @apply !block !bg-white !rounded-3xl !p-6 !mb-4 !shadow-sm !border !border-gray-100 !relative;
-}
+    .standard-table tr {
+        @apply !block !bg-white !rounded-3xl !p-6 !mb-4 !shadow-sm !border !border-gray-100 !relative;
+    }
 
-.standard-table td {
-    @apply !flex !justify-between !items-center !py-2.5 !px-0 !border-0;
-    @apply !text-sm !font-bold !text-gray-800;
-}
+    .standard-table td {
+        @apply !flex !justify-between !items-center !py-2.5 !px-0 !border-0;
+        @apply !text-sm !font-bold !text-gray-800;
+    }
 
-.standard-table td::before {
-    content: attr(data-label);
-    @apply !font-black !text-gray-400 !uppercase !text-[9px] !tracking-wider;
+    .standard-table td::before {
+        content: attr(data-label);
+        @apply !font-black !text-gray-400 !uppercase !text-[9px] !tracking-wider;
+    }
 }
 
 /* 

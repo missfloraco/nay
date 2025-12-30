@@ -91,7 +91,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
 
   // Use extracted hooks for better code organization
-  const { isAdBlockActive, isCheckingAdBlock } = useAdBlockDetection(settings.adblock_enabled || false);
+  const { isAdBlockActive, isCheckingAdBlock } = useAdBlockDetection(settings);
   useFontManager({
     fontFamily: settings.fontFamily,
     customFontFile: settings.customFontFile,
@@ -258,7 +258,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           customHeadingFontUrl: systemBranding.custom_heading_font_url,
 
           // ADS & TRACKING: Global Super Admin control
-          ...Object.keys(systemBranding).filter(k => k.startsWith('ad_') || k.startsWith('adblock')).reduce((acc, k) => {
+          ...Object.keys(systemBranding).filter(k => k.startsWith('ad_') || k.startsWith('adblock') || k.startsWith('protect_')).reduce((acc, k) => {
             // If it's a tenant-specific view and ads are disabled for this tenant, clear ad contents
             const adsEnabled = userInfo?.tenant?.ads_enabled !== false;
             if (!adsEnabled && k.startsWith('ad_') && !isAdminPath) {

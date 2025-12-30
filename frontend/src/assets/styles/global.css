@@ -1,15 +1,30 @@
 @import "tailwindcss";
+@import "./dark-mode.css";
 @import "./responsive.css";
 
 @theme {
-  --color-primary: #2a8cff;
-  --color-secondary: #ffc108;
-  --color-accent1: #02aa94;
-  --color-accent2: #fb005e;
-  --color-success: #10b981;
-  --color-error: #ef4444;
+  --color-primary: var(--primary);
+  --color-secondary: var(--secondary);
+  --color-success: var(--success);
+  --color-error: var(--error);
 
-  --shadow-premium: 0 0 50px rgba(0, 0, 0, 0.02);
+  /* Main UI Mapping - This makes the system site-wide and scalable */
+  --color-gray-50: var(--bg-body);
+  --color-gray-100: var(--bg-surface-alt);
+  --color-gray-200: var(--border-main);
+  --color-gray-300: var(--border-main);
+  --color-gray-400: var(--text-muted);
+  --color-gray-500: var(--text-secondary);
+  --color-gray-600: var(--text-secondary);
+  --color-gray-900: var(--text-main);
+  --color-white: var(--bg-surface);
+
+  /* Slate mapping for inputs/fields */
+  --color-slate-50: var(--bg-body);
+  --color-slate-100: var(--bg-surface-alt);
+  --color-slate-200: var(--border-main);
+
+  --shadow-premium: var(--shadow-premium);
 }
 
 @layer base {

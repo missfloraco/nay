@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import AdminLayout from '@/features/superadmin/pages/adminlayout';
 import AppLayout from '@/features/tenant/pages/applayout';
@@ -7,14 +7,15 @@ import { useSettings } from '@/shared/contexts/app-context';
 import { formatDate } from '@/shared/utils/helpers';
 import { TEXTS_ADMIN } from '@/shared/locales/texts';
 import Table from '@/shared/table';
-import DateTimeSeparator from '@/shared/ui/dates/date-time-separator';
-import { Trash2, RotateCcw, CheckSquare, Square, AlertTriangle } from 'lucide-react';
+import { Trash2, RotateCcw, CheckSquare, Square, AlertTriangle, Settings2 } from 'lucide-react';
 import { IdentityCell, DateCell, ActionCell } from '@/shared/table-cells';
 import type { TrashedItem } from '@/shared/types/trash';
+import { Drawer } from '@/shared/ui/drawer';
 
 export default function Trash() {
     const location = useLocation();
     const { t } = useSettings();
+    const [isOptionsOpen, setIsOptionsOpen] = useState(false);
 
     // Determine if admin or tenant based on route
     const isAdmin = location.pathname.startsWith('/admin');
@@ -48,41 +49,46 @@ export default function Trash() {
         return trash.selected.some(i => i.type === item.type && i.id === item.id);
     };
 
-    // Left Sidebar Content - All trash functionality
-    const leftSidebarContent = (
-        <div className="space-y-6">
-            {/* Stats Card */}
-            <div className="bg-primary/5 rounded-3xl p-6 border border-primary/10">
-                <div className="flex items-center gap-3 mb-4">
-                    <div className="p-2.5 bg-primary/10 rounded-xl text-primary">
-                        <Trash2 className="w-5 h-5" />
-                    </div>
-                    <span className="text-xs font-black text-primary uppercase tracking-widest">
-                        إحصائيات السلة
-                    </span>
+    // Sidebar/Drawer Content
+    const optionsContent = (
+        <div className="space-y-8 p-1">
+            <div className="flex items-center gap-4 mb-2">
+                <div className="p-3 bg-primary/10 rounded-2xl text-primary">
+                    <Trash2 className="w-6 h-6" />
                 </div>
-                <p className="text-4xl font-black text-primary tracking-tighter">{trash.stats.total}</p>
-                <p className="text-[10px] text-gray-400 font-bold mt-2">
-                    إجمالي العناصر المحذوفة
+                <div>
+                    <h3 className="text-xl font-black text-gray-900 dark:text-white leading-none">خيارات السلة</h3>
+                    <p className="text-xs font-bold text-gray-400 mt-1">إحصائيات وتحكم سريع</p>
+                </div>
+            </div>
+
+            {/* Stats Card */}
+            <div className="bg-gray-50 dark:bg-dark-900/40 rounded-[2rem] p-8 border border-gray-100 dark:border-dark-800">
+                <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4 block">
+                    إجمالي المحذوفات
+                </span>
+                <p className="text-5xl font-black text-primary tracking-tighter">{trash.stats.total}</p>
+                <p className="text-xs text-gray-400 font-bold mt-3">
+                    عنصر ينتظر المعالجة
                 </p>
             </div>
 
             {/* Type Classification */}
             {Object.keys(trash.stats.byType).length > 0 && (
-                <div className="space-y-3">
+                <div className="space-y-4">
                     <label className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest px-1">
-                        التصنيف
+                        التصنيف حسب النوع
                     </label>
-                    <div className="space-y-2">
+                    <div className="grid grid-cols-1 gap-2">
                         {Object.entries(trash.stats.byType).map(([type, count]) => (
                             <div
                                 key={type}
-                                className="flex items-center justify-between p-3 bg-white dark:bg-dark-800 rounded-2xl border border-gray-100 dark:border-dark-700"
+                                className="flex items-center justify-between p-4 bg-white dark:bg-dark-800/60 rounded-2xl border border-gray-100 dark:border-dark-700/50"
                             >
-                                <span className="text-xs font-bold text-gray-700 dark:text-gray-300">
+                                <span className="text-sm font-bold text-gray-700 dark:text-gray-300">
                                     {getTypeLabel(type)}
                                 </span>
-                                <span className="px-2 py-0.5 bg-gray-50 dark:bg-dark-900 rounded-lg text-[10px] font-black text-primary border border-gray-100 dark:border-dark-700">
+                                <span className="px-3 py-1 bg-gray-50 dark:bg-dark-950 rounded-lg text-[10px] font-black text-primary border border-gray-100 dark:border-dark-700">
                                     {count}
                                 </span>
                             </div>
@@ -91,39 +97,50 @@ export default function Trash() {
                 </div>
             )}
 
-            {/* Empty Trash Button */}
-            {trash.stats.total > 0 && (
-                <button
-                    onClick={trash.emptyTrash}
-                    className="w-full flex items-center justify-center gap-2 py-3.5 bg-red-600 text-white rounded-xl font-black text-xs hover:bg-red-700 transition-all shadow-xl shadow-red-100 group active:scale-[0.98]"
-                >
-                    <AlertTriangle className="w-4 h-4 group-hover:rotate-12 transition-transform" />
-                    إفراغ السلة نهائياً
-                </button>
-            )}
+            <div className="pt-6 border-t border-gray-100 dark:border-dark-800 space-y-3">
+                {/* Empty Trash Button */}
+                {trash.stats.total > 0 && (
+                    <button
+                        onClick={() => {
+                            trash.emptyTrash();
+                            setIsOptionsOpen(false);
+                        }}
+                        className="w-full h-14 flex items-center justify-center gap-3 bg-red-600 text-white rounded-2xl font-black text-sm hover:bg-red-700 transition-all shadow-xl shadow-red-500/10 group active:scale-[0.98]"
+                    >
+                        <AlertTriangle className="w-5 h-5 group-hover:rotate-12 transition-transform" />
+                        إفراغ السلة نهائياً
+                    </button>
+                )}
 
-            {/* Bulk Actions */}
-            {trash.selected.length > 0 && (
-                <div className="space-y-2 pt-4 border-t border-gray-200 dark:border-dark-700">
-                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">
-                        {trash.selected.length} محدد
-                    </p>
-                    <button
-                        onClick={trash.bulkRestore}
-                        className="w-full flex items-center justify-center gap-2 py-3 bg-emerald-600 text-white rounded-xl font-black text-xs hover:bg-emerald-700 transition-all"
-                    >
-                        <RotateCcw className="w-4 h-4" />
-                        استعادة المحدد
-                    </button>
-                    <button
-                        onClick={trash.bulkForceDelete}
-                        className="w-full flex items-center justify-center gap-2 py-3 bg-red-600 text-white rounded-xl font-black text-xs hover:bg-red-700 transition-all"
-                    >
-                        <Trash2 className="w-4 h-4" />
-                        حذف المحدد نهائياً
-                    </button>
-                </div>
-            )}
+                {/* Bulk Actions */}
+                {trash.selected.length > 0 && (
+                    <>
+                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1 pt-2">
+                            تحكم بالمحدد ({trash.selected.length})
+                        </p>
+                        <button
+                            onClick={() => {
+                                trash.bulkRestore();
+                                setIsOptionsOpen(false);
+                            }}
+                            className="w-full h-14 flex items-center justify-center gap-3 bg-emerald-600 text-white rounded-2xl font-black text-sm hover:bg-emerald-700 transition-all shadow-xl shadow-emerald-500/10"
+                        >
+                            <RotateCcw className="w-5 h-5" />
+                            استعادة العناصر المحددة
+                        </button>
+                        <button
+                            onClick={() => {
+                                trash.bulkForceDelete();
+                                setIsOptionsOpen(false);
+                            }}
+                            className="w-full h-14 flex items-center justify-center gap-3 bg-red-50 text-red-600 border border-red-100 rounded-2xl font-black text-sm hover:bg-red-100 transition-all"
+                        >
+                            <Trash2 className="w-5 h-5" />
+                            حذف العناصر المحددة نهائياً
+                        </button>
+                    </>
+                )}
+            </div>
         </div>
     );
 
@@ -201,10 +218,10 @@ export default function Trash() {
         <div className="space-y-4 animate-in fade-in duration-700 h-full flex flex-col">
             {/* Select All Checkbox */}
             {trash.items.length > 0 && (
-                <div className="flex items-center gap-3 px-4">
+                <div className="flex items-center gap-3 px-4 py-2">
                     <button
                         onClick={trash.selectAll}
-                        className="flex items-center gap-2 text-sm font-bold text-gray-600 dark:text-gray-400 hover:text-primary transition-colors"
+                        className="flex items-center gap-3 px-4 py-2 bg-gray-50 dark:bg-dark-900 rounded-xl border border-gray-100 dark:border-dark-800 text-sm font-bold text-gray-600 dark:text-gray-400 hover:text-primary transition-all active:scale-95"
                     >
                         {trash.selected.length === trash.items.length ? (
                             <CheckSquare className="w-5 h-5 text-primary" />
@@ -212,13 +229,14 @@ export default function Trash() {
                             <Square className="w-5 h-5" />
                         )}
                         <span>
-                            {trash.selected.length === trash.items.length ? 'إلغاء تحديد الكل' : 'تحديد الكل'}
+                            {trash.selected.length === trash.items.length ? 'إلغاء تحديد الكل' : 'تحديد جميع المعروض'}
                         </span>
                     </button>
                     {trash.selected.length > 0 && (
-                        <span className="text-xs text-gray-400">
-                            ({trash.selected.length} محدد)
-                        </span>
+                        <div className="flex items-center gap-2 px-3 py-1.5 bg-primary/10 text-primary rounded-lg text-xs font-black">
+                            <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
+                            {trash.selected.length} محدد حالياً
+                        </div>
                     )}
                 </div>
             )}
@@ -229,11 +247,34 @@ export default function Trash() {
                     columns={columns}
                     data={trash.items}
                     isLoading={trash.isLoading}
-                    emptyMessage="السلة فارغة"
+                    emptyMessage="السلة فارغة حالياً"
                     exportFileName="سلة_المحذوفات"
                 />
             </div>
+
+            <Drawer
+                isOpen={isOptionsOpen}
+                onClose={() => setIsOptionsOpen(false)}
+                title="خيارات السلة"
+            >
+                {optionsContent}
+            </Drawer>
         </div>
+    );
+
+    const HeaderAction = (
+        <button
+            onClick={() => setIsOptionsOpen(true)}
+            className="flex items-center gap-2 px-6 h-12 bg-white dark:bg-dark-800 border-2 border-gray-100 dark:border-dark-700 rounded-2xl text-sm font-black text-gray-700 dark:text-gray-200 hover:border-primary/30 hover:text-primary transition-all active:scale-95 shadow-sm shadow-gray-200/50"
+        >
+            <Settings2 size={18} className="text-primary" />
+            <span>خيارات السلة</span>
+            {trash.selected.length > 0 && (
+                <span className="flex items-center justify-center w-5 h-5 bg-primary text-white text-[10px] rounded-full">
+                    {trash.selected.length}
+                </span>
+            )}
+        </button>
     );
 
     // Render with appropriate layout
@@ -241,7 +282,8 @@ export default function Trash() {
         return (
             <AdminLayout
                 title={TEXTS_ADMIN?.TITLES?.RECYCLE_BIN || 'سلة المهملات'}
-                leftSidebarContent={leftSidebarContent}
+                actions={HeaderAction}
+                hideLeftSidebar={true}
             >
                 {tableContent}
             </AdminLayout>
@@ -250,7 +292,8 @@ export default function Trash() {
         return (
             <AppLayout
                 title={t('trash.title', 'سلة المحذوفات')}
-                leftSidebarContent={leftSidebarContent}
+                actions={HeaderAction}
+                hideLeftSidebar={true}
             >
                 {tableContent}
             </AppLayout>

@@ -71,12 +71,12 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({ variant = 'header-ce
             <>
                 <button
                     onClick={() => setIsOverlayOpen(true)}
-                    className="p-3 rounded-2xl bg-gray-50 text-gray-500 hover:text-primary transition-all active:scale-95"
+                    className="w-12 h-12 flex items-center justify-center rounded-2xl bg-white border border-gray-100 text-gray-400 hover:text-primary hover:border-primary/20 hover:bg-primary/5 transition-all active:scale-95 shadow-sm"
                     aria-label={t('common.search', 'بحث')}
                     aria-haspopup="true"
                     aria-expanded={isOverlayOpen}
                 >
-                    <Search size={22} />
+                    <Search size={20} className="transition-transform group-hover:scale-110" />
                 </button>
 
                 {/* Mobile/Tablet Command Palette Modal */}

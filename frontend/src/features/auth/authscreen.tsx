@@ -6,12 +6,13 @@ import api, { initializeCsrf } from '@/shared/services/api';
 import { logger } from '@/shared/services/logger';
 import { useText } from '@/shared/contexts/text-context';
 import { AuthSplitLayout } from '@/features/auth/components/auth-split-layout';
-import { Lock, Mail, User, Globe, AlertCircle, CheckCircle2, Eye, EyeOff, Loader2, ArrowLeft, Moon, Sun, Home } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { ThemeToggle } from '@/shared/layout/header/theme-toggle';
 
 import { COUNTRIES } from '@/shared/constants';
 import { LoginSchema, RegisterSchema, ForgotPasswordSchema } from '@/shared/utils/validation';
 import { PasswordStrengthIndicator } from './components/passwordstrengthindicator';
+import { Lock, Mail, User, Globe, AlertCircle, CheckCircle2, Eye, EyeOff, Loader2, ArrowLeft, Home } from 'lucide-react';
 import InputField from '@/shared/ui/forms/input-field';
 import SelectField from '@/shared/ui/forms/select-field';
 
@@ -183,27 +184,17 @@ export default function AuthScreen({ initialMode = 'login' }: { initialMode?: Au
             title={t(`AUTH.${mode === 'forgot-password' ? 'FORGOT_PASSWORD' : mode.toUpperCase()}.TITLE`)}
             subtitle={t(`AUTH.${mode === 'forgot-password' ? 'FORGOT_PASSWORD' : mode.toUpperCase()}.SUBTITLE`)}
         >
-            {/* Dark Mode Toggle */}
-            <div className="absolute top-4 left-4 z-50 flex items-center gap-2">
+            {/* Top Toolbar: Home & Theme Toggle (Aligned Right for RTL) */}
+            <div className="absolute top-4 right-4 z-50 flex items-center gap-3 flex-row-reverse">
                 <Link
                     to="/"
-                    className="flex items-center gap-2 py-2 px-4 rounded-xl bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-all font-bold text-sm"
+                    className="flex items-center gap-2 py-2.5 px-5 rounded-2xl bg-gray-50 text-gray-400 hover:text-primary hover:bg-white border border-transparent hover:border-gray-100 transition-all active:scale-95 group shadow-sm hover:shadow-md font-bold text-sm"
+                    title="العودة للرئيسية"
                 >
-                    <Home size={16} />
-                    <span>الرئيسية</span>
+                    <span className="hidden sm:inline">الرئيسية</span>
+                    <Home size={18} className="transition-transform group-hover:translate-x-1" />
                 </Link>
-                <button
-                    type="button"
-                    onClick={() => {
-                        const isDark = document.documentElement.classList.toggle('dark');
-                        localStorage.setItem('theme', isDark ? 'dark' : 'light');
-                    }}
-                    className="p-2 rounded-xl bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-white/20 transition-all border border-transparent"
-                    title="تبديل الوضع الليلي"
-                >
-                    <span className="dark:hidden"><Moon size={20} /></span>
-                    <span className="hidden dark:inline"><Sun size={20} /></span>
-                </button>
+                <ThemeToggle />
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-8 animate-in fade-in slide-in-from-bottom-5 duration-500">

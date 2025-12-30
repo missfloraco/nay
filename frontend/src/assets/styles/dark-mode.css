@@ -1,0 +1,113 @@
+/* 
+  ==========================================================================
+  Professional Dark Mode System (Arabic Supported)
+  --------------------------------------------------------------------------
+  This system uses CSS variables to ensure site-wide scalability.
+  Logic: 
+  1. Default Light Mode variables in :root
+  2. Dark Mode overrides via @media (prefers-color-scheme: dark)
+  3. Manual override via .dark-mode class on <html> or <body>
+  ========================================================================== 
+*/
+
+:root {
+    /* Branding Colors */
+    --primary: #2a8cff;
+    --secondary: #ffc108;
+    --success: #10b981;
+    --error: #ef4444;
+    --warning: #f59e0b;
+
+    /* Backgrounds */
+    --bg-body: #f9fafb;
+    /* Gray 50 */
+    --bg-surface: #ffffff;
+    /* White */
+    --bg-surface-alt: #f3f4f6;
+    /* Gray 100 */
+    --bg-surface-elevated: #ffffff;
+
+    /* Text */
+    --text-main: #111827;
+    /* Gray 900 */
+    --text-secondary: #4b5563;
+    /* Gray 600 */
+    --text-muted: #9ca3af;
+    /* Gray 400 */
+    --text-inverse: #ffffff;
+
+    /* Borders */
+    --border-main: #e5e7eb;
+    /* Gray 200 */
+    --border-light: #f3f4f6;
+    /* Gray 100 */
+
+    /* UI Components */
+    --header-bg: rgba(255, 255, 255, 0.8);
+    --header-border: #e5e7eb;
+    --sidebar-bg: #ffffff;
+    --card-bg: #ffffff;
+    --input-bg: rgba(248, 250, 252, 0.5);
+    /* slate-50/50 */
+
+    /* Shadows */
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    --shadow-premium: 0 0 50px rgba(0, 0, 0, 0.02);
+}
+
+/* Dark Mode Overrides - Automatic (System Level) */
+@media (prefers-color-scheme: dark) {
+    :root:not(.light-mode) {
+        --bg-body: #0b0f19;
+        /* Deep Space */
+        --bg-surface: #111827;
+        /* Dark Navy */
+        --bg-surface-alt: #1f2937;
+        /* Muted Navy */
+        --bg-surface-elevated: #1e293b;
+
+        --text-main: #f9fafb;
+        /* Almost White */
+        --text-secondary: #d1d5db;
+        /* Light Gray */
+        --text-muted: #6b7280;
+        /* Muted Gray */
+
+        --border-main: #2d3748;
+        /* Deep Gray Border */
+        --border-light: #1f2937;
+
+        --header-bg: rgba(11, 15, 25, 0.8);
+        --header-border: #1f2937;
+        --sidebar-bg: #111827;
+        --card-bg: #111827;
+        --input-bg: rgba(30, 41, 59, 0.5);
+
+        --shadow-premium: 0 0 50px rgba(0, 0, 0, 0.4);
+    }
+}
+
+/* Dark Mode Overrides - Manual (Class Level) */
+.dark-mode {
+    --bg-body: #0b0f19;
+    --bg-surface: #111827;
+    --bg-surface-alt: #1f2937;
+    --bg-surface-elevated: #1e293b;
+
+    --text-main: #f9fafb;
+    --text-secondary: #d1d5db;
+    --text-muted: #6b7280;
+
+    --border-main: #2d3748;
+    --border-light: #1f2937;
+
+    --header-bg: rgba(11, 15, 25, 0.8);
+    --header-border: #1f2937;
+    --sidebar-bg: #111827;
+    --card-bg: #111827;
+    --input-bg: rgba(30, 41, 59, 0.5);
+
+    --shadow-premium: 0 0 50px rgba(0, 0, 0, 0.4);
+}

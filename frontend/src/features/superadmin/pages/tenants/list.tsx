@@ -53,6 +53,7 @@ export default function TenantsList() {
 
     // Action Modal State
     const [selectedTenant, setSelectedTenant] = useState<Tenant | null>(null);
+    const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
 
     const [formData, setFormData] = useState({
         name: '',
@@ -63,6 +64,11 @@ export default function TenantsList() {
         subscription_ends_at: '',
         ads_enabled: true
     });
+
+    const handleSelectTenant = (tenant: Tenant | null) => {
+        setSelectedTenant(tenant);
+        setIsDetailsModalOpen(!!tenant);
+    };
 
     // Register FAB action for ADDING only
     useEffect(() => {
@@ -266,7 +272,7 @@ export default function TenantsList() {
                 <ActionCell>
                     <ViewButton
                         type="icon"
-                        onClick={() => setSelectedTenant(tenant)}
+                        onClick={() => handleSelectTenant(tenant)}
                         icon={Eye}
                         label="إدارة"
                         variant="primary"
@@ -277,22 +283,12 @@ export default function TenantsList() {
             width: '10%',
             hideInExport: true
         }
-    ], [getCountryName, setSelectedTenant]);
+    ], [getCountryName, handleSelectTenant]);
 
     return (
         <AdminLayout
             title={TEXTS_ADMIN.TITLES.TENANTS}
-            leftSidebarContent={
-                <TenantDetailsSidebar
-                    tenant={selectedTenant}
-                    tenants={tenants}
-                    onSelect={setSelectedTenant}
-                    onUpdate={loadTenants}
-                    onNavigateToPayments={handleNavigateToPayments}
-                />
-            }
-            leftSidebarNoPadding={true}
-            leftSidebarNoBorder={false}
+            hideLeftSidebar={true}
         >
             <div className="h-full flex flex-col">
                 <div className="flex-1 flex flex-col">
@@ -449,6 +445,22 @@ export default function TenantsList() {
                         </button>
                     </div>
                 </form>
+            </Modal>
+
+            {/* Edit Tenant Modal */}
+            <Modal
+                isOpen={isDetailsModalOpen}
+                onClose={() => setIsDetailsModalOpen(false)}
+                title="تفاصيل المشترك"
+                size="6xl"
+            >
+                <TenantDetailsSidebar
+                    tenant={selectedTenant}
+                    tenants={tenants}
+                    onSelect={handleSelectTenant}
+                    onUpdate={loadTenants}
+                    onNavigateToPayments={handleNavigateToPayments}
+                />
             </Modal>
         </AdminLayout>
     );

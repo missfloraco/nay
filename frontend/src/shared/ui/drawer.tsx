@@ -7,6 +7,7 @@ interface DrawerProps {
     side?: 'right' | 'left';
     children: React.ReactNode;
     title?: string;
+    width?: string;
 }
 
 export const Drawer: React.FC<DrawerProps> = ({
@@ -14,7 +15,8 @@ export const Drawer: React.FC<DrawerProps> = ({
     onClose,
     side = 'right',
     children,
-    title
+    title,
+    width = '320px'
 }) => {
     // Prevent scrolling when drawer is open
     useEffect(() => {
@@ -39,10 +41,11 @@ export const Drawer: React.FC<DrawerProps> = ({
 
             {/* Drawer Panel */}
             <aside
-                className={`fixed top-0 bottom-0 w-[85%] max-w-[320px] bg-white dark:bg-dark-900 z-[70] shadow-2xl transition-transform duration-300 ease-in-out ${side === 'right'
-                        ? (isOpen ? 'translate-x-0' : 'translate-x-[100%]')
-                        : (isOpen ? 'translate-x-0' : '-translate-x-[100%]')
+                className={`fixed top-0 bottom-0 w-[85%] bg-white dark:bg-dark-900 z-[70] shadow-2xl transition-transform duration-300 ease-in-out ${side === 'right'
+                    ? (isOpen ? 'translate-x-0' : 'translate-x-[100%]')
+                    : (isOpen ? 'translate-x-0' : '-translate-x-[100%]')
                     } ${side === 'right' ? 'right-0' : 'left-0'}`}
+                style={{ maxWidth: width }}
                 dir="rtl"
             >
                 <div className="flex flex-col h-full">

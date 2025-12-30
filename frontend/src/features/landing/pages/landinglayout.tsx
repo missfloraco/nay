@@ -7,6 +7,7 @@ import { useSettings } from '@/shared/contexts/app-context';
 import { UI_TEXT } from '@/shared/locales/texts';
 import AdSlot from '@/shared/ads/adslot';
 import ShieldOverlay from '@/shared/components/shield-overlay';
+import { ThemeToggle } from '@/shared/layout/header/theme-toggle';
 
 interface LandingLayoutProps {
     children: ReactNode;
@@ -107,6 +108,7 @@ export default function LandingLayout({ children }: LandingLayoutProps) {
 
                                 <div className="flex items-center gap-3 lg:gap-8">
                                     <div className="flex items-center gap-2">
+                                        <ThemeToggle />
                                     </div>
 
                                     <div className="h-8 w-px bg-gray-200 hidden sm:block" />
