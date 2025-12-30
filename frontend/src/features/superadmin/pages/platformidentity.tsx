@@ -66,9 +66,17 @@ export default function PlatformIdentity() {
     }, [settings, contextLoading]);
 
     // Clear sidebar action
+    // Register Primary Action
     useEffect(() => {
-        setPrimaryAction(null);
-    }, [setPrimaryAction]);
+        setPrimaryAction({
+            label: saving ? 'جاري الحفظ...' : 'تحديث بيانات المنصة',
+            onClick: () => handleSubmit(),
+            icon: Save,
+            loading: saving,
+            disabled: saving,
+        });
+        return () => setPrimaryAction(null);
+    }, [saving, logoFiles, formData, removeLogo, removeFavicon, removeCustomFont, removeCustomHeadingFont]);
 
     const handleLogoChange = (key: string, file: File) => {
         setLogoFiles(prev => ({ ...prev, [key]: file }));
@@ -161,24 +169,20 @@ export default function PlatformIdentity() {
     };
 
     return (
-        <AdminLayout title="هوية المنصة" noPadding={true} hideLeftSidebar={true}>
-            <div className="h-full w-full bg-white dark:bg-dark-950 p-6 animate-in fade-in duration-500 overflow-y-auto no-scrollbar pb-44">
-                <div className="mx-auto space-y-12 w-full">
-                    <div className="flex items-center gap-6 border-b border-gray-100 dark:border-dark-800 pb-8 group">
-                        <div className="p-4 bg-indigo-50 dark:bg-indigo-900/10 rounded-[2rem] text-indigo-600 shadow-inner group-hover:scale-110 transition-transform">
-                            <Layout className="w-8 h-8" />
-                        </div>
-                        <div>
-                            <h3 className="font-black text-3xl text-gray-900 dark:text-white tracking-tight">هوية المنصة</h3>
-                            <p className="text-base font-bold text-gray-400 dark:text-gray-500">تخصيص الاسم والشعار والخطوط العامة للمنصة</p>
-                        </div>
-                    </div>
+        <AdminLayout
+            title="هوية المنصة"
+            icon={Layout}
+            noPadding={true}
+            hideLeftSidebar={true}
+        >
+            <div className="w-full bg-transparent animate-in fade-in duration-500">
+                <div className="mx-auto space-y-12 w-full max-w-7xl">
 
                     <div className="grid lg:grid-cols-[280px_1fr] gap-12 items-start">
                         {/* Visual Identity Column */}
                         <div className="flex flex-col gap-6">
                             {/* System Logo */}
-                            <div className="flex flex-col items-center justify-center p-8 rounded-[2.5rem] bg-gray-50/50 dark:bg-dark-900/40 border border-gray-100 dark:border-dark-800 backdrop-blur-sm">
+                            <div className="flex flex-col items-center justify-center p-8 rounded-[2.5rem] bg-white dark:bg-dark-900 border border-gray-100 dark:border-dark-800 shadow-xl shadow-gray-100/50 dark:shadow-none">
                                 <CircularImageUpload
                                     image={removeLogo ? null : (logoFiles.system_logo ? URL.createObjectURL(logoFiles.system_logo) : (settings.systemLogoUrl || settings.logoUrl))}
                                     onImageChange={(f) => handleLogoChange('system_logo', f)}
@@ -194,7 +198,7 @@ export default function PlatformIdentity() {
                             </div>
 
                             {/* Favicon - Moved Here */}
-                            <div className="flex flex-col items-center justify-center p-8 rounded-[2.5rem] bg-gray-50/50 dark:bg-dark-900/40 border border-gray-100 dark:border-dark-800 backdrop-blur-sm">
+                            <div className="flex flex-col items-center justify-center p-8 rounded-[2.5rem] bg-white dark:bg-dark-900 border border-gray-100 dark:border-dark-800 shadow-xl shadow-gray-100/50 dark:shadow-none">
                                 <CircularImageUpload
                                     image={removeFavicon ? null : (logoFiles.favicon ? URL.createObjectURL(logoFiles.favicon) : (settings.faviconUrl || null))}
                                     onImageChange={(f) => handleLogoChange('favicon', f)}
@@ -211,36 +215,39 @@ export default function PlatformIdentity() {
                         </div>
 
                         <div className="space-y-8 w-full py-2">
-                            <InputField
-                                label="اسم المنصة"
-                                value={formData.app_name}
-                                onChange={e => setFormData({ ...formData, app_name: e.target.value })}
-                                placeholder="أدخل اسم المنصة"
-                                hint="يظهر هذا الاسم في شريط العنوان ورسائل البريد الإلكتروني"
-                            />
+                            {/* App Info Card */}
+                            <div className="bg-white dark:bg-dark-900 p-8 lg:p-12 rounded-[2.5rem] border border-gray-100 dark:border-dark-800 shadow-xl shadow-gray-100/50 dark:shadow-none space-y-8">
+                                <InputField
+                                    label="اسم المنصة"
+                                    value={formData.app_name}
+                                    onChange={e => setFormData({ ...formData, app_name: e.target.value })}
+                                    placeholder="أدخل اسم المنصة"
+                                    hint="يظهر هذا الاسم في شريط العنوان ورسائل البريد الإلكتروني"
+                                />
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                <div className="space-y-1.5">
-                                    <label className="form-label mr-1">اللون الأساسي</label>
-                                    <div className="flex items-center gap-4 p-4 rounded-2xl bg-slate-50/50 dark:bg-dark-900/40 border border-slate-200 dark:border-white/5 transition-all hover:bg-white dark:hover:bg-dark-800/60 focus-within:border-primary/50">
-                                        <input type="color" value={formData.primary_color} onChange={e => setFormData({ ...formData, primary_color: e.target.value })} className="w-12 h-12 rounded-xl cursor-pointer bg-transparent border-none p-0 overflow-hidden" />
-                                        <span className="text-sm font-black dir-ltr text-gray-600 dark:text-gray-300 uppercase">{formData.primary_color}</span>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                    <div className="space-y-1.5">
+                                        <label className="form-label mr-1">اللون الأساسي</label>
+                                        <div className="flex items-center gap-4 p-4 rounded-2xl bg-slate-50/50 dark:bg-dark-900/40 border border-slate-200 dark:border-white/5 transition-all hover:bg-white dark:hover:bg-dark-800/60 focus-within:border-primary/50">
+                                            <input type="color" value={formData.primary_color} onChange={e => setFormData({ ...formData, primary_color: e.target.value })} className="w-12 h-12 rounded-xl cursor-pointer bg-transparent border-none p-0 overflow-hidden" />
+                                            <span className="text-sm font-black dir-ltr text-gray-600 dark:text-gray-300 uppercase">{formData.primary_color}</span>
+                                        </div>
                                     </div>
-                                </div>
 
-                                <div className="space-y-1.5">
-                                    <label className="form-label mr-1">اللون الثانوي</label>
-                                    <div className="flex items-center gap-4 p-4 rounded-2xl bg-slate-50/50 dark:bg-dark-900/40 border border-slate-200 dark:border-white/5 transition-all hover:bg-white dark:hover:bg-dark-800/60 focus-within:border-secondary/50">
-                                        <input type="color" value={formData.secondary_color} onChange={e => setFormData({ ...formData, secondary_color: e.target.value })} className="w-12 h-12 rounded-xl cursor-pointer bg-transparent border-none p-0 overflow-hidden" />
-                                        <span className="text-sm font-black dir-ltr text-gray-600 dark:text-gray-300 uppercase">{formData.secondary_color}</span>
+                                    <div className="space-y-1.5">
+                                        <label className="form-label mr-1">اللون الثانوي</label>
+                                        <div className="flex items-center gap-4 p-4 rounded-2xl bg-slate-50/50 dark:bg-dark-900/40 border border-slate-200 dark:border-white/5 transition-all hover:bg-white dark:hover:bg-dark-800/60 focus-within:border-secondary/50">
+                                            <input type="color" value={formData.secondary_color} onChange={e => setFormData({ ...formData, secondary_color: e.target.value })} className="w-12 h-12 rounded-xl cursor-pointer bg-transparent border-none p-0 overflow-hidden" />
+                                            <span className="text-sm font-black dir-ltr text-gray-600 dark:text-gray-300 uppercase">{formData.secondary_color}</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
 
                             {/* Font Selection Section - Dual Fonts */}
-                            <div className="pt-8 border-t border-gray-50 dark:border-dark-800 space-y-10">
+                            <div className="space-y-10">
                                 {/* Body Font */}
-                                <div className="grid lg:grid-cols-[300px_1fr] gap-x-12 gap-y-8 p-8 rounded-[2.5rem] bg-indigo-50/20 dark:bg-indigo-950/20 border border-indigo-100/50 dark:border-indigo-900/30">
+                                <div className="grid lg:grid-cols-[300px_1fr] gap-x-12 gap-y-8 p-8 rounded-[2.5rem] bg-white dark:bg-dark-900 border border-gray-100 dark:border-dark-800 shadow-xl shadow-gray-100/50 dark:shadow-none">
                                     <div className="space-y-4">
                                         <h4 className="text-lg font-black text-gray-900 dark:text-white flex items-center gap-3">
                                             <Type className="w-5 h-5 text-indigo-500" />
@@ -287,7 +294,7 @@ export default function PlatformIdentity() {
                                 </div>
 
                                 {/* Heading Font */}
-                                <div className="grid lg:grid-cols-[300px_1fr] gap-x-12 gap-y-8 p-8 rounded-[2.5rem] bg-pink-50/20 dark:bg-pink-950/20 border border-pink-100/50 dark:border-pink-900/30">
+                                <div className="grid lg:grid-cols-[300px_1fr] gap-x-12 gap-y-8 p-8 rounded-[2.5rem] bg-white dark:bg-dark-900 border border-gray-100 dark:border-dark-800 shadow-xl shadow-gray-100/50 dark:shadow-none">
                                     <div className="space-y-4">
                                         <h4 className="text-lg font-black text-gray-900 dark:text-white flex items-center gap-3">
                                             <FileType className="w-5 h-5 text-pink-500" />
@@ -336,7 +343,7 @@ export default function PlatformIdentity() {
 
 
                             {/* Company Rights Section - New */}
-                            <div className="pt-8 border-t border-gray-50 dark:border-dark-800 space-y-8">
+                            <div className="bg-white dark:bg-dark-900 p-8 lg:p-12 rounded-[2.5rem] border border-gray-100 dark:border-dark-800 shadow-xl shadow-gray-100/50 dark:shadow-none space-y-8">
                                 <h3 className="text-lg font-black text-gray-900 dark:text-white flex items-center gap-2 px-1">
                                     <span className="w-1.5 h-6 bg-purple-500 rounded-full"></span>
                                     حقوق النشر والملكية
@@ -366,16 +373,6 @@ export default function PlatformIdentity() {
                                 </div >
                             </div >
 
-                            <div className="pt-12 border-t border-gray-100 dark:border-dark-800 flex justify-end">
-                                <button
-                                    onClick={handleSubmit}
-                                    disabled={saving}
-                                    className="w-full md:w-auto px-12 h-16 flex items-center justify-center gap-4 bg-primary hover:bg-primary/90 text-white rounded-3xl font-black shadow-2xl shadow-primary/20 transition-all hover:scale-[1.02] active:scale-95 disabled:opacity-50 min-w-[280px] text-lg"
-                                >
-                                    {saving ? <Loader2 className="w-6 h-6 animate-spin" /> : <Save className="w-6 h-6" />}
-                                    <span>تحديث بيانات المنصة</span>
-                                </button>
-                            </div>
                         </div >
                     </div >
                 </div >

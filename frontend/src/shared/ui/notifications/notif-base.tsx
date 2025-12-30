@@ -18,12 +18,12 @@ const Notification: React.FC<NotificationProps> = ({ message, type, onClose, dur
     const Icon = isSuccess ? CheckCircle : AlertCircle;
 
     return (
-        <div className="fixed bottom-0 left-0 z-[200] w-[250px] h-[90px] animate-in fade-in slide-in-from-left-full duration-500 overflow-hidden">
+        <div className="fixed bottom-0 right-0 z-[200] w-[250px] h-[90px] animate-in fade-in slide-in-from-right-full duration-500 overflow-hidden">
             <div className={`
                 relative w-full h-full flex items-center gap-4 px-6 
                 ${isSuccess ? 'bg-emerald-600' : 'bg-red-600'}
-                border-r border-t border-white/10
-                shadow-[10px_0_30px_rgba(0,0,0,0.2)]
+                border-l border-t border-white/10
+                shadow-[-10px_0_30px_rgba(0,0,0,0.2)]
                 pointer-events-auto group
             `}>
                 {/* Status Indicator Icon */}

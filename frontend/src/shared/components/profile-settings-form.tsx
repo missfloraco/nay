@@ -50,6 +50,8 @@ interface ProfileSettingsFormProps {
     isTenant?: boolean;
     extraFields?: React.ReactNode;
     onSuccess?: (data: any) => void;
+    formRef?: React.RefObject<HTMLFormElement>;
+    hideAction?: boolean;
 }
 
 export default function ProfileSettingsForm({
@@ -57,7 +59,9 @@ export default function ProfileSettingsForm({
     apiEndpoint,
     isTenant = false,
     extraFields,
-    onSuccess
+    onSuccess,
+    formRef,
+    hideAction = false
 }: ProfileSettingsFormProps) {
     const { showToast } = useFeedback();
     const [loading, setLoading] = useState(false);
@@ -199,9 +203,9 @@ export default function ProfileSettingsForm({
     const countryOptions = COUNTRIES.map(c => ({ value: c.code, label: c.name }));
 
     return (
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-12 max-w-6xl mx-auto w-full">
+        <form ref={formRef} onSubmit={handleSubmit(onSubmit)} className="space-y-12 max-w-6xl mx-auto w-full">
             {/* Section 1: Basic Info */}
-            <div className="space-y-10 group">
+            <div className="bg-white dark:bg-dark-900 rounded-[2.5rem] p-8 lg:p-12 border border-gray-100 dark:border-dark-800 shadow-xl shadow-gray-100/50 dark:shadow-none group space-y-10">
                 <div className="flex items-center gap-6 border-b border-gray-50 dark:border-dark-800 pb-8 transition-colors group-hover:border-primary/20">
                     <div className="p-4 bg-primary/5 dark:bg-primary/10 rounded-[2rem] text-primary shadow-inner">
                         <User className="w-8 h-8" />
@@ -296,7 +300,7 @@ export default function ProfileSettingsForm({
             </div>
 
             {/* Section 2: Security */}
-            <div className="space-y-10 group pt-4">
+            <div className="bg-white dark:bg-dark-900 rounded-[2.5rem] p-8 lg:p-12 border border-gray-100 dark:border-dark-800 shadow-xl shadow-gray-100/50 dark:shadow-none group space-y-10">
                 <div className="flex items-center gap-6 border-b border-gray-50 dark:border-dark-800 pb-8 transition-colors group-hover:border-red-500/20">
                     <div className="p-4 bg-red-50 dark:bg-red-500/10 rounded-[2rem] text-red-600 shadow-inner">
                         <Shield className="w-8 h-8" />
@@ -326,16 +330,18 @@ export default function ProfileSettingsForm({
                 </div>
             </div>
 
-            <div className="pt-12 border-t border-gray-100 dark:border-dark-800 flex justify-end">
-                <button
-                    type="submit"
-                    disabled={loading}
-                    className="w-full md:w-auto px-12 h-16 flex items-center justify-center gap-3 bg-primary hover:bg-primary/90 text-white rounded-[1.5rem] font-black shadow-2xl shadow-primary/30 transition-all active:scale-95 disabled:opacity-50 min-w-[240px] text-lg"
-                >
-                    {loading ? <Loader2 className="w-6 h-6 animate-spin" /> : <Save className="w-6 h-6" />}
-                    <span>حفظ التعديلات</span>
-                </button>
-            </div>
+            {!hideAction && (
+                <div className="pt-12 border-t border-gray-100 dark:border-dark-800 flex justify-end">
+                    <button
+                        type="submit"
+                        disabled={loading}
+                        className="w-full md:w-auto px-12 h-16 flex items-center justify-center gap-3 bg-primary hover:bg-primary/90 text-white rounded-[1.5rem] font-black shadow-2xl shadow-primary/30 transition-all active:scale-95 disabled:opacity-50 min-w-[240px] text-lg"
+                    >
+                        {loading ? <Loader2 className="w-6 h-6 animate-spin" /> : <Save className="w-6 h-6" />}
+                        <span>حفظ التعديلات</span>
+                    </button>
+                </div>
+            )}
             {/* OTP Verification Modal */}
             {showOTPModal && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">

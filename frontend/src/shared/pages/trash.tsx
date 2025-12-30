@@ -4,17 +4,19 @@ import AdminLayout from '@/features/superadmin/pages/adminlayout';
 import AppLayout from '@/features/tenant/pages/applayout';
 import { useTrash } from '@/shared/hooks/use-trash';
 import { useSettings } from '@/shared/contexts/app-context';
+import { useAction } from '@/shared/contexts/action-context';
 import { formatDate } from '@/shared/utils/helpers';
 import { TEXTS_ADMIN } from '@/shared/locales/texts';
 import Table from '@/shared/table';
 import { Trash2, RotateCcw, CheckSquare, Square, AlertTriangle, Settings2 } from 'lucide-react';
 import { IdentityCell, DateCell, ActionCell } from '@/shared/table-cells';
 import type { TrashedItem } from '@/shared/types/trash';
-import { Drawer } from '@/shared/ui/drawer';
+import Modal from '@/shared/ui/modals/modal';
 
 export default function Trash() {
     const location = useLocation();
     const { t } = useSettings();
+    const { setPrimaryAction } = useAction();
     const [isOptionsOpen, setIsOptionsOpen] = useState(false);
 
     // Determine if admin or tenant based on route
@@ -22,6 +24,16 @@ export default function Trash() {
     const endpoint = isAdmin ? '/admin/trash' : '/app/trash';
 
     const trash = useTrash({ endpoint });
+
+    // Register Primary Action
+    React.useEffect(() => {
+        setPrimaryAction({
+            label: 'خيارات السلة',
+            icon: Settings2,
+            onClick: () => setIsOptionsOpen(true)
+        });
+        return () => setPrimaryAction(null);
+    }, [setPrimaryAction]);
 
     const getTypeLabel = (type: string) => {
         if (isAdmin) {
@@ -215,7 +227,7 @@ export default function Trash() {
     ], [trash.toggleSelect, trash.restore, trash.forceDelete, trash.selected, getTypeLabel]);
 
     const tableContent = (
-        <div className="space-y-4 animate-in fade-in duration-700 h-full flex flex-col">
+        <div className="space-y-6 animate-in fade-in duration-700 w-full flex flex-col">
             {/* Select All Checkbox */}
             {trash.items.length > 0 && (
                 <div className="flex items-center gap-3 px-4 py-2">
@@ -252,29 +264,15 @@ export default function Trash() {
                 />
             </div>
 
-            <Drawer
+            <Modal
                 isOpen={isOptionsOpen}
                 onClose={() => setIsOptionsOpen(false)}
                 title="خيارات السلة"
+                size="lg"
             >
                 {optionsContent}
-            </Drawer>
+            </Modal>
         </div>
-    );
-
-    const HeaderAction = (
-        <button
-            onClick={() => setIsOptionsOpen(true)}
-            className="flex items-center gap-2 px-6 h-12 bg-white dark:bg-dark-800 border-2 border-gray-100 dark:border-dark-700 rounded-2xl text-sm font-black text-gray-700 dark:text-gray-200 hover:border-primary/30 hover:text-primary transition-all active:scale-95 shadow-sm shadow-gray-200/50"
-        >
-            <Settings2 size={18} className="text-primary" />
-            <span>خيارات السلة</span>
-            {trash.selected.length > 0 && (
-                <span className="flex items-center justify-center w-5 h-5 bg-primary text-white text-[10px] rounded-full">
-                    {trash.selected.length}
-                </span>
-            )}
-        </button>
     );
 
     // Render with appropriate layout
@@ -282,7 +280,7 @@ export default function Trash() {
         return (
             <AdminLayout
                 title={TEXTS_ADMIN?.TITLES?.RECYCLE_BIN || 'سلة المهملات'}
-                actions={HeaderAction}
+                icon={Trash2}
                 hideLeftSidebar={true}
             >
                 {tableContent}
@@ -292,8 +290,6 @@ export default function Trash() {
         return (
             <AppLayout
                 title={t('trash.title', 'سلة المحذوفات')}
-                actions={HeaderAction}
-                hideLeftSidebar={true}
             >
                 {tableContent}
             </AppLayout>

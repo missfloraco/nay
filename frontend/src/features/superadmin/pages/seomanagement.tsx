@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import AdminLayout from '@/features/superadmin/pages/adminlayout';
-import { Save, Globe, Loader2, Image as ImageIcon, Twitter, Facebook, Search, Hash, Link as LinkIcon, Eye } from 'lucide-react';
+import { Save, Globe, Loader2, Image as ImageIcon, Twitter, Facebook, Search, Hash, Link as LinkIcon, Eye, BarChart3 } from 'lucide-react';
 import { useFeedback } from '@/shared/ui/notifications/feedback-context';
+import { useAction } from '@/shared/contexts/action-context';
 import api from '@/shared/services/api';
 import { useSEO } from '@/shared/hooks/useSEO';
 import InputField from '@/shared/ui/forms/input-field';
@@ -12,6 +13,7 @@ import TextareaField from '@/shared/ui/forms/textarea-field';
 export default function SeoManagement() {
     const { showSuccess, showError } = useFeedback();
     const queryClient = useQueryClient();
+    const { setPrimaryAction } = useAction();
     const { data: seoData, isLoading } = useSEO('landing');
 
     const [formData, setFormData] = useState({
@@ -64,6 +66,18 @@ export default function SeoManagement() {
         updateMutation.mutate(formData);
     };
 
+    useEffect(() => {
+        setPrimaryAction({
+            label: updateMutation.isPending ? 'جاري الحفظ...' : 'حفظ التعديلات',
+            onClick: () => updateMutation.mutate(formData),
+            icon: Save,
+            loading: updateMutation.isPending,
+            disabled: updateMutation.isPending,
+        });
+
+        return () => setPrimaryAction(null);
+    }, [updateMutation.isPending, formData]);
+
     const handleChange = (field: string, value: string) => {
         setFormData(prev => ({ ...prev, [field]: value }));
     };
@@ -79,18 +93,14 @@ export default function SeoManagement() {
     }
 
     return (
-        <AdminLayout title="إدارة SEO" noPadding={true} hideLeftSidebar={true}>
-            <div className="h-full w-full bg-white dark:bg-dark-950 p-6 lg:p-12 animate-in fade-in duration-500 overflow-y-auto no-scrollbar pb-44">
+        <AdminLayout
+            title="إدارة SEO"
+            icon={BarChart3}
+            noPadding={true}
+            hideLeftSidebar={true}
+        >
+            <div className="w-full bg-transparent animate-in fade-in duration-500">
                 <div className="max-w-6xl mx-auto space-y-12 w-full">
-                    <div className="flex items-center gap-6 border-b border-gray-100 dark:border-dark-800 pb-8 group">
-                        <div className="p-4 bg-blue-50 dark:bg-blue-900/10 rounded-[2rem] text-blue-600 shadow-inner group-hover:scale-110 transition-transform">
-                            <Globe className="w-8 h-8" />
-                        </div>
-                        <div>
-                            <h3 className="font-black text-3xl text-gray-900 dark:text-white tracking-tight">إدارة SEO</h3>
-                            <p className="text-base font-bold text-gray-400 dark:text-gray-500">تحسين ظهور الموقع في محركات البحث (Google 2026)</p>
-                        </div>
-                    </div>
 
                     <form onSubmit={handleSubmit} className="space-y-14">
                         {/* Basic SEO */}
@@ -231,19 +241,9 @@ export default function SeoManagement() {
                         </div>
 
                         {/* Submit Button */}
-                        <div className="pt-12 border-t border-gray-100 dark:border-dark-800 flex justify-end">
-                            <button
-                                type="submit"
-                                disabled={updateMutation.isPending}
-                                className="w-full md:w-auto px-12 h-16 flex items-center justify-center gap-3 bg-primary hover:bg-primary/90 text-white rounded-[1.5rem] font-black shadow-2xl shadow-primary/30 transition-all active:scale-95 disabled:opacity-50 min-w-[240px] text-lg"
-                            >
-                                {updateMutation.isPending ? <Loader2 className="w-6 h-6 animate-spin" /> : <Save className="w-6 h-6" />}
-                                <span>{updateMutation.isPending ? 'جاري الحفظ...' : 'حفظ التعديلات'}</span>
-                            </button>
-                        </div>
                     </form>
                 </div>
-            </div>
-        </AdminLayout>
+            </div >
+        </AdminLayout >
     );
 }

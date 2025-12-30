@@ -72,7 +72,7 @@ export default function Dashboard() {
             icon={LayoutDashboard}
             hideLeftSidebar={true}
         >
-            <div className="space-y-10">
+            <div className="space-y-12 w-full animate-in fade-in duration-500">
                 {/* 1. Header (Removed explicit title since it's now in AdminLayout prop) */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>

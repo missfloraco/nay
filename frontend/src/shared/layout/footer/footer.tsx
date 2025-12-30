@@ -50,7 +50,7 @@ export default function BottomNav({ items, user, onLogout, settingsPath = '/sett
     return (
         <>
             {/* Mobile Bottom Navigation Bar */}
-            <nav className="fixed bottom-0 left-0 right-0 z-50 lg:hidden bg-white/95 backdrop-blur-2xl border-t border-gray-100 shadow-[0_-10px_40px_rgba(0,0,0,0.1)] px-6 py-2 flex items-center justify-between transition-all h-[70px] pb-safe">
+            <nav className="fixed bottom-0 left-0 right-0 z-50 lg:hidden py-2 flex items-center justify-between transition-all h-[70px] pb-safe">
 
                 {/* 
                     RTL Layout Logic:
@@ -62,7 +62,7 @@ export default function BottomNav({ items, user, onLogout, settingsPath = '/sett
                 */}
 
                 {/* 1. Right (Start): Burger Menu (Drawer Trigger) */}
-                <div className="flex-1 flex justify-start items-center">
+                <div className="flex-1 flex justify-start items-center pr-2">
                     <button
                         onClick={onMenuClick}
                         className="flex flex-col items-center justify-center transition-all text-gray-400 dark:text-gray-600 active:scale-95 hover:text-primary dark:hover:text-primary"
@@ -79,26 +79,29 @@ export default function BottomNav({ items, user, onLogout, settingsPath = '/sett
                         <button
                             onClick={primaryAction.onClick}
                             disabled={primaryAction.disabled || primaryAction.loading}
-                            className={`flex items-center justify-center w-16 h-16 ${primaryAction.variant === 'danger' ? 'bg-red-600 shadow-red-500/40' : 'bg-primary shadow-primary/40'} text-white rounded-full shadow-2xl transform transition-all active:scale-90 hover:scale-105 ring-[6px] ring-white dark:ring-gray-950`}
+                            className={`flex items-center justify-center w-16 h-16 rounded-2xl transition-all duration-300 shadow-lg transform active:scale-90 hover:scale-[1.02] ring-[6px] ring-white dark:ring-gray-950 ${primaryAction.variant === 'danger'
+                                ? 'bg-red-600 text-white shadow-red-500/30'
+                                : 'bg-primary text-white shadow-primary/30'
+                                }`}
                         >
                             {primaryAction.loading ? (
                                 <Loader2 className="w-8 h-8 animate-spin" />
                             ) : (
-                                React.createElement(primaryAction.icon || Plus, { className: "w-8 h-8 font-bold" })
+                                React.createElement(primaryAction.icon || Plus, { className: "w-8 h-8" })
                             )}
                         </button>
                     ) : (
                         <Link
                             to="/app/pos"
-                            className="flex items-center justify-center w-16 h-16 bg-gradient-to-tr from-blue-600 to-blue-700 text-white rounded-full shadow-2xl shadow-blue-500/40 transform transition-all active:scale-90 hover:scale-105 ring-[6px] ring-white dark:ring-gray-950"
+                            className="flex items-center justify-center w-16 h-16 bg-primary text-white rounded-2xl shadow-lg shadow-primary/30 transform transition-all duration-300 active:scale-90 hover:scale-[1.02] ring-[6px] ring-white dark:ring-gray-950"
                         >
-                            <ShoppingCart className="w-8 h-8 font-bold" />
+                            <ShoppingCart className="w-8 h-8" />
                         </Link>
                     )}
                 </div>
 
                 {/* 3. Left (End): User Profile (Settings/Logout) */}
-                <div className="flex-1 flex justify-end items-center" ref={userMenuRef}>
+                <div className="flex-1 flex justify-end items-center pl-2" ref={userMenuRef}>
                     <div className="relative">
                         <button
                             onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}

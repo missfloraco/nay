@@ -50,7 +50,9 @@
 }
 
 .page-frame-container {
-    @apply !p-4 !pb-20 !rounded-none;
+    @apply !p-4 !rounded-none;
+    padding-bottom: 120px !important;
+    /* Space for fixed transparent footer */
     min-height: calc(100vh - 70px) !important;
     border: 0 !important;
     box-shadow: none !important;
@@ -154,9 +156,17 @@
     }
 
     .page-frame-container {
-        @apply h-full rounded-none p-0;
-        margin: 0 !important;
-        border: 0 !important;
+        @apply bg-white dark:bg-dark-900 border border-gray-100 dark:border-white/5 shadow-premium rounded-[2.5rem] overflow-hidden !m-0;
+        padding: 2.5rem;
+        width: 100% !important;
+    }
+
+    .page-main-wrapper {
+        @apply p-[var(--page-margin)] flex flex-col min-h-0 w-full;
+        /* External margins from all sides ensured by padding on main-wrapper */
+        height: min-content;
+        /* Allow it to grow with content */
+        min-height: 100%;
     }
 
     /* Desktop Tables back to normal */

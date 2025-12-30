@@ -25,8 +25,9 @@ const Forbidden = lazy(() => import('@/shared/pages/forbidden'));
 const AdminDashboard = lazy(() => import('@/features/superadmin/pages/dashboard'));
 const AdminSettings = lazy(() => import('@/features/superadmin/pages/settings'));
 const PlatformIdentity = lazy(() => import('@/features/superadmin/pages/platformidentity'));
-const TenantsList = lazy(() => import('@/features/superadmin/pages/tenants/list'));
-const PaymentsPage = lazy(() => import('@/features/superadmin/pages/payments'));
+const OperationsPage = lazy(() => import('@/features/superadmin/pages/operations'));
+// const TenantsList removed in favor of operations
+// const PaymentsPage removed in favor of operations
 const AdManagement = lazy(() => import('@/features/superadmin/pages/admanagement'));
 const SupportTickets = lazy(() => import('@/features/superadmin/pages/supporttickets'));
 const SeoManagement = lazy(() => import('@/features/superadmin/pages/seomanagement'));
@@ -57,8 +58,8 @@ function AdminRoutes() {
     return (
         <Routes>
             <Route path="/" element={<AdminDashboard />} />
-            <Route path="/tenants" element={<TenantsList />} />
-            <Route path="/payments" element={<PaymentsPage />} />
+            <Route path="/tenants" element={<OperationsPage />} />
+            <Route path="/payments" element={<OperationsPage />} />
             <Route path="/ads" element={<AdManagement />} />
             <Route path="/support" element={<SupportTickets />} />
             <Route path="/settings" element={<AdminSettings />} />

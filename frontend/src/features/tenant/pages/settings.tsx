@@ -23,7 +23,7 @@ export default function TenantSettings() {
 
     return (
         <AppLayout title="الإعدادات" noPadding={true}>
-            <div className="h-full w-full bg-white dark:bg-dark-950 p-6 lg:p-12 animate-in fade-in duration-500 overflow-y-auto no-scrollbar">
+            <div className="w-full bg-transparent animate-in fade-in duration-500">
                 <div className="max-w-none mx-auto">
                     <ProfileSettingsForm
                         initialData={{

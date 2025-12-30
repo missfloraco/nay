@@ -30,6 +30,7 @@ import { useText } from '@/shared/contexts/text-context';
 import BottomNav from '@/shared/layout/footer/footer';
 import { useAction } from '@/shared/contexts/action-context';
 import { Header } from '@/shared/layout/header/header';
+import AdSlot from '@/shared/ads/adslot';
 
 import { StatusWidget } from '@/shared/components/statuswidget';
 import { LeftSidebar } from '@/shared/layout/sidebar/sidebar-left';
@@ -89,7 +90,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title, noPadding = 
     const navItems = [
         { icon: Layout, label: t('admin.NAV.IDENTITY', 'هوية المنصة'), path: '/admin/identity', color: 'text-purple-600' },
         { icon: Users, label: t('admin.NAV.TENANTS', 'إدارة المشتركين'), path: '/admin/tenants', color: 'text-[#02aa94]' },
-        { icon: Wallet, label: t('admin.NAV.PAYMENTS', 'إدارة المدفوعات'), path: '/admin/payments', color: 'text-emerald-600' },
+        // Payments link removed
         { icon: BarChart3, label: 'إدارة SEO', path: '/admin/seo', color: 'text-blue-600' },
         { icon: Megaphone, label: t('admin.NAV.ADS', 'إدارة الإعلانات'), path: '/admin/ads', color: 'text-[#fb005e]' },
         { icon: Code, label: 'الأكواد والنصوص', path: '/admin/scripts', color: 'text-amber-600' },
@@ -157,7 +158,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title, noPadding = 
                 </nav>
 
                 {/* Bottom: Copyright Only */}
-                <div className="mt-auto flex flex-col border-t border-gray-200 dark:border-dark-700 bg-gray-50/10 dark:bg-dark-800/5">
+                <div className="mt-auto flex flex-col border-t border-gray-200 dark:border-dark-700 bg-white dark:bg-dark-950">
                     {/* Sidebar Copyright Adjustment */}
                     <div className="h-[90px] px-8 flex flex-col justify-center items-start text-right shrink-0">
                         <span className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] mb-2 opacity-80 leading-none">جميع الحقوق محفوظة</span>
@@ -194,58 +195,68 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title, noPadding = 
                         <div className="flex items-center gap-3">
                             {/* Manual Actions from Prop */}
                             {actions}
-
-                            {/* Primary Action from Context (replaces Footer Action) */}
-                            {primaryAction && (
-                                <button
-                                    onClick={primaryAction.onClick}
-                                    disabled={primaryAction.disabled || primaryAction.loading}
-                                    className={`flex items-center justify-center gap-2 py-2 px-4 ${primaryAction.variant === 'danger' ? 'bg-red-600 shadow-red-500/20' : 'bg-primary shadow-primary/30'} text-white rounded-lg shadow-md transition-all font-bold hover:scale-[1.02] active:scale-95 disabled:opacity-50 text-sm`}
-                                >
-                                    {primaryAction.loading ? <Loader2 className="w-4 h-4 animate-spin" /> : (primaryAction.icon ? <primaryAction.icon className="w-4 h-4" /> : <Plus className="w-4 h-4" />)}
-                                    <span>{primaryAction.label}</span>
-                                </button>
-                            )}
                         </div>
                     }
                 />
 
-                {/* Content Area + Sidebars */}
-                <div className="flex-1 flex min-h-0 relative overflow-hidden bg-gray-50 dark:bg-dark-950">
-                    {/* Main Main Page Content */}
-                    <main className="flex-1 overflow-auto no-scrollbar relative">
-                        <div className={`p-4 md:p-8 h-full ${noPadding ? 'p-0 md:p-0' : ''}`}>
-                            {children}
-                        </div>
-                    </main>
+                <div className="flex-1 flex flex-col min-h-0 relative overflow-hidden bg-gray-50 dark:bg-dark-950">
+                    <div className="flex-1 flex overflow-hidden">
+                        {/* Main Page Content Scroll Area */}
+                        <main className="flex-1 overflow-auto no-scrollbar relative flex flex-col h-full">
+                            <div className="page-main-wrapper">
+                                <div className={`page-frame-container flex-1 flex flex-col ${noPadding ? 'p-0' : ''}`}>
+                                    {children}
+                                </div>
+                            </div>
+                        </main>
 
-                    {/* Left Filter/Settings Sidebar (Optional) */}
-                    {!hideLeftSidebar && (
-                        <div className="hidden lg:block shrink-0 h-full">
-                            <LeftSidebar noPadding={leftSidebarNoPadding} noBorder={leftSidebarNoBorder}>
-                                {leftSidebarContent}
-                            </LeftSidebar>
+                        {/* Optional Left Sidebar within middle section */}
+                        {!hideLeftSidebar && (
+                            <div className="hidden lg:block shrink-0 h-full">
+                                <LeftSidebar noPadding={leftSidebarNoPadding} noBorder={leftSidebarNoBorder}>
+                                    {leftSidebarContent}
+                                </LeftSidebar>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Footer Sibling (Fixed outside scroll area for ZERO overlap) */}
+                    <footer className="z-40 bg-white/80 dark:bg-dark-950/80 backdrop-blur-md border-none h-[90px] flex items-center justify-between px-12 transition-all shrink-0">
+                        {/* Left Side: Empty */}
+                        <div className="flex items-center gap-6">
                         </div>
-                    )}
+
+                        {/* Right Side: Actions & Ad */}
+                        <div className="flex items-center gap-6">
+                            {primaryAction && (
+                                <button
+                                    onClick={primaryAction.onClick}
+                                    disabled={primaryAction.disabled || primaryAction.loading}
+                                    className={`hidden lg:flex items-center gap-3 px-8 py-4 rounded-2xl shadow-xl hover:scale-[1.02] active:scale-95 transition-all font-black text-sm uppercase tracking-wider
+                                        ${primaryAction.variant === 'danger'
+                                            ? 'bg-red-600 text-white shadow-red-500/20'
+                                            : 'bg-primary text-white shadow-primary/30'
+                                        }`}
+                                >
+                                    {primaryAction.loading ? (
+                                        <Loader2 className="w-5 h-5 animate-spin" />
+                                    ) : (
+                                        React.createElement(primaryAction.icon || Plus, { className: "w-5 h-5" })
+                                    )}
+                                    <span className="text-base">{primaryAction.label}</span>
+                                </button>
+                            )}
+
+                            {settings.sidebarAdEnabled && (
+                                <div className="h-10 border-r border-gray-200 dark:border-dark-700" />
+                            )}
+
+                            <div className="h-[60px] flex items-center">
+                                <AdSlot placement="ad_footer_leaderboard" showPlaceholder={false} />
+                            </div>
+                        </div>
+                    </footer>
                 </div>
-
-                {/* Global Footer - Removed Primary Action */}
-                <footer className="h-[90px] shrink-0 border-t border-gray-200 dark:border-dark-700 bg-white dark:bg-dark-950 flex items-center justify-between px-8 z-50 gap-4">
-                    {/* Right Side: Status Widget */}
-                    <div className="flex items-center">
-                        <StatusWidget type="admin" />
-                    </div>
-
-                    {/* Middle Section: Hint Text */}
-                    <div className="hidden md:flex flex-1 items-center justify-center overflow-hidden h-full">
-                        <div className="text-[10px] font-black text-gray-300 dark:text-gray-600 uppercase tracking-widest leading-tight text-center">لوحة تحكم النظام الشاملة والمركزية</div>
-                    </div>
-
-                    {/* Left Side: Empty or Secondary Info */}
-                    <div className="flex items-center justify-end min-w-[200px]">
-                        <div className="text-[10px] font-black text-gray-300 dark:text-gray-700 opacity-50 uppercase tracking-widest">محفوظ</div>
-                    </div>
-                </footer>
             </div>
 
             {/* Drawers & Mobile Nav */}

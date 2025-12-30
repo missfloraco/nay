@@ -201,6 +201,10 @@ Route::prefix('admin')->group(function () {
         });
 
         Route::get('/search', [App\Http\Controllers\Shared\SearchController::class, 'search'])->middleware('throttle:15,1');
+
+        // Scripts Management
+        Route::apiResource('scripts', App\Http\Controllers\Admin\ScriptController::class);
+        Route::post('scripts/{id}/toggle', [App\Http\Controllers\Admin\ScriptController::class, 'toggleStatus']);
     });
 });
 

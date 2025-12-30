@@ -1,17 +1,19 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import AdminLayout from '@/features/superadmin/pages/adminlayout';
-import { Script, ScriptService } from '@/features/superadmin/services/script-service';
+import { Script, ScriptService } from '@/shared/services/scripts-service'; // Assuming Script type is now exported from here
+import { useAction } from '@/shared/contexts/action-context';
 import Table from '@/shared/table';
 import { useFeedback } from '@/shared/ui/notifications/feedback-context';
 import { Plus, Code, Trash2, Edit, Play, Pause, ShieldCheck, AlertTriangle, Terminal, Settings } from 'lucide-react';
 import ScriptForm from './components/script-form';
 import { formatDate } from '@/shared/utils/helpers';
 import Modal from '@/shared/ui/modals/modal';
-import { useAction } from '@/shared/contexts/action-context';
+import { useQueryClient } from '@tanstack/react-query'; // Assuming this is the 'use hook' mentioned
 
 export default function ScriptsManager() {
-    const { showSuccess, showError } = useFeedback();
-    const { registerAddAction, unregisterAddAction } = useAction();
+    const { showSuccess, showError, showConfirm } = useFeedback();
+    const { setPrimaryAction } = useAction();
+    const queryClient = useQueryClient();
 
     const [scripts, setScripts] = useState<Script[]>([]);
     const [loading, setLoading] = useState(true);
@@ -23,14 +25,18 @@ export default function ScriptsManager() {
         loadScripts();
     }, []);
 
-    // Register FAB for Mobile
     useEffect(() => {
-        registerAddAction(() => {
-            setSelectedScript(null);
-            setIsModalOpen(true);
-        }, 'إضافة سكربت', Plus);
-        return () => unregisterAddAction();
-    }, [registerAddAction, unregisterAddAction]);
+        setPrimaryAction({
+            label: "إضافة سكربت جديد",
+            icon: Plus,
+            onClick: () => {
+                setSelectedScript(null);
+                setIsModalOpen(true);
+            },
+        });
+
+        return () => setPrimaryAction(null); // Clean up action on unmount
+    }, [setPrimaryAction]);
 
     const loadScripts = async () => {
         setLoading(true);
@@ -179,35 +185,23 @@ export default function ScriptsManager() {
             title="إدارة النصوص البرمجية (Scripts)"
             icon={Code}
             hideLeftSidebar={true}
-            actions={
-                <button
-                    onClick={() => {
-                        setSelectedScript(null);
-                        setIsModalOpen(true);
-                    }}
-                    className="flex items-center gap-2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 px-6 py-3 rounded-2xl font-bold hover:opacity-90 transition-all shadow-lg active:scale-95"
-                >
-                    <Plus className="w-5 h-5" />
-                    <span>إضافة سكربت جديد</span>
-                </button>
-            }
         >
-            <div className="flex flex-col h-full">
+            <div className="flex flex-col w-full animate-in fade-in duration-500">
                 {/* Warning Banner */}
-                <div className="bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-900/20 p-4 rounded-2xl mb-6 flex items-start gap-4">
-                    <div className="p-2 bg-amber-100 dark:bg-amber-900/30 rounded-xl">
-                        <AlertTriangle className="w-6 h-6 text-amber-600 dark:text-amber-500" />
+                <div className="bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-900/20 p-6 lg:p-10 rounded-[2rem] mb-8 flex items-start gap-6 shadow-sm">
+                    <div className="p-4 bg-amber-100 dark:bg-amber-900/30 rounded-[1.5rem] shadow-inner text-amber-600 dark:text-amber-500 shrink-0">
+                        <AlertTriangle className="w-8 h-8" />
                     </div>
                     <div>
-                        <h4 className="font-bold text-gray-900 dark:text-white mb-1">منطقة حساسة</h4>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                        <h4 className="font-black text-2xl text-gray-900 dark:text-white mb-2 tracking-tight">منطقة حساسة</h4>
+                        <p className="text-base font-bold text-gray-500 dark:text-gray-400 leading-relaxed">
                             هذه الأكواد تعمل بصلاحيات كاملة على الموقع. أي خطأ برمجي هنا قد يؤدي إلى توقف الموقع أو ثغرات أمنية.
                             يرجى المراجعة الدقيقة قبل التفعيل.
                         </p>
                     </div>
                 </div>
 
-                <div className="flex-1 bg-white dark:bg-dark-900 rounded-[2rem] border border-gray-100 dark:border-dark-800 shadow-sm overflow-hidden flex flex-col">
+                <div className="bg-white dark:bg-dark-900 rounded-[2rem] border border-gray-100 dark:border-dark-800 shadow-sm overflow-hidden">
                     <Table
                         columns={columns}
                         data={scripts}
@@ -230,6 +224,6 @@ export default function ScriptsManager() {
                     isLoading={actionLoading}
                 />
             </Modal>
-        </AdminLayout>
+        </AdminLayout >
     );
 }

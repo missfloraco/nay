@@ -212,62 +212,65 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, title = '', noPadding =
                     </Drawer>
                 )}
 
-                <div className="content-area-main relative overflow-hidden bg-gray-50 dark:bg-dark-950 flex-1">
-                    <main className="h-full relative p-4">
-                        <div className={`page-frame-container w-full h-full bg-white dark:bg-dark-900 flex flex-col overflow-auto no-scrollbar p-0`}>
-                            {children}
+                <div className="content-area-main flex-1 flex flex-col min-h-0 bg-gray-50 dark:bg-dark-950">
+                    <div className="flex-1 flex overflow-hidden h-full">
+                        {/* Main Page Content Scroll Area */}
+                        <main className="flex-1 overflow-auto no-scrollbar relative flex flex-col h-full">
+                            <div className="page-main-wrapper">
+                                <div className={`page-frame-container flex-1 flex flex-col ${noPadding ? 'p-0' : ''}`}>
+                                    {children}
+                                </div>
+                            </div>
+                        </main>
+
+                        <LeftSidebar>
+                            {leftSidebarContent}
+                        </LeftSidebar>
+                    </div>
+
+                    {/* Footer Sibling (Fixed outside scroll area for ZERO overlap) */}
+                    <footer className="z-40 bg-white/80 dark:bg-dark-950/80 backdrop-blur-md border-none h-[90px] flex items-center justify-between px-12 transition-all shrink-0">
+                        {/* Left Side: Empty */}
+                        <div className="flex items-center gap-6">
                         </div>
-                    </main>
-                </div>
 
-                <LeftSidebar>
-                    {leftSidebarContent}
-                </LeftSidebar>
-            </div>
+                        {/* Middle: Ad Slot */}
+                        <div className="flex-1 flex items-center justify-center overflow-hidden h-full">
+                            <AdSlot
+                                placement="ad_footer_leaderboard"
+                                className="w-full h-full"
+                                showPlaceholder={false}
+                            />
+                        </div>
 
-            <footer className="global-footer flex h-[90px] border-t border-gray-200 dark:border-dark-700 bg-white dark:bg-dark-900 items-center justify-between transition-all z-50">
-                <div className="flex h-full items-center w-full gap-4 pr-0 pl-8">
-                    {/* Integrated Copyright Section - Updates applied */}
-                    <div className="flex w-[250px] h-full border-l border-gray-300 dark:border-dark-600 px-8 items-center justify-start text-right bg-gray-50/10 dark:bg-dark-800/5 shrink-0">
-                        <div className="flex flex-col items-start text-right w-full">
-                            <span className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] mb-2 opacity-80 leading-none uppercase">جميع الحقوق محفوظة</span>
-                            <span className="text-xs font-black text-gray-700 dark:text-gray-400 leading-relaxed text-right">
-                                منصة {settings?.appName || 'النظام'} © {new Date().getFullYear()}
-                                <br />
-                                <span className="text-[11px] opacity-70">
-                                    {settings?.companyName && <>أحد مشاريع </>}
-                                    {settings?.companyLink ? (
-                                        <a href={settings.companyLink} target="_blank" rel="noopener noreferrer" className="text-primary hover:text-primary-dark transition-colors hover:underline decoration-primary/30 underline-offset-4 cursor-pointer font-black">
-                                            {settings?.companyName || ''}
-                                        </a>
+                        {/* Right Side: Actions */}
+                        <div className="flex items-center gap-6">
+                            {primaryAction && (
+                                <button
+                                    onClick={primaryAction.onClick}
+                                    disabled={primaryAction.disabled || primaryAction.loading}
+                                    className={`hidden lg:flex items-center gap-3 px-8 py-4 rounded-2xl shadow-xl hover:scale-[1.02] active:scale-95 transition-all font-black text-sm uppercase tracking-wider
+                                        ${primaryAction.variant === 'danger'
+                                            ? 'bg-red-600 text-white shadow-red-500/20'
+                                            : 'bg-primary text-white shadow-primary/30'
+                                        }`}
+                                >
+                                    {primaryAction.loading ? (
+                                        <Loader2 className="w-5 h-5 animate-spin" />
                                     ) : (
-                                        <span className="text-primary font-black">{settings?.companyName || ''}</span>
+                                        React.createElement(primaryAction.icon || Plus, { className: "w-5 h-5" })
                                     )}
-                                </span>
-                            </span>
+                                    <span className="text-base">{primaryAction.label}</span>
+                                </button>
+                            )}
+
+                            {!isAdminSession && (
+                                <StatusWidget type="tenant" tenant={tenant} />
+                            )}
                         </div>
-                    </div>
-
-                    <div className="flex-1 flex items-center justify-center overflow-hidden h-full">
-                        <AdSlot
-                            placement="ad_footer_leaderboard"
-                            className="w-full h-full"
-                            showPlaceholder={false}
-                        />
-                    </div>
-
-                    <div className="flex items-center gap-4">
-                        {/* Primary Action Button Removed from Footer and moved to Header */}
-                        <div className="flex items-center justify-end min-w-[140px]">
-                            {/* Empty placeholder if needed, or just remove */}
-                        </div>
-
-                        {!isAdminSession && (
-                            <StatusWidget type="tenant" tenant={tenant} />
-                        )}
-                    </div>
+                    </footer>
                 </div>
-            </footer>
+            </div>
 
             {/* Mobile Navigation Bar */}
             <div className="mobile-only">

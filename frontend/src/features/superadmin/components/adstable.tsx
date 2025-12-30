@@ -1,5 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { AdsService, Ad } from '@/shared/services/adsservice';
+import api from '@/shared/services/api';
+import { useAction } from '@/shared/contexts/action-context';
+import { useQueryClient } from '@tanstack/react-query';
 import { Plus, Trash2, Edit2, X, Image as ImageIcon, Code, Type, Megaphone, Save, Check, Loader2, Link } from 'lucide-react';
 import { useFeedback } from '@/shared/ui/notifications/feedback-context';
 import Table from '@/shared/table';
@@ -12,9 +15,11 @@ export default function AdsTable() {
     const [ads, setAds] = useState<Ad[]>([]);
     const [loading, setLoading] = useState(true);
     const { showSuccess, showError, showConfirm } = useFeedback();
+    const { setPrimaryAction } = useAction();
+    const queryClient = useQueryClient();
     const [isModalOpen, setIsModalOpen] = useState(false);
 
-    const [formData, setFormData] = useState<Ad>({
+    const [formData, setFormData] = useState<Partial<Ad>>({
         name: '',
         placement: 'ad_landing_top',
         type: 'script',
@@ -22,6 +27,19 @@ export default function AdsTable() {
         redirect_url: '',
         is_active: true
     });
+
+    // Register Primary Action
+    useEffect(() => {
+        setPrimaryAction({
+            label: 'إضافة إعلان جديد',
+            icon: Plus,
+            onClick: () => {
+                setIsModalOpen(true);
+                setFormData({ name: '', placement: 'ad_landing_top', type: 'script', content: '', redirect_url: '', is_active: true });
+            }
+        });
+        return () => setPrimaryAction(null);
+    }, [setPrimaryAction]);
 
     const [saving, setSaving] = useState(false);
 
@@ -206,24 +224,17 @@ export default function AdsTable() {
     };
 
     return (
-        <div className="space-y-6">
-            <div className="h-full flex flex-col">
-                <Table<Ad>
-                    columns={columns}
-                    data={ads}
-                    isLoading={loading}
-                    exportFileName="جدول_الإعلانات"
-                    emptyMessage="لا توجد إعلانات مخصصة بعد"
-                />
+        <>
+            <div className="space-y-6">
+                <div className="h-full flex flex-col">
+                    <Table<Ad>
+                        columns={columns}
+                        data={ads}
+                        isLoading={loading}
+                        exportFileName="جدول_الإعلانات"
+                        emptyMessage="لا توجد إعلانات مخصصة بعد"
+                    />
 
-                <div className="mt-8 flex justify-end px-6 md:px-10 pb-10">
-                    <button
-                        onClick={() => { setIsModalOpen(true); setFormData({ name: '', placement: 'ad_landing_top', type: 'script', content: '', redirect_url: '', is_active: true }); }}
-                        className="flex items-center gap-3 px-10 py-5 bg-primary text-white rounded-[2rem] font-black shadow-2xl shadow-primary/30 hover:scale-105 transition-all active:scale-95 group"
-                    >
-                        <Plus className="w-7 h-7 group-hover:rotate-90 transition-transform duration-300" />
-                        <span className="text-lg">إضافة إعلان جديد</span>
-                    </button>
                 </div>
             </div>
 
@@ -396,6 +407,6 @@ export default function AdsTable() {
                     </div>
                 </form>
             </Modal>
-        </div>
+        </>
     );
 }

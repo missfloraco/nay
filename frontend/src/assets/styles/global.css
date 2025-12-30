@@ -25,6 +25,16 @@
   --color-slate-200: var(--border-main);
 
   --shadow-premium: var(--shadow-premium);
+
+  /* Dark Theme Colors for Build Stability */
+  --color-dark-700: #334155;
+  --color-dark-800: #1e293b;
+  --color-dark-900: #0f172a;
+  --color-dark-950: #020617;
+
+  /* Page Wrapper Margins */
+  --page-margin: 2rem;
+  --footer-height: 90px;
 }
 
 @layer base {
@@ -44,7 +54,7 @@
 }
 
 .layout-root {
-  @apply h-screen flex flex-col overflow-hidden bg-gray-50;
+  @apply h-screen flex flex-col overflow-hidden bg-gray-50 dark:bg-dark-950;
 }
 
 .main-content-wrapper {
@@ -52,7 +62,19 @@
 }
 
 .content-area-main {
-  @apply flex-1 flex flex-col min-w-0 h-full overflow-hidden bg-gray-50;
+  @apply flex-1 flex flex-col min-w-0 h-full overflow-hidden;
+}
+
+/* Unified Page Container Structure */
+.page-main-wrapper {
+  @apply p-[var(--page-margin)] flex-1 flex flex-col min-h-full w-full;
+}
+
+.page-frame-container {
+  @apply bg-white dark:bg-dark-900 border border-gray-100 dark:border-white/5 shadow-premium rounded-[2.5rem] overflow-hidden transition-all duration-300;
+  padding: 2.5rem;
+  width: 100%;
+  flex: 1;
 }
 
 /* Utilities */
@@ -165,7 +187,9 @@
 
 @media (min-width: 769px) {
   .page-frame-container {
-    @apply w-full max-w-full mx-auto p-0;
+    @apply w-full max-w-full mx-auto;
     @apply border border-gray-100 shadow-premium;
+    padding: 1.5rem;
+    /* 24px - Consistent padding for all sides */
   }
 }

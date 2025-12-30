@@ -1,8 +1,7 @@
-﻿import { resolveAssetUrl } from '@/shared/utils/helpers';
+import { resolveAssetUrl } from '@/shared/utils/helpers';
 import { useState, useEffect, useMemo } from 'react';
 import { formatDate } from '@/shared/utils/helpers';
 import { Users, User, Lock, Globe, Sparkles, Search, Filter, Plus, Mail, CheckCircle, XCircle, Trash2, Edit, ExternalLink, Shield, Loader2, MoreVertical, LayoutGrid, List as ListIcon, Calendar, Check, X, AlertTriangle, AlertCircle, Info, Database, HardDrive, Eye, Save, Clock } from 'lucide-react';
-import AdminLayout from '@/features/superadmin/pages/adminlayout';
 import { useFeedback } from '@/shared/ui/notifications/feedback-context';
 import api from '@/shared/services/api';
 import { logger } from '@/shared/services/logger';
@@ -36,9 +35,9 @@ interface Tenant {
     email_verified_at?: string;
 }
 
-export default function TenantsList() {
+export default function TenantsTable() {
     const { showSuccess, showError } = useFeedback();
-    const { registerAddAction, unregisterAddAction } = useAction();
+    const { setPrimaryAction } = useAction();
 
     const [tenants, setTenants] = useState<Tenant[]>([]);
     const [loading, setLoading] = useState(true);
@@ -70,22 +69,23 @@ export default function TenantsList() {
         setIsDetailsModalOpen(!!tenant);
     };
 
-    // Register FAB action for ADDING only
-    useEffect(() => {
-        const handleAdd = () => {
-            setFormData({ name: '', admin_email: '', admin_password: '', status: 'trial', trial_expires_at: '', subscription_ends_at: '', ads_enabled: true });
-            setIsCreateModalOpen(true);
-        };
-
-        registerAddAction(handleAdd, TEXTS_ADMIN.TENANTS.ADD_TENANT, Plus);
-
-        return () => unregisterAddAction();
-    }, [registerAddAction, unregisterAddAction]);
-
     // Load tenants with pagination, search, and sorting
     useEffect(() => {
         loadTenants();
     }, [currentPage, searchQuery, sortConfig]);
+
+    // Register Primary Action (Add Tenant)
+    useEffect(() => {
+        setPrimaryAction({
+            label: TEXTS_ADMIN.TENANTS.ADD_TENANT,
+            icon: Plus,
+            onClick: () => {
+                setFormData({ name: '', admin_email: '', admin_password: '', status: 'trial', trial_expires_at: '', subscription_ends_at: '', ads_enabled: true });
+                setIsCreateModalOpen(true);
+            }
+        });
+        return () => setPrimaryAction(null);
+    }, [setPrimaryAction]);
 
     const loadTenants = async () => {
         try {
@@ -286,11 +286,7 @@ export default function TenantsList() {
     ], [getCountryName, handleSelectTenant]);
 
     return (
-        <AdminLayout
-            title={TEXTS_ADMIN.TITLES.TENANTS}
-            icon={Users}
-            hideLeftSidebar={true}
-        >
+        <>
             <div className="h-full flex flex-col">
                 <div className="flex-1 flex flex-col">
                     <Table<Tenant>
@@ -463,6 +459,7 @@ export default function TenantsList() {
                     onNavigateToPayments={handleNavigateToPayments}
                 />
             </Modal>
-        </AdminLayout>
+
+        </>
     );
 }

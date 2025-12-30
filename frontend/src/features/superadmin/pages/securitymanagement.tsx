@@ -3,12 +3,14 @@ import AdminLayout from '@/features/superadmin/pages/adminlayout';
 import { Shield, Save, Loader2, MousePointer2, Type, Move, Copy, Terminal, Info, Users, Globe, ShieldAlert } from 'lucide-react';
 import { useSettings } from '@/shared/contexts/app-context';
 import { useToast } from '@/shared/ui/notifications/feedback-context';
+import { useAction } from '@/shared/contexts/action-context';
 import { SettingsService } from '@/shared/services/settingsservice';
 import { logger } from '@/shared/services/logger';
 
 export default function SecurityManagement() {
     const { settings, refreshSettings, loading: contextLoading } = useSettings();
     const { showToast } = useToast();
+    const { setPrimaryAction } = useAction();
     const [saving, setSaving] = useState(false);
 
     const [formData, setFormData] = useState({
@@ -38,6 +40,18 @@ export default function SecurityManagement() {
     const handleToggle = (key: string) => {
         setFormData(prev => ({ ...prev, [key]: !(prev as any)[key] }));
     };
+
+    useEffect(() => {
+        setPrimaryAction({
+            label: saving ? 'جاري الحفظ...' : 'حفظ إعدادات الحماية',
+            onClick: () => handleSubmit(),
+            icon: Save,
+            loading: saving,
+            disabled: saving,
+        });
+
+        return () => setPrimaryAction(null);
+    }, [saving, formData]);
 
     const handleSubmit = async () => {
         setSaving(true);
@@ -160,19 +174,15 @@ export default function SecurityManagement() {
     };
 
     return (
-        <AdminLayout title="إعدادات الحماية" noPadding={true} hideLeftSidebar={true}>
-            <div className="h-full w-full bg-white dark:bg-dark-950 p-6 animate-in fade-in duration-500 overflow-y-auto no-scrollbar pb-44">
+        <AdminLayout
+            title="إعدادات الحماية"
+            icon={Shield}
+            noPadding={true}
+            hideLeftSidebar={true}
+        >
+            <div className="w-full bg-transparent animate-in fade-in duration-500">
                 <div className="mx-auto space-y-12 w-full">
-                    {/* Header */}
-                    <div className="flex items-center gap-6 border-b border-gray-100 dark:border-dark-800 pb-8 group">
-                        <div className="p-4 bg-red-50 dark:bg-red-900/10 rounded-[2rem] text-red-600 shadow-inner group-hover:scale-110 transition-transform">
-                            <Shield className="w-8 h-8" />
-                        </div>
-                        <div>
-                            <h3 className="font-black text-3xl text-gray-900 dark:text-white tracking-tight">إعدادات الحماية المتقدمة</h3>
-                            <p className="text-base font-bold text-gray-400 dark:text-gray-500">تحكم دقيق بمكان وزمان تفعيل أدوات الحماية في منصتك</p>
-                        </div>
-                    </div>
+                    {/* Header Removed */}
 
                     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
                         <SecurityCard
@@ -226,26 +236,8 @@ export default function SecurityManagement() {
                     </div>
 
                     {/* Bottom Action Bar */}
-                    <div className="pt-12 border-t border-gray-100 dark:border-dark-800">
-                        <div className="flex flex-col md:flex-row items-center justify-between gap-8 p-8 rounded-[2.5rem] bg-gray-50/50 dark:bg-dark-900/40 border border-gray-100 dark:border-dark-800">
-                            <div className="flex items-center gap-4 text-gray-500 dark:text-gray-400">
-                                <Info className="w-6 h-6 shrink-0" />
-                                <p className="text-sm font-bold">
-                                    تنبيه: هذه الإعدادات تطبق فوراً على جميع زوار المنصة والداشبورد. قد تحتاج لإعادة تحميل الصفحة لتفعيل التغييرات بالكامل.
-                                </p>
-                            </div>
-                            <button
-                                onClick={handleSubmit}
-                                disabled={saving}
-                                className="w-full md:w-auto px-12 h-16 flex items-center justify-center gap-4 bg-primary hover:bg-primary/90 text-white rounded-3xl font-black shadow-2xl shadow-primary/20 transition-all hover:scale-[1.02] active:scale-95 disabled:opacity-50 min-w-[280px] text-lg"
-                            >
-                                {saving ? <Loader2 className="w-6 h-6 animate-spin" /> : <Save className="w-6 h-6" />}
-                                <span>حفظ إعدادات الحماية</span>
-                            </button>
-                        </div>
-                    </div>
                 </div>
             </div>
-        </AdminLayout>
+        </AdminLayout >
     );
 }

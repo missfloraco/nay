@@ -80,6 +80,18 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
                     showPlaceholder={false}
                 />
             )}
+
+            {/* Global Copyright Section at the VERY BOTTOM */}
+            <div className="mt-auto px-6 py-4 border-t border-gray-100 dark:border-dark-800 bg-gray-50/30 dark:bg-dark-900/10">
+                <div className="flex flex-col items-center text-center space-y-1 opacity-60 hover:opacity-100 transition-opacity">
+                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none">
+                        © {new Date().getFullYear()} {window.location.pathname.startsWith('/admin') ? 'Admin Panel' : 'Application'}
+                    </p>
+                    <p className="text-[9px] font-bold text-gray-500 whitespace-nowrap">
+                        جميع الحقوق محفوظة
+                    </p>
+                </div>
+            </div>
         </aside>
     );
 };

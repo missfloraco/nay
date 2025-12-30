@@ -80,8 +80,8 @@ export default function LandingManagement() {
 
     return (
         <AdminLayout title="إدارة الصفحة الرئيسية" noPadding={true}>
-            <div className="h-full w-full bg-white dark:bg-dark-950 p-6 lg:p-12 animate-in fade-in duration-500 overflow-y-auto no-scrollbar">
-                <div className="max-w-7xl mx-auto space-y-12 w-full pb-32">
+            <div className="w-full bg-transparent animate-in fade-in duration-500">
+                <div className="max-w-7xl mx-auto space-y-12 w-full">
                     <div className="flex items-center gap-6 border-b border-gray-100 dark:border-dark-800 pb-8 group">
                         <div className="p-4 bg-indigo-50 dark:bg-indigo-900/10 rounded-[2rem] text-indigo-600 shadow-inner group-hover:scale-110 transition-transform">
                             <Home className="w-8 h-8" />
