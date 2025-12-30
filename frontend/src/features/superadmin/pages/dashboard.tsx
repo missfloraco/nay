@@ -1,5 +1,5 @@
 ﻿import React, { useState, useEffect } from 'react';
-import { Users, DollarSign, TrendingUp, Activity, CheckCircle2, MapPin, Globe, CreditCard } from 'lucide-react';
+import { Users, DollarSign, TrendingUp, Activity, CheckCircle2, MapPin, Globe, CreditCard, LayoutDashboard } from 'lucide-react';
 import AdminLayout from '@/features/superadmin/pages/adminlayout';
 import { StatCard } from '@/shared/ui/cards/card-stat';
 import RevenueChart from '@/shared/charts/revenuechart';
@@ -54,7 +54,11 @@ export default function Dashboard() {
 
     if (loading) {
         return (
-            <AdminLayout hideLeftSidebar={true}>
+            <AdminLayout
+                title={TEXTS_ADMIN.DASHBOARD.WELCOME}
+                icon={LayoutDashboard}
+                hideLeftSidebar={true}
+            >
                 <div className="p-10 flex items-center justify-center min-h-[60vh]">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
                 </div>
@@ -63,12 +67,16 @@ export default function Dashboard() {
     }
 
     return (
-        <AdminLayout hideLeftSidebar={true}>
+        <AdminLayout
+            title={TEXTS_ADMIN.DASHBOARD.WELCOME}
+            icon={LayoutDashboard}
+            hideLeftSidebar={true}
+        >
             <div className="space-y-10">
-                {/* 1. Header */}
+                {/* 1. Header (Removed explicit title since it's now in AdminLayout prop) */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
-                        <h2 className="text-4xl font-black text-gray-900 dark:text-white tracking-tight">{TEXTS_ADMIN.DASHBOARD.WELCOME}</h2>
+                        {/* Title removed */}
                         <p className="text-sm text-gray-500 font-bold mt-2">{TEXTS_ADMIN.DASHBOARD.SUBTITLE}</p>
                     </div>
                     <div className="flex items-center gap-3">

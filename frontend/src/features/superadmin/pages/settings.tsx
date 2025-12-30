@@ -1,4 +1,5 @@
 ﻿import React from 'react';
+import { Settings } from 'lucide-react';
 import AdminLayout from '@/features/superadmin/pages/adminlayout';
 import ProfileSettingsForm from '@/shared/components/profile-settings-form';
 import { useSettings } from '@/shared/contexts/app-context';
@@ -19,7 +20,7 @@ export default function AdminSettings() {
     }
 
     return (
-        <AdminLayout title="الحساب والأمان" noPadding={true}>
+        <AdminLayout title="الحساب والأمان" icon={Settings} noPadding={true} hideLeftSidebar={true}>
             <div className="h-full w-full bg-white dark:bg-dark-950 p-6 lg:p-12 animate-in fade-in duration-500 overflow-y-auto no-scrollbar">
                 <div className="max-w-none mx-auto">
                     <ProfileSettingsForm

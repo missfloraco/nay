@@ -161,6 +161,7 @@ const SupportTickets = () => {
     return (
         <AdminLayout
             title="إدارة رسائل الدعم"
+            icon={MessageSquare}
             noPadding={false}
             hideLeftSidebar={true}
         >

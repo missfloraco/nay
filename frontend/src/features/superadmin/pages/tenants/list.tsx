@@ -288,6 +288,7 @@ export default function TenantsList() {
     return (
         <AdminLayout
             title={TEXTS_ADMIN.TITLES.TENANTS}
+            icon={Users}
             hideLeftSidebar={true}
         >
             <div className="h-full flex flex-col">

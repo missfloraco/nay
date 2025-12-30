@@ -8,7 +8,6 @@ import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { resolveAssetUrl } from '@/shared/utils/helpers';
 import { TrialBadge as OriginalTrialBadge } from '@/features/tenant/components/trial-badge';
 import { NameHeaderLeft } from './name-header-left';
-import { LogoHeaderRight } from './logo-header-right';
 import { GlobalSearch } from './global-search';
 import { ThemeToggle } from './theme-toggle';
 import { useUI } from '@/shared/contexts/ui-context';
@@ -26,6 +25,9 @@ interface HeaderProps {
   userName?: string;
   userRole?: string;
   className?: string;
+  hideBranding?: boolean;
+  actions?: React.ReactNode;
+  icon?: any; // Accepting any icon component
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -38,6 +40,9 @@ export const Header: React.FC<HeaderProps> = ({
   userName,
   userRole,
   className = '',
+  hideBranding = false,
+  actions,
+  icon: Icon,
 }) => {
   const { settings } = useSettings();
   const { toggleRightDrawer, toggleLeftDrawer } = useUI();
@@ -68,21 +73,47 @@ export const Header: React.FC<HeaderProps> = ({
   return (
     <header className={`sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200 flex items-center justify-between transition-colors h-[90px] global-header ${className}`}>
       {/* 1. Branding Section - Aligns with Main Nav Sidebar (250px) */}
-      <div className="flex items-center w-auto lg:w-[250px] flex-shrink-0 global-header-branding">
-        <LogoHeaderRight
-          appName={finalAppName}
-          logoUrl={finalLogoUrl}
-          dashboardPath={dashboardPath}
-        />
-      </div>
+      {!hideBranding && (
+        <div className="flex items-center w-auto lg:w-[250px] flex-shrink-0 global-header-branding">
+          <div className="flex items-center h-full px-4 lg:pr-8 lg:pl-6 lg:border-l border-gray-300 flex-shrink-0 justify-between header-logo-section">
+            <Link
+              to={dashboardPath}
+              className="flex items-center gap-4 transition-all duration-300 hover:opacity-80 active:scale-95 group overflow-hidden"
+            >
+              <div className="flex items-center gap-3 truncate">
+                {finalLogoUrl ? (
+                  <img
+                    src={finalLogoUrl}
+                    alt={finalAppName}
+                    className="h-9 w-auto max-w-[120px] object-contain group-hover:rotate-1 transition-transform logo-img"
+                  />
+                ) : null}
+                <span
+                  className="text-sm lg:text-lg font-black text-gray-900 transition-colors truncate block tracking-tight app-name-text"
+                >
+                  {finalAppName}
+                </span>
+              </div>
+            </Link>
+          </div>
+        </div>
+      )}
 
       {/* 2. Main Bar Content - Physically MIDDLE */}
       <div className="flex-1 flex items-center justify-center lg:justify-between h-full px-4 lg:px-8 gap-4 relative">
-        {/* Dynamic Page Title - Centered on Mobile, Start-aligned on Desktop */}
-        <div className="flex items-center group/title page-title-heading truncate absolute lg:relative left-1/2 lg:left-0 -translate-x-1/2 lg:translate-x-0">
-          <h1 className="text-sm lg:text-base font-bold text-gray-400 px-3 truncate group-hover/title:text-primary transition-colors flex items-center gap-2">
-            {title}
-          </h1>
+        <div className="flex items-center gap-6 group/title page-title-heading truncate absolute lg:relative left-1/2 lg:left-0 -translate-x-1/2 lg:translate-x-0">
+          <div className="flex items-center gap-3 px-3">
+            {Icon && <Icon className="w-5 h-5 text-gray-400 group-hover/title:text-primary transition-colors" />}
+            <h1 className="text-sm lg:text-base font-bold text-gray-400 truncate group-hover/title:text-primary transition-colors flex items-center gap-2">
+              {title}
+            </h1>
+          </div>
+          {/* Page Actions (e.g. Primary Button) */}
+          {actions && (
+            <div className="hidden lg:flex items-center gap-2 animate-in fade-in slide-in-from-right-4 duration-500">
+              {actions}
+            </div>
+          )}
         </div>
 
         {/* Middle Section: Search Bar (Desktop & Tablet) */}

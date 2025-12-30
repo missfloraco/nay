@@ -13,7 +13,6 @@ import { useTenantAuth } from '@/features/auth/tenant-auth-context';
 import { useAdminAuth } from '@/features/auth/admin-auth-context';
 import { useSettings } from '@/shared/contexts/app-context';
 import BottomNav from '@/shared/layout/footer/footer';
-import { CopyrightFooterRight } from '@/shared/layout/footer/copyright-footer-right';
 import { useAction } from '@/shared/contexts/action-context';
 import { useText } from '@/shared/contexts/text-context';
 import { Header } from '@/shared/layout/header/header';
@@ -32,9 +31,10 @@ interface AppLayoutProps {
     title?: string;
     noPadding?: boolean;
     leftSidebarContent?: ReactNode;
+    actions?: ReactNode;
 }
 
-const AppLayout: React.FC<AppLayoutProps> = ({ children, title = '', noPadding = false, leftSidebarContent }) => {
+const AppLayout: React.FC<AppLayoutProps> = ({ children, title = '', noPadding = false, leftSidebarContent, actions }) => {
     const { user, tenant, isImpersonating, logout: logoutTenant } = useTenantAuth();
     const { user: adminUser } = useAdminAuth();
     const { settings, isAdBlockActive, isCheckingAdBlock } = useSettings();
@@ -89,6 +89,26 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, title = '', noPadding =
                 onMenuClick={() => { }}
                 className="global-header"
                 title={title || ''}
+                actions={
+                    <div className="flex items-center gap-3">
+                        {/* Manual Actions */}
+                        {actions}
+
+                        {/* Primary Action from Context (Replaces Footer) */}
+                        {primaryAction && (
+                            <button
+                                type={primaryAction.type || 'button'}
+                                form={primaryAction.form}
+                                onClick={primaryAction.onClick}
+                                disabled={primaryAction.disabled || primaryAction.loading}
+                                className={`flex items-center justify-center gap-2 py-2 px-4 ${primaryAction.variant === 'danger' ? 'bg-red-600 shadow-red-500/20' : 'bg-primary shadow-primary/30'} text-white rounded-lg shadow-md transition-all font-bold hover:scale-[1.02] active:scale-95 disabled:opacity-50 text-sm`}
+                            >
+                                {primaryAction.loading ? <Loader2 className="w-4 h-4 animate-spin" /> : primaryAction.icon ? <primaryAction.icon className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
+                                <span className="text-sm">{primaryAction.label}</span>
+                            </button>
+                        )}
+                    </div>
+                }
             />
 
             <div className="main-content-wrapper">
@@ -123,23 +143,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, title = '', noPadding =
                     </nav>
 
                     <div className="flex flex-col border-t border-gray-200 dark:border-dark-700 bg-gray-50/30 dark:bg-dark-800/20">
-                        <div className="h-[90px] px-6 flex items-center justify-center">
-                            {(() => {
-                                const btnColorClass = 'bg-primary shadow-primary/30';
-                                return primaryAction ? (
-                                    <button
-                                        type={primaryAction.type || 'button'}
-                                        form={primaryAction.form}
-                                        onClick={primaryAction.onClick}
-                                        disabled={primaryAction.disabled || primaryAction.loading}
-                                        className={`flex items-center justify-center gap-3 w-full py-3.5 px-6 ${primaryAction.variant === 'danger' ? 'bg-red-600 shadow-red-500/20' : btnColorClass} text-white rounded-2xl shadow-lg transition-all font-black hover:scale-[1.02] active:scale-95 disabled:opacity-50`}
-                                    >
-                                        {primaryAction.loading ? <Loader2 className="w-5 h-5 animate-spin" /> : primaryAction.icon ? <primaryAction.icon className="w-5 h-5" /> : <Plus className="w-5 h-5" />}
-                                        <span className="text-sm">{primaryAction.label}</span>
-                                    </button>
-                                ) : null;
-                            })()}
-                        </div>
+                        {/* Removed Primary Action from Sidebar */}
                     </div>
                 </aside>
 
@@ -222,8 +226,27 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, title = '', noPadding =
             </div>
 
             <footer className="global-footer flex h-[90px] border-t border-gray-200 dark:border-dark-700 bg-white dark:bg-dark-900 items-center justify-between transition-all z-50">
-                <div className="flex h-full items-center w-full">
-                    <CopyrightFooterRight />
+                <div className="flex h-full items-center w-full gap-4 pr-0 pl-8">
+                    {/* Integrated Copyright Section - Updates applied */}
+                    <div className="flex w-[250px] h-full border-l border-gray-300 dark:border-dark-600 px-8 items-center justify-start text-right bg-gray-50/10 dark:bg-dark-800/5 shrink-0">
+                        <div className="flex flex-col items-start text-right w-full">
+                            <span className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] mb-2 opacity-80 leading-none uppercase">جميع الحقوق محفوظة</span>
+                            <span className="text-xs font-black text-gray-700 dark:text-gray-400 leading-relaxed text-right">
+                                منصة {settings?.appName || 'النظام'} © {new Date().getFullYear()}
+                                <br />
+                                <span className="text-[11px] opacity-70">
+                                    {settings?.companyName && <>أحد مشاريع </>}
+                                    {settings?.companyLink ? (
+                                        <a href={settings.companyLink} target="_blank" rel="noopener noreferrer" className="text-primary hover:text-primary-dark transition-colors hover:underline decoration-primary/30 underline-offset-4 cursor-pointer font-black">
+                                            {settings?.companyName || ''}
+                                        </a>
+                                    ) : (
+                                        <span className="text-primary font-black">{settings?.companyName || ''}</span>
+                                    )}
+                                </span>
+                            </span>
+                        </div>
+                    </div>
 
                     <div className="flex-1 flex items-center justify-center overflow-hidden h-full">
                         <AdSlot
@@ -233,9 +256,16 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, title = '', noPadding =
                         />
                     </div>
 
-                    {!isAdminSession && (
-                        <StatusWidget type="tenant" tenant={tenant} />
-                    )}
+                    <div className="flex items-center gap-4">
+                        {/* Primary Action Button Removed from Footer and moved to Header */}
+                        <div className="flex items-center justify-end min-w-[140px]">
+                            {/* Empty placeholder if needed, or just remove */}
+                        </div>
+
+                        {!isAdminSession && (
+                            <StatusWidget type="tenant" tenant={tenant} />
+                        )}
+                    </div>
                 </div>
             </footer>
 

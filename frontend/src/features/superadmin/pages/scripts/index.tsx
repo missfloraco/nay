@@ -177,6 +177,7 @@ export default function ScriptsManager() {
     return (
         <AdminLayout
             title="إدارة النصوص البرمجية (Scripts)"
+            icon={Code}
             hideLeftSidebar={true}
             actions={
                 <button

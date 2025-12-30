@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Trash2 } from 'lucide-react';
+import { Trash2, Plus, Filter, User, X, Wallet } from 'lucide-react';
 import AdminLayout from '@/features/superadmin/pages/adminlayout';
 import api from '@/shared/services/api';
 import { logger } from '@/shared/services/logger';
@@ -7,8 +7,9 @@ import Table from '@/shared/table';
 import { formatDate } from '@/shared/utils/helpers';
 import { useFeedback } from '@/shared/ui/notifications/feedback-context';
 import { useSearchParams } from 'react-router-dom';
-import { PaymentsSidebar } from '@/features/superadmin/components/payments-sidebar';
 import { IdentityCell, DateCell, CurrencyCell, ActionCell } from '@/shared/table-cells';
+import { useAction } from '@/shared/contexts/action-context';
+import { RecordPaymentModal } from '@/features/superadmin/components/record-payment-modal';
 
 interface Payment {
     id: number;
@@ -26,10 +27,15 @@ interface Payment {
 
 export default function PaymentsPage() {
     const { showSuccess, showError, showConfirm } = useFeedback();
+    const { setPrimaryAction } = useAction();
     const [searchParams, setSearchParams] = useSearchParams();
+
     const [payments, setPayments] = useState<Payment[]>([]);
     const [tenants, setTenants] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+    const [showModal, setShowModal] = useState(false);
+
+    // Filtering State
     const [highlightedTenantId, setHighlightedTenantId] = useState<number | null>(null);
     const [selectedTenantId, setSelectedTenantId] = useState<string>(searchParams.get('tenant') || '');
 
@@ -62,10 +68,9 @@ export default function PaymentsPage() {
 
     useEffect(() => {
         const init = async () => {
-            const tenantsData = await loadTenants();
+            await loadTenants();
             await loadPayments();
 
-            // Check for initial highlight/filter from URL
             const tenantId = searchParams.get('tenant');
             const shouldHighlight = searchParams.get('highlight');
             if (tenantId) {
@@ -78,6 +83,17 @@ export default function PaymentsPage() {
         };
         init();
     }, []);
+
+    // Register Footer Action
+    useEffect(() => {
+        setPrimaryAction({
+            label: 'تسجيل دفعة يدوية',
+            onClick: () => setShowModal(true),
+            icon: Plus,
+            variant: 'primary'
+        });
+        return () => setPrimaryAction(null);
+    }, [setPrimaryAction]);
 
     const handleDelete = async (id: number) => {
         const confirmed = await showConfirm({
@@ -98,7 +114,7 @@ export default function PaymentsPage() {
         }
     };
 
-    // Filter payments by selected tenant
+    // Filter payments
     const filteredPayments = selectedTenantId
         ? payments.filter(p => p.tenant?.id === Number(selectedTenantId))
         : payments;
@@ -179,6 +195,7 @@ export default function PaymentsPage() {
                     <button
                         onClick={() => handleDelete(row.id)}
                         className="p-2.5 text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-all active:scale-95"
+                        title="حذف"
                     >
                         <Trash2 className="w-4 h-4" />
                     </button>
@@ -191,19 +208,45 @@ export default function PaymentsPage() {
     return (
         <AdminLayout
             title="إدارة المدفوعات"
-            leftSidebarContent={
-                <PaymentsSidebar
-                    tenants={tenants}
-                    selectedTenantId={selectedTenantId}
-                    onSelectTenant={handleTenantSelect}
-                    onSuccess={loadPayments}
-                />
-            }
+            icon={Wallet}
+            hideLeftSidebar={true}
         >
-            <div className="flex flex-col h-full bg-white dark:bg-gray-900">
+            <div className="flex flex-col h-full bg-white dark:bg-dark-900">
+                {/* Header Actions / Filter Toolbar */}
+                <div className="p-6 pb-0 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div className="flex items-center gap-3">
+                        {/* Internal Header Removed */}
+                    </div>
+
+                    {/* Filter Dropdown */}
+                    <div className="flex items-center gap-3 w-full md:w-auto">
+                        <div className="relative w-full md:w-[300px]">
+                            <User className="absolute right-3 top-3 w-4 h-4 text-gray-400 z-10" />
+                            <select
+                                value={selectedTenantId}
+                                onChange={(e) => handleTenantSelect(e.target.value)}
+                                className="w-full h-10 pr-10 pl-4 rounded-xl border border-gray-200 dark:border-dark-700 bg-gray-50 dark:bg-dark-800 text-sm font-bold focus:ring-2 focus:ring-primary/20 focus:border-primary appearance-none transition-all"
+                            >
+                                <option value="">جميع المشتركين</option>
+                                {tenants.map(t => (
+                                    <option key={t.id} value={t.id}>{t.name} ({t.email})</option>
+                                ))}
+                            </select>
+                            {/* Clear Filter Button */}
+                            {selectedTenantId && (
+                                <button
+                                    onClick={() => handleTenantSelect('')}
+                                    className="absolute left-2 top-2 p-1 text-gray-400 hover:text-red-500 rounded-full hover:bg-red-50 dark:hover:bg-red-900/20"
+                                >
+                                    <X className="w-3 h-3" />
+                                </button>
+                            )}
+                        </div>
+                    </div>
+                </div>
 
                 {/* Table */}
-                <div className="flex-1 overflow-auto">
+                <div className="flex-1 overflow-auto p-6">
                     <Table<Payment>
                         columns={columns}
                         data={filteredPayments}
@@ -213,6 +256,16 @@ export default function PaymentsPage() {
                     />
                 </div>
             </div>
+
+            {/* Record Payment Modal */}
+            {showModal && (
+                <RecordPaymentModal
+                    onClose={() => setShowModal(false)}
+                    onSuccess={() => {
+                        loadPayments();
+                    }}
+                />
+            )}
         </AdminLayout>
     );
 }
