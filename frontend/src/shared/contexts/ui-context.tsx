@@ -1,9 +1,14 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 export interface UIContextType {
-    sidebarOpen: boolean;
+    isRightDrawerOpen: boolean;
+    isLeftDrawerOpen: boolean;
+    openRightDrawer: () => void;
+    openLeftDrawer: () => void;
+    closeDrawers: () => void;
+    toggleRightDrawer: () => void;
+    toggleLeftDrawer: () => void;
     darkMode: boolean;
-    toggleSidebar: () => void;
     toggleDarkMode: () => void;
 }
 
@@ -16,18 +21,53 @@ export const useUI = () => {
 };
 
 export const UIProvider = ({ children }: { children: ReactNode }) => {
-    const [sidebarOpen, setSidebarOpen] = useState(true);
+    const [isRightDrawerOpen, setIsRightDrawerOpen] = useState(false);
+    const [isLeftDrawerOpen, setIsLeftDrawerOpen] = useState(false);
     const [darkMode, setDarkMode] = useState(false);
 
     useEffect(() => {
         document.documentElement.classList.toggle('dark', darkMode);
     }, [darkMode]);
 
-    const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
+    const openRightDrawer = () => {
+        setIsLeftDrawerOpen(false);
+        setIsRightDrawerOpen(true);
+    };
+
+    const openLeftDrawer = () => {
+        setIsRightDrawerOpen(false);
+        setIsLeftDrawerOpen(true);
+    };
+
+    const closeDrawers = () => {
+        setIsRightDrawerOpen(false);
+        setIsLeftDrawerOpen(false);
+    };
+
+    const toggleRightDrawer = () => {
+        setIsLeftDrawerOpen(false);
+        setIsRightDrawerOpen(!isRightDrawerOpen);
+    };
+
+    const toggleLeftDrawer = () => {
+        setIsRightDrawerOpen(false);
+        setIsLeftDrawerOpen(!isLeftDrawerOpen);
+    };
+
     const toggleDarkMode = () => setDarkMode(!darkMode);
 
     return (
-        <UIContext.Provider value={{ sidebarOpen, darkMode, toggleSidebar, toggleDarkMode }}>
+        <UIContext.Provider value={{
+            isRightDrawerOpen,
+            isLeftDrawerOpen,
+            openRightDrawer,
+            openLeftDrawer,
+            closeDrawers,
+            toggleRightDrawer,
+            toggleLeftDrawer,
+            darkMode,
+            toggleDarkMode
+        }}>
             {children}
         </UIContext.Provider>
     );

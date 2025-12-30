@@ -4,7 +4,6 @@ import { Store, Sparkles, Facebook, Instagram, MessageCircle } from 'lucide-reac
 import { useAdminAuth } from '@/features/auth/admin-auth-context';
 import { useTenantAuth } from '@/features/auth/tenant-auth-context';
 import { useSettings } from '@/shared/contexts/app-context';
-import ThemeToggle from '@/shared/theme-toggle';
 import { UI_TEXT } from '@/shared/locales/texts';
 import AdSlot from '@/shared/ads/adslot';
 import ShieldOverlay from '@/shared/components/shield-overlay';
@@ -61,13 +60,13 @@ export default function LandingLayout({ children }: LandingLayoutProps) {
     }, [lastScrollY]);
 
     return (
-        <div className="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 selection:bg-primary/20 selection:text-primary transition-colors duration-300">
+        <div className="min-h-screen bg-white text-gray-900 selection:bg-primary/20 selection:text-primary transition-colors duration-300">
             {!isCheckingAdBlock && isAdBlockActive && <ShieldOverlay />}
 
             <>
                 <header className={`fixed top-8 left-0 right-0 z-50 pointer-events-none transition-transform duration-500 ease-out ${isHeaderVisible ? 'translate-y-0' : '-translate-y-[150%]'}`}>
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pointer-events-auto">
-                        <div className="bg-white/90 dark:bg-gray-900/95 backdrop-blur-2xl border border-gray-200 dark:border-white/10 rounded-2xl shadow-2xl shadow-primary/5 transition-all duration-500 hover:shadow-primary/10 px-6 sm:px-10">
+                        <div className="bg-white/90 backdrop-blur-2xl border border-gray-200 rounded-2xl shadow-2xl shadow-primary/5 transition-all duration-500 hover:shadow-primary/10 px-6 sm:px-10">
                             <div className="flex items-center justify-between h-20 lg:h-24">
                                 <div className="flex items-center gap-2 lg:gap-3 shrink-0 group">
                                     <Link to={showDashboard ? dashboardLink : "/"} className="flex items-center gap-2 lg:gap-3">
@@ -84,7 +83,7 @@ export default function LandingLayout({ children }: LandingLayoutProps) {
                                                     }}
                                                 />
                                                 <span
-                                                    className="text-2xl lg:text-3xl font-black text-gray-900 dark:text-white tracking-tighter"
+                                                    className="text-2xl lg:text-3xl font-black text-gray-900 tracking-tighter"
                                                     style={{ display: 'none' }}
                                                 >
                                                     {finalAppName}
@@ -99,22 +98,21 @@ export default function LandingLayout({ children }: LandingLayoutProps) {
                                 </div>
 
                                 <nav className="hidden xl:flex items-center gap-2">
-                                    <a href="/" className="px-5 py-2.5 text-[13px] font-black text-gray-900 dark:text-white/70 hover:text-primary dark:hover:text-white transition-all uppercase tracking-[0.15em] rounded-xl">الرئيسية</a>
-                                    <a href="#features" className="px-5 py-2.5 text-[13px] font-black text-gray-900 dark:text-white/70 hover:text-primary dark:hover:text-white transition-all uppercase tracking-[0.15em] rounded-xl">المميزات</a>
-                                    <a href="#faq" className="px-5 py-2.5 text-[13px] font-black text-gray-900 dark:text-white/70 hover:text-primary dark:hover:text-white transition-all uppercase tracking-[0.15em] rounded-xl">الأسعار</a>
-                                    <a href="#faq" className="px-5 py-2.5 text-[13px] font-black text-gray-900 dark:text-white/70 hover:text-primary dark:hover:text-white transition-all uppercase tracking-[0.15em] rounded-xl">لماذا نحن ؟</a>
-                                    <a href="#faq" className="px-5 py-2.5 text-[13px] font-black text-gray-900 dark:text-white/70 hover:text-primary dark:hover:text-white transition-all uppercase tracking-[0.15em] rounded-xl">الأسئلة الشائعة</a>
+                                    <a href="/" className="px-5 py-2.5 text-[13px] font-black text-gray-900 hover:text-primary transition-all uppercase tracking-[0.15em] rounded-xl">الرئيسية</a>
+                                    <a href="#features" className="px-5 py-2.5 text-[13px] font-black text-gray-900 hover:text-primary transition-all uppercase tracking-[0.15em] rounded-xl">المميزات</a>
+                                    <a href="#faq" className="px-5 py-2.5 text-[13px] font-black text-gray-900 hover:text-primary transition-all uppercase tracking-[0.15em] rounded-xl">الأسعار</a>
+                                    <a href="#faq" className="px-5 py-2.5 text-[13px] font-black text-gray-900 hover:text-primary transition-all uppercase tracking-[0.15em] rounded-xl">لماذا نحن ؟</a>
+                                    <a href="#faq" className="px-5 py-2.5 text-[13px] font-black text-gray-900 hover:text-primary transition-all uppercase tracking-[0.15em] rounded-xl">الأسئلة الشائعة</a>
                                 </nav>
 
                                 <div className="flex items-center gap-3 lg:gap-8">
                                     <div className="flex items-center gap-2">
-                                        <ThemeToggle />
                                     </div>
 
-                                    <div className="h-8 w-px bg-gray-200 dark:bg-white/10 hidden sm:block" />
+                                    <div className="h-8 w-px bg-gray-200 hidden sm:block" />
 
                                     <div className="flex items-center gap-4 lg:gap-8">
-                                        <Link to={`/login${isLogoutSuccess ? '?logout=success' : ''}`} className="hidden sm:block text-[11px] font-black text-gray-900 dark:text-white hover:text-primary dark:hover:text-primary transition-colors uppercase tracking-[0.15em]">تسجيل الدخول</Link>
+                                        <Link to={`/login${isLogoutSuccess ? '?logout=success' : ''}`} className="hidden sm:block text-[11px] font-black text-gray-900 hover:text-primary transition-colors uppercase tracking-[0.15em]">تسجيل الدخول</Link>
                                         <Link
                                             to={`/register${isLogoutSuccess ? '?logout=success' : ''}`}
                                             className="px-8 py-4 bg-primary text-white text-xs font-black rounded-2xl hover:scale-105 active:scale-95 transition-all shadow-xl shadow-primary/20 uppercase tracking-[0.1em]"
@@ -133,15 +131,15 @@ export default function LandingLayout({ children }: LandingLayoutProps) {
 
                     <AdSlot
                         placement="ad_landing_footer"
-                        className="w-full h-[90px] mt-12 mb-8 border-t border-gray-100 dark:border-white/5"
+                        className="w-full h-[90px] mt-12 mb-8 border-t border-gray-100"
                     />
                 </main>
 
-                <footer className="bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-white pt-20 pb-10 border-t border-gray-200 dark:border-white/5 transition-colors duration-500">
+                <footer className="bg-white text-gray-900 pt-20 pb-10 border-t border-gray-200 transition-colors duration-500">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                         {/* Central Logo and Socials */}
                         <div className="flex flex-col items-center mb-12">
-                            <div className="w-20 h-20 bg-gray-100 dark:bg-white/5 backdrop-blur-3xl rounded-full flex items-center justify-center border border-gray-200 dark:border-white/10 mb-6 shadow-2xl">
+                            <div className="w-20 h-20 bg-gray-100 backdrop-blur-3xl rounded-full flex items-center justify-center border border-gray-200 mb-6 shadow-2xl">
                                 {settings.systemLogoUrl ? (
                                     <img src={settings.systemLogoUrl} alt={finalAppName} className="h-12 w-auto object-contain" />
                                 ) : (
@@ -150,7 +148,7 @@ export default function LandingLayout({ children }: LandingLayoutProps) {
                                     </div>
                                 )}
                             </div>
-                            <div className="flex gap-8 text-gray-400 dark:text-white/30">
+                            <div className="flex gap-8 text-gray-400">
                                 <a href="#" className="hover:text-blue-500 transition-all hover:scale-125"><Facebook className="w-7 h-7" /></a>
                                 <a href="#" className="hover:text-pink-500 transition-all hover:scale-125"><Instagram className="w-7 h-7" /></a>
                                 <a href="#" className="hover:text-green-500 transition-all hover:scale-125"><MessageCircle className="w-7 h-7" /></a>
@@ -158,17 +156,17 @@ export default function LandingLayout({ children }: LandingLayoutProps) {
                         </div>
 
                         {/* Premium CTA Banner */}
-                        <div className="bg-gradient-to-l from-blue-50 via-indigo-50 to-blue-50 dark:from-[#0c1425] dark:via-[#0a0a1a] dark:to-black rounded-2xl p-10 lg:p-14 mb-16 flex flex-col lg:flex-row items-center justify-between gap-10 border border-gray-200 dark:border-white/5 shadow-2xl relative overflow-hidden group">
+                        <div className="bg-gradient-to-l from-blue-50 via-indigo-50 to-blue-50 rounded-2xl p-10 lg:p-14 mb-16 flex flex-col lg:flex-row items-center justify-between gap-10 border border-gray-200 shadow-2xl relative overflow-hidden group">
                             <div className="absolute inset-0 bg-blue-600/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
-                            <h2 className="text-4xl lg:text-[56px] font-black text-gray-900 dark:text-white relative z-10 leading-none tracking-tight">النجاح يبدأ بخطوة</h2>
+                            <h2 className="text-4xl lg:text-[56px] font-black text-gray-900 relative z-10 leading-none tracking-tight">النجاح يبدأ بخطوة</h2>
                             <Link to="/register" className="px-10 py-4 bg-blue-600 hover:bg-blue-500 text-white font-black text-lg rounded-2xl shadow-2xl shadow-blue-500/30 transition-all hover:scale-110 active:scale-95 relative z-10">ابدأ الآن</Link>
                         </div>
 
                         {/* Footer Link Grid */}
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-12 lg:gap-16 mb-20 text-center">
                             <div className="space-y-6">
-                                <h3 className="text-xl font-black text-gray-900 dark:text-white">الدعم الفني</h3>
-                                <ul className="space-y-4 text-gray-600 dark:text-gray-400 font-bold text-base">
+                                <h3 className="text-xl font-black text-gray-900">الدعم الفني</h3>
+                                <ul className="space-y-4 text-gray-600 font-bold text-base">
                                     <li><a href="#" className="hover:text-primary transition-colors">سياسة الخصوصية</a></li>
                                     <li><a href="#" className="hover:text-primary transition-colors">سياسة الخصوصية</a></li>
                                     <li><a href="#" className="hover:text-primary transition-colors">طرق الدفع</a></li>
@@ -185,7 +183,7 @@ export default function LandingLayout({ children }: LandingLayoutProps) {
                             </div>
 
                             <div className="space-y-6">
-                                <h3 className="text-xl font-black text-gray-900 dark:text-white">المنتجات</h3>
+                                <h3 className="text-xl font-black text-gray-900">المنتجات</h3>
                                 <ul className="space-y-4 text-gray-600 dark:text-gray-400 font-bold text-base">
                                     <li><a href="#" className="hover:text-primary transition-colors">أكاديمية مسلفورا</a></li>
                                     <li><a href="#" className="hover:text-primary transition-colors">{finalAppName}</a></li>
@@ -194,7 +192,7 @@ export default function LandingLayout({ children }: LandingLayoutProps) {
                             </div>
 
                             <div className="space-y-6">
-                                <h3 className="text-xl font-black text-gray-900 dark:text-white">الشركة</h3>
+                                <h3 className="text-xl font-black text-gray-900">الشركة</h3>
                                 <ul className="space-y-4 text-gray-600 dark:text-gray-400 font-bold text-base">
                                     <li><a href="#" className="hover:text-primary transition-colors">الباقات والأسعار</a></li>
                                     <li><a href="#" className="hover:text-primary transition-colors">المدونة</a></li>
@@ -204,8 +202,8 @@ export default function LandingLayout({ children }: LandingLayoutProps) {
                         </div>
 
                         {/* Bottom Copyright Bar */}
-                        <div className="pt-10 border-t border-gray-200 dark:border-white/5 flex flex-col md:flex-row items-center justify-between gap-8">
-                            <p className="text-base text-gray-600 dark:text-gray-400 font-bold order-last md:order-first">
+                        <div className="pt-10 border-t border-gray-200 flex flex-col md:flex-row items-center justify-between gap-8">
+                            <p className="text-base text-gray-600 font-bold order-last md:order-first">
                                 {finalAppName} © {new Date().getFullYear()} أحد مشاريع{' '}
                                 {settings.companyLink ? (
                                     <a href={settings.companyLink} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
@@ -215,7 +213,7 @@ export default function LandingLayout({ children }: LandingLayoutProps) {
                                     <span className="text-blue-500">{settings.companyName || 'شركة مسلفورا'}</span>
                                 )}
                             </p>
-                            <div className="flex gap-8 text-gray-600 dark:text-gray-400 font-black text-xs md:mr-auto">
+                            <div className="flex gap-8 text-gray-600 font-black text-xs md:mr-auto">
                                 <a href="#" className="hover:text-primary transition-colors">سياسة الخصوصية</a>
                                 <a href="#" className="hover:text-primary transition-colors">الشروط والأحكام</a>
                             </div>

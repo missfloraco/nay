@@ -1,147 +1,199 @@
 /* 
   ==========================================================================
-  Responsive System (Consolidated)
+  Responsive System v2.0 (Mobile-First & Tablet Optimized)
+  RTL Support for Arabic Dashboard
   ========================================================================== 
 */
 
-@media (max-width: 768px) {
-    .layout-root {
-        @apply h-auto min-h-screen bg-gray-50 dark:bg-dark-950 flex flex-col;
-        height: auto !important;
-        min-height: 100vh !important;
-        display: flex !important;
-        flex-direction: column !important;
-        overflow-x: hidden !important;
+/* 
+  1. MOBILE BASE STYLES (Default / < 640px)
+  ==========================================================================
+*/
+
+/* Hide desktop-only elements */
+.desktop-sidebar,
+.left-sidebar-root,
+.footer-copyright-section,
+.status-widget-container {
+    display: none !important;
+}
+
+/* Base Layout Changes */
+.layout-root {
+    @apply flex flex-col h-auto min-h-screen overflow-x-hidden;
+    background-color: var(--color-bg-base, #f8fafc);
+}
+
+.main-content-wrapper {
+    @apply flex flex-col flex-1 h-auto;
+}
+
+/* Top App Bar Styling */
+.global-header {
+    @apply !h-[70px] !px-2 !flex !items-center !justify-between;
+    @apply !bg-white/95 !backdrop-blur-xl !border-b !border-gray-100;
+}
+
+.global-header .flex-1.flex.items-center {
+    @apply !px-0 !gap-2;
+}
+
+/* Hide Labels on Mobile Header */
+.global-header .user-name-label,
+.global-header .page-title-heading {
+    display: none !important;
+}
+
+/* Content Area */
+.content-area-main {
+    @apply !w-full !flex-1 !overflow-visible;
+}
+
+.page-frame-container {
+    @apply !p-4 !pb-20 !rounded-none;
+    min-height: calc(100vh - 70px) !important;
+    border: 0 !important;
+    box-shadow: none !important;
+}
+
+/* Footer & Ad Slots */
+.global-footer {
+    display: none !important;
+}
+
+/* Table Responsiveness (Stack Mode) */
+.standard-table-container {
+    @apply !border-0 !bg-transparent !shadow-none;
+}
+
+.standard-table {
+    @apply !block !w-full;
+}
+
+.standard-table thead {
+    display: none !important;
+}
+
+.standard-table tbody {
+    @apply !block !space-y-4;
+}
+
+.standard-table tr {
+    @apply !block !bg-white !rounded-3xl !p-6 !mb-4 !shadow-sm !border !border-gray-100 !relative;
+}
+
+.standard-table td {
+    @apply !flex !justify-between !items-center !py-2.5 !px-0 !border-0;
+    @apply !text-sm !font-bold !text-gray-800;
+}
+
+.standard-table td::before {
+    content: attr(data-label);
+    @apply !font-black !text-gray-400 !uppercase !text-[9px] !tracking-wider;
+}
+
+/* 
+  2. TABLET STYLES (640px - 1024px)
+  ==========================================================================
+*/
+@media (min-width: 640px) and (max-width: 1024px) {
+    .page-frame-container {
+        @apply p-8 rounded-3xl;
+        margin: 1.5rem !important;
+        min-height: calc(100vh - 120px) !important;
+        border: 1px solid rgba(0, 0, 0, 0.05) !important;
     }
 
-    .main-content-wrapper {
-        @apply flex-col h-auto;
-        display: flex !important;
-        flex-direction: column !important;
-        height: auto !important;
+    /* Show page title on tablet */
+    .global-header .page-title-heading {
+        @apply block;
     }
 
-    .global-header {
-        @apply h-[70px] px-4 flex items-center justify-between;
-        @apply bg-white/95 dark:bg-dark-950/95 backdrop-blur-xl border-b border-gray-100 dark:border-dark-800;
-        height: 70px !important;
-        padding-left: 1rem !important;
-        padding-right: 1rem !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: space-between !important;
+    /* Smaller grid for tablet */
+    .dashboard-grid {
+        @apply grid-cols-2 gap-6;
     }
+}
+
+/* 
+  3. DESKTOP STYLES (Min-width 1025px) - RESTORE DEFAULT
+  ==========================================================================
+*/
+@media (min-width: 1025px) {
 
     .desktop-sidebar,
     .left-sidebar-root,
-    .header-user-section {
+    .footer-copyright-section,
+    .status-widget-container,
+    .global-footer,
+    .global-header .user-name-label,
+    .global-header .page-title-heading {
+        display: flex !important;
+    }
+
+    .global-header {
+        @apply !h-[90px];
+    }
+
+    .xl\:hidden {
         display: none !important;
+    }
+
+    .layout-root {
+        @apply !h-screen !flex !flex-col !overflow-hidden;
+    }
+
+    .main-content-wrapper {
+        @apply !flex !flex-row !flex-1 !overflow-hidden !h-full;
     }
 
     .content-area-main {
-        @apply w-full flex-none;
-        width: 100% !important;
-        flex: none !important;
+        @apply !flex-1 !overflow-hidden;
     }
 
     .page-frame-container {
-        @apply p-4 pb-32;
-        padding: 1rem !important;
-        padding-bottom: 8rem !important;
-        min-height: calc(100vh - 70px);
+        @apply h-full rounded-none p-0;
+        margin: 0 !important;
+        border: 0 !important;
     }
 
-    .standard-table-container {
-        @apply border-0 bg-transparent shadow-none overflow-visible;
-        border-width: 0 !important;
-        background-color: transparent !important;
-        box-shadow: none !important;
-        overflow: visible !important;
-    }
-
+    /* Desktop Tables back to normal */
     .standard-table {
-        @apply block w-full;
-        display: block !important;
-        width: 100% !important;
+        display: table;
     }
 
     .standard-table thead {
-        @apply hidden;
-        display: none !important;
+        display: table-header-group;
     }
 
     .standard-table tbody {
-        @apply block space-y-4;
-        display: block !important;
+        display: table-row-group;
     }
 
     .standard-table tr {
-        @apply block bg-white dark:bg-dark-900 rounded-[2rem] p-8 mb-6 shadow-[0_10px_40px_rgba(0,0,0,0.03)] border border-gray-100 dark:border-white/5 relative overflow-hidden transition-all active:scale-[0.98];
-        display: block !important;
-    }
-
-    .standard-table tr::after {
-        content: '';
-        @apply absolute top-0 left-0 w-1.5 h-full bg-primary/20;
+        display: table-row;
+        @apply bg-transparent shadow-none border-0 rounded-none;
     }
 
     .standard-table td {
-        @apply flex justify-between items-center py-3 px-0 border-0;
-        @apply text-base font-bold text-gray-800 dark:text-gray-200;
-        display: flex !important;
-        justify-content: space-between !important;
-        align-items: center !important;
-        padding: 0.75rem 0 !important;
-        border-width: 0 !important;
+        display: table-cell;
+        @apply py-4 px-6 border-b border-gray-100;
     }
 
     .standard-table td::before {
-        content: attr(data-label);
-        @apply font-black text-gray-400 dark:text-gray-500 uppercase text-[10px] tracking-[0.2em] pl-4;
-        font-weight: 900 !important;
-        text-transform: uppercase !important;
-        padding-left: 1rem !important;
-    }
-
-    .dashboard-grid {
-        @apply grid-cols-1 gap-6;
-        grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
-        gap: 1.5rem !important;
-    }
-}
-
-@media (min-width: 769px) and (max-width: 1024px) {
-    .desktop-sidebar {
-        width: 80px !important;
-    }
-
-    .sidebar-label-text {
-        display: none !important;
-    }
-
-    .sidebar-nav-item {
-        @apply justify-center px-0;
-        justify-content: center !important;
-        padding-left: 0 !important;
-        padding-right: 0 !important;
-    }
-}
-
-@media (min-width: 1025px) {
-    .mobile-only {
         display: none !important;
     }
 }
 
-@media (max-width: 768px) {
-    .mobile-animate {
-        animation: mobileFadeIn 0.4s ease-out forwards;
-    }
+/* 
+  Utility Classes
+  ==========================================================================
+*/
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
 }
 
-@media (min-width: 769px) {
-    .page-frame-container {
-        @apply w-full max-w-full mx-auto p-0;
-        @apply border border-gray-100 dark:border-white/5 shadow-premium dark:shadow-none;
-    }
+.no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
 }

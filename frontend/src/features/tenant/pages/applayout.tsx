@@ -24,6 +24,8 @@ import { StatusWidget } from '@/shared/components/statuswidget';
 import { ImpersonationBanner } from '@/shared/components/impersonationbanner';
 import { LeftSidebar } from '@/shared/layout/sidebar/sidebar-left';
 import ShieldOverlay from '@/shared/components/shield-overlay';
+import { useUI } from '@/shared/contexts/ui-context';
+import { Drawer } from '@/shared/ui/drawer';
 
 interface AppLayoutProps {
     children: ReactNode;
@@ -38,6 +40,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, title = '', noPadding =
     const { settings, isAdBlockActive, isCheckingAdBlock } = useSettings();
     const { t } = useText();
     const { primaryAction } = useAction();
+    const { isRightDrawerOpen, isLeftDrawerOpen, closeDrawers, toggleRightDrawer } = useUI();
     const isAdminSession = isImpersonating || !!adminUser;
     const location = useLocation();
 
@@ -140,6 +143,71 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, title = '', noPadding =
                     </div>
                 </aside>
 
+                {/* Mobile/Tablet Right Drawer (Global Navigation) */}
+                <Drawer
+                    isOpen={isRightDrawerOpen}
+                    onClose={closeDrawers}
+                    side="right"
+                    title={t('common.navigation', 'التنقل الرئيسي')}
+                >
+                    <nav className="p-6 space-y-1.5 h-full flex flex-col">
+                        <div className="flex-1 space-y-1.5">
+                            {menuItems.map((item) => {
+                                const isActive = location.pathname.startsWith(item.path);
+                                return (
+                                    <Link
+                                        key={item.path}
+                                        to={item.path}
+                                        onClick={closeDrawers}
+                                        className={`flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all duration-300 font-bold
+                                        ${isActive
+                                                ? 'bg-primary text-white shadow-lg shadow-primary/30'
+                                                : 'text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-dark-800/50 hover:text-gray-900 dark:hover:text-white'}`}
+                                    >
+                                        <item.icon className="w-5 h-5" />
+                                        <span className="text-sm flex-1">{item.label}</span>
+                                        {item.badge > 0 && (
+                                            <span className="bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[20px] h-5 flex items-center justify-center px-1">
+                                                {item.badge > 9 ? '9+' : item.badge}
+                                            </span>
+                                        )}
+                                    </Link>
+                                );
+                            })}
+                        </div>
+
+                        {/* Mobile Primary Action (Inside Drawer) */}
+                        {primaryAction && (
+                            <div className="pt-6 border-t border-gray-100 dark:border-white/5 mt-auto">
+                                <button
+                                    onClick={() => {
+                                        primaryAction.onClick?.();
+                                        closeDrawers();
+                                    }}
+                                    className={`flex items-center justify-center gap-3 w-full py-4 px-6 ${primaryAction.variant === 'danger' ? 'bg-red-600' : 'bg-primary'} text-white rounded-2xl shadow-lg font-black transition-all`}
+                                >
+                                    {primaryAction.icon ? <primaryAction.icon className="w-5 h-5" /> : <Plus className="w-5 h-5" />}
+                                    <span className="text-sm">{primaryAction.label}</span>
+                                </button>
+                            </div>
+                        )}
+                    </nav>
+                </Drawer>
+
+                {/* Mobile/Tablet Left Drawer (Contextual Sidebar) */}
+                {leftSidebarContent && (
+                    <Drawer
+                        isOpen={isLeftDrawerOpen}
+                        onClose={closeDrawers}
+                        side="left"
+                        title={t('common.options', 'خيارات إضافية')}
+                    >
+                        <div className="h-full flex flex-col py-4" onClick={closeDrawers}>
+                            {leftSidebarContent}
+                        </div>
+                    </Drawer>
+                )}
+
                 <div className="content-area-main relative overflow-hidden bg-gray-50 dark:bg-dark-950 flex-1">
                     <main className="h-full relative p-4">
                         <div className={`page-frame-container w-full h-full bg-white dark:bg-dark-900 flex flex-col overflow-auto no-scrollbar p-0`}>
@@ -153,7 +221,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, title = '', noPadding =
                 </LeftSidebar>
             </div>
 
-            <footer className="flex h-[90px] border-t border-gray-200 dark:border-dark-700 bg-white dark:bg-dark-900 items-center justify-between transition-all z-50">
+            <footer className="global-footer flex h-[90px] border-t border-gray-200 dark:border-dark-700 bg-white dark:bg-dark-900 items-center justify-between transition-all z-50">
                 <div className="flex h-full items-center w-full">
                     <CopyrightFooterRight />
 
@@ -171,8 +239,14 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, title = '', noPadding =
                 </div>
             </footer>
 
+            {/* Mobile Navigation Bar */}
             <div className="mobile-only">
-                <BottomNav items={menuItems} />
+                <BottomNav
+                    items={menuItems}
+                    user={user}
+                    onLogout={() => logoutTenant(false)}
+                    settingsPath="/app/settings"
+                />
             </div>
         </div>
     );

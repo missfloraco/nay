@@ -6,6 +6,7 @@ import { logger } from '@/shared/services/logger';
 import InputField from '@/shared/ui/forms/input-field';
 import SelectField from '@/shared/ui/forms/select-field';
 import TextareaField from '@/shared/ui/forms/textarea-field';
+import Modal from '@/shared/ui/modals/modal';
 
 interface RecordPaymentModalProps {
     onClose: () => void;
@@ -74,136 +75,158 @@ export const RecordPaymentModal = ({ onClose, onSuccess, initialTenantId }: Reco
     };
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-            {/* Backdrop with Blur */}
-            <div
-                className="fixed inset-0 bg-black/60 backdrop-blur-md transition-opacity"
-                onClick={onClose}
-            />
+        <Modal
+            isOpen={true}
+            onClose={onClose}
+            title="تسجيل دفعة يدوية"
+            size="xl"
+        >
+            <form onSubmit={handleSubmit} className="flex flex-col h-full">
+                <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-8 overflow-y-auto custom-scrollbar p-1">
 
-            {/* Modal Content */}
-            <div className="relative bg-white dark:bg-gray-800 rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden border border-gray-100 dark:border-gray-700 animate-in fade-in zoom-in duration-300">
-                <div className="flex items-center justify-between p-6 border-b border-gray-100 dark:border-white/5">
-                    <h3 className="text-xl font-black text-gray-900 dark:text-white">تسجيل دفعة يدوية</h3>
-                    <button onClick={onClose} className="p-2 hover:bg-gray-100 dark:hover:bg-white/5 rounded-full transition-colors">
-                        <X className="w-5 h-5 text-gray-500" />
-                    </button>
+                    {/* Right Column: Payment Details */}
+                    <div className="space-y-6">
+                        <h4 className="flex items-center gap-2 font-bold text-gray-900 dark:text-white border-b border-gray-100 dark:border-white/5 pb-2">
+                            <DollarSign className="w-5 h-5 text-emerald-600" />
+                            تفاصيل الدفع
+                        </h4>
+
+                        <div className="space-y-4">
+                            <SelectField
+                                label="المستأجر"
+                                value={formData.tenant_id}
+                                onChange={e => setFormData({ ...formData, tenant_id: e.target.value })}
+                                disabled={!!initialTenantId}
+                                icon={UserIcon}
+                                options={[
+                                    { value: '', label: 'اختر المستأجر...' },
+                                    ...tenants.map(t => ({ value: t.id, label: `${t.name} (${t.domain})` }))
+                                ]}
+                            />
+
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">المبلغ (ILS)</label>
+                                <div className="relative">
+                                    <input
+                                        type="number"
+                                        min="0"
+                                        step="0.01"
+                                        value={formData.amount}
+                                        onChange={e => setFormData({ ...formData, amount: e.target.value })}
+                                        className="w-full px-4 py-4 rounded-xl border border-gray-200 dark:border-white/10 bg-gray-50/50 dark:bg-white/5 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-black text-lg ltr text-right"
+                                        placeholder="0.00"
+                                        required
+                                    />
+                                    <span className="absolute left-4 top-4.5 text-xs font-bold text-gray-400">ILS</span>
+                                </div>
+                            </div>
+
+                            <div className="space-y-3 pt-2">
+                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">طريقة الدفع</label>
+                                <div className="grid grid-cols-3 gap-3">
+                                    {[
+                                        { id: 'cash', label: 'نقد' },
+                                        { id: 'bank_transfer', label: 'تحويل' },
+                                        { id: 'check', label: 'شيك' }
+                                    ].map(method => (
+                                        <button
+                                            key={method.id}
+                                            type="button"
+                                            onClick={() => setFormData({ ...formData, payment_method: method.id })}
+                                            className={`px-3 py-3 rounded-xl text-sm font-bold border transition-all flex items-center justify-center gap-2 ${formData.payment_method === method.id
+                                                ? 'bg-primary/10 border-primary text-primary shadow-sm shadow-primary/5'
+                                                : 'bg-transparent border-gray-200 dark:border-white/10 text-gray-500 hover:border-gray-300'}`}
+                                        >
+                                            <CreditCard className="w-4 h-4" />
+                                            {method.label}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Left Column: Subscription & Notes */}
+                    <div className="flex flex-col h-full">
+                        <h4 className="flex items-center gap-2 font-bold text-gray-900 dark:text-white border-b border-gray-100 dark:border-white/5 pb-2 mb-6">
+                            <Calendar className="w-5 h-5 text-blue-500" />
+                            الاشتراك والملاحظات
+                        </h4>
+
+                        <div className="flex-1 flex flex-col space-y-6">
+                            {/* Mode Toggle */}
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">طريقة التمديد</label>
+                                <div className="grid grid-cols-2 gap-2 p-1 bg-gray-100 dark:bg-white/5 rounded-xl">
+                                    <button
+                                        type="button"
+                                        onClick={() => setMode('duration')}
+                                        className={`py-2 text-xs font-bold rounded-lg transition-all ${mode === 'duration' ? 'bg-white dark:bg-dark-800 shadow-sm text-primary' : 'text-gray-500'}`}
+                                    >
+                                        مدة بالأشهر
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setMode('date')}
+                                        className={`py-2 text-xs font-bold rounded-lg transition-all ${mode === 'date' ? 'bg-white dark:bg-dark-800 shadow-sm text-primary' : 'text-gray-500'}`}
+                                    >
+                                        تاريخ محدد
+                                    </button>
+                                </div>
+                            </div>
+
+                            {mode === 'duration' ? (
+                                <InputField
+                                    label="عدد الأشهر"
+                                    type="number"
+                                    min="1"
+                                    value={formData.duration}
+                                    onChange={e => setFormData({ ...formData, duration: e.target.value })}
+                                    icon={Calendar}
+                                    required
+                                />
+                            ) : (
+                                <InputField
+                                    label="تاريخ انتهاء الاشتراك"
+                                    type="date"
+                                    value={formData.subscription_end_date}
+                                    onChange={e => setFormData({ ...formData, subscription_end_date: e.target.value })}
+                                    icon={Calendar}
+                                    required
+                                />
+                            )}
+
+                            <div className="flex-1 flex flex-col pt-2">
+                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1 mb-2">ملاحظات (اختياري)</label>
+                                <textarea
+                                    value={formData.notes}
+                                    onChange={e => setFormData({ ...formData, notes: e.target.value })}
+                                    className="flex-1 w-full px-5 py-5 rounded-2xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-black/20 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-medium resize-none leading-relaxed min-h-[150px]"
+                                    placeholder="أي تفاصيل إضافية عن الدفعة..."
+                                />
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                <form onSubmit={handleSubmit} className="p-8 space-y-8 max-h-[85vh] overflow-y-auto no-scrollbar">
-                    {/* Tenant Selection */}
-                    <SelectField
-                        label="المستأجر"
-                        value={formData.tenant_id}
-                        onChange={e => setFormData({ ...formData, tenant_id: e.target.value })}
-                        disabled={!!initialTenantId}
-                        icon={UserIcon}
-                        options={[
-                            { value: '', label: 'اختر المستأجر...' },
-                            ...tenants.map(t => ({ value: t.id, label: `${t.name} (${t.domain})` }))
-                        ]}
-                    />
-
-                    {/* Amount */}
-                    <InputField
-                        label="المبلغ (ILS)"
-                        type="number"
-                        min="0"
-                        value={formData.amount}
-                        onChange={e => setFormData({ ...formData, amount: e.target.value })}
-                        placeholder="0.00"
-                        icon={DollarSign}
-                        className="ltr"
-                        required
-                    />
-
-                    {/* Extension Mode Toggle */}
-                    <div className="space-y-3">
-                        <label className="text-xs font-black text-gray-400 uppercase tracking-widest px-1">طريقة احتساب الاشتراك</label>
-                        <div className="grid grid-cols-2 gap-2 p-1.5 bg-gray-100 dark:bg-white/5 rounded-2xl">
-                            <button
-                                type="button"
-                                onClick={() => setMode('duration')}
-                                className={`py-3 text-sm font-bold rounded-xl transition-all ${mode === 'duration' ? 'bg-white dark:bg-dark-800 shadow-sm text-primary' : 'text-gray-500'}`}
-                            >
-                                مدة بالأشهر
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => setMode('date')}
-                                className={`py-3 text-sm font-bold rounded-xl transition-all ${mode === 'date' ? 'bg-white dark:bg-dark-800 shadow-sm text-primary' : 'text-gray-500'}`}
-                            >
-                                تاريخ انتهاء محدد
-                            </button>
-                        </div>
-                    </div>
-
-                    {/* Duration / Date Input */}
-                    {mode === 'duration' ? (
-                        <InputField
-                            label="المدة (أشهر)"
-                            type="number"
-                            min="1"
-                            value={formData.duration}
-                            onChange={e => setFormData({ ...formData, duration: e.target.value })}
-                            icon={Calendar}
-                            required
-                        />
-                    ) : (
-                        <InputField
-                            label="تاريخ انتهاء الاشتراك الجديد"
-                            type="date"
-                            value={formData.subscription_end_date}
-                            onChange={e => setFormData({ ...formData, subscription_end_date: e.target.value })}
-                            icon={Calendar}
-                            required
-                        />
-                    )}
-
-                    {/* Notes */}
-                    <TextareaField
-                        label="ملاحظات (اختياري)"
-                        value={formData.notes}
-                        onChange={e => setFormData({ ...formData, notes: e.target.value })}
-                        placeholder="أي تفاصيل إضافية عن الدفعة..."
-                        icon={MessageSquare}
-                        className="min-h-[100px]"
-                    />
-
-                    {/* Method */}
-                    <div className="space-y-3">
-                        <label className="text-xs font-black text-gray-400 uppercase tracking-widest px-1">طريقة الدفع</label>
-                        <div className="grid grid-cols-3 gap-3">
-                            {[
-                                { id: 'cash', label: 'نقد' },
-                                { id: 'bank_transfer', label: 'تحويل' },
-                                { id: 'check', label: 'شيك' }
-                            ].map(method => (
-                                <button
-                                    key={method.id}
-                                    type="button"
-                                    onClick={() => setFormData({ ...formData, payment_method: method.id })}
-                                    className={`px-3 py-3 rounded-xl text-sm font-bold border transition-all flex items-center justify-center gap-2 ${formData.payment_method === method.id
-                                        ? 'bg-primary/10 border-primary text-primary shadow-sm shadow-primary/5'
-                                        : 'bg-transparent border-gray-200 dark:border-white/10 text-gray-500 hover:border-gray-300'}`}
-                                >
-                                    <CreditCard className="w-4 h-4" />
-                                    {method.label}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-
+                <div className="pt-6 mt-6 flex gap-4 border-t border-gray-100 dark:border-white/5">
                     <button
                         type="submit"
                         disabled={loading}
-                        className="w-full py-5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-2xl font-black shadow-xl shadow-emerald-500/20 transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-3 text-lg"
+                        className="flex-1 py-4 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-black shadow-xl shadow-emerald-500/20 transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2 text-lg"
                     >
                         {loading ? <div className="w-6 h-6 border-3 border-white border-t-transparent rounded-full animate-spin" /> : <DollarSign className="w-6 h-6" />}
                         {loading ? 'جاري التسجيل...' : 'تسجيل الدفعة وتمديد الاشتراك'}
                     </button>
-                </form>
-            </div>
-        </div>
+                    <button
+                        type="button"
+                        onClick={onClose}
+                        className="px-8 bg-gray-100 dark:bg-white/5 text-gray-500 dark:text-gray-400 rounded-xl py-4 font-bold hover:bg-gray-200 dark:hover:bg-white/10 transition-colors"
+                    >
+                        إلغاء
+                    </button>
+                </div>
+            </form>
+        </Modal>
     );
 };

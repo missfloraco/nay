@@ -6,6 +6,7 @@ import Table from '@/shared/table';
 import { IdentityCell, ActionCell } from '@/shared/table-cells';
 import { EditButton, DeleteButton } from '@/shared/ui/buttons/btn-crud';
 import InputField from '@/shared/ui/forms/input-field';
+import Modal from '@/shared/ui/modals/modal';
 
 export default function AdsTable() {
     const [ads, setAds] = useState<Ad[]>([]);
@@ -227,35 +228,22 @@ export default function AdsTable() {
             </div>
 
             {/* Modal Overlay - System Style */}
-            {isModalOpen && (
-                <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-300">
-                    <div
-                        className="bg-white dark:bg-dark-900 rounded-[3rem] w-full max-w-xl shadow-2xl overflow-hidden border border-gray-100 dark:border-white/5 flex flex-col animate-in zoom-in-95 duration-500 max-h-[90vh]"
-                        onMouseDown={(e) => e.stopPropagation()}
-                    >
-                        {/* Modal Header */}
-                        <div className="px-10 py-8 border-b border-gray-50 dark:border-white/10 flex items-center justify-between bg-gray-50/50 dark:bg-dark-950/50 shrink-0">
-                            <div className="flex items-center gap-4">
-                                <div className="p-3 bg-primary/10 rounded-2xl text-primary">
-                                    {formData.id ? <Edit2 className="w-6 h-6" /> : <Plus className="w-6 h-6" />}
-                                </div>
-                                <div>
-                                    <h3 className="text-xl font-black text-gray-900 dark:text-white">
-                                        {formData.id ? 'تعديل الإعلان' : 'إضافة إعلان جديد'}
-                                    </h3>
-                                    <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mt-0.5">تفاصيل الحملة الإعلانية</p>
-                                </div>
-                            </div>
-                            <button
-                                onClick={resetForm}
-                                className="p-3 hover:bg-red-50 dark:hover:bg-red-900/20 text-gray-400 hover:text-red-500 rounded-2xl transition-all"
-                            >
-                                <X className="w-6 h-6" />
-                            </button>
-                        </div>
+            <Modal
+                isOpen={isModalOpen}
+                onClose={resetForm}
+                title={formData.id ? 'تعديل الإعلان' : 'إضافة إعلان جديد'}
+                size="xl"
+            >
+                <form onSubmit={handleSave} className="flex flex-col h-full">
+                    <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-8 overflow-y-auto custom-scrollbar p-1">
 
-                        {/* Modal Content */}
-                        <form onSubmit={handleSave} className="flex-1 overflow-y-auto p-10 space-y-6 no-scrollbar">
+                        {/* Right Column: Campaign Settings */}
+                        <div className="space-y-6">
+                            <h4 className="flex items-center gap-2 font-bold text-gray-900 dark:text-white border-b border-gray-100 dark:border-white/5 pb-2">
+                                <Megaphone className="w-5 h-5 text-primary" />
+                                إعدادات الحملة
+                            </h4>
+
                             <InputField
                                 label="اسم الحملة"
                                 value={formData.name}
@@ -264,41 +252,40 @@ export default function AdsTable() {
                                 required
                             />
 
-                            <div className="grid grid-cols-2 gap-6">
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] px-1">مكان الظهور</label>
-                                    <select
-                                        value={formData.placement}
-                                        onChange={e => setFormData({ ...formData, placement: e.target.value })}
-                                        className="w-full px-6 py-5 rounded-2xl border border-gray-100 dark:border-white/10 bg-gray-50/50 dark:bg-dark-950 outline-none focus:ring-4 focus:ring-primary/10 transition-all font-bold"
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] px-1">مكان الظهور</label>
+                                <select
+                                    value={formData.placement}
+                                    onChange={e => setFormData({ ...formData, placement: e.target.value })}
+                                    className="w-full px-4 py-3 rounded-xl border border-gray-100 dark:border-white/10 bg-gray-50/50 dark:bg-dark-950 outline-none focus:ring-2 focus:ring-primary/10 transition-all font-bold text-sm"
+                                >
+                                    {placements.map(p => <option key={p.value} value={p.value}>{p.label}</option>)}
+                                </select>
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] px-1">الحالة</label>
+                                <div className="flex p-1 bg-gray-50 dark:bg-dark-950 rounded-xl border border-gray-100 dark:border-white/10">
+                                    <button
+                                        type="button"
+                                        onClick={() => setFormData({ ...formData, is_active: true })}
+                                        className={`flex-1 py-2 rounded-lg text-xs font-black transition-all ${formData.is_active ? 'bg-white dark:bg-dark-700 shadow-sm text-green-500' : 'text-gray-400 opacity-50'}`}
                                     >
-                                        {placements.map(p => <option key={p.value} value={p.value}>{p.label}</option>)}
-                                    </select>
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] px-1">الحالة</label>
-                                    <div className="flex p-1 bg-gray-50 dark:bg-dark-950 rounded-2xl border border-gray-100 dark:border-white/10 h-[62px]">
-                                        <button
-                                            type="button"
-                                            onClick={() => setFormData({ ...formData, is_active: true })}
-                                            className={`flex-1 rounded-xl text-xs font-black transition-all ${formData.is_active ? 'bg-white dark:bg-dark-700 shadow-sm text-green-500' : 'text-gray-400 opacity-50'}`}
-                                        >
-                                            نشط
-                                        </button>
-                                        <button
-                                            type="button"
-                                            onClick={() => setFormData({ ...formData, is_active: false })}
-                                            className={`flex-1 rounded-xl text-xs font-black transition-all ${!formData.is_active ? 'bg-white dark:bg-dark-700 shadow-sm text-red-500' : 'text-gray-400 opacity-50'}`}
-                                        >
-                                            متوقف
-                                        </button>
-                                    </div>
+                                        نشط
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setFormData({ ...formData, is_active: false })}
+                                        className={`flex-1 py-2 rounded-lg text-xs font-black transition-all ${!formData.is_active ? 'bg-white dark:bg-dark-700 shadow-sm text-red-500' : 'text-gray-400 opacity-50'}`}
+                                    >
+                                        متوقف
+                                    </button>
                                 </div>
                             </div>
 
                             <div className="space-y-3">
                                 <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] px-1">نوع الإعلان</label>
-                                <div className="grid grid-cols-3 gap-4">
+                                <div className="grid grid-cols-3 gap-3">
                                     {[
                                         { id: 'script', label: 'Script', icon: Code },
                                         { id: 'image', label: 'Image', icon: ImageIcon },
@@ -308,100 +295,107 @@ export default function AdsTable() {
                                             key={item.id}
                                             type="button"
                                             onClick={() => setFormData({ ...formData, type: item.id as any })}
-                                            className={`flex flex-col items-center gap-3 p-5 rounded-[2rem] border-2 transition-all group ${formData.type === item.id ? 'border-primary bg-primary/5 text-primary' : 'border-gray-50 dark:border-white/10 text-gray-400'}`}
+                                            className={`flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all group ${formData.type === item.id ? 'border-primary bg-primary/5 text-primary' : 'border-gray-50 dark:border-white/10 text-gray-400 hover:border-gray-200'}`}
                                         >
-                                            <item.icon className={`w-6 h-6 ${formData.type === item.id ? '' : 'grayscale opacity-50'}`} />
-                                            <span className="text-[10px] font-black tracking-widest uppercase">{item.label}</span>
+                                            <item.icon className={`w-5 h-5 ${formData.type === item.id ? '' : 'grayscale opacity-50'}`} />
+                                            <span className="text-[9px] font-black tracking-widest uppercase">{item.label}</span>
                                         </button>
                                     ))}
                                 </div>
                             </div>
+                        </div>
 
-                            {formData.type === 'image' ? (
-                                <div className="space-y-6 animate-in fade-in duration-500">
-                                    <div className="space-y-2">
-                                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] px-1">رفع صورة الإعلان</label>
-                                        <div className="relative group">
-                                            <input
-                                                type="file"
-                                                onChange={handleImageUpload}
-                                                accept="image/*"
-                                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                                                disabled={imageUploading}
-                                            />
-                                            <div className="w-full h-40 rounded-[2rem] border-2 border-dashed border-gray-100 dark:border-white/10 bg-gray-50/30 dark:bg-dark-950 flex flex-col items-center justify-center gap-3 group-hover:border-primary/50 transition-all overflow-hidden relative">
-                                                {imageUploading ? (
-                                                    <Loader2 className="w-8 h-8 text-primary animate-spin" />
-                                                ) : formData.content && formData.content.startsWith('http') ? (
-                                                    <img src={formData.content} className="w-full h-full object-contain p-4" alt="Preview" />
-                                                ) : (
-                                                    <>
-                                                        <ImageIcon className="w-10 h-10 text-gray-300" />
-                                                        <span className="text-xs font-black text-gray-400">اسحب الصورة هنا أو اضغط للرفع</span>
-                                                    </>
-                                                )}
+                        {/* Left Column: Content Editor */}
+                        <div className="flex flex-col h-full min-h-[400px]">
+                            <h4 className="flex items-center gap-2 font-bold text-gray-900 dark:text-white border-b border-gray-100 dark:border-white/5 pb-2 mb-6">
+                                <Code className="w-5 h-5 text-blue-500" />
+                                المحتوى الإعلاني
+                            </h4>
+
+                            <div className="flex-1 flex flex-col">
+                                {formData.type === 'image' ? (
+                                    <div className="space-y-6 animate-in fade-in duration-500 flex-1 flex flex-col">
+                                        <div className="flex-1 space-y-2 flex flex-col">
+                                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] px-1">رفع صورة الإعلان</label>
+                                            <div className="relative group flex-1">
+                                                <input
+                                                    type="file"
+                                                    onChange={handleImageUpload}
+                                                    accept="image/*"
+                                                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                                                    disabled={imageUploading}
+                                                />
+                                                <div className="w-full h-full min-h-[200px] rounded-2xl border-2 border-dashed border-gray-100 dark:border-white/10 bg-gray-50/30 dark:bg-dark-950 flex flex-col items-center justify-center gap-3 group-hover:border-primary/50 transition-all overflow-hidden relative">
+                                                    {imageUploading ? (
+                                                        <Loader2 className="w-8 h-8 text-primary animate-spin" />
+                                                    ) : formData.content && formData.content.startsWith('http') ? (
+                                                        <img src={formData.content} className="w-full h-full object-contain p-4" alt="Preview" />
+                                                    ) : (
+                                                        <>
+                                                            <ImageIcon className="w-10 h-10 text-gray-300" />
+                                                            <span className="text-xs font-black text-gray-400">اسحب الصورة هنا أو اضغط للرفع</span>
+                                                        </>
+                                                    )}
+                                                </div>
                                             </div>
                                         </div>
+                                        <InputField
+                                            label="أو رابط الصورة المباشر"
+                                            value={formData.content}
+                                            onChange={e => setFormData({ ...formData, content: e.target.value })}
+                                            placeholder="https://example.com/banner.jpg"
+                                            icon={Link}
+                                            className="ltr"
+                                        />
+                                        <InputField
+                                            label="رابط التوجيه (Redirect URL)"
+                                            value={formData.redirect_url || ''}
+                                            onChange={e => setFormData({ ...formData, redirect_url: e.target.value })}
+                                            placeholder="https://example.com/buy-now"
+                                            icon={Link}
+                                            className="ltr"
+                                        />
                                     </div>
-                                    <InputField
-                                        label="أو رابط الصورة المباشر"
-                                        value={formData.content}
-                                        onChange={e => setFormData({ ...formData, content: e.target.value })}
-                                        placeholder="https://example.com/banner.jpg"
-                                        icon={Link}
-                                        className="ltr"
-                                    />
-                                </div>
-                            ) : (
-                                <div className="space-y-2 animate-in fade-in duration-500">
-                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] px-1">الكود الإعلاني</label>
-                                    <textarea
-                                        value={formData.content}
-                                        onChange={e => setFormData({ ...formData, content: e.target.value })}
-                                        className="w-full h-40 px-8 py-5 rounded-[2rem] border border-gray-100 dark:border-white/10 bg-gray-50/50 dark:bg-dark-950 outline-none focus:ring-4 focus:ring-primary/10 transition-all text-xs ltr no-scrollbar"
-                                        placeholder={formData.type === 'script' ? '<script src="..."></script>' : '<div>...</div>'}
-                                        required
-                                    />
-                                </div>
-                            )}
-
-                            {formData.type === 'image' && (
-                                <InputField
-                                    label="رابط التوجيه (Redirect URL)"
-                                    value={formData.redirect_url || ''}
-                                    onChange={e => setFormData({ ...formData, redirect_url: e.target.value })}
-                                    placeholder="https://example.com/buy-now"
-                                    icon={Link}
-                                    className="ltr"
-                                />
-                            )}
-
-                            {/* Modal Footer */}
-                            <div className="pt-6 flex gap-4">
-                                <button
-                                    type="submit"
-                                    disabled={saving}
-                                    className="flex-1 py-5 bg-primary text-white rounded-[2rem] font-black shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all text-xl flex items-center justify-center gap-4 group disabled:opacity-50"
-                                >
-                                    {saving ? (
-                                        <div className="w-6 h-6 border-4 border-white border-t-transparent rounded-full animate-spin" />
-                                    ) : (
-                                        <Check className="w-7 h-7 group-hover:scale-125 transition-transform" />
-                                    )}
-                                    <span>{formData.id ? 'حفظ التغييرات' : 'نشر الإعلان'}</span>
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={resetForm}
-                                    className="px-8 bg-gray-100 dark:bg-dark-800 text-gray-700 dark:text-gray-300 rounded-[2rem] font-bold hover:bg-gray-200 dark:hover:bg-dark-700 transition-colors"
-                                >
-                                    إلغاء
-                                </button>
+                                ) : (
+                                    <div className="space-y-2 animate-in fade-in duration-500 flex-1 flex flex-col">
+                                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] px-1">الكود الإعلاني</label>
+                                        <textarea
+                                            value={formData.content}
+                                            onChange={e => setFormData({ ...formData, content: e.target.value })}
+                                            className="w-full h-full min-h-[300px] px-6 py-6 rounded-2xl border border-gray-100 dark:border-white/10 bg-gray-900 text-gray-100 font-mono text-xs outline-none focus:ring-4 focus:ring-primary/10 transition-all ltr custom-scrollbar leading-relaxed"
+                                            placeholder={formData.type === 'script' ? '<script src="..."></script>' : '<div>...</div>'}
+                                            required
+                                        />
+                                    </div>
+                                )}
                             </div>
-                        </form>
+                        </div>
                     </div>
-                </div>
-            )}
+
+                    {/* Modal Footer */}
+                    <div className="pt-6 mt-6 flex gap-4 border-t border-gray-100 dark:border-white/5">
+                        <button
+                            type="submit"
+                            disabled={saving}
+                            className="flex-1 py-4 bg-primary text-white rounded-xl font-black shadow-xl shadow-primary/20 hover:opacity-90 active:scale-95 transition-all text-base flex items-center justify-center gap-2 group disabled:opacity-50"
+                        >
+                            {saving ? (
+                                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                            ) : (
+                                <Check className="w-5 h-5 group-hover:scale-125 transition-transform" />
+                            )}
+                            <span>{formData.id ? 'حفظ التغييرات' : 'نشر الإعلان'}</span>
+                        </button>
+                        <button
+                            type="button"
+                            onClick={resetForm}
+                            className="px-8 bg-gray-100 dark:bg-dark-800 text-gray-700 dark:text-gray-300 rounded-xl font-bold hover:bg-gray-200 dark:hover:bg-dark-700 transition-colors"
+                        >
+                            إلغاء
+                        </button>
+                    </div>
+                </form>
+            </Modal>
         </div>
     );
 }

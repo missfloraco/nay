@@ -40,9 +40,11 @@ export const defaultSettings: GlobalSettings = {
 
 export interface AppContextType {
   settings: GlobalSettings;
-  loading: boolean;
-  darkMode: boolean;
-  toggleTheme: () => void;
+  //  // loading: boolean; // Removed duplicate
+  // inherited from above? No, duplicate in interface.
+
+  // darkMode: boolean; // Removed
+  // toggleTheme: () => void; // Removed
   refreshSettings: () => void;
   updateSettings: (settings: Partial<GlobalSettings>) => Promise<void>;
   updateLocalSettings: (settings: Partial<GlobalSettings>) => void;
@@ -54,9 +56,10 @@ export interface AppContextType {
 
 export const AppContext = createContext<AppContextType>({
   settings: defaultSettings,
-  loading: true,
-  darkMode: false,
-  toggleTheme: () => { },
+  // loading: true, // Removed duplicate
+
+  // darkMode: false,
+  // toggleTheme: () => { },
   refreshSettings: () => { },
   updateSettings: async () => { },
   updateLocalSettings: () => { },
@@ -83,10 +86,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const [settings, setSettings] = useState<GlobalSettings>(getInitialSettings);
   const [loading, setLoading] = useState(() => !localStorage.getItem('app_merged_settings'));
-  const [darkMode, setDarkMode] = useState(() => {
-    const saved = localStorage.getItem('theme');
-    return saved === 'dark';
-  });
+
+  // Dark Mode State Removed - Defaulting to Light Mode always
+
 
   // Use extracted hooks for better code organization
   const { isAdBlockActive, isCheckingAdBlock } = useAdBlockDetection(settings.adblock_enabled || false);
@@ -98,25 +100,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     customHeadingFontUrl: settings.customHeadingFontUrl
   });
 
+  // Dark Mode Effect Removed - Ensuring cleanup
   useEffect(() => {
-    // [Static Appearance] Handle Dark Mode Toggle
-    if (darkMode) {
-      document.documentElement.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-      localStorage.setItem('theme', 'light');
-    }
-  }, [darkMode]);
+    document.documentElement.classList.remove('dark');
+    localStorage.removeItem('theme');
+  }, []);
 
-  const toggleTheme = async () => {
-    const newDarkMode = !darkMode;
-    setDarkMode(newDarkMode);
-    try {
-      const type = window.location.pathname.startsWith('/admin') ? 'admin' : 'app';
-      await api.post(`/${type}/preferences`, { dark_mode: newDarkMode });
-    } catch (e) { logger.warn('Sync preferences failed', e); }
-  };
 
 
 
@@ -203,7 +192,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         const tenantInfo = rawData.tenant || null;
 
         if (userInfo?.preferences?.dark_mode !== undefined) {
-          setDarkMode(!!userInfo.preferences.dark_mode);
+          // Dark Mode Logic Removed
         }
         // Attach tenant info to userInfo for easier merging later
         if (tenantInfo && userInfo) userInfo.tenant = tenantInfo;
@@ -395,7 +384,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   }, [settings.appName, settings.faviconUrl]);
 
   return (
-    <AppContext.Provider value={{ settings, loading, darkMode, toggleTheme, refreshSettings: fetchSettings, updateSettings, updateLocalSettings, isAdBlockActive, isCheckingAdBlock, t }}>
+    <AppContext.Provider value={{ settings, loading, /* darkMode: false, toggleTheme: () => {}, */ refreshSettings: fetchSettings, updateSettings, updateLocalSettings, isAdBlockActive, isCheckingAdBlock, t } as any}>
       {children}
     </AppContext.Provider>
   );

@@ -30,6 +30,7 @@ const PaymentsPage = lazy(() => import('@/features/superadmin/pages/payments'));
 const AdManagement = lazy(() => import('@/features/superadmin/pages/admanagement'));
 const SupportTickets = lazy(() => import('@/features/superadmin/pages/supporttickets'));
 const SeoManagement = lazy(() => import('@/features/superadmin/pages/seomanagement'));
+const ScriptsManager = lazy(() => import('@/features/superadmin/pages/scripts'));
 
 const TenantDashboard = lazy(() => import('@/features/tenant/pages/dashboard'));
 const TenantSettings = lazy(() => import('@/features/tenant/pages/settings'));
@@ -61,6 +62,7 @@ function AdminRoutes() {
             <Route path="/settings" element={<AdminSettings />} />
             <Route path="/identity" element={<PlatformIdentity />} />
             <Route path="/seo" element={<SeoManagement />} />
+            <Route path="/scripts" element={<ScriptsManager />} />
             <Route path="/trash" element={<Trash />} />
             <Route path="*" element={<Navigate to="/admin" />} />
         </Routes>
@@ -123,7 +125,7 @@ function MainAppContent() {
 
     if (appLoading || adminLoading || (loadingSettings && !localStorage.getItem('app_merged_settings'))) {
         return (
-            <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
                 <div className="w-10 h-10 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
             </div>
         );

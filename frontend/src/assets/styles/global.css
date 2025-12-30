@@ -9,18 +9,12 @@
   --color-success: #10b981;
   --color-error: #ef4444;
 
-  --color-dark-500: #64748b;
-  --color-dark-600: #334155;
-  --color-dark-700: #1e293b;
-  --color-dark-800: #0f172a;
-  --color-dark-900: #0a0b14;
-  --color-dark-950: #05060b;
   --shadow-premium: 0 0 50px rgba(0, 0, 0, 0.02);
 }
 
 @layer base {
   body {
-    @apply bg-gray-50 dark:bg-dark-950 text-gray-900 dark:text-gray-100 transition-colors duration-500;
+    @apply bg-gray-50 text-gray-900 transition-colors duration-500;
     font-family: var(--theme-font, sans-serif);
     -ms-overflow-style: none;
     /* IE and Edge */
@@ -34,10 +28,8 @@
   }
 }
 
-@variant dark (&:where(.dark, .dark *));
-
 .layout-root {
-  @apply h-screen flex flex-col overflow-hidden bg-gray-50 dark:bg-dark-950;
+  @apply h-screen flex flex-col overflow-hidden bg-gray-50;
 }
 
 .main-content-wrapper {
@@ -45,7 +37,7 @@
 }
 
 .content-area-main {
-  @apply flex-1 flex flex-col min-w-0 h-full overflow-hidden bg-gray-50 dark:bg-dark-950;
+  @apply flex-1 flex flex-col min-w-0 h-full overflow-hidden bg-gray-50;
 }
 
 /* Utilities */
@@ -60,7 +52,7 @@
 
 /* Standard Tables */
 .standard-table-container {
-  @apply w-full bg-white dark:bg-dark-950 border-y border-gray-100 dark:border-dark-800 transition-colors duration-300;
+  @apply w-full bg-white border-y border-gray-100 transition-colors duration-300;
   border-radius: 0 !important;
 }
 
@@ -70,15 +62,15 @@
 }
 
 .standard-table thead {
-  @apply sticky top-0 z-20 bg-gray-100 dark:bg-dark-900 border-b border-gray-200 dark:border-dark-700 backdrop-blur-sm;
+  @apply sticky top-0 z-20 bg-gray-100 border-b border-gray-200 backdrop-blur-sm;
 }
 
 .standard-table th {
-  @apply sticky top-0 px-6 py-6 text-[12px] font-black text-primary dark:text-primary uppercase tracking-[0.25em] border-x border-gray-100 dark:border-dark-800/50 bg-slate-50/95 dark:bg-dark-900/95 z-20 transition-colors shadow-sm;
+  @apply sticky top-0 px-6 py-6 text-[12px] font-black text-primary uppercase tracking-[0.25em] border-x border-gray-100 bg-slate-50/95 z-20 transition-colors shadow-sm;
 }
 
 .standard-table td {
-  @apply px-6 py-5 text-base text-gray-800 dark:text-gray-200 border-x border-b border-gray-100 dark:border-dark-800/50 font-bold;
+  @apply px-6 py-5 text-base text-gray-800 border-x border-b border-gray-100 font-bold;
 }
 
 
@@ -103,20 +95,20 @@
 */
 
 .form-label {
-  @apply block text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest px-1 transition-colors;
+  @apply block text-[10px] font-black text-gray-400 uppercase tracking-widest px-1 transition-colors;
 }
 
 .input-field,
 .textarea-field,
 .select-field {
-  @apply w-full bg-slate-50/50 dark:bg-dark-900/40 border border-slate-200 dark:border-white/5 rounded-2xl px-6 py-4.5 text-[15px] font-bold outline-none transition-all duration-500 text-start;
-  @apply hover:bg-white dark:hover:bg-dark-800/60 hover:border-slate-300 dark:hover:border-white/10;
+  @apply w-full bg-slate-50/50 border border-slate-200 rounded-2xl px-6 py-4.5 text-[15px] font-bold outline-none transition-all duration-500 text-start;
+  @apply hover:bg-white hover:border-slate-300;
 }
 
 .input-field:focus,
 .textarea-field:focus,
 .select-field:focus {
-  @apply bg-white dark:focus:bg-dark-800 border-primary shadow-sm;
+  @apply bg-white border-primary shadow-sm;
   box-shadow: 0 0 0 8px rgba(var(--primary-rgb, 42, 140, 255), 0.05), 0 10px 25px rgba(var(--primary-rgb, 42, 140, 255), 0.05);
 }
 
@@ -159,6 +151,6 @@
 @media (min-width: 769px) {
   .page-frame-container {
     @apply w-full max-w-full mx-auto p-0;
-    @apply border border-gray-100 dark:border-white/5 shadow-premium dark:shadow-none;
+    @apply border border-gray-100 shadow-premium;
   }
 }

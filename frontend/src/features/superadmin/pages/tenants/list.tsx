@@ -14,6 +14,7 @@ import { TenantStatusBadge, STATUS_CONFIGS } from '@/features/superadmin/compone
 import { TenantDetailsSidebar } from '@/features/superadmin/components/tenant-details-sidebar';
 import { IdentityCell, DateCell, ActionCell } from '@/shared/table-cells';
 import InputField from '@/shared/ui/forms/input-field';
+import Modal from '@/shared/ui/modals/modal';
 
 interface Tenant {
     id: number;
@@ -309,142 +310,146 @@ export default function TenantsList() {
             </div>
 
             {/* Create Tenant Modal */}
-            {isCreateModalOpen && (
-                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                    <div className="bg-white dark:bg-gray-800 rounded-3xl w-full max-w-xl shadow-2xl overflow-hidden border border-gray-100 dark:border-gray-700">
-                        <div className="px-8 py-6 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gray-50/50 dark:bg-gray-900/50">
-                            <h3 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
-                                <Plus className="w-6 h-6 text-primary" />
-                                {TEXTS_ADMIN.TENANTS.ADD_TENANT}
-                            </h3>
-                            <button
-                                onClick={() => setIsCreateModalOpen(false)}
-                                className="p-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full transition-colors text-gray-500"
-                            >
-                                <X className="w-6 h-6" />
-                            </button>
+            <Modal
+                isOpen={isCreateModalOpen}
+                onClose={() => setIsCreateModalOpen(false)}
+                title={TEXTS_ADMIN.TENANTS.ADD_TENANT}
+                size="xl"
+            >
+                <form onSubmit={handleCreate} className="flex flex-col h-full">
+                    <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-8 overflow-y-auto custom-scrollbar p-1">
+
+                        {/* Right Column: Account Details */}
+                        <div className="space-y-6">
+                            <h4 className="flex items-center gap-2 font-bold text-gray-900 dark:text-white border-b border-gray-100 dark:border-white/5 pb-2">
+                                <User className="w-5 h-5 text-primary" />
+                                بيانات الحساب
+                            </h4>
+
+                            <InputField
+                                label={TEXTS_ADMIN.TENANTS.TENANT_NAME}
+                                value={formData.name}
+                                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                icon={LayoutGrid}
+                                required
+                                placeholder="اسم المتجر أو المؤسسة"
+                            />
+
+                            <InputField
+                                label={TEXTS_ADMIN.TENANTS.ADMIN_EMAIL}
+                                type="email"
+                                value={formData.admin_email}
+                                onChange={(e) => setFormData({ ...formData, admin_email: e.target.value })}
+                                icon={Mail}
+                                required
+                                placeholder="email@example.com"
+                            />
+
+                            <InputField
+                                label={TEXTS_ADMIN.TENANTS.ADMIN_PASSWORD}
+                                type="password"
+                                value={formData.admin_password}
+                                onChange={(e) => setFormData({ ...formData, admin_password: e.target.value })}
+                                icon={Lock}
+                                required
+                                placeholder="••••••••"
+                            />
                         </div>
 
-                        <div className="p-6 space-y-6">
-                            <div className="p-8 space-y-8">
-                                <form onSubmit={handleCreate} className="space-y-6">
-                                    <InputField
-                                        label={TEXTS_ADMIN.TENANTS.TENANT_NAME}
-                                        value={formData.name}
-                                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                        icon={User}
-                                        required
-                                        placeholder="اسم المتجر أو المؤسسة"
-                                    />
+                        {/* Left Column: Subscription Details */}
+                        <div className="space-y-6">
+                            <h4 className="flex items-center gap-2 font-bold text-gray-900 dark:text-white border-b border-gray-100 dark:border-white/5 pb-2">
+                                <Shield className="w-5 h-5 text-emerald-600" />
+                                الاشتراك والصلاحية
+                            </h4>
 
-                                    <div className="space-y-4">
-                                        <label className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest px-1">
-                                            نوع الحساب والحالة
-                                        </label>
-                                        <div className="grid grid-cols-2 gap-3">
-                                            <button
-                                                type="button"
-                                                onClick={() => setFormData({ ...formData, status: 'trial' })}
-                                                className={`py-4 rounded-2xl border-2 transition-all font-black text-sm flex items-center justify-center gap-2 ${formData.status === 'trial' ? 'border-primary bg-primary/5 text-primary shadow-sm shadow-primary/5' : 'border-gray-100 dark:border-white/5 bg-gray-50/50 dark:bg-white/5 text-gray-400'}`}
-                                            >
-                                                <Clock className="w-5 h-5" />
-                                                فترة تجريبية
-                                            </button>
-                                            <button
-                                                type="button"
-                                                onClick={() => setFormData({ ...formData, status: 'active' })}
-                                                className={`py-4 rounded-2xl border-2 transition-all font-black text-sm flex items-center justify-center gap-2 ${formData.status === 'active' ? 'border-emerald-600 bg-emerald-50 text-emerald-600 shadow-sm shadow-emerald-500/5' : 'border-gray-100 dark:border-white/5 bg-gray-50/50 dark:bg-white/5 text-gray-400'}`}
-                                            >
-                                                <Shield className="w-5 h-5" />
-                                                اشتراك نشط
-                                            </button>
-                                        </div>
-
-                                        <div className="pt-2">
-                                            <InputField
-                                                type="date"
-                                                label={`تاريخ ${formData.status === 'trial' ? 'انتهاء التجربة' : 'انتهاء الاشتراك'}`}
-                                                value={formData.status === 'trial' ? formData.trial_expires_at : formData.subscription_ends_at}
-                                                onChange={(e) => {
-                                                    if (formData.status === 'trial') setFormData({ ...formData, trial_expires_at: e.target.value });
-                                                    else setFormData({ ...formData, subscription_ends_at: e.target.value });
-                                                }}
-                                                icon={Calendar}
-                                                required
-                                            />
-                                            <div className="flex gap-2 mt-4">
-                                                {[
-                                                    { label: 'شهر', months: 1, color: 'blue' },
-                                                    { label: 'سنة', months: 12, color: 'purple' },
-                                                    { label: 'مداهمة', months: 1200, color: 'green', special: 'مدى الحياة' }
-                                                ].map((btn) => (
-                                                    <button
-                                                        key={btn.label}
-                                                        type="button"
-                                                        onClick={() => {
-                                                            const date = new Date();
-                                                            date.setMonth(date.getMonth() + btn.months);
-                                                            const dateStr = date.toISOString().split('T')[0];
-                                                            if (formData.status === 'trial') setFormData({ ...formData, trial_expires_at: dateStr });
-                                                            else setFormData({ ...formData, subscription_ends_at: dateStr });
-                                                        }}
-                                                        className={`px-4 py-2 text-[10px] font-black uppercase tracking-tighter rounded-xl bg-${btn.color}-50 text-${btn.color}-600 dark:bg-${btn.color}-900/20 dark:text-${btn.color}-400 hover:scale-105 transition-all border border-${btn.color}-100 dark:border-${btn.color}-900/30`}
-                                                    >
-                                                        {btn.special || `+ ${btn.label}`}
-                                                    </button>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-gray-100 dark:border-white/5 mt-6">
-                                        <InputField
-                                            label={TEXTS_ADMIN.TENANTS.ADMIN_EMAIL}
-                                            type="email"
-                                            value={formData.admin_email}
-                                            onChange={(e) => setFormData({ ...formData, admin_email: e.target.value })}
-                                            icon={Mail}
-                                            required
-                                            placeholder="email@example.com"
-                                        />
-                                        <InputField
-                                            label={TEXTS_ADMIN.TENANTS.ADMIN_PASSWORD}
-                                            type="password"
-                                            value={formData.admin_password}
-                                            onChange={(e) => setFormData({ ...formData, admin_password: e.target.value })}
-                                            icon={Lock}
-                                            required
-                                            placeholder="••••••••"
-                                        />
-                                    </div>
-
-                                    <div className="flex gap-4 pt-10">
-                                        <button
-                                            type="submit"
-                                            disabled={createLoading}
-                                            className="flex-1 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-[2rem] py-5 font-black hover:opacity-90 transition-all disabled:opacity-50 flex items-center justify-center gap-3 shadow-2xl active:scale-95 group"
-                                        >
-                                            {createLoading ? (
-                                                <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                                            ) : (
-                                                <Sparkles className="w-5 h-5 group-hover:rotate-12 transition-transform" />
-                                            )}
-                                            {createLoading ? TEXTS_ADMIN.BUTTONS.SAVING : TEXTS_ADMIN.TENANTS.CREATE_TENANT}
-                                        </button>
-                                        <button
-                                            type="button"
-                                            onClick={() => setIsCreateModalOpen(false)}
-                                            className="px-8 bg-gray-100 dark:bg-white/5 text-gray-500 dark:text-gray-400 rounded-2xl py-5 font-black hover:bg-gray-200 dark:hover:bg-white/10 transition-colors"
-                                        >
-                                            {TEXTS_ADMIN.BUTTONS.CANCEL}
-                                        </button>
-                                    </div>
-                                </form>
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest px-1">
+                                    نوع الحساب
+                                </label>
+                                <div className="grid grid-cols-2 gap-3">
+                                    <button
+                                        type="button"
+                                        onClick={() => setFormData({ ...formData, status: 'trial' })}
+                                        className={`py-3 rounded-xl border-2 transition-all font-bold text-sm flex items-center justify-center gap-2 ${formData.status === 'trial' ? 'border-primary bg-primary/5 text-primary shadow-sm shadow-primary/5' : 'border-gray-100 dark:border-white/5 bg-gray-50/50 dark:bg-white/5 text-gray-400'}`}
+                                    >
+                                        <Clock className="w-4 h-4" />
+                                        فترة تجريبية
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setFormData({ ...formData, status: 'active' })}
+                                        className={`py-3 rounded-xl border-2 transition-all font-bold text-sm flex items-center justify-center gap-2 ${formData.status === 'active' ? 'border-emerald-600 bg-emerald-50 text-emerald-600 shadow-sm shadow-emerald-500/5' : 'border-gray-100 dark:border-white/5 bg-gray-50/50 dark:bg-white/5 text-gray-400'}`}
+                                    >
+                                        <Shield className="w-4 h-4" />
+                                        اشتراك نشط
+                                    </button>
+                                </div>
                             </div>
+
+                            <div className="space-y-4 pt-1">
+                                <InputField
+                                    type="date"
+                                    label={`تاريخ ${formData.status === 'trial' ? 'انتهاء التجربة' : 'انتهاء الاشتراك'}`}
+                                    value={formData.status === 'trial' ? formData.trial_expires_at : formData.subscription_ends_at}
+                                    onChange={(e) => {
+                                        if (formData.status === 'trial') setFormData({ ...formData, trial_expires_at: e.target.value });
+                                        else setFormData({ ...formData, subscription_ends_at: e.target.value });
+                                    }}
+                                    icon={Calendar}
+                                    required
+                                />
+
+                                <div className="flex gap-2 flex-wrap">
+                                    {[
+                                        { label: 'شهر', months: 1, color: 'blue' },
+                                        { label: 'سنة', months: 12, color: 'purple' },
+                                        { label: 'مدى الحياة', months: 1200, color: 'green', special: true }
+                                    ].map((btn) => (
+                                        <button
+                                            key={btn.label}
+                                            type="button"
+                                            onClick={() => {
+                                                const date = new Date();
+                                                date.setMonth(date.getMonth() + btn.months);
+                                                const dateStr = date.toISOString().split('T')[0];
+                                                if (formData.status === 'trial') setFormData({ ...formData, trial_expires_at: dateStr });
+                                                else setFormData({ ...formData, subscription_ends_at: dateStr });
+                                            }}
+                                            className={`flex-1 px-3 py-2 text-[10px] font-black uppercase tracking-tighter rounded-lg bg-${btn.color}-50 text-${btn.color}-600 dark:bg-${btn.color}-900/20 dark:text-${btn.color}-400 hover:opacity-80 transition-all border border-${btn.color}-100 dark:border-${btn.color}-900/30`}
+                                        >
+                                            {btn.special ? btn.label : `+ ${btn.label}`}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
                         </div>
                     </div>
-                </div>
-            )}
+
+                    <div className="flex gap-4 pt-6 mt-6 border-t border-gray-100 dark:border-white/5">
+                        <button
+                            type="submit"
+                            disabled={createLoading}
+                            className="flex-1 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-xl py-4 font-black hover:opacity-90 transition-all disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg active:scale-95 group"
+                        >
+                            {createLoading ? (
+                                <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                            ) : (
+                                <Sparkles className="w-5 h-5 group-hover:rotate-12 transition-transform" />
+                            )}
+                            {createLoading ? TEXTS_ADMIN.BUTTONS.SAVING : TEXTS_ADMIN.TENANTS.CREATE_TENANT}
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setIsCreateModalOpen(false)}
+                            className="px-8 bg-gray-100 dark:bg-white/5 text-gray-500 dark:text-gray-400 rounded-xl py-4 font-bold hover:bg-gray-200 dark:hover:bg-white/10 transition-colors"
+                        >
+                            {TEXTS_ADMIN.BUTTONS.CANCEL}
+                        </button>
+                    </div>
+                </form>
+            </Modal>
         </AdminLayout>
     );
 }

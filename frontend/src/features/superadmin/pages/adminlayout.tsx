@@ -18,7 +18,8 @@ import {
     ChevronLeft,
     Loader2,
     X,
-    Sparkles
+    Sparkles,
+    Code
 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import api from '@/shared/services/api';
@@ -32,6 +33,8 @@ import { Header } from '@/shared/layout/header/header';
 
 import { StatusWidget } from '@/shared/components/statuswidget';
 import { LeftSidebar } from '@/shared/layout/sidebar/sidebar-left';
+import { useUI } from '@/shared/contexts/ui-context';
+import { Drawer } from '@/shared/ui/drawer';
 
 interface AdminLayoutProps {
     children: ReactNode;
@@ -45,9 +48,10 @@ interface AdminLayoutProps {
 const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title, noPadding = false, leftSidebarContent, leftSidebarNoPadding = false, leftSidebarNoBorder = false }) => {
     const location = useLocation();
     const navigate = useNavigate();
-    const { user, loading } = useAdminAuth();
+    const { user, loading, logout } = useAdminAuth();
     const { settings } = useSettings();
     const { primaryAction, setPrimaryAction } = useAction();
+    const { isRightDrawerOpen, isLeftDrawerOpen, closeDrawers, toggleRightDrawer } = useUI();
 
     if (loading) {
         return (
@@ -85,6 +89,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title, noPadding = 
         { icon: Wallet, label: t('admin.NAV.PAYMENTS', 'إدارة المدفوعات'), path: '/admin/payments', color: 'text-emerald-600' },
         { icon: BarChart3, label: 'إدارة SEO', path: '/admin/seo', color: 'text-blue-600' },
         { icon: Megaphone, label: t('admin.NAV.ADS', 'إدارة الإعلانات'), path: '/admin/ads', color: 'text-[#fb005e]' },
+        { icon: Code, label: 'الأكواد والنصوص', path: '/admin/scripts', color: 'text-amber-600' },
         { icon: MessageSquare, label: t('admin.NAV.SUPPORT', 'رسائل الدعم'), path: '/admin/support', color: 'text-[#fb005e]', badge: unreadCount },
         { icon: Trash2, label: t('admin.NAV.RECYCLE_BIN', 'سلة المحذوفات'), path: '/admin/trash', color: 'text-red-600 font-black', badge: trashCount },
     ];
@@ -152,6 +157,71 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title, noPadding = 
                     </div>
                 </aside>
 
+                {/* Mobile/Tablet Right Drawer (Admin Navigation) */}
+                <Drawer
+                    isOpen={isRightDrawerOpen}
+                    onClose={closeDrawers}
+                    side="right"
+                    title={t('admin.navigation', 'لوحة تحكم المدير')}
+                >
+                    <nav className="p-6 space-y-1.5 h-full flex flex-col">
+                        <div className="flex-1 space-y-1.5">
+                            {navItems.map((item) => {
+                                const isActive = location.pathname === item.path;
+                                return (
+                                    <Link
+                                        key={item.path}
+                                        to={item.path}
+                                        onClick={closeDrawers}
+                                        className={`flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all duration-300 font-bold
+                                        ${isActive
+                                                ? 'bg-primary text-white shadow-lg shadow-primary/30'
+                                                : 'text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-dark-800/50 hover:text-gray-900 dark:hover:text-white'}`}
+                                    >
+                                        <item.icon className={`w-5 h-5 ${item.color}`} />
+                                        <span className="text-sm flex-1">{item.label}</span>
+                                        {item.badge > 0 && (
+                                            <span className="bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[20px] h-5 flex items-center justify-center px-1">
+                                                {item.badge > 9 ? '9+' : item.badge}
+                                            </span>
+                                        )}
+                                    </Link>
+                                );
+                            })}
+                        </div>
+
+                        {/* Admin Primary Action (Mobile) */}
+                        {primaryAction && (
+                            <div className="pt-6 border-t border-gray-100 dark:border-white/5 mt-auto">
+                                <button
+                                    onClick={() => {
+                                        primaryAction.onClick();
+                                        closeDrawers();
+                                    }}
+                                    className={`flex items-center justify-center gap-3 w-full py-4 px-6 ${primaryAction.variant === 'danger' ? 'bg-red-600' : 'bg-primary'} text-white rounded-2xl shadow-lg font-black transition-all`}
+                                >
+                                    {primaryAction.icon ? <primaryAction.icon className="w-5 h-5" /> : <Plus className="w-5 h-5" />}
+                                    <span className="text-sm">{primaryAction.label}</span>
+                                </button>
+                            </div>
+                        )}
+                    </nav>
+                </Drawer>
+
+                {/* Mobile/Tablet Left Drawer (Contextual) */}
+                {leftSidebarContent && (
+                    <Drawer
+                        isOpen={isLeftDrawerOpen}
+                        onClose={closeDrawers}
+                        side="left"
+                        title={t('common.options', 'خيارات إضافية')}
+                    >
+                        <div className="h-full flex flex-col py-4" onClick={closeDrawers}>
+                            {leftSidebarContent}
+                        </div>
+                    </Drawer>
+                )}
+
                 {/* 2. Main Content Area - Full Width */}
                 <div className="content-area-main relative overflow-hidden bg-gray-50 dark:bg-dark-950 flex-1">
                     <main className="h-full relative p-4">
@@ -168,7 +238,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title, noPadding = 
             </div>
 
             {/* 3. Global Footer - Full Width, Fixed Bottom */}
-            <footer className="flex h-[90px] border-t border-gray-200 dark:border-dark-700 bg-white dark:bg-dark-950 items-center justify-between transition-all z-50">
+            <footer className="global-footer flex h-[90px] border-t border-gray-200 dark:border-dark-700 bg-white dark:bg-dark-950 items-center justify-between transition-all z-50">
                 <div className="flex h-full items-center w-full">
                     {/* 1. Copyright Area - Physically RIGHT in RTL (First Child) */}
                     <CopyrightFooterRight />
@@ -185,7 +255,13 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title, noPadding = 
 
             {/* 4. Mobile Navigation Bar */}
             <div className="mobile-only">
-                <BottomNav items={navItems} />
+                <BottomNav
+                    items={navItems}
+                    user={user}
+                    onLogout={logout}
+                    settingsPath="/admin/settings"
+                    onMenuClick={toggleRightDrawer}
+                />
             </div>
         </div>
     );

@@ -10,7 +10,7 @@ interface LogoHeaderRightProps {
 
 export const LogoHeaderRight: React.FC<LogoHeaderRightProps> = ({ appName, logoUrl, dashboardPath }) => {
     return (
-        <div className="hidden lg:flex items-center w-[250px] h-full pr-8 pl-6 border-l border-gray-300 dark:border-dark-600 flex-shrink-0 justify-between">
+        <div className="flex items-center h-full px-4 lg:pr-8 lg:pl-6 lg:border-l border-gray-300 flex-shrink-0 justify-between header-logo-section">
             <Link
                 to={dashboardPath}
                 className="flex items-center gap-4 transition-all duration-300 hover:opacity-80 active:scale-95 group overflow-hidden"
@@ -31,7 +31,7 @@ export const LogoHeaderRight: React.FC<LogoHeaderRightProps> = ({ appName, logoU
                         />
                     ) : null}
                     <span
-                        className="text-lg font-black text-gray-900 dark:text-white transition-colors truncate hidden xl:block tracking-tight"
+                        className="text-sm lg:text-lg font-black text-gray-900 transition-colors truncate block tracking-tight app-name-text"
                     >
                         {appName}
                     </span>
