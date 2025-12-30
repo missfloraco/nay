@@ -17,7 +17,7 @@ const SEO: React.FC<SEOProps> = ({ title, description, keywords, image, type = '
     const location = useLocation();
 
     // 1. Resolve Global Defaults
-    const SITE_TITLE = settings.seo_title || settings.appName || 'SaaS Platform';
+    const SITE_TITLE = settings.seo_title || settings.appName || '';
     const SITE_DESC = settings.seo_description || 'نظام إدارة مبيعات ذكي';
     const SITE_KEYWORDS = settings.seo_keywords || 'saas, pos, inventory';
 
@@ -95,8 +95,8 @@ const SEO: React.FC<SEOProps> = ({ title, description, keywords, image, type = '
             )}
 
             {/* Custom Global Head Code */}
-            {settings.seo_meta_tags && <div dangerouslySetInnerHTML={{ __html: settings.seo_meta_tags }} />}
-            {settings.custom_head_code && <div dangerouslySetInnerHTML={{ __html: settings.custom_head_code }} />}
+            {settings.seo_meta_tags && <script dangerouslySetInnerHTML={{ __html: settings.seo_meta_tags }} />}
+            {settings.custom_head_code && <script dangerouslySetInnerHTML={{ __html: settings.custom_head_code }} />}
         </Helmet>
     );
 };

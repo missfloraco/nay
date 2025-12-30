@@ -52,9 +52,11 @@ return [
     |
     */
 
-    'url' => env('APP_URL', 'http://localhost:8000'),
+    'url' => env('APP_URL', (env('PRIMARY_DOMAIN') && env('PRIMARY_DOMAIN') !== 'localhost')
+        ? 'https://api.' . env('PRIMARY_DOMAIN')
+        : 'http://localhost:8000'),
 
-    'domain' => env('APP_DOMAIN', 'localhost'),
+    'domain' => env('APP_DOMAIN', env('PRIMARY_DOMAIN', 'localhost')),
 
     /*
     |--------------------------------------------------------------------------

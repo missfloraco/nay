@@ -156,7 +156,7 @@ return [
     |
     */
 
-    'domain' => env('SESSION_DOMAIN', null),
+    'domain' => env('SESSION_DOMAIN', (env('PRIMARY_DOMAIN') && env('PRIMARY_DOMAIN') !== 'localhost') ? '.' . env('PRIMARY_DOMAIN') : null),
 
     /*
     |--------------------------------------------------------------------------

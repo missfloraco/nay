@@ -55,7 +55,7 @@ export const Header: React.FC<HeaderProps> = ({
   const currentUser = isAdmin ? adminUser : appUser;
 
   // Resolve Branding - Global Platform Name (appName) is always used for branding
-  const finalAppName = appName || settings.appName || 'SaaS Platform';
+  const finalAppName = appName || settings.appName || '';
   const finalLogoUrl = logoUrl || settings.systemLogoUrl || settings.logoUrl;
   const dashboardPath = isAdmin ? '/admin' : '/app';
 

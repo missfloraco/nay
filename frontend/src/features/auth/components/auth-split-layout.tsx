@@ -27,7 +27,7 @@ export const AuthSplitLayout: React.FC<AuthSplitLayoutProps> = ({ children, titl
 
                 {/* Content */}
                 <div className="relative z-10 flex flex-col items-center justify-center h-full p-20 text-center">
-                    <div className="mb-12 relative group">
+                    <Link to="/" className="mb-12 relative group block">
                         <div className="absolute inset-0 bg-primary/20 blur-2xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
                         {settings.logoUrl && !logoError ? (
                             <img
@@ -41,7 +41,7 @@ export const AuthSplitLayout: React.FC<AuthSplitLayoutProps> = ({ children, titl
                                 <Sparkles className="w-12 h-12 text-primary" />
                             </div>
                         )}
-                    </div>
+                    </Link>
 
                     <h1 className="text-4xl font-black text-gray-900 dark:text-white mb-6 leading-tight tracking-tight">
                         أهلاً بك في <br />
@@ -75,15 +75,17 @@ export const AuthSplitLayout: React.FC<AuthSplitLayoutProps> = ({ children, titl
                 <div className="w-full max-w-lg mx-auto">
                     {/* Mobile Logo (Visible only on small screens) */}
                     <div className="lg:hidden text-center mb-10">
-                        {settings.logoUrl && !logoError ? (
-                            <img
-                                src={settings.logoUrl}
-                                alt={settings.appName}
-                                className="h-12 w-auto mx-auto"
-                            />
-                        ) : (
-                            <span className="text-2xl font-black text-primary">{settings.appName}</span>
-                        )}
+                        <Link to="/" className="inline-block">
+                            {settings.logoUrl && !logoError ? (
+                                <img
+                                    src={settings.logoUrl}
+                                    alt={settings.appName}
+                                    className="h-12 w-auto mx-auto"
+                                />
+                            ) : (
+                                <span className="text-2xl font-black text-primary">{settings.appName}</span>
+                            )}
+                        </Link>
                     </div>
 
                     <div className="mb-10 lg:mb-12">

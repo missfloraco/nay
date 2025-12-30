@@ -44,7 +44,7 @@ export const TrialAlert = () => {
     const [isVisible, setIsVisible] = useState(false);
 
     useEffect(() => {
-        const shouldShow = isTrialActive || (isActive && subDaysRemaining > 0);
+        const shouldShow = isTrialActive;
 
         if (!shouldShow) {
             setIsVisible(false);

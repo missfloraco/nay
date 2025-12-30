@@ -2,7 +2,7 @@
 
 export const TEXTS_COMMON = {
     // نصوص عامة
-    APP_NAME: 'SaaS Platform',
+    APP_NAME: '',
 
     // Authentication
     AUTH: {

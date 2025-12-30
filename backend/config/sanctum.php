@@ -15,7 +15,15 @@ return [
     |
     */
 
-    'stateful' => explode(',', env('SANCTUM_STATEFUL_DOMAINS', 'localhost,localhost:3000,127.0.0.1,127.0.0.1:8000,::1')),
+    'stateful' => explode(',', env('SANCTUM_STATEFUL_DOMAINS', sprintf(
+        '%s,api.%s,%s,%s:%s,localhost,localhost:%s,127.0.0.1,127.0.0.1:8000,::1',
+        parse_url(env('APP_URL', 'http://localhost'), PHP_URL_HOST) ?: 'localhost',
+        env('PRIMARY_DOMAIN', 'localhost'),
+        env('PRIMARY_DOMAIN', 'localhost'),
+        env('PRIMARY_DOMAIN', 'localhost'),
+        env('PORT_FRONTEND', '3000'),
+        env('PORT_FRONTEND', '3000')
+    ))),
 
     /*
     |--------------------------------------------------------------------------

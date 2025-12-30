@@ -7,8 +7,44 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <script>
     (function () {
-      // Set favicon from localStorage
-      const savedFavicon = localStorage.getItem('app_favicon');
+      // 1. Load merged settings from cache
+      const cachedSettings = localStorage.getItem('app_merged_settings');
+      let settings = null;
+      try {
+        if (cachedSettings) settings = JSON.parse(cachedSettings);
+      } catch (e) { console.error('Cache parse error', e); }
+
+      // 2. Apply Custom Colors & Theme IMMEDIATELY (Prevents color flash)
+      if (settings) {
+        // Apply Dark Mode if saved
+        if (localStorage.getItem('theme') === 'dark' || settings.darkMode) {
+          document.documentElement.classList.add('dark');
+        }
+
+        if (settings.primaryColor) document.documentElement.style.setProperty('--color-primary', settings.primaryColor);
+        if (settings.secondaryColor) document.documentElement.style.setProperty('--color-secondary', settings.secondaryColor);
+        if (settings.accentColor1) document.documentElement.style.setProperty('--color-accent1', settings.accentColor1);
+        if (settings.accentColor2) document.documentElement.style.setProperty('--color-accent2', settings.accentColor2);
+
+        // Apply App Name as Title (if not on landing page)
+        if (settings.appName && window.location.pathname !== '/') {
+          document.title = settings.appName;
+        }
+
+        // Apply Description (Prevents meta flash)
+        if (settings.appDescription) {
+          let metaDesc = document.querySelector('meta[name="description"]');
+          if (!metaDesc) {
+            metaDesc = document.createElement('meta');
+            metaDesc.name = "description";
+            document.head.appendChild(metaDesc);
+          }
+          metaDesc.content = settings.appDescription;
+        }
+      }
+
+      // 3. Set favicon from localStorage or merged settings
+      const savedFavicon = settings?.faviconUrl || localStorage.getItem('app_favicon');
       if (savedFavicon) {
         const link = document.querySelector("link[rel*='icon']") || document.createElement('link');
         link.rel = 'icon';
@@ -16,7 +52,7 @@
         if (!link.parentNode) document.head.appendChild(link);
       }
 
-      // Set SEO title from cache IMMEDIATELY for landing page
+      // 4. Set SEO title from cache IMMEDIATELY for landing page
       if (window.location.pathname === '/') {
         try {
           const cachedSEO = localStorage.getItem('seo_landing');
@@ -40,7 +76,8 @@
     }
 
     body {
-      background-color: #f3f4f6;
+      background-color: #f8fafc;
+      /* Slate 50 - consistent with Tailwind bg-gray-50 */
     }
 
     ::-webkit-scrollbar {

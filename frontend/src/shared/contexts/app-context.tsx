@@ -82,8 +82,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const [settings, setSettings] = useState<GlobalSettings>(getInitialSettings);
-  const [loading, setLoading] = useState(true);
-  const [darkMode, setDarkMode] = useState(false);
+  const [loading, setLoading] = useState(() => !localStorage.getItem('app_merged_settings'));
+  const [darkMode, setDarkMode] = useState(() => {
+    const saved = localStorage.getItem('theme');
+    return saved === 'dark';
+  });
 
   // Use extracted hooks for better code organization
   const { isAdBlockActive, isCheckingAdBlock } = useAdBlockDetection(settings.adblock_enabled || false);
@@ -99,8 +102,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     // [Static Appearance] Handle Dark Mode Toggle
     if (darkMode) {
       document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
     } else {
       document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
     }
   }, [darkMode]);
 

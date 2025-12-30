@@ -6,7 +6,8 @@ import api, { initializeCsrf } from '@/shared/services/api';
 import { logger } from '@/shared/services/logger';
 import { useText } from '@/shared/contexts/text-context';
 import { AuthSplitLayout } from '@/features/auth/components/auth-split-layout';
-import { Lock, Mail, User, Globe, AlertCircle, CheckCircle2, Eye, EyeOff, Loader2, ArrowLeft, Moon, Sun } from 'lucide-react';
+import { Lock, Mail, User, Globe, AlertCircle, CheckCircle2, Eye, EyeOff, Loader2, ArrowLeft, Moon, Sun, Home } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 import { COUNTRIES } from '@/shared/constants';
 import { LoginSchema, RegisterSchema, ForgotPasswordSchema } from '@/shared/utils/validation';
@@ -183,14 +184,21 @@ export default function AuthScreen({ initialMode = 'login' }: { initialMode?: Au
             subtitle={t(`AUTH.${mode === 'forgot-password' ? 'FORGOT_PASSWORD' : mode.toUpperCase()}.SUBTITLE`)}
         >
             {/* Dark Mode Toggle */}
-            <div className="absolute top-4 left-4 z-50">
+            <div className="absolute top-4 left-4 z-50 flex items-center gap-2">
+                <Link
+                    to="/"
+                    className="flex items-center gap-2 py-2 px-4 rounded-xl bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-all font-bold text-sm"
+                >
+                    <Home size={16} />
+                    <span>الرئيسية</span>
+                </Link>
                 <button
                     type="button"
                     onClick={() => {
                         const isDark = document.documentElement.classList.toggle('dark');
                         localStorage.setItem('theme', isDark ? 'dark' : 'light');
                     }}
-                    className="p-2 rounded-full bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-white/20 transition-all"
+                    className="p-2 rounded-xl bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-white/20 transition-all border border-transparent"
                     title="تبديل الوضع الليلي"
                 >
                     <span className="dark:hidden"><Moon size={20} /></span>

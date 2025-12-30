@@ -16,13 +16,6 @@ export default function Hero() {
 
                     {/* Right Side: Content (Order 1 in RTL = Right) */}
                     <div className="order-1 space-y-10">
-                        {/* Rocket Icon Container - Dynamic Styling */}
-                        <div className="flex justify-center lg:justify-start">
-                            <div className="w-16 h-16 bg-primary/10 dark:bg-white/5 rounded-2xl flex items-center justify-center text-primary dark:text-white border border-primary/20 dark:border-white/10 shadow-xl backdrop-blur-sm">
-                                <span className="text-4xl">🚀</span>
-                            </div>
-                        </div>
-
                         <div className="space-y-8">
                             <h1 className="text-5xl lg:text-[76px] font-black text-gray-900 dark:text-white tracking-tight leading-[1.05]">
                                 {settings.landing_hero_title ? (
@@ -80,7 +73,7 @@ export default function Hero() {
                             <img
                                 src="/landing_hero_dashboard.png"
                                 alt="Modern Dashboard System"
-                                className="w-full h-auto object-contain relative z-10 drop-shadow-[0_20px_50px_rgba(0,0,0,0.15)] dark:drop-shadow-[0_20px_50px_rgba(59,130,246,0.2)] rounded-3xl lg:rotate-[-2deg] scale-110 lg:scale-135 transition-all duration-700 hover:scale-115 lg:hover:scale-140 hover:rotate-0"
+                                className="w-full h-auto object-contain relative z-10 drop-shadow-[0_20px_50px_rgba(0,0,0,0.15)] dark:drop-shadow-[0_20px_50px_rgba(59,130,246,0.2)] rounded-3xl lg:rotate-[-1deg] scale-95 lg:scale-110 transition-all duration-700 hover:scale-100 lg:hover:scale-115 hover:rotate-0"
                             />
                             {/* Decorative glow behind image - Theme Aware */}
                             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[110%] h-[110%] bg-primary/10 dark:bg-blue-600/5 rounded-full blur-[120px] -z-10" />

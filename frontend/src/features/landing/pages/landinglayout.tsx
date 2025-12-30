@@ -19,7 +19,7 @@ export default function LandingLayout({ children }: LandingLayoutProps) {
     const { settings, isAdBlockActive, isCheckingAdBlock } = useSettings();
 
     const dashboardLink = adminUser ? '/admin' : '/app';
-    const finalAppName = settings.appName || 'SaaS Platform';
+    const finalAppName = settings.appName || '';
 
     const isForceLogout = localStorage.getItem('force_logout') === 'true';
     const isLogoutSuccess = window.location.search.includes('logout=success');
@@ -129,11 +129,6 @@ export default function LandingLayout({ children }: LandingLayoutProps) {
                 </header>
 
                 <main className="pt-32 sm:pt-40 lg:pt-48">
-                    <AdSlot
-                        placement="ad_landing_top"
-                        className="w-full h-[90px] my-8"
-                    />
-
                     {children}
 
                     <AdSlot
