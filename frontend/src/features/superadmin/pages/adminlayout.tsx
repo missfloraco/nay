@@ -21,7 +21,9 @@ import {
     Sparkles,
     Code,
     Shield,
-    Hash
+    Hash,
+    Crown,
+    AlertCircle
 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import api from '@/shared/services/api';
@@ -75,13 +77,25 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title, noPadding = 
     const trashCount = (trashData as any)?.stats?.total || 0;
 
     const navItems = React.useMemo(() => [
+        { isHeader: true, label: 'الرئيسية' },
         { icon: LayoutDashboard, label: t('admin.NAV.DASHBOARD', 'لوحة التحكم'), path: '/admin/dashboard', color: 'text-blue-600' },
         { icon: Users, label: t('admin.NAV.TENANTS', 'إدارة المشتركين'), path: '/admin/tenants', color: 'text-[#02aa94]' },
+        { icon: AlertCircle, label: 'طلبات الاشتراك', path: '/admin/subscription-requests', color: 'text-purple-600' },
+        { icon: Crown, label: 'الخطط السعرية', path: '/admin/plans', color: 'text-orange-500' },
+
+        { isHeader: true, label: 'الهوية والتصميم' },
+        { icon: Layout, label: 'هوية المنصة', path: '/admin/identity', color: 'text-indigo-600' },
+        { icon: Sparkles, label: 'أكواد CSS المخصصة', path: '/admin/custom-css', color: 'text-primary' },
         { icon: BarChart3, label: 'إدارة SEO', path: '/admin/seo', color: 'text-blue-600' },
+
+        { isHeader: true, label: 'الأدوات والإعدادات' },
         { icon: Megaphone, label: t('admin.NAV.ADS', 'إدارة الإعلانات'), path: '/admin/ads', color: 'text-[#fb005e]' },
         { icon: Code, label: 'الأكواد والنصوص', path: '/admin/scripts', color: 'text-amber-600' },
-        { icon: Shield, label: 'إعدادات الحماية', path: '/admin/security', color: 'text-rose-600' },
         { icon: Hash, label: 'نظام التسميات', path: '/admin/prefixes', color: 'text-emerald-600' },
+        { icon: Shield, label: 'إعدادات الحماية', path: '/admin/security', color: 'text-rose-600' },
+        { icon: Settings, label: t('admin.NAV.SETTINGS', 'الإعدادات العامة'), path: '/admin/settings', color: 'text-gray-600' },
+
+        { isHeader: true, label: 'النظام' },
         { icon: Trash2, label: t('admin.NAV.RECYCLE_BIN', 'سلة المحذوفات'), path: '/admin/trash', color: 'text-red-600 font-black', badge: trashCount },
     ], [t, trashCount]);
 
@@ -137,13 +151,31 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title, noPadding = 
             <Drawer isOpen={isRightDrawerOpen} onClose={closeDrawers} side="right" title={t('admin.navigation', 'لوحة تحكم المدير')}>
                 <nav className="p-6 space-y-1.5 h-full flex flex-col">
                     <div className="flex-1 space-y-1.5">
-                        {navItems.map((item) => (
-                            <Link key={item.path} to={item.path} onClick={closeDrawers} className={`flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all font-bold ${location.pathname === item.path ? 'bg-primary text-white shadow-lg' : 'text-gray-500 hover:bg-gray-50 dark:hover:bg-dark-800/50'}`}>
-                                <item.icon className={`w-5 h-5 ${item.color}`} />
-                                <span className="text-sm flex-1">{item.label}</span>
-                                {item.badge > 0 && <span className="bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[20px] h-5 flex items-center justify-center px-1">{item.badge}</span>}
-                            </Link>
-                        ))}
+                        {navItems.map((item, index) => {
+                            if (item.isHeader) {
+                                return (
+                                    <div key={`header-${index}`} className="px-4 pt-6 pb-2">
+                                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">
+                                            {item.label}
+                                        </span>
+                                    </div>
+                                );
+                            }
+
+                            const Icon = item.icon;
+                            return (
+                                <Link
+                                    key={item.path}
+                                    to={item.path}
+                                    onClick={closeDrawers}
+                                    className={`flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all font-bold ${location.pathname === item.path ? 'bg-primary text-white shadow-lg' : 'text-gray-500 hover:bg-gray-50 dark:hover:bg-dark-800/50'}`}
+                                >
+                                    <Icon className={`w-5 h-5 ${item.color}`} />
+                                    <span className="text-sm flex-1">{item.label}</span>
+                                    {item.badge > 0 && <span className="bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[20px] h-5 flex items-center justify-center px-1">{item.badge}</span>}
+                                </Link>
+                            );
+                        })}
                     </div>
                 </nav>
             </Drawer>

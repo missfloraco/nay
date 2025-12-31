@@ -1,5 +1,5 @@
 ﻿import React, { createContext, useContext, useEffect, useState, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { resolveAssetUrl } from '@/shared/utils/helpers';
 import { User, GlobalSettings } from '@/core/models/index';
 import { UI_TEXT } from '@/shared/locales/texts';
@@ -35,7 +35,9 @@ export const defaultSettings: GlobalSettings = {
     welcomeMessage: "مرحباً بك",
   },
   currentUser: null as any,
-  systemLogoUrl: null
+  systemLogoUrl: null,
+  custom_css: "",
+  ui_tweaks: {}
 };
 
 export interface AppContextType {
@@ -256,6 +258,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           customHeadingFontFile: normalizeUrl(systemBranding.custom_heading_font_file),
           customFontUrl: systemBranding.custom_font_url,
           customHeadingFontUrl: systemBranding.custom_heading_font_url,
+          custom_css: systemBranding.custom_css || '',
+          ui_tweaks: typeof systemBranding.ui_tweaks === 'string' ? JSON.parse(systemBranding.ui_tweaks) : (systemBranding.ui_tweaks || {}),
 
           // ADS & TRACKING: Global Super Admin control
           ...Object.keys(systemBranding).filter(k => k.startsWith('ad_') || k.startsWith('adblock') || k.startsWith('protect_')).reduce((acc, k) => {
@@ -383,8 +387,64 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   }, [settings.appName, settings.faviconUrl]);
 
+  // Section Tracking for CSS Targeting
+  const location = useLocation();
+  useEffect(() => {
+    const path = location.pathname;
+    const body = document.body;
+
+    // Cleanup old classes
+    body.classList.remove('is-admin', 'is-tenant', 'is-landing', 'is-auth');
+
+    // Add current context class
+    if (path.startsWith('/admin')) {
+      body.classList.add('is-admin');
+    } else if (path.startsWith('/app')) {
+      body.classList.add('is-tenant');
+    } else if (['/login', '/register', '/forgot-password', '/reset-password'].some(p => path.startsWith(p))) {
+      body.classList.add('is-auth');
+    } else if (path === '/') {
+      body.classList.add('is-landing');
+    }
+  }, [location.pathname]);
+
+  // Dynamic Custom CSS Injection & UI Tweaks
+  useEffect(() => {
+    let styleTag = document.getElementById('dynamic-custom-css') as HTMLStyleElement;
+    if (!styleTag) {
+      styleTag = document.createElement('style');
+      styleTag.id = 'dynamic-custom-css';
+      document.head.appendChild(styleTag);
+    }
+
+    // Process UI Tweaks Presets
+    const tweaks = settings.ui_tweaks || {};
+    let tweaksCss = '';
+
+    if (tweaks.hide_scrollbar) {
+      tweaksCss += `
+            ::-webkit-scrollbar { width: 0px !important; height: 0px !important; }
+            * { scrollbar-width: none !important; }
+        `;
+    }
+    if (tweaks.rounded_images) {
+      tweaksCss += ` img { border-radius: 1.5rem !important; } `;
+    }
+    if (tweaks.glass_effect) {
+      tweaksCss += ` .glass-card { backdrop-filter: blur(12px) !important; background: rgba(255,255,255,0.7) !important; } `;
+    }
+    if (tweaks.grayscale_ads) {
+      tweaksCss += ` .ad-slot-container img { filter: grayscale(100%); transition: filter 0.3s; } .ad-slot-container img:hover { filter: grayscale(0%); } `;
+    }
+    if (tweaks.smooth_animations) {
+      tweaksCss += ` * { transition: all 0.3s ease-in-out !important; } `;
+    }
+
+    styleTag.innerHTML = (tweaksCss + (settings.custom_css || ''));
+  }, [settings.custom_css, settings.ui_tweaks]);
+
   return (
-    <AppContext.Provider value={{ settings, loading, /* darkMode: false, toggleTheme: () => {}, */ refreshSettings: fetchSettings, updateSettings, updateLocalSettings, isAdBlockActive, isCheckingAdBlock, t } as any}>
+    <AppContext.Provider value={{ settings, loading, /* darkMode: false, toggleTheme: () => {}, */ refreshSettings: () => fetchSettings(true), updateSettings, updateLocalSettings, isAdBlockActive, isCheckingAdBlock, t } as any}>
       {children}
     </AppContext.Provider>
   );

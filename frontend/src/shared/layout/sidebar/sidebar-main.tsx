@@ -4,11 +4,12 @@ import { useSettings } from '@/shared/contexts/app-context';
 import AdSlot from '@/shared/ads/adslot';
 
 interface NavItem {
-    icon: any;
+    icon?: any;
     label: string;
-    path: string;
+    path?: string;
     color?: string;
     badge?: number;
+    isHeader?: boolean;
 }
 
 interface MainSidebarProps {
@@ -39,18 +40,28 @@ export const MainSidebar: React.FC<MainSidebarProps> = ({ items, homePath, class
 
             {/* Navigation Section */}
             <nav className="flex-1 overflow-y-auto no-scrollbar p-6 space-y-1.5">
-                {items.map((item) => {
-                    const isActive = location.pathname.startsWith(item.path);
+                {items.map((item, index) => {
+                    if (item.isHeader) {
+                        return (
+                            <div key={`header-${index}`} className="px-4 pt-6 pb-2">
+                                <span className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em]">
+                                    {item.label}
+                                </span>
+                            </div>
+                        );
+                    }
+
+                    const isActive = location.pathname.startsWith(item.path!);
                     return (
                         <Link
                             key={item.path}
-                            to={item.path}
+                            to={item.path!}
                             className={`flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all font-bold ${isActive
                                 ? 'bg-primary text-white shadow-lg active-nav-item'
                                 : 'text-gray-500 hover:bg-gray-50 dark:hover:bg-dark-800/50 hover:text-gray-900 dark:hover:text-white shadow-none'
                                 }`}
                         >
-                            <item.icon className={`w-5 h-5 transition-all scale-110 ${isActive ? '' : item.color || ''}`} />
+                            {item.icon && <item.icon className={`w-5 h-5 transition-all scale-110 ${isActive ? '' : item.color || ''}`} />}
                             <span className="text-sm flex-1">{item.label}</span>
                             {item.badge !== undefined && item.badge > 0 && (
                                 <span className={`bg-red-500 text-white text-[10px] rounded-full px-1 min-w-[18px] h-4.5 flex items-center justify-center ${isActive ? 'bg-white text-primary' : ''}`}>

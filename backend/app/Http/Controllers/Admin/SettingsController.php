@@ -140,6 +140,8 @@ class SettingsController extends Controller
             'company_link',
             'primary_color',
             'secondary_color',
+            'accent_color1',
+            'accent_color2',
             'custom_heading_font_url',
             // Content Protection (Granular)
             'protect_right_click_admin',
@@ -157,12 +159,18 @@ class SettingsController extends Controller
             'protect_devtools_admin',
             'protect_devtools_app',
             'protect_devtools_landing',
+            // AdBlock Detection (Granular)
+            'protect_adblock_admin',
+            'protect_adblock_app',
+            'protect_adblock_landing',
             // Prefix System
             'prefix_admin',
             'prefix_tenant',
             'prefix_ticket',
             'prefix_payment',
             'prefix_ad',
+            'custom_css',
+            'ui_tweaks',
         ];
 
         $data = $request->only($allowedKeys);

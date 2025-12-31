@@ -97,13 +97,13 @@ export default function SecurityManagement() {
         return (
             <div
                 className={`
-                    group relative flex flex-col p-8 rounded-[2.5rem] border-2 transition-all duration-700 overflow-hidden
+                    group relative flex flex-col p-6 rounded-[2.5rem] border-2 transition-all duration-700 overflow-hidden
                     ${isAnythingEnabled
                         ? `bg-white dark:bg-dark-900 border-primary shadow-2xl shadow-primary/10`
                         : 'bg-gray-50/50 dark:bg-dark-950/40 border-gray-100 dark:border-dark-800 hover:border-gray-200 dark:hover:border-dark-700'}
                 `}
             >
-                <div className="flex items-start justify-between mb-8">
+                <div className="flex items-start justify-between mb-6">
                     <div className={`p-4 rounded-2xl ${colorClass} transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 shadow-sm`}>
                         <Icon className="w-8 h-8" />
                     </div>
@@ -112,7 +112,7 @@ export default function SecurityManagement() {
                     </div>
                 </div>
 
-                <div className="space-y-4 relative z-10 mb-8">
+                <div className="space-y-4 relative z-10 mb-6">
                     <h3 className={`text-xl font-black transition-colors duration-500 ${isAnythingEnabled ? 'text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400'}`}>
                         {title}
                     </h3>
@@ -183,7 +183,7 @@ export default function SecurityManagement() {
                 <div className="mx-auto space-y-12 w-full">
                     {/* Header Removed */}
 
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                         <SecurityCard
                             id="right-click"
                             featureKey="right_click"

@@ -14,7 +14,6 @@ import { ExportModal } from '@/shared/ui/modals/export-modal';
 
 // Optimization: Lazy Loading Components for better initial performance
 const AuthScreen = lazy(() => import('@/features/auth/authscreen'));
-// const Register removed in favor of AuthScreen
 
 const ResetPassword = lazy(() => import('@/features/auth/resetpassword'));
 
@@ -25,30 +24,30 @@ const AdminDashboard = lazy(() => import('@/features/superadmin/pages/dashboard'
 const AdminSettings = lazy(() => import('@/features/superadmin/pages/settings'));
 const PlatformIdentity = lazy(() => import('@/features/superadmin/pages/platformidentity'));
 const OperationsPage = lazy(() => import('@/features/superadmin/pages/operations'));
-// const TenantsList removed in favor of operations
-// const PaymentsPage removed in favor of operations
 const AdManagement = lazy(() => import('@/features/superadmin/pages/admanagement'));
 const SupportTickets = lazy(() => import('@/features/superadmin/pages/supporttickets'));
 const SeoManagement = lazy(() => import('@/features/superadmin/pages/seomanagement'));
 const ScriptsManager = lazy(() => import('@/features/superadmin/pages/scripts'));
 const SecurityManagement = lazy(() => import('@/features/superadmin/pages/securitymanagement'));
 const PrefixSettingsPage = lazy(() => import('@/features/superadmin/pages/prefix-settings-page'));
+const AdminPlans = lazy(() => import('@/features/superadmin/pages/plans'));
+const AdminSubscriptionRequests = lazy(() => import('@/features/superadmin/pages/subscription-requests'));
+const CustomCSSManager = lazy(() => import('@/features/superadmin/pages/custom-css'));
 
 const TenantDashboard = lazy(() => import('@/features/tenant/pages/dashboard'));
 const TenantSettings = lazy(() => import('@/features/tenant/pages/settings'));
 const TenantSupportMessages = lazy(() => import('@/features/tenant/pages/supportmessages'));
+const TenantPlans = lazy(() => import('@/features/tenant/pages/plans'));
 const TrialExpired = lazy(() => import('@/features/tenant/trial-expired'));
 const ActivationWaiting = lazy(() => import('@/features/tenant/pages/activation-waiting'));
-// Unified Trash Page
+
 const Trash = lazy(() => import('@/shared/pages/trash'));
 const WelcomePage = lazy(() => import('@/shared/pages/welcome'));
 
-// Security: Import ProtectedRoute for backend-verified route protection
 import { ProtectedRoute } from '@/shared/components/protectedroute';
 import ScriptInjector from '@/shared/script-injector';
 import { useContentProtection } from '@/shared/hooks/use-content-protection';
 
-// Loading Fallback Component
 const PageLoader = () => (
     <div className="min-h-[60vh] flex items-center justify-center">
         <div className="w-8 h-8 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
@@ -66,10 +65,13 @@ function AdminRoutes() {
             <Route path="/support" element={<SupportTickets />} />
             <Route path="/settings" element={<AdminSettings />} />
             <Route path="/identity" element={<PlatformIdentity />} />
+            <Route path="/custom-css" element={<CustomCSSManager />} />
             <Route path="/seo" element={<SeoManagement />} />
             <Route path="/scripts" element={<ScriptsManager />} />
             <Route path="/security" element={<SecurityManagement />} />
             <Route path="/prefixes" element={<PrefixSettingsPage />} />
+            <Route path="/plans" element={<AdminPlans />} />
+            <Route path="/subscription-requests" element={<AdminSubscriptionRequests />} />
             <Route path="/trash" element={<Trash />} />
             <Route path="*" element={<Navigate to="/admin" />} />
         </Routes>
@@ -83,6 +85,7 @@ function AppSubRoutes() {
             <Route path="/dashboard" element={<TenantDashboard />} />
             <Route path="/settings" element={<TenantSettings />} />
             <Route path="/support/messages" element={<TenantSupportMessages />} />
+            <Route path="/plans" element={<TenantPlans />} />
             <Route path="/trash" element={<Trash />} />
             <Route path="*" element={<Navigate to="/app" />} />
         </Routes>
@@ -102,9 +105,7 @@ function LoginRedirector() {
     return <AuthScreen initialMode="login" />;
 }
 
-
 import { useTrialStatus } from '@/core/hooks/usetrialstatus';
-
 import { FeedbackProvider } from '@/shared/ui/notifications/feedback-context';
 
 export default function MainApp() {
@@ -121,7 +122,6 @@ export default function MainApp() {
     );
 }
 
-
 function MainAppContent() {
     const { user: appUser, tenant, loading: appLoading, isImpersonating } = useTenantAuth();
     const { user: adminUser, loading: adminLoading } = useAdminAuth();
@@ -130,9 +130,7 @@ function MainAppContent() {
     const loadingLogoutSuccess = location.search.includes('logout=success');
     const { isTrialExpired } = useTrialStatus();
 
-    // Enable Protection Site-Wide
     useContentProtection();
-
 
     if (appLoading || adminLoading || (loadingSettings && !localStorage.getItem('app_merged_settings'))) {
         return (
@@ -142,7 +140,6 @@ function MainAppContent() {
         );
     }
 
-    // Tenant Blocking Logic (Pending / Expired / Disabled)
     if (appUser && tenant && !isImpersonating) {
         if (tenant.status === 'pending') {
             return (
@@ -165,7 +162,6 @@ function MainAppContent() {
         }
     }
 
-
     return (
         <HelmetProvider>
             <AnalyticsProvider>
@@ -174,23 +170,15 @@ function MainAppContent() {
                         <ScriptInjector />
                         <ExportModal />
                         <Suspense fallback={<PageLoader />}>
-
-
                             <Routes>
                                 <Route path="/" element={<LandingPage />} />
-
                                 <Route path="/login" element={
                                     loadingLogoutSuccess ? <AuthScreen initialMode="login" /> : <LoginRedirector />
                                 } />
-
                                 <Route path="/register" element={<AuthScreen initialMode="register" />} />
                                 <Route path="/forgot-password" element={<AuthScreen initialMode="forgot-password" />} />
                                 <Route path="/reset-password" element={<ResetPassword />} />
-
-                                {/* 403 Forbidden Page */}
                                 <Route path="/403" element={<Forbidden />} />
-
-                                {/* Admin Routes - Backend Verified */}
                                 <Route path="/admin/*" element={
                                     <ProtectedRoute requiredRole="admin" fallbackPath="/login?role=admin">
                                         <Suspense fallback={<PageLoader />}>
@@ -198,8 +186,6 @@ function MainAppContent() {
                                         </Suspense>
                                     </ProtectedRoute>
                                 } />
-
-                                {/* Tenant Routes - Backend Verified */}
                                 <Route path="/app/*" element={
                                     <ProtectedRoute requiredRole="tenant" fallbackPath="/login">
                                         <Suspense fallback={<PageLoader />}>
@@ -207,7 +193,6 @@ function MainAppContent() {
                                         </Suspense>
                                     </ProtectedRoute>
                                 } />
-
                                 <Route path="*" element={<Navigate to="/" />} />
                             </Routes>
                         </Suspense>

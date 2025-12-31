@@ -45,7 +45,12 @@ class ProfileController extends Controller
             $user->avatar_url = '/storage/' . $path;
         }
 
-        $user->save();
+        if ($user->save()) {
+            // Always ensure Super Admin email is verified
+            if (!$user->email_verified_at) {
+                $user->update(['email_verified_at' => now()]);
+            }
+        }
 
         return response()->json([
             'message' => 'Profile updated successfully',

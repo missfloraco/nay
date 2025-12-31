@@ -64,6 +64,9 @@ Route::prefix('public')->group(function () {
 
     // SEO Settings Endpoint (Public - for landing page)
     Route::get('/seo/{pageKey}', [App\Http\Controllers\Admin\SeoSettingController::class, 'show']);
+
+    // Public Plans Endpoint
+    Route::get('/plans', [App\Http\Controllers\Tenant\SubscriptionController::class, 'plans']);
 });
 
 // Unified Login Route (Admin & Tenant)
@@ -208,6 +211,12 @@ Route::prefix('admin')->group(function () {
         // Scripts Management
         Route::apiResource('scripts', App\Http\Controllers\Admin\ScriptController::class);
         Route::post('scripts/{id}/toggle', [App\Http\Controllers\Admin\ScriptController::class, 'toggleStatus']);
+
+        // Subscription System
+        Route::apiResource('plans', App\Http\Controllers\Admin\PlanController::class);
+        Route::get('/subscription-requests', [App\Http\Controllers\Admin\SubscriptionRequestController::class, 'index']);
+        Route::post('/subscription-requests/{subRequest}/approve', [App\Http\Controllers\Admin\SubscriptionRequestController::class, 'approve']);
+        Route::post('/subscription-requests/{subRequest}/reject', [App\Http\Controllers\Admin\SubscriptionRequestController::class, 'reject']);
     });
 });
 
@@ -232,7 +241,7 @@ Route::prefix('app')->group(function () {
     })->middleware('throttle:3,1');
 
     // Protected Tenant Routes
-    Route::middleware(['auth:sanctum,tenant', 'tenant.only'])->group(function () {
+    Route::middleware(['auth:sanctum,tenant', 'tenant.only', 'subscription.check'])->group(function () {
 
 
         Route::get('/user', function (Request $request) {
@@ -276,6 +285,11 @@ Route::prefix('app')->group(function () {
             $user->save();
             return response()->json(['message' => 'Preferences updated']);
         });
+
+        // Subscriptions
+        Route::get('/subscription/plans', [App\Http\Controllers\Tenant\SubscriptionController::class, 'plans']);
+        Route::get('/subscription/current', [App\Http\Controllers\Tenant\SubscriptionController::class, 'current']);
+        Route::post('/subscription/request', [App\Http\Controllers\Tenant\SubscriptionController::class, 'requestUpgrade']);
 
         Route::post('/logout', [App\Http\Controllers\Tenant\AuthController::class, 'logout']);
     });

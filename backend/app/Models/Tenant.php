@@ -51,6 +51,16 @@ class Tenant extends Authenticatable
         return $this->hasMany(Payment::class);
     }
 
+    public function subscriptions()
+    {
+        return $this->hasMany(Subscription::class);
+    }
+
+    public function currentSubscription()
+    {
+        return $this->hasOne(Subscription::class)->latestOfMany();
+    }
+
     protected $casts = [
         'password' => 'hashed',
         'trial_expires_at' => 'datetime',

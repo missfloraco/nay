@@ -88,6 +88,15 @@ class AuthController extends Controller
             'email_verified_at' => now(),
         ]);
 
+        // Create initial trial subscription
+        \App\Models\Subscription::create([
+            'tenant_id' => $tenant->id,
+            'plan_id' => 1, // Default Pro Plan or similar? Need to ensure it exists.
+            'status' => 'trial',
+            'started_at' => now(),
+            'trial_ends_at' => now()->addDays(7),
+        ]);
+
         // Clear cache
         \Illuminate\Support\Facades\Cache::forget('temp_reg_' . $request->email);
 

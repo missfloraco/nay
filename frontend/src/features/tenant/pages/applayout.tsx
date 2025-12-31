@@ -7,7 +7,8 @@ import {
     Loader2,
     MessageSquare,
     Sparkles,
-    Layers
+    Layers,
+    DollarSign
 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { useTenantAuth } from '@/features/auth/tenant-auth-context';
@@ -20,8 +21,8 @@ import { Header } from '@/shared/layout/header/header';
 import api from '@/shared/services/api';
 import { logger } from '@/shared/services/logger';
 import AdSlot from '@/shared/ads/adslot';
-import { TrialBadge } from '@/features/tenant/components/trial-badge';
 import { ImpersonationBanner } from '@/shared/components/impersonationbanner';
+import TrialBanner from '@/features/tenant/components/trial-banner';
 import ShieldOverlay from '@/shared/components/shield-overlay';
 import { useUI } from '@/shared/contexts/ui-context';
 import { Drawer } from '@/shared/ui/drawer';
@@ -67,6 +68,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, title = '', icon, noPad
 
     const menuItems = [
         { icon: Layers, label: t('tenant.NAV.DASHBOARD', 'لوحة التحكم'), path: '/app/dashboard', color: 'text-blue-600' },
+        { icon: DollarSign, label: t('tenant.NAV.SUBSCRIPTIONS', 'باقات الاشتراك'), path: '/app/plans', color: 'text-emerald-600 font-bold' },
         { icon: Trash2, label: t('tenant.NAV.RECYCLE_BIN', 'سلة المحذوفات'), path: '/app/trash', color: 'text-red-600 font-black', badge: trashCount },
     ];
 
@@ -81,6 +83,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, title = '', icon, noPad
             {/* 2. Content Column Pillar */}
             <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden relative">
                 <Header onMenuClick={() => { }} className="global-header shrink-0" title={title || ''} icon={icon} hideBranding={true} />
+                <TrialBanner />
 
                 <div className="flex-1 flex flex-col min-h-0 bg-gray-50 dark:bg-dark-950">
                     <div className="flex-1 flex overflow-hidden">
@@ -120,12 +123,30 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, title = '', icon, noPad
             <Drawer isOpen={isRightDrawerOpen} onClose={closeDrawers} side="right" title={t('common.navigation', 'التنقل الرئيسي')}>
                 <nav className="p-6 space-y-1.5 h-full flex flex-col">
                     <div className="flex-1 space-y-1.5">
-                        {menuItems.map((item) => (
-                            <Link key={item.path} to={item.path} onClick={closeDrawers} className={`flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all font-bold ${location.pathname.startsWith(item.path) ? 'bg-primary text-white shadow-lg' : 'text-gray-500'}`}>
-                                <item.icon className="w-5 h-5" />
-                                <span className="text-sm flex-1">{item.label}</span>
-                            </Link>
-                        ))}
+                        {menuItems.map((item, index) => {
+                            if ((item as any).isHeader) {
+                                return (
+                                    <div key={`header-${index}`} className="px-4 pt-6 pb-2">
+                                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">
+                                            {item.label}
+                                        </span>
+                                    </div>
+                                );
+                            }
+
+                            const Icon = item.icon;
+                            return (
+                                <Link
+                                    key={item.path}
+                                    to={item.path}
+                                    onClick={closeDrawers}
+                                    className={`flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all font-bold ${location.pathname.startsWith(item.path) ? 'bg-primary text-white shadow-lg' : 'text-gray-500'}`}
+                                >
+                                    <Icon className="w-5 h-5" />
+                                    <span className="text-sm flex-1">{item.label}</span>
+                                </Link>
+                            );
+                        })}
                     </div>
                 </nav>
             </Drawer>
@@ -134,8 +155,6 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, title = '', icon, noPad
             <div className="mobile-only">
                 <BottomNav items={menuItems} user={user} onLogout={() => logoutTenant(false)} settingsPath="/app/settings" />
             </div>
-
-            <TrialBadge />
         </div>
     );
 };

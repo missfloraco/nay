@@ -41,15 +41,28 @@
   body {
     @apply bg-gray-50 text-gray-900 transition-colors duration-500;
     font-family: var(--theme-font, sans-serif);
-    -ms-overflow-style: none;
-    /* IE and Edge */
-    scrollbar-width: none;
-    /* Firefox */
   }
 
-  body::-webkit-scrollbar {
-    display: none;
-    /* Chrome, Safari, Opera */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
   }
 }
 

@@ -46,6 +46,8 @@ class BrandingController extends Controller
             'custom_heading_font_url' => Setting::get('custom_heading_font_url'),
             'company_name' => Setting::get('company_name', 'MissFlora'),
             'company_link' => Setting::get('company_link'),
+            'custom_css' => Setting::get('custom_css'),
+            'ui_tweaks' => Setting::get('ui_tweaks'),
             'translations' => [
                 'login_title' => 'مرحباً بعودتك',
                 'login_subtitle' => 'سجل دخولك للمتابعة',

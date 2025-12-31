@@ -88,6 +88,8 @@ export interface GlobalSettings {
   ad_content_top?: string;
   ad_content_bottom?: string;
   ad_footer_leaderboard?: string;
+  custom_css?: string;
+  ui_tweaks?: Record<string, boolean>;
   // Allow dynamic settings for ads and other future properties
   [key: string]: any;
 }

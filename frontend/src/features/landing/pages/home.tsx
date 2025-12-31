@@ -9,6 +9,7 @@ import FAQ from '@/features/landing/pages/faq';
 import { useSEO } from '@/shared/hooks/useSEO';
 import DynamicSEO from '@/shared/components/DynamicSEO';
 import AdSlot from '@/shared/ads/adslot';
+import VideoSection from '@/features/landing/pages/video-section';
 
 export default function LandingPage() {
     const { data: seoData } = useSEO('landing');
@@ -19,10 +20,7 @@ export default function LandingPage() {
             <DynamicSEO data={seoData} />
             <LandingLayout>
                 <Hero />
-                <AdSlot
-                    placement="ad_landing_top"
-                    className="w-full h-[90px] my-12"
-                />
+                <VideoSection />
                 <Features />
                 <AboutUs />
                 <Pricing />

@@ -28,6 +28,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'tenant.status' => \App\Http\Middleware\CheckTenantStatus::class,
             'admin.only' => \App\Http\Middleware\AdminOnly::class,
             'tenant.only' => \App\Http\Middleware\TenantOnly::class,
+            'subscription.check' => \App\Http\Middleware\SubscriptionRestriction::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

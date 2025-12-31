@@ -1,11 +1,48 @@
 ﻿import React from 'react';
 import { Link } from 'react-router-dom';
+import { Sparkles } from 'lucide-react';
 import { useSettings } from '@/shared/contexts/app-context';
+import { useState, useEffect } from 'react';
 
 export default function Hero() {
     const { settings } = useSettings();
+    const [text, setText] = useState('');
+    const [isDeleting, setIsDeleting] = useState(false);
+    const [loopIndex, setLoopIndex] = useState(0);
+    const [typingSpeed, setTypingSpeed] = useState(150);
+
+    const phrases = [
+        'كل ما تحتاجه لـ زيادة مبيعاتك',
+        'الحل الأمثل لإدارة تجارتك بذكاء',
+        'منصة واحدة.. إمكانيات لا محدودة',
+        'مستقبلك التجاري يبدأ من هنا'
+    ];
+
+    useEffect(() => {
+        const handleTyping = () => {
+            const currentIdx = loopIndex % phrases.length;
+            const fullText = phrases[currentIdx];
+
+            setText(isDeleting
+                ? fullText.substring(0, text.length - 1)
+                : fullText.substring(0, text.length + 1)
+            );
+
+            setTypingSpeed(isDeleting ? 50 : 150);
+
+            if (!isDeleting && text === fullText) {
+                setTimeout(() => setIsDeleting(true), 1500);
+            } else if (isDeleting && text === '') {
+                setIsDeleting(false);
+                setLoopIndex(loopIndex + 1);
+            }
+        };
+
+        const timer = setTimeout(handleTyping, typingSpeed);
+        return () => clearTimeout(timer);
+    }, [text, isDeleting, loopIndex, phrases, typingSpeed]);
     return (
-        <section className="relative min-h-[90vh] pt-32 pb-20 overflow-hidden bg-white dark:bg-[#0a0a0a] transition-colors duration-500 flex items-center">
+        <section className="relative min-h-[90vh] pb-20 overflow-hidden bg-white dark:bg-[#0a0a0a] transition-colors duration-500 flex items-center">
             {/* Grid Background Pattern - Dynamic Opacity */}
             <div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.04] pointer-events-none text-gray-900 dark:text-white"
                 style={{ backgroundImage: 'radial-gradient(currentColor 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
@@ -37,31 +74,41 @@ export default function Hero() {
                             </p>
 
                             <div className="pt-2">
-                                <p className="text-xl lg:text-2xl font-semibold text-primary dark:text-white px-4 py-2 bg-primary/5 dark:bg-white/5 rounded-xl border-r-4 border-primary inline-block leading-tight">
-                                    كل ما تحتاجه لـ زيادة مبيعاتك
+                                <p
+                                    className="text-xl lg:text-2xl font-black flex items-center min-h-[40px] leading-tight"
+                                    style={{ color: settings.accentColor2 || 'var(--color-primary)' }}
+                                >
+                                    <span>{text}</span>
+                                    <span className="w-1 h-8 mr-3 animate-pulse" style={{ backgroundColor: settings.accentColor2 || 'var(--color-primary)' }} />
                                 </p>
                             </div>
                         </div>
 
-                        <div className="flex flex-col items-center lg:items-start gap-10">
+                        <div className="flex flex-col items-center lg:items-start gap-8">
                             <Link
                                 to="/register"
-                                className="px-12 py-5 bg-primary text-white font-bold rounded-2xl transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-3 text-2xl group w-full lg:w-auto min-w-[240px] shadow-2xl shadow-primary/30"
+                                className="px-12 py-5 bg-primary text-white font-black rounded-2xl transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-4 text-xl group w-full lg:w-auto min-w-[260px] shadow-xl shadow-primary/30"
                             >
                                 {settings.landing_hero_cta || 'ابدأ الآن'}
+                                <div
+                                    className="w-8 h-8 rounded-xl flex items-center justify-center group-hover:rotate-12 transition-transform"
+                                    style={{ backgroundColor: settings.accentColor1 ? `${settings.accentColor1}40` : 'rgba(255,255,255,0.2)' }}
+                                >
+                                    <Sparkles className="w-4 h-4 text-white" />
+                                </div>
                             </Link>
 
-                            {/* Social Proof */}
-                            <div className="flex flex-col items-center lg:items-start gap-4">
-                                <div className="flex items-center -space-x-4 rtl:space-x-reverse">
+                            {/* Social Proof - Positioned under button */}
+                            <div className="flex items-center gap-4">
+                                <div className="flex items-center -space-x-3 rtl:space-x-reverse">
                                     {[1, 2, 3].map((i) => (
-                                        <div key={i} className="w-12 h-12 rounded-full border-4 border-white dark:border-[#0a0a0a] bg-gray-200 dark:bg-gray-800 flex items-center justify-center overflow-hidden shadow-xl shadow-black/5">
-                                            <img src={`https://i.pravatar.cc/150?u=saas_user${i}`} alt="user" className="w-full h-full object-cover" />
+                                        <div key={i} className="w-10 h-10 rounded-full border-2 border-white dark:border-[#0a0a0a] bg-gray-200 dark:bg-gray-800 flex items-center justify-center overflow-hidden shadow-lg">
+                                            <img src={`https://i.pravatar.cc/150?u=saas_user${i + 10}`} alt="user" className="w-full h-full object-cover" />
                                         </div>
                                     ))}
                                 </div>
-                                <p className="text-sm font-bold text-gray-500 dark:text-gray-400 flex items-center gap-2">
-                                    انضم إلى أكثر من 63 شخصاً قاموا بالتسجيل بالفعل!
+                                <p className="text-sm font-bold text-gray-500 dark:text-gray-400">
+                                    انضم إلى أكثر من <span className="text-gray-900 dark:text-white font-black">63 شخصاً</span> قاموا بالتسجيل بالفعل!
                                 </p>
                             </div>
                         </div>
