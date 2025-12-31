@@ -9,7 +9,6 @@ export default function AdManagement() {
             title="إدارة الإعلانات"
             icon={Megaphone}
             noPadding={true}
-            hideLeftSidebar={true}
         >
             <div className="w-full animate-in fade-in duration-700">
                 <AdsTable />

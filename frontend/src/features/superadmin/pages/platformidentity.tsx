@@ -173,7 +173,6 @@ export default function PlatformIdentity() {
             title="هوية المنصة"
             icon={Layout}
             noPadding={true}
-            hideLeftSidebar={true}
         >
             <div className="w-full bg-transparent animate-in fade-in duration-500">
                 <div className="mx-auto space-y-12 w-full max-w-7xl">

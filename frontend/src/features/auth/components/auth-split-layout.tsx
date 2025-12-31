@@ -54,18 +54,15 @@ export const AuthSplitLayout: React.FC<AuthSplitLayoutProps> = ({ children, titl
                         بوابتك المتكاملة لإدارة أعمالك بكفاءة واحترافية. انطلق نجو المستقبل اليوم.
                     </p>
 
-                    {/* Footer dynamic copyright */}
-                    <div className="absolute bottom-10 inset-x-0 text-center">
+                    <div className="flex flex-col items-center">
                         <p className="text-sm font-bold text-gray-400 opacity-70">
-                            {settings.appName} © {new Date().getFullYear()} أحد مشاريع{' '}
-                            {settings.companyLink ? (
-                                <a href={settings.companyLink} target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors hover:underline">
-                                    {settings.companyName || 'شركة مسلفورا'}
-                                </a>
-                            ) : (
-                                <span>{settings.companyName || 'شركة مسلفورا'}</span>
-                            )}
+                            {settings.appName} © {new Date().getFullYear()}
                         </p>
+                        {settings.companyName && (
+                            <p className="text-[10px] font-bold text-gray-400 mt-1">
+                                أحد مشاريع شركة {settings.companyName}
+                            </p>
+                        )}
                     </div>
                 </div>
             </div>

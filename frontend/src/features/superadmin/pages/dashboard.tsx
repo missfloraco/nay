@@ -57,7 +57,6 @@ export default function Dashboard() {
             <AdminLayout
                 title={TEXTS_ADMIN.DASHBOARD.WELCOME}
                 icon={LayoutDashboard}
-                hideLeftSidebar={true}
             >
                 <div className="p-10 flex items-center justify-center min-h-[60vh]">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
@@ -70,7 +69,6 @@ export default function Dashboard() {
         <AdminLayout
             title={TEXTS_ADMIN.DASHBOARD.WELCOME}
             icon={LayoutDashboard}
-            hideLeftSidebar={true}
         >
             <div className="space-y-12 w-full animate-in fade-in duration-500">
                 {/* 1. Header (Removed explicit title since it's now in AdminLayout prop) */}

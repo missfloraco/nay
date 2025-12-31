@@ -34,7 +34,7 @@ export default function AdminSettings() {
     }
 
     return (
-        <AdminLayout title="الحساب والأمان" icon={Settings} noPadding={true} hideLeftSidebar={true}>
+        <AdminLayout title="الحساب والأمان" icon={Settings} noPadding={true}>
             <div className="w-full bg-transparent animate-in fade-in duration-500">
                 <div className="max-w-none mx-auto">
                     <ProfileSettingsForm

@@ -17,15 +17,22 @@ class ScriptController extends Controller
 
     public function store(Request $request)
     {
+        // Handle mapping 'head' to 'header' if sent by frontend
+        if ($request->location === 'head') {
+            $request->merge(['location' => 'header']);
+        }
+
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
-            'type' => 'required|in:script,pixel,meta',
-            'location' => 'required|in:header,body,footer',
+            'type' => 'required|string',
+            'location' => 'required|string',
+            'loadingStrategy' => 'nullable|string',
             'content' => 'required|string',
             'isActive' => 'boolean',
-            'environment' => 'required|in:production,development,staging',
-            'trigger' => 'required|in:all,specific_pages',
-            'pages' => 'nullable|array',
+            'environment' => 'nullable|string',
+            'trigger' => 'nullable|string',
+            'pages' => 'nullable',
+            'deviceAttributes' => 'nullable|array',
         ]);
 
         if ($validator->fails()) {
@@ -47,15 +54,22 @@ class ScriptController extends Controller
     {
         $script = Script::findOrFail($id);
 
+        // Handle mapping 'head' to 'header' if sent by frontend
+        if ($request->location === 'head') {
+            $request->merge(['location' => 'header']);
+        }
+
         $validator = Validator::make($request->all(), [
             'name' => 'sometimes|string|max:255',
-            'type' => 'sometimes|in:script,pixel,meta',
-            'location' => 'sometimes|in:header,body,footer',
+            'type' => 'sometimes|string',
+            'location' => 'sometimes|string',
+            'loadingStrategy' => 'nullable|string',
             'content' => 'sometimes|string',
             'isActive' => 'boolean',
-            'environment' => 'sometimes|in:production,development,staging',
-            'trigger' => 'sometimes|in:all,specific_pages',
-            'pages' => 'nullable|array',
+            'environment' => 'sometimes|string',
+            'trigger' => 'sometimes|string',
+            'pages' => 'nullable',
+            'deviceAttributes' => 'nullable|array',
         ]);
 
         if ($validator->fails()) {

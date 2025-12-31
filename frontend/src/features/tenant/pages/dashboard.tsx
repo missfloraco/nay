@@ -6,6 +6,9 @@ import { StatCard } from '@/shared/ui/cards/card-stat';
 import { useTenantAuth } from '@/features/auth/tenant-auth-context';
 import { formatDate } from '@/shared/utils/helpers';
 import { useTrialStatus } from '@/core/hooks/usetrialstatus';
+import { useQuery } from '@tanstack/react-query';
+import api from '@/shared/services/api';
+import { MessageSquare } from 'lucide-react';
 
 const Dashboard: React.FC = () => {
     const { t, settings } = useSettings();
@@ -24,8 +27,16 @@ const Dashboard: React.FC = () => {
         setIsBannerDismissed(true);
     };
 
+    const { data: notificationData } = useQuery({
+        queryKey: ['support-notifications-count'],
+        queryFn: () => api.get('/app/support/notifications/support'),
+        refetchInterval: 5000,
+    });
+
+    const unreadCount = (notificationData as unknown as { count: number })?.count || 0;
+
     return (
-        <AppLayout title={t('dashboard.title', 'لوحة التحكم')}>
+        <AppLayout title={t('dashboard.title', 'لوحة التحكم')} icon={Layers}>
             <div className="animate-in fade-in duration-700 h-full flex flex-col space-y-10">
                 {/* Bonus Trial Banner - Gift Version */}
                 {settings?.currentUser?.tenant &&
@@ -143,28 +154,37 @@ const Dashboard: React.FC = () => {
                         title="حالة النظام"
                         value="نشط"
                         icon={ShieldCheck}
-                        colorFrom="from-green-600"
-                        colorTo="to-green-400"
+                        colorFrom="from-emerald-600"
+                        colorTo="to-emerald-400"
                         trend={100}
                         trendLabel="System is online"
                     />
                     <StatCard
-                        title="إصدار النظام"
-                        value="v2.0 Core"
-                        icon={Layers}
+                        title="المساحة المستخدمة"
+                        value="1.2 GB"
+                        icon={Database}
                         colorFrom="from-blue-600"
                         colorTo="to-blue-400"
-                        trend={20}
-                        trendLabel="Core architecture"
+                        trend={12}
+                        trendLabel="من أصل 10 GB"
                     />
                     <StatCard
-                        title="قاعدة البيانات"
-                        value="Connected"
-                        icon={Database}
-                        colorFrom="from-purple-600"
-                        colorTo="to-purple-400"
-                        trend={100}
-                        trendLabel="Stable connection"
+                        title="طلبات الدعم"
+                        value={unreadCount.toString()}
+                        icon={MessageSquare}
+                        colorFrom="from-rose-600"
+                        colorTo="to-rose-400"
+                        trend={unreadCount > 0 ? -5 : 0}
+                        trendLabel="تذكرة مفتوحة"
+                    />
+                    <StatCard
+                        title="الجلسات النشطة"
+                        value="3"
+                        icon={Zap}
+                        colorFrom="from-amber-600"
+                        colorTo="to-amber-400"
+                        trend={2}
+                        trendLabel="في آخر 24 ساعة"
                     />
                 </div>
             </div>

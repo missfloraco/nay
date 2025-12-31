@@ -205,16 +205,16 @@ export default function LandingLayout({ children }: LandingLayoutProps) {
 
                         {/* Bottom Copyright Bar */}
                         <div className="pt-10 border-t border-gray-200 flex flex-col md:flex-row items-center justify-between gap-8">
-                            <p className="text-base text-gray-600 font-bold order-last md:order-first">
-                                {finalAppName} © {new Date().getFullYear()} أحد مشاريع{' '}
-                                {settings.companyLink ? (
-                                    <a href={settings.companyLink} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
-                                        {settings.companyName || 'شركة مسلفورا'}
-                                    </a>
-                                ) : (
-                                    <span className="text-blue-500">{settings.companyName || 'شركة مسلفورا'}</span>
+                            <div className="flex flex-col order-last md:order-first">
+                                <p className="text-base text-gray-600 font-bold">
+                                    {finalAppName} © {new Date().getFullYear()}
+                                </p>
+                                {settings.companyName && (
+                                    <p className="text-[10px] font-bold text-gray-400 mt-1">
+                                        أحد مشاريع شركة {settings.companyName}
+                                    </p>
                                 )}
-                            </p>
+                            </div>
                             <div className="flex gap-8 text-gray-600 font-black text-xs md:mr-auto">
                                 <a href="#" className="hover:text-primary transition-colors">سياسة الخصوصية</a>
                                 <a href="#" className="hover:text-primary transition-colors">الشروط والأحكام</a>

@@ -6,7 +6,8 @@ import {
     Plus,
     Loader2,
     MessageSquare,
-    Sparkles
+    Sparkles,
+    Layers
 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { useTenantAuth } from '@/features/auth/tenant-auth-context';
@@ -21,26 +22,26 @@ import { logger } from '@/shared/services/logger';
 import AdSlot from '@/shared/ads/adslot';
 import { StatusWidget } from '@/shared/components/statuswidget';
 import { ImpersonationBanner } from '@/shared/components/impersonationbanner';
-import { LeftSidebar } from '@/shared/layout/sidebar/sidebar-left';
 import ShieldOverlay from '@/shared/components/shield-overlay';
 import { useUI } from '@/shared/contexts/ui-context';
 import { Drawer } from '@/shared/ui/drawer';
+import { MainSidebar } from '@/shared/layout/sidebar/sidebar-main';
 
 interface AppLayoutProps {
     children: ReactNode;
     title?: string;
     noPadding?: boolean;
-    leftSidebarContent?: ReactNode;
     actions?: ReactNode;
+    icon?: any;
 }
 
-const AppLayout: React.FC<AppLayoutProps> = ({ children, title = '', noPadding = false, leftSidebarContent, actions }) => {
+const AppLayout: React.FC<AppLayoutProps> = ({ children, title = '', icon, noPadding = false, actions }) => {
     const { user, tenant, isImpersonating, logout: logoutTenant } = useTenantAuth();
     const { user: adminUser } = useAdminAuth();
     const { settings, isAdBlockActive, isCheckingAdBlock } = useSettings();
     const { t } = useText();
     const { primaryAction } = useAction();
-    const { isRightDrawerOpen, isLeftDrawerOpen, closeDrawers, toggleRightDrawer } = useUI();
+    const { isRightDrawerOpen, closeDrawers, toggleRightDrawer } = useUI();
     const isAdminSession = isImpersonating || !!adminUser;
     const location = useLocation();
 
@@ -73,213 +74,79 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, title = '', noPadding =
     const trashCount = (trashData as any)?.stats?.total || 0;
 
     const menuItems = [
+        { icon: Layers, label: t('tenant.NAV.DASHBOARD', 'لوحة التحكم'), path: '/app', color: 'text-blue-600' },
         { icon: MessageSquare, label: t('tenant.NAV.SUPPORT', 'رسائل الدعم'), path: '/app/support/messages', color: 'text-[#fb005e]', badge: unreadCount },
         { icon: Trash2, label: t('tenant.NAV.RECYCLE_BIN', 'سلة المحذوفات'), path: '/app/trash', color: 'text-red-600 font-black', badge: trashCount },
     ];
 
     return (
-        <div className={`layout-root transition-colors duration-500 ${isImpersonating ? 'pt-[64px]' : ''}`} dir="rtl">
+        <div className={`transition-colors duration-500 h-screen w-full overflow-hidden flex bg-white dark:bg-dark-950 ${isImpersonating ? 'pt-[64px]' : ''}`} dir="rtl">
             {!isCheckingAdBlock && isAdBlockActive && <ShieldOverlay />}
-            <ImpersonationBanner
-                tenantName={tenant?.name || '...'}
-                onExit={handleExitImpersonation}
-            />
+            <ImpersonationBanner tenantName={tenant?.name || '...'} onExit={handleExitImpersonation} />
 
-            <Header
-                onMenuClick={() => { }}
-                className="global-header"
-                title={title || ''}
-                actions={
+            {/* 1. Main Navigation Sidebar - Full Height */}
+            <MainSidebar items={menuItems} homePath="/app/welcome" className="desktop-sidebar" />
+
+            {/* 2. Content Column Pillar */}
+            <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden relative">
+                <Header onMenuClick={() => { }} className="global-header shrink-0" title={title || ''} icon={icon} hideBranding={true} actions={
                     <div className="flex items-center gap-3">
-                        {/* Manual Actions */}
                         {actions}
-
-                        {/* Primary Action from Context (Replaces Footer) */}
                         {primaryAction && (
-                            <button
-                                type={primaryAction.type || 'button'}
-                                form={primaryAction.form}
-                                onClick={primaryAction.onClick}
-                                disabled={primaryAction.disabled || primaryAction.loading}
-                                className={`flex items-center justify-center gap-2 py-2 px-4 ${primaryAction.variant === 'danger' ? 'bg-red-600 shadow-red-500/20' : 'bg-primary shadow-primary/30'} text-white rounded-lg shadow-md transition-all font-bold hover:scale-[1.02] active:scale-95 disabled:opacity-50 text-sm`}
-                            >
+                            <button type={primaryAction.type || 'button'} form={primaryAction.form} onClick={primaryAction.onClick} disabled={primaryAction.disabled || primaryAction.loading} className={`flex items-center justify-center gap-2 py-2 px-4 ${primaryAction.variant === 'danger' ? 'bg-red-600' : 'bg-primary'} text-white rounded-lg shadow-md transition-all font-bold hover:scale-[1.02] text-sm`}>
                                 {primaryAction.loading ? <Loader2 className="w-4 h-4 animate-spin" /> : primaryAction.icon ? <primaryAction.icon className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
                                 <span className="text-sm">{primaryAction.label}</span>
                             </button>
                         )}
                     </div>
-                }
-            />
+                } />
 
-            <div className="main-content-wrapper">
-                <aside
-                    className="desktop-sidebar bg-white dark:bg-dark-900 border-l border-gray-200 dark:border-dark-700 z-40 transition-all duration-500 ease-in-out flex flex-col w-[250px]"
-                >
-                    <nav className="flex-1 overflow-y-auto no-scrollbar p-6 space-y-1.5">
-                        {menuItems.map((item) => {
-                            const isActive = location.pathname.startsWith(item.path);
-                            return (
-                                <div key={item.path} className="relative group/item">
-                                    <Link
-                                        to={item.path}
-                                        className={`flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all duration-300 font-bold group relative overflow-hidden
-                                        ${isActive
-                                                ? 'bg-primary text-white shadow-lg shadow-primary/30 active-nav-item'
-                                                : 'text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-dark-800/50 hover:text-gray-900 dark:hover:text-white'}`}
-                                    >
-                                        <item.icon className="w-5 h-5 transition-all duration-500 scale-110" />
-                                        <span className="sidebar-label-text text-sm flex-1">
-                                            {item.label}
-                                        </span>
-                                        {(item as any).badge > 0 && (
-                                            <span className="bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[20px] h-5 flex items-center justify-center px-1 animate-pulse">
-                                                {(item as any).badge > 9 ? '9+' : (item as any).badge}
-                                            </span>
-                                        )}
-                                    </Link>
-                                </div>
-                            );
-                        })}
-                    </nav>
-
-                    <div className="flex flex-col border-t border-gray-200 dark:border-dark-700 bg-gray-50/30 dark:bg-dark-800/20">
-                        {/* Removed Primary Action from Sidebar */}
-                    </div>
-                </aside>
-
-                {/* Mobile/Tablet Right Drawer (Global Navigation) */}
-                <Drawer
-                    isOpen={isRightDrawerOpen}
-                    onClose={closeDrawers}
-                    side="right"
-                    title={t('common.navigation', 'التنقل الرئيسي')}
-                >
-                    <nav className="p-6 space-y-1.5 h-full flex flex-col">
-                        <div className="flex-1 space-y-1.5">
-                            {menuItems.map((item) => {
-                                const isActive = location.pathname.startsWith(item.path);
-                                return (
-                                    <Link
-                                        key={item.path}
-                                        to={item.path}
-                                        onClick={closeDrawers}
-                                        className={`flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all duration-300 font-bold
-                                        ${isActive
-                                                ? 'bg-primary text-white shadow-lg shadow-primary/30'
-                                                : 'text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-dark-800/50 hover:text-gray-900 dark:hover:text-white'}`}
-                                    >
-                                        <item.icon className="w-5 h-5" />
-                                        <span className="text-sm flex-1">{item.label}</span>
-                                        {item.badge > 0 && (
-                                            <span className="bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[20px] h-5 flex items-center justify-center px-1">
-                                                {item.badge > 9 ? '9+' : item.badge}
-                                            </span>
-                                        )}
-                                    </Link>
-                                );
-                            })}
-                        </div>
-
-                        {/* Mobile Primary Action (Inside Drawer) */}
-                        {primaryAction && (
-                            <div className="pt-6 border-t border-gray-100 dark:border-white/5 mt-auto">
-                                <button
-                                    onClick={() => {
-                                        primaryAction.onClick?.();
-                                        closeDrawers();
-                                    }}
-                                    className={`flex items-center justify-center gap-3 w-full py-4 px-6 ${primaryAction.variant === 'danger' ? 'bg-red-600' : 'bg-primary'} text-white rounded-2xl shadow-lg font-black transition-all`}
-                                >
-                                    {primaryAction.icon ? <primaryAction.icon className="w-5 h-5" /> : <Plus className="w-5 h-5" />}
-                                    <span className="text-sm">{primaryAction.label}</span>
-                                </button>
-                            </div>
-                        )}
-                    </nav>
-                </Drawer>
-
-                {/* Mobile/Tablet Left Drawer (Contextual Sidebar) */}
-                {leftSidebarContent && (
-                    <Drawer
-                        isOpen={isLeftDrawerOpen}
-                        onClose={closeDrawers}
-                        side="left"
-                        title={t('common.options', 'خيارات إضافية')}
-                    >
-                        <div className="h-full flex flex-col py-4" onClick={closeDrawers}>
-                            {leftSidebarContent}
-                        </div>
-                    </Drawer>
-                )}
-
-                <div className="content-area-main flex-1 flex flex-col min-h-0 bg-gray-50 dark:bg-dark-950">
-                    <div className="flex-1 flex overflow-hidden h-full">
-                        {/* Main Page Content Scroll Area */}
-                        <main className="flex-1 overflow-auto no-scrollbar relative flex flex-col h-full">
-                            <div className="page-main-wrapper">
+                <div className="flex-1 flex flex-col min-h-0 bg-gray-50 dark:bg-dark-950">
+                    <div className="flex-1 flex overflow-hidden p-[var(--page-margin)] pb-0 gap-[var(--page-margin)]">
+                        <main className="flex-1 overflow-auto no-scrollbar relative flex flex-col mb-[var(--page-margin)]">
+                            <div className="page-main-wrapper flex flex-col flex-1">
                                 <div className={`page-frame-container flex-1 flex flex-col ${noPadding ? 'p-0' : ''}`}>
                                     {children}
                                 </div>
                             </div>
                         </main>
-
-                        <LeftSidebar>
-                            {leftSidebarContent}
-                        </LeftSidebar>
                     </div>
 
-                    {/* Footer Sibling (Fixed outside scroll area for ZERO overlap) */}
-                    <footer className="z-40 bg-white/80 dark:bg-dark-950/80 backdrop-blur-md border-none h-[90px] flex items-center justify-between px-12 transition-all shrink-0">
-                        {/* Left Side: Empty */}
-                        <div className="flex items-center gap-6">
-                        </div>
-
-                        {/* Middle: Ad Slot */}
+                    <footer className="z-40 bg-white/80 dark:bg-dark-950/80 backdrop-blur-md border-t border-gray-100 dark:border-white/5 h-[90px] flex items-center justify-between px-12 transition-all shrink-0">
+                        <div className="flex items-center gap-6"></div>
                         <div className="flex-1 flex items-center justify-center overflow-hidden h-full">
-                            <AdSlot
-                                placement="ad_footer_leaderboard"
-                                className="w-full h-full"
-                                showPlaceholder={false}
-                            />
+                            <AdSlot placement="ad_footer_leaderboard" className="w-full h-full" showPlaceholder={false} />
                         </div>
-
-                        {/* Right Side: Actions */}
                         <div className="flex items-center gap-6">
                             {primaryAction && (
-                                <button
-                                    onClick={primaryAction.onClick}
-                                    disabled={primaryAction.disabled || primaryAction.loading}
-                                    className={`hidden lg:flex items-center gap-3 px-8 py-4 rounded-2xl shadow-xl hover:scale-[1.02] active:scale-95 transition-all font-black text-sm uppercase tracking-wider
-                                        ${primaryAction.variant === 'danger'
-                                            ? 'bg-red-600 text-white shadow-red-500/20'
-                                            : 'bg-primary text-white shadow-primary/30'
-                                        }`}
-                                >
-                                    {primaryAction.loading ? (
-                                        <Loader2 className="w-5 h-5 animate-spin" />
-                                    ) : (
-                                        React.createElement(primaryAction.icon || Plus, { className: "w-5 h-5" })
-                                    )}
+                                <button onClick={primaryAction.onClick} disabled={primaryAction.disabled || primaryAction.loading} className={`hidden lg:flex items-center gap-3 px-8 py-4 rounded-2xl shadow-xl transition-all font-black text-sm uppercase ${primaryAction.variant === 'danger' ? 'bg-red-600' : 'bg-primary'} text-white`}>
+                                    {primaryAction.loading ? <Loader2 className="w-5 h-5 animate-spin" /> : React.createElement(primaryAction.icon || Plus, { className: "w-5 h-5" })}
                                     <span className="text-base">{primaryAction.label}</span>
                                 </button>
                             )}
-
-                            {!isAdminSession && (
-                                <StatusWidget type="tenant" tenant={tenant} />
-                            )}
+                            {!isAdminSession && <StatusWidget type="tenant" tenant={tenant} />}
                         </div>
                     </footer>
                 </div>
             </div>
 
-            {/* Mobile Navigation Bar */}
+
+            <Drawer isOpen={isRightDrawerOpen} onClose={closeDrawers} side="right" title={t('common.navigation', 'التنقل الرئيسي')}>
+                <nav className="p-6 space-y-1.5 h-full flex flex-col">
+                    <div className="flex-1 space-y-1.5">
+                        {menuItems.map((item) => (
+                            <Link key={item.path} to={item.path} onClick={closeDrawers} className={`flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all font-bold ${location.pathname.startsWith(item.path) ? 'bg-primary text-white shadow-lg' : 'text-gray-500'}`}>
+                                <item.icon className="w-5 h-5" />
+                                <span className="text-sm flex-1">{item.label}</span>
+                            </Link>
+                        ))}
+                    </div>
+                </nav>
+            </Drawer>
+
+
             <div className="mobile-only">
-                <BottomNav
-                    items={menuItems}
-                    user={user}
-                    onLogout={() => logoutTenant(false)}
-                    settingsPath="/app/settings"
-                />
+                <BottomNav items={menuItems} user={user} onLogout={() => logoutTenant(false)} settingsPath="/app/settings" />
             </div>
         </div>
     );

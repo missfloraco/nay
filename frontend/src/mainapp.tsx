@@ -1,4 +1,4 @@
-﻿import React, { useEffect, lazy, Suspense } from 'react';
+import React, { useEffect, lazy, Suspense } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AdminAuthProvider, useAdminAuth } from '@/features/auth/admin-auth-context';
 import { TenantAuthProvider, useTenantAuth } from '@/features/auth/tenant-auth-context';
@@ -16,7 +16,6 @@ import { ExportModal } from '@/shared/ui/modals/export-modal';
 const AuthScreen = lazy(() => import('@/features/auth/authscreen'));
 // const Register removed in favor of AuthScreen
 
-const ForgotPassword = lazy(() => import('@/features/auth/forgotpassword'));
 const ResetPassword = lazy(() => import('@/features/auth/resetpassword'));
 
 const LandingPage = lazy(() => import('@/features/landing/pages/home'));
@@ -41,6 +40,7 @@ const TrialExpired = lazy(() => import('@/features/tenant/trial-expired'));
 const ActivationWaiting = lazy(() => import('@/features/tenant/pages/activation-waiting'));
 // Unified Trash Page
 const Trash = lazy(() => import('@/shared/pages/trash'));
+const WelcomePage = lazy(() => import('@/shared/pages/welcome'));
 
 // Security: Import ProtectedRoute for backend-verified route protection
 import { ProtectedRoute } from '@/shared/components/protectedroute';
@@ -58,6 +58,7 @@ function AdminRoutes() {
     return (
         <Routes>
             <Route path="/" element={<AdminDashboard />} />
+            <Route path="/welcome" element={<WelcomePage />} />
             <Route path="/tenants" element={<OperationsPage />} />
             <Route path="/payments" element={<OperationsPage />} />
             <Route path="/ads" element={<AdManagement />} />
@@ -77,6 +78,7 @@ function AppSubRoutes() {
     return (
         <Routes>
             <Route path="/" element={<TenantDashboard />} />
+            <Route path="/welcome" element={<WelcomePage />} />
             <Route path="/settings" element={<TenantSettings />} />
             <Route path="/support/messages" element={<TenantSupportMessages />} />
             <Route path="/trash" element={<Trash />} />
@@ -181,7 +183,7 @@ function MainAppContent() {
                                 } />
 
                                 <Route path="/register" element={<AuthScreen initialMode="register" />} />
-                                <Route path="/forgot-password" element={<ForgotPassword />} />
+                                <Route path="/forgot-password" element={<AuthScreen initialMode="forgot-password" />} />
                                 <Route path="/reset-password" element={<ResetPassword />} />
 
                                 {/* 403 Forbidden Page */}

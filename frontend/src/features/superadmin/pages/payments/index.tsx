@@ -209,7 +209,6 @@ export default function PaymentsPage() {
         <AdminLayout
             title="إدارة المدفوعات"
             icon={Wallet}
-            hideLeftSidebar={true}
         >
             <div className="flex flex-col h-full bg-white dark:bg-dark-900">
                 {/* Header Actions / Filter Toolbar */}

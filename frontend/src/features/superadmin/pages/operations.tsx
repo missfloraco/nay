@@ -27,7 +27,6 @@ export default function OperationsPage() {
         <AdminLayout
             title={activeTab === 'tenants' ? 'إدارة المشتركين' : 'سجل المدفوعات'}
             icon={activeTab === 'tenants' ? Users : Wallet}
-            hideLeftSidebar={true}
             noPadding={true}
         >
             <div className="flex flex-col h-full">
@@ -37,8 +36,8 @@ export default function OperationsPage() {
                         <button
                             onClick={() => handleTabChange('tenants')}
                             className={`pb-4 px-2 text-sm font-black relative transition-all ${activeTab === 'tenants'
-                                    ? 'text-primary'
-                                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
+                                ? 'text-primary'
+                                : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
                                 }`}
                         >
                             <div className="flex items-center gap-2">
@@ -53,8 +52,8 @@ export default function OperationsPage() {
                         <button
                             onClick={() => handleTabChange('payments')}
                             className={`pb-4 px-2 text-sm font-black relative transition-all ${activeTab === 'payments'
-                                    ? 'text-primary'
-                                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
+                                ? 'text-primary'
+                                : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
                                 }`}
                         >
                             <div className="flex items-center gap-2">

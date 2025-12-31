@@ -97,7 +97,6 @@ export default function SeoManagement() {
             title="إدارة SEO"
             icon={BarChart3}
             noPadding={true}
-            hideLeftSidebar={true}
         >
             <div className="w-full bg-transparent animate-in fade-in duration-500">
                 <div className="max-w-6xl mx-auto space-y-12 w-full">

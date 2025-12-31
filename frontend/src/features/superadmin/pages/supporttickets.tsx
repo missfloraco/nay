@@ -163,7 +163,6 @@ const SupportTickets = () => {
             title="إدارة رسائل الدعم"
             icon={MessageSquare}
             noPadding={false}
-            hideLeftSidebar={true}
         >
             <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in duration-700">
 

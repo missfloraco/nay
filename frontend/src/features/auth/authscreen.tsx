@@ -118,7 +118,7 @@ export default function AuthScreen({ initialMode = 'login' }: { initialMode?: Au
         setSuccess('');
         setLoading(true);
 
-        console.log('handleSubmit called', { mode, formData });
+        // Logic handled by handleUnifiedLogin or registration logic below
 
         try {
             // Validation

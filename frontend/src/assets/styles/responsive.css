@@ -162,10 +162,9 @@
     }
 
     .page-main-wrapper {
-        @apply p-[var(--page-margin)] flex flex-col min-h-0 w-full;
-        /* External margins from all sides ensured by padding on main-wrapper */
+        @apply flex flex-col min-h-0 w-full;
+        /* External margins are now managed by the Layout frame */
         height: min-content;
-        /* Allow it to grow with content */
         min-height: 100%;
     }
 

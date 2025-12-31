@@ -4,6 +4,7 @@ import ProfileSettingsForm from '@/shared/components/profile-settings-form';
 import { useTenantAuth } from '@/features/auth/tenant-auth-context';
 import { useAction } from '@/shared/contexts/action-context';
 import { useEffect } from 'react';
+import { Settings } from 'lucide-react';
 
 export default function TenantSettings() {
     const { user, tenant, refreshUser, updateLocalUser } = useTenantAuth();
@@ -22,7 +23,7 @@ export default function TenantSettings() {
     if (!tenant) return null;
 
     return (
-        <AppLayout title="الإعدادات" noPadding={true}>
+        <AppLayout title="الإعدادات" icon={Settings} noPadding={true}>
             <div className="w-full bg-transparent animate-in fade-in duration-500">
                 <div className="max-w-none mx-auto">
                     <ProfileSettingsForm

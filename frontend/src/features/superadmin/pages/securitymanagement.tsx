@@ -178,7 +178,6 @@ export default function SecurityManagement() {
             title="إعدادات الحماية"
             icon={Shield}
             noPadding={true}
-            hideLeftSidebar={true}
         >
             <div className="w-full bg-transparent animate-in fade-in duration-500">
                 <div className="mx-auto space-y-12 w-full">

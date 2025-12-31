@@ -13,15 +13,18 @@ class Script extends Model
         'name',
         'type',
         'location',
+        'loadingStrategy',
         'content',
         'isActive',
         'environment',
         'trigger',
         'pages',
+        'deviceAttributes',
     ];
 
     protected $casts = [
         'isActive' => 'boolean',
         'pages' => 'array',
+        'deviceAttributes' => 'array',
     ];
 }

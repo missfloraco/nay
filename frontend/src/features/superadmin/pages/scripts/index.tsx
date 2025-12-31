@@ -184,7 +184,6 @@ export default function ScriptsManager() {
         <AdminLayout
             title="إدارة النصوص البرمجية (Scripts)"
             icon={Code}
-            hideLeftSidebar={true}
         >
             <div className="flex flex-col w-full animate-in fade-in duration-500">
                 {/* Warning Banner */}

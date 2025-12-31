@@ -16,24 +16,10 @@ import Modal from '@/shared/ui/modals/modal';
 export default function Trash() {
     const location = useLocation();
     const { t } = useSettings();
-    const { setPrimaryAction } = useAction();
-    const [isOptionsOpen, setIsOptionsOpen] = useState(false);
-
-    // Determine if admin or tenant based on route
     const isAdmin = location.pathname.startsWith('/admin');
     const endpoint = isAdmin ? '/admin/trash' : '/app/trash';
-
     const trash = useTrash({ endpoint });
 
-    // Register Primary Action
-    React.useEffect(() => {
-        setPrimaryAction({
-            label: 'خيارات السلة',
-            icon: Settings2,
-            onClick: () => setIsOptionsOpen(true)
-        });
-        return () => setPrimaryAction(null);
-    }, [setPrimaryAction]);
 
     const getTypeLabel = (type: string) => {
         if (isAdmin) {
@@ -115,7 +101,6 @@ export default function Trash() {
                     <button
                         onClick={() => {
                             trash.emptyTrash();
-                            setIsOptionsOpen(false);
                         }}
                         className="w-full h-14 flex items-center justify-center gap-3 bg-red-600 text-white rounded-2xl font-black text-sm hover:bg-red-700 transition-all shadow-xl shadow-red-500/10 group active:scale-[0.98]"
                     >
@@ -133,7 +118,6 @@ export default function Trash() {
                         <button
                             onClick={() => {
                                 trash.bulkRestore();
-                                setIsOptionsOpen(false);
                             }}
                             className="w-full h-14 flex items-center justify-center gap-3 bg-emerald-600 text-white rounded-2xl font-black text-sm hover:bg-emerald-700 transition-all shadow-xl shadow-emerald-500/10"
                         >
@@ -143,7 +127,6 @@ export default function Trash() {
                         <button
                             onClick={() => {
                                 trash.bulkForceDelete();
-                                setIsOptionsOpen(false);
                             }}
                             className="w-full h-14 flex items-center justify-center gap-3 bg-red-50 text-red-600 border border-red-100 rounded-2xl font-black text-sm hover:bg-red-100 transition-all"
                         >
@@ -264,16 +247,10 @@ export default function Trash() {
                 />
             </div>
 
-            <Modal
-                isOpen={isOptionsOpen}
-                onClose={() => setIsOptionsOpen(false)}
-                title="خيارات السلة"
-                size="lg"
-            >
-                {optionsContent}
-            </Modal>
         </div>
     );
+
+
 
     // Render with appropriate layout
     if (isAdmin) {
@@ -281,18 +258,37 @@ export default function Trash() {
             <AdminLayout
                 title={TEXTS_ADMIN?.TITLES?.RECYCLE_BIN || 'سلة المهملات'}
                 icon={Trash2}
-                hideLeftSidebar={true}
             >
-                {tableContent}
+                <div className="p-8">
+                    {tableContent}
+                    <div className="mt-12 pt-12 border-t border-gray-100 dark:border-dark-800">
+                        {optionsContent}
+                    </div>
+                </div>
             </AdminLayout>
         );
-    } else {
-        return (
-            <AppLayout
-                title={t('trash.title', 'سلة المحذوفات')}
-            >
-                {tableContent}
-            </AppLayout>
-        );
     }
+
+    return (
+        <AppLayout
+            title={t('trash.title', 'سلة المحذوفات')}
+            icon={Trash2}
+            noPadding={true}
+        >
+            <div className="flex h-full bg-white dark:bg-dark-900 overflow-hidden">
+                {/* Internal Sidebar */}
+                <div className="hidden lg:flex w-[350px] border-l border-gray-100 dark:border-dark-800 shrink-0 bg-gray-50/5 overflow-y-auto no-scrollbar">
+                    <div className="p-8 w-full">
+                        {optionsContent}
+                    </div>
+                </div>
+
+                {/* Main Content Area */}
+                <div className="flex-1 flex flex-col min-w-0 relative bg-gray-50/20 overflow-y-auto no-scrollbar p-8">
+                    {tableContent}
+                </div>
+            </div>
+        </AppLayout>
+    );
 }
+
