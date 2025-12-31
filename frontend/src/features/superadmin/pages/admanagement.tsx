@@ -10,7 +10,7 @@ export default function AdManagement() {
             icon={Megaphone}
             noPadding={true}
         >
-            <div className="w-full animate-in fade-in duration-700">
+            <div className="w-full max-w-[1600px] mx-auto animate-in fade-in duration-700">
                 <AdsTable />
             </div>
         </AdminLayout>

@@ -90,14 +90,14 @@ export const Header: React.FC<HeaderProps> = ({
           <div className="flex items-center h-full px-4 lg:pr-8 lg:pl-6 lg:border-l border-gray-300 flex-shrink-0 justify-between header-logo-section">
             <Link
               to={dashboardPath}
-              className="flex items-center gap-4 transition-all duration-300 hover:opacity-80 active:scale-95 group overflow-hidden"
+              className="flex items-center gap-3 transition-all duration-300 hover:opacity-80 active:scale-95 group overflow-hidden"
             >
               <div className="flex items-center gap-3 truncate">
                 {finalLogoUrl ? (
                   <img
                     src={finalLogoUrl}
                     alt={finalAppName}
-                    className="h-9 w-auto max-w-[120px] object-contain group-hover:rotate-1 transition-transform logo-img"
+                    className="h-8 lg:h-9 w-auto max-w-[120px] object-contain group-hover:rotate-1 transition-transform logo-img"
                   />
                 ) : null}
                 <span
@@ -133,8 +133,8 @@ export const Header: React.FC<HeaderProps> = ({
         {/* Mobile Actions Overlay */}
         {/* Mobile Actions Overlay (Left side in RTL) */}
         <div className="flex sm:hidden items-center gap-2">
+          {/* Mobile Search Icon */}
           <GlobalSearch variant="header-left" />
-          <ThemeToggle />
         </div>
 
         <div className="hidden sm:flex items-center gap-4 w-full justify-end h-full">

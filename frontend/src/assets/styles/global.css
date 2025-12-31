@@ -71,16 +71,17 @@
 }
 
 .page-frame-container {
-  @apply bg-white dark:bg-dark-900 border border-gray-100 dark:border-white/5 shadow-premium rounded-[2.5rem] overflow-hidden transition-all duration-300;
+  @apply bg-transparent rounded-[2.5rem] transition-all duration-300;
   padding: 2.5rem;
   width: 100%;
   flex: 1;
   /* Fix for content bleeding into footer */
   display: flex;
   flex-direction: column;
-  min-height: 0;
   position: relative;
   z-index: 10;
+  overflow: visible;
+  /* Ensure content is not clipped */
 }
 
 /* Utilities */
@@ -194,8 +195,7 @@
 @media (min-width: 769px) {
   .page-frame-container {
     @apply w-full max-w-full mx-auto;
-    @apply border border-gray-100 shadow-premium;
-    padding: 1.5rem;
-    /* 24px - Consistent padding for all sides */
+    /* Unified Premium Margin */
+    padding: 2.5rem;
   }
 }

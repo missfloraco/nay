@@ -83,8 +83,8 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, title = '', icon, noPad
                 <Header onMenuClick={() => { }} className="global-header shrink-0" title={title || ''} icon={icon} hideBranding={true} />
 
                 <div className="flex-1 flex flex-col min-h-0 bg-gray-50 dark:bg-dark-950">
-                    <div className="flex-1 flex overflow-hidden p-[var(--page-margin)] pb-0 gap-[var(--page-margin)]">
-                        <main className="flex-1 overflow-auto no-scrollbar relative flex flex-col mb-[var(--page-margin)]">
+                    <div className="flex-1 flex overflow-hidden">
+                        <main className="flex-1 overflow-auto no-scrollbar relative flex flex-col">
                             <div className="page-main-wrapper flex flex-col flex-1">
                                 <div className={`page-frame-container flex-1 flex flex-col ${noPadding ? 'p-0' : ''}`}>
                                     {children}
@@ -96,6 +96,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, title = '', icon, noPad
                     <footer className="z-40 bg-white/80 dark:bg-dark-950/80 backdrop-blur-md border-t border-gray-100 dark:border-white/5 h-[90px] flex items-center justify-between transition-all shrink-0 overflow-hidden">
                         <div className="flex items-center gap-6 pr-6">
                             {actions}
+                            <div id="table-pagination-portal" className="flex items-center" />
                         </div>
                         <div className="flex items-center px-6 shrink-0 h-full border-r border-gray-100 dark:border-white/5 bg-gray-50/30 dark:bg-white/5">
                             {extraActions.map((action, idx) => (

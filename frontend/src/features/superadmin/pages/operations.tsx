@@ -4,6 +4,7 @@ import { Users, Wallet, Layers } from 'lucide-react';
 import AdminLayout from '@/features/superadmin/pages/adminlayout';
 import TenantsTable from '@/features/superadmin/components/tenants-table';
 import PaymentsTable from '@/features/superadmin/components/payments-table';
+import { FooterFilters } from '@/shared/components/footer-filters';
 
 export default function OperationsPage() {
     const location = useLocation();
@@ -29,43 +30,19 @@ export default function OperationsPage() {
             icon={activeTab === 'tenants' ? Users : Wallet}
             noPadding={true}
         >
-            <div className="flex flex-col h-full">
-                {/* Tab Switcher */}
-                <div className="bg-white dark:bg-dark-950 border-b border-gray-200 dark:border-dark-800 px-6 pt-6">
-                    <div className="flex items-center gap-6">
-                        <button
-                            onClick={() => handleTabChange('tenants')}
-                            className={`pb-4 px-2 text-sm font-black relative transition-all ${activeTab === 'tenants'
-                                ? 'text-primary'
-                                : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
-                                }`}
-                        >
-                            <div className="flex items-center gap-2">
-                                <Users className="w-5 h-5" />
-                                <span>المشتركين</span>
-                            </div>
-                            {activeTab === 'tenants' && (
-                                <div className="absolute bottom-0 left-0 right-0 h-1 bg-primary rounded-t-full" />
-                            )}
-                        </button>
+            <div className="flex flex-col h-full w-full max-w-[1600px] mx-auto bg-white dark:bg-dark-950 shadow-sm border-x border-gray-100/50 dark:border-white/5">
+                <FooterFilters
+                    title="تصفية العمليات"
+                    activeValue={activeTab}
+                    onChange={(val) => handleTabChange(val as 'tenants' | 'payments')}
+                    variant="pills"
+                    options={[
+                        { id: 'tenants', label: 'المشتركين', icon: Users },
+                        { id: 'payments', label: 'سجل المدفوعات', icon: Wallet }
+                    ]}
+                />
 
-                        <button
-                            onClick={() => handleTabChange('payments')}
-                            className={`pb-4 px-2 text-sm font-black relative transition-all ${activeTab === 'payments'
-                                ? 'text-primary'
-                                : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
-                                }`}
-                        >
-                            <div className="flex items-center gap-2">
-                                <Wallet className="w-5 h-5" />
-                                <span>المدفوعات</span>
-                            </div>
-                            {activeTab === 'payments' && (
-                                <div className="absolute bottom-0 left-0 right-0 h-1 bg-primary rounded-t-full" />
-                            )}
-                        </button>
-                    </div>
-                </div>
+                {/* Content Area - Full Height without top tabs */}
 
                 {/* Content Area */}
                 <div className="flex-1 bg-gray-50/50 dark:bg-dark-900/50">

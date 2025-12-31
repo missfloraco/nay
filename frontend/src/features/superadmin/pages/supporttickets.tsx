@@ -3,10 +3,11 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/shared/services/api';
 import AdminLayout from './adminlayout';
 import { formatDate } from '@/shared/utils/helpers';
-import { MessageSquare, SendHorizontal, CheckCircle, Clock, Info, Trash2, X, AlertCircle, Archive, Shield, Link, ShieldCheck, Search, Filter } from 'lucide-react';
+import { MessageSquare, SendHorizontal, CheckCircle, Clock, Info, Trash2, X, AlertCircle, Archive, Shield, Link, ShieldCheck, Search, Filter, Loader2 } from 'lucide-react';
 import { useFeedback } from '@/shared/ui/notifications/feedback-context';
 import InputField from '@/shared/ui/forms/input-field';
 import Modal from '@/shared/ui/modals/modal';
+import { FooterFilters } from '@/shared/components/footer-filters';
 
 const SupportTickets = () => {
     const queryClient = useQueryClient();
@@ -167,44 +168,19 @@ const SupportTickets = () => {
             <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in duration-700">
 
                 {/* Filters Section */}
-                <div className="flex flex-col md:flex-row items-center justify-between gap-6 bg-white dark:bg-dark-900 p-6 rounded-[2rem] border border-gray-100 dark:border-white/5 shadow-sm">
-                    <div className="flex items-center gap-4">
-                        <div className="p-3 bg-primary/10 rounded-2xl text-primary">
-                            <Filter className="w-6 h-6" />
-                        </div>
-                        <div>
-                            <h3 className="font-black text-xl text-gray-900 dark:text-white">تصفية التذاكر</h3>
-                            <p className="text-xs font-bold text-gray-400">تحكم في عرض التذاكر حسب حالتـها الحالية</p>
-                        </div>
-                    </div>
-
-                    <div className="flex flex-wrap items-center gap-2">
-                        {[
-                            { id: 'all', label: 'الكل', icon: MessageSquare, color: 'text-gray-400' },
-                            { id: 'open', label: 'مفتوحة', icon: AlertCircle, color: 'text-blue-500' },
-                            { id: 'in_progress', label: 'قيد المعالجة', icon: Clock, color: 'text-yellow-500' },
-                            { id: 'resolved', label: 'محلولة', icon: CheckCircle, color: 'text-green-500' },
-                            { id: 'closed', label: 'مغلقة', icon: X, color: 'text-gray-500' },
-                            { id: 'archived', label: 'الأرشيف', icon: Archive, color: 'text-red-400' },
-                        ].map((item) => {
-                            const isActive = statusFilter === item.id;
-                            return (
-                                <button
-                                    key={item.id}
-                                    onClick={() => setStatusFilter(item.id)}
-                                    className={`flex items-center gap-2 px-6 py-3 rounded-2xl transition-all font-black text-xs relative group
-                                    ${isActive
-                                            ? 'bg-primary text-white shadow-xl shadow-primary/20 scale-105'
-                                            : 'bg-gray-50 dark:bg-dark-800 text-gray-500 dark:text-gray-400 hover:bg-white dark:hover:bg-dark-750 border border-transparent hover:border-gray-100 dark:hover:border-white/5 shadow-sm'
-                                        }`}
-                                >
-                                    <item.icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : item.color}`} />
-                                    <span>{item.label}</span>
-                                </button>
-                            );
-                        })}
-                    </div>
-                </div>
+                <FooterFilters
+                    title="تصفية التذاكر"
+                    activeValue={statusFilter}
+                    onChange={setStatusFilter}
+                    options={[
+                        { id: 'all', label: 'الكل', icon: MessageSquare, color: 'text-gray-400' },
+                        { id: 'open', label: 'مفتوحة', icon: AlertCircle, color: 'text-blue-500' },
+                        { id: 'in_progress', label: 'قيد المعالجة', icon: Clock, color: 'text-yellow-500' },
+                        { id: 'resolved', label: 'محلولة', icon: CheckCircle, color: 'text-green-500' },
+                        { id: 'closed', label: 'مغلقة', icon: X, color: 'text-gray-500' },
+                        { id: 'archived', label: 'الأرشيف', icon: Archive, color: 'text-red-400' },
+                    ]}
+                />
 
                 {/* Ticket Grid List */}
                 {isLoadingList && !ticketsData ? (
@@ -213,12 +189,20 @@ const SupportTickets = () => {
                         <span className="text-sm font-black text-gray-400 uppercase tracking-[0.2em] animate-pulse">جاري جلب الرسائل...</span>
                     </div>
                 ) : ticketsData?.data?.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-32 bg-white dark:bg-dark-900 rounded-[3rem] border border-gray-100 dark:border-white/5 border-dashed text-center">
-                        <div className="p-8 bg-gray-50 dark:bg-dark-800 rounded-[2.5rem] mb-8 opacity-20 group-hover:scale-110 transition-transform duration-700">
-                            <MessageSquare className="w-20 h-20" />
+                    <div className="flex flex-col items-center justify-center min-h-[75vh] px-4 text-center animate-in fade-in zoom-in duration-500">
+                        <div className="relative mb-8 group">
+                            <div className="absolute inset-0 bg-gradient-to-tr from-emerald-500/20 to-teal-500/20 rounded-[2.5rem] blur-xl opacity-50 group-hover:opacity-100 transition-opacity duration-700" />
+                            <div className="relative p-10 bg-gradient-to-tr from-white to-gray-50 dark:from-dark-900 dark:to-dark-800 rounded-[2.5rem] border border-gray-100 dark:border-white/5 shadow-2xl shadow-emerald-900/5 group-hover:-translate-y-2 transition-transform duration-700">
+                                <CheckCircle className="w-24 h-24 text-emerald-500 opacity-80" strokeWidth={1.5} />
+                            </div>
+                            <div className="absolute -bottom-2 -right-2 bg-white dark:bg-dark-800 p-3 rounded-2xl shadow-lg border border-gray-50 dark:border-white/5 animate-bounce">
+                                <ShieldCheck className="w-6 h-6 text-emerald-600" />
+                            </div>
                         </div>
-                        <h3 className="text-2xl font-black text-gray-300">لا توجد رسائل دعم حالياً</h3>
-                        <p className="text-gray-400 font-bold mt-2">سيتم عرض التذاكر هنا بمجرد استلام طلبات من المشتركين</p>
+                        <h3 className="text-3xl font-black text-gray-900 dark:text-white mb-4">ممتاز! النظام نظيف تماماً</h3>
+                        <p className="text-gray-400 font-bold max-w-sm mx-auto leading-relaxed">
+                            لا توجد أي تذاكر دعم فني تتطلب اهتمامك حالياً. يمكنك الاسترخاء الآن!
+                        </p>
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -284,85 +268,81 @@ const SupportTickets = () => {
                 <div className="flex flex-col lg:flex-row h-full gap-8 bg-gray-50/20 dark:bg-dark-950/20">
 
                     {/* Chat Content (Left/Center) */}
-                    <div className="flex-1 flex flex-col bg-white dark:bg-dark-900 rounded-[2.5rem] border border-gray-100 dark:border-white/5 shadow-2xl overflow-hidden min-h-0">
-                        {/* Modal Chat Header */}
-                        <div className="p-6 bg-white dark:bg-dark-900 border-b border-gray-100 dark:border-white/5 flex flex-col md:flex-row justify-between items-center gap-6 shrink-0 z-20">
-                            <div className="flex items-center gap-4">
-                                <div className="w-16 h-16 rounded-[1.5rem] bg-gray-50 dark:bg-dark-800 border-2 border-gray-100 dark:border-white/5 flex items-center justify-center shadow-lg overflow-hidden shrink-0">
-                                    {selectedTicket?.tenant?.avatar_url ? (
-                                        <img src={selectedTicket.tenant.avatar_url} alt="" className="w-full h-full object-cover" />
-                                    ) : (
-                                        <span className="text-xl font-black text-primary">
-                                            {selectedTicket?.tenant?.name?.substring(0, 2).toUpperCase() || 'U'}
-                                        </span>
-                                    )}
+                    {/* Chat Content (Left/Center) - 2026 Redesign */}
+                    <div className="flex-1 flex flex-col bg-white/60 dark:bg-dark-900/60 backdrop-blur-xl rounded-[2.5rem] border border-white/20 shadow-2xl overflow-hidden min-h-0 relative">
+                        {/* Decorative Background Elements */}
+                        <div className="absolute top-0 right-0 w-full h-full overflow-hidden pointer-events-none opacity-30">
+                            <div className="absolute top-[-10%] right-[-10%] w-96 h-96 bg-primary/20 rounded-full blur-[100px]" />
+                            <div className="absolute bottom-[-10%] left-[-10%] w-96 h-96 bg-purple-500/20 rounded-full blur-[100px]" />
+                        </div>
+
+                        {/* Modal Chat Header - Glassmorphic */}
+                        <div className="p-6 bg-white/40 dark:bg-dark-900/40 backdrop-blur-md border-b border-white/10 flex flex-col md:flex-row justify-between items-center gap-6 shrink-0 z-20 relative">
+                            <div className="flex items-center gap-5">
+                                <div className="relative">
+                                    <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-gray-100 to-gray-200 dark:from-dark-800 dark:to-dark-700 flex items-center justify-center shadow-lg ring-4 ring-white dark:ring-dark-900 overflow-hidden">
+                                        {selectedTicket?.tenant?.avatar_url ? (
+                                            <img src={selectedTicket.tenant.avatar_url} alt="" className="w-full h-full object-cover" />
+                                        ) : (
+                                            <span className="text-2xl font-black text-gray-500 dark:text-gray-400">
+                                                {selectedTicket?.tenant?.name?.substring(0, 1).toUpperCase()}
+                                            </span>
+                                        )}
+                                    </div>
+                                    <div className="absolute bottom-1 right-1 w-4 h-4 bg-emerald-500 border-4 border-white dark:border-dark-900 rounded-full shadow-sm" />
                                 </div>
-                                <div className="flex flex-col gap-1">
-                                    <h3 className="font-black text-xl text-gray-900 dark:text-white leading-tight">{selectedTicket?.tenant?.name}</h3>
-                                    <div className="flex items-center gap-3">
-                                        <div className="flex items-center gap-1.5 bg-primary/5 dark:bg-primary/10 px-2.5 py-1 rounded-lg border border-primary/10">
-                                            <Shield className="w-3 h-3 text-primary/60" />
-                                            <span className="text-[10px] font-black text-primary/80 uppercase tracking-widest">{selectedTicket?.tenant?.uid}</span>
-                                        </div>
-                                        <div className="flex items-center gap-1.5 bg-gray-50 dark:bg-dark-800 px-2.5 py-1 rounded-lg border border-gray-100 dark:border-white/5">
-                                            <Clock className="w-3 h-3 text-gray-400" />
-                                            <span className="text-[10px] font-bold text-gray-500 uppercase tracking-tighter">آخر ظهور: {selectedTicket?.tenant?.country_code || 'SA'}</span>
+                                <div className="flex flex-col gap-1.5">
+                                    <h3 className="font-black text-xl text-gray-900 dark:text-white leading-none tracking-tight">{selectedTicket?.tenant?.name}</h3>
+                                    <div className="flex items-center gap-2">
+                                        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/50 dark:bg-black/20 border border-white/10 backdrop-blur-sm">
+                                            <Shield className="w-3 h-3 text-primary" />
+                                            <span className="text-[10px] font-bold text-gray-600 dark:text-gray-300 uppercase tracking-widest">{selectedTicket?.tenant?.uid}</span>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <div className="flex items-center gap-4 bg-gray-50/50 dark:bg-dark-800/50 p-3 rounded-[1.75rem] border border-gray-100 dark:border-white/5">
-                                <div className="px-4 border-r border-gray-200 dark:border-white/5 hidden md:block">
-                                    <span className="block text-[9px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1">الموضوع</span>
-                                    <span className="text-sm font-black text-gray-900 dark:text-white line-clamp-1 max-w-[250px]">{selectedTicket?.subject}</span>
-                                </div>
-                                <div className={`px-4 py-2 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-sm ring-4 ring-white dark:ring-dark-900 ${getStatusColor(selectedTicket?.status || '', !!selectedTicket?.deleted_at)}`}>
+                            <div className="flex items-center gap-3">
+                                <div className={`px-5 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest backdrop-blur-md shadow-sm border border-white/10 ${getStatusColor(selectedTicket?.status || '', !!selectedTicket?.deleted_at)}`}>
                                     {getStatusLabel(selectedTicket?.status || '', !!selectedTicket?.deleted_at)}
                                 </div>
                             </div>
                         </div>
 
-                        {/* Messages Container */}
-                        <div className="flex-1 overflow-y-auto px-10 py-12 space-y-12 bg-gray-50/20 dark:bg-dark-800/10 no-scrollbar">
+                        {/* Messages Container - Clean & Modern */}
+                        <div className="flex-1 overflow-y-auto px-6 py-8 space-y-8 no-scrollbar relative z-10 scroll-smooth">
                             {isLoadingChat && !selectedTicket ? (
-                                <div className="flex flex-col items-center justify-center h-full gap-4 text-gray-400">
-                                    <div className="animate-spin w-10 h-10 border-4 border-primary border-t-transparent rounded-full" />
-                                    <span className="text-xs font-black uppercase tracking-widest">تحميل المحادثة...</span>
+                                <div className="flex flex-col items-center justify-center h-full gap-6 text-gray-400 animate-pulse">
+                                    <div className="w-16 h-16 rounded-full bg-gray-200 dark:bg-dark-800" />
+                                    <div className="w-32 h-4 rounded-full bg-gray-200 dark:bg-dark-800" />
                                 </div>
                             ) : (
-                                <div className="space-y-12">
+                                <div className="space-y-6">
                                     {selectedTicket?.messages?.map((msg: any) => (
                                         <div
                                             key={msg.id}
-                                            className={`flex animate-in fade-in slide-in-from-bottom-4 duration-700 ${msg.is_admin_reply ? 'justify-end' : 'justify-start'}`}
+                                            className={`flex w-full ${msg.is_admin_reply ? 'justify-end' : 'justify-start'} animate-in slide-in-from-bottom-2 duration-500`}
                                         >
-                                            <div className={`flex flex-col max-w-[85%] lg:max-w-[75%] gap-2 ${msg.is_admin_reply ? 'items-end' : 'items-start'}`}>
-                                                <div className="flex items-end gap-3 px-2">
-                                                    {!msg.is_admin_reply && (
-                                                        <div className="w-10 h-10 rounded-2xl bg-white dark:bg-dark-800 border-2 border-gray-100 dark:border-white/5 flex items-center justify-center shadow-lg shrink-0">
-                                                            <span className="text-[10px] font-black text-primary">{selectedTicket?.tenant?.name?.substring(0, 1)}</span>
-                                                        </div>
-                                                    )}
-                                                    <div
-                                                        className={`relative rounded-[2rem] px-8 py-5 shadow-sm transition-all hover:shadow-xl ${msg.is_admin_reply
-                                                            ? 'bg-primary text-white rounded-bl-none shadow-primary/20'
-                                                            : 'bg-white dark:bg-dark-800 text-gray-900 dark:text-gray-100 border-2 border-gray-100 dark:border-white/10 rounded-br-none'
-                                                            }`}
-                                                    >
-                                                        <p className="text-[15px] leading-relaxed whitespace-pre-wrap font-bold">{msg.message}</p>
+                                            <div className={`flex flex-col max-w-[80%] ${msg.is_admin_reply ? 'items-end' : 'items-start'}`}>
+                                                <div className={`
+                                                    group relative px-6 py-4 shadow-sm transition-all duration-300 hover:shadow-md
+                                                    ${msg.is_admin_reply
+                                                        ? 'bg-gradient-to-tr from-primary to-blue-600 text-white rounded-[1.5rem] rounded-tl-none'
+                                                        : 'bg-white dark:bg-dark-800 text-gray-900 dark:text-gray-100 border border-gray-100 dark:border-white/5 rounded-[1.5rem] rounded-tr-none'
+                                                    }
+                                                `}>
+                                                    <p className="text-[15px] leading-relaxed whitespace-pre-wrap font-medium">{msg.message}</p>
+
+                                                    {/* Timestamp inside bubble for cleaner look */}
+                                                    <div className={`absolute bottom-1 ${msg.is_admin_reply ? '-left-12' : '-right-12'} flex flex-col gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity`}>
+                                                        <span className="text-[9px] font-bold text-gray-400 whitespace-nowrap">{formatDate(msg.created_at).split('|')[1]}</span>
                                                     </div>
-                                                    {msg.is_admin_reply && (
-                                                        <div className="w-10 h-10 rounded-2xl bg-primary flex items-center justify-center shadow-lg shadow-primary/20 shrink-0 border-4 border-white dark:border-dark-900">
-                                                            <ShieldCheck className="w-5 h-5 text-white" />
-                                                        </div>
-                                                    )}
                                                 </div>
-                                                <div className="flex items-center gap-3 px-4">
-                                                    <span className="text-[9px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">{formatDate(msg.created_at, true)}</span>
-                                                    {msg.is_admin_reply && <div className="w-1 h-1 rounded-full bg-primary/30" />}
-                                                    {msg.is_admin_reply && <span className="text-[8px] font-black text-primary/50 uppercase">Admin Response</span>}
-                                                </div>
+
+                                                {/* Mini Timestamp outside */}
+                                                <span className={`text-[10px] font-bold text-gray-400 mt-2 px-2 opacity-60 ${msg.is_admin_reply ? 'text-right' : 'text-left'}`}>
+                                                    {msg.is_admin_reply ? 'أنت' : selectedTicket?.tenant?.name} • {formatDate(msg.created_at, true).split('|')[1]}
+                                                </span>
                                             </div>
                                         </div>
                                     ))}
@@ -370,49 +350,53 @@ const SupportTickets = () => {
                             )}
                         </div>
 
-                        {/* Modal Chat Input */}
-                        <div className="p-10 bg-white dark:bg-dark-900 border-t border-gray-100 dark:border-white/5 shrink-0">
+                        {/* Modal Chat Input - Floating Bar */}
+                        <div className="p-6 bg-transparent shrink-0 relative z-20">
                             {selectedTicket?.deleted_at ? (
-                                <div className="p-8 bg-red-50/30 dark:bg-red-900/10 rounded-[2rem] border-2 border-dashed border-red-100 dark:border-red-900/20 flex items-center justify-between gap-8">
-                                    <div className="flex items-center gap-6">
-                                        <div className="p-4 bg-red-500 text-white rounded-[1.25rem] shadow-xl shadow-red-500/20 animat-pulse">
-                                            <Info className="w-6 h-6" />
-                                        </div>
+                                <div className="p-1 rounded-[1.5rem] bg-gradient-to-r from-red-500/50 to-orange-500/50 p-[1px]">
+                                    <div className="bg-white dark:bg-dark-900 rounded-[1.5rem] p-6 flex flex-col items-center justify-center gap-3 text-center">
+                                        <Archive className="w-8 h-8 text-red-500" />
                                         <div>
-                                            <h4 className="text-lg font-black text-red-700 dark:text-red-400">هذه التذكرة مؤرشفة حالياً</h4>
-                                            <p className="text-xs font-bold text-red-600/60 dark:text-red-400/50 uppercase tracking-wider">لا يمكن إرسال ردود جديدة إلا بعد استعادة التذكرة من الأرشيف</p>
+                                            <h4 className="font-black text-red-600 text-sm">التذكرة مؤرشفة</h4>
+                                            <p className="text-xs text-gray-400">لا يمكن إرسال رسائل جديدة</p>
                                         </div>
+                                        <button onClick={() => restoreTicketMutation.mutate()} className="px-6 py-2 bg-red-500 text-white rounded-xl text-xs font-bold hover:bg-red-600 transition-colors">
+                                            استعادة التذكرة
+                                        </button>
                                     </div>
-                                    <button
-                                        onClick={() => restoreTicketMutation.mutate()}
-                                        className="px-8 py-4 bg-red-600 text-white rounded-2xl font-black text-xs hover:bg-red-700 transition-all shadow-xl shadow-red-600/20 active:scale-95"
-                                    >
-                                        استعادة التذكرة الآن
-                                    </button>
                                 </div>
                             ) : (
-                                <form onSubmit={handleSendMessage} className="flex gap-4">
-                                    <div className="flex-1">
-                                        <InputField
-                                            label=""
-                                            value={chatMessage}
-                                            onChange={(e) => setChatMessage(e.target.value)}
-                                            placeholder="اكتب رد النظام هنا..."
-                                            disabled={selectedTicket?.status === 'closed' || replyMutation.isPending}
-                                            className="bg-gray-50 dark:bg-dark-800 border-none shadow-none focus-within:ring-4 ring-primary/5 h-[64px] rounded-[1.75rem] px-8 text-base font-bold"
-                                        />
+                                <form onSubmit={handleSendMessage} className="relative group">
+                                    <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-purple-600/20 rounded-[2rem] blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+                                    <div className="relative flex items-end gap-2 p-2 bg-white dark:bg-dark-800 border border-gray-100 dark:border-white/5 rounded-[2rem] shadow-2xl shadow-primary/5">
+                                        <div className="flex-1">
+                                            <InputField
+                                                label=""
+                                                value={chatMessage}
+                                                onChange={(e) => setChatMessage(e.target.value)}
+                                                placeholder="اكتب ردك هنا..."
+                                                disabled={selectedTicket?.status === 'closed' || replyMutation.isPending}
+                                                className="bg-transparent border-none shadow-none focus:ring-0 p-4 text-base font-medium placeholder:text-gray-400 h-14"
+                                            />
+                                        </div>
+
+                                        {/* Attachment Button (Visual) */}
+                                        <button type="button" className="w-12 h-12 flex items-center justify-center rounded-full text-gray-400 hover:bg-gray-50 dark:hover:bg-dark-700 transition-colors">
+                                            <Link className="w-5 h-5 rotate-45" />
+                                        </button>
+
+                                        <button
+                                            type="submit"
+                                            disabled={!chatMessage.trim() || replyMutation.isPending || selectedTicket?.status === 'closed'}
+                                            className="w-14 h-14 flex items-center justify-center bg-gradient-to-tr from-primary to-blue-600 text-white rounded-[1.5rem] hover:scale-105 active:scale-95 transition-all shadow-lg shadow-primary/25 disabled:opacity-50 disabled:shadow-none disabled:grayscale"
+                                        >
+                                            {replyMutation.isPending ? (
+                                                <Loader2 className="w-6 h-6 animate-spin" />
+                                            ) : (
+                                                <SendHorizontal className="w-6 h-6 -rotate-90 rtl:rotate-90" />
+                                            )}
+                                        </button>
                                     </div>
-                                    <button
-                                        type="submit"
-                                        disabled={!chatMessage.trim() || replyMutation.isPending || selectedTicket?.status === 'closed'}
-                                        className="h-[64px] w-[64px] flex items-center justify-center bg-primary text-white rounded-[1.75rem] hover:bg-primary/90 disabled:opacity-30 disabled:grayscale transition-all shadow-2xl shadow-primary/30 group active:scale-95 shrink-0"
-                                    >
-                                        {replyMutation.isPending ? (
-                                            <div className="w-6 h-6 border-3 border-white/30 border-t-white rounded-full animate-spin" />
-                                        ) : (
-                                            <SendHorizontal className="w-6 h-6 -rotate-90 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-                                        )}
-                                    </button>
                                 </form>
                             )}
                         </div>
@@ -431,7 +415,7 @@ const SupportTickets = () => {
                                 {/* Status Toggle */}
                                 <div>
                                     <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4 px-2">تغيير حالة التذكرة</label>
-                                    <div className="flex flex-col gap-2">
+                                    <div className="grid grid-cols-2 gap-2">
                                         {['open', 'in_progress', 'resolved', 'closed'].map((status) => (
                                             <button
                                                 key={status}

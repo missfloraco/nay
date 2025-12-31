@@ -179,11 +179,11 @@ export default function SecurityManagement() {
             icon={Shield}
             noPadding={true}
         >
-            <div className="w-full bg-transparent animate-in fade-in duration-500">
+            <div className="w-full max-w-[1600px] mx-auto bg-transparent animate-in fade-in duration-500">
                 <div className="mx-auto space-y-12 w-full">
                     {/* Header Removed */}
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                         <SecurityCard
                             id="right-click"
                             featureKey="right_click"

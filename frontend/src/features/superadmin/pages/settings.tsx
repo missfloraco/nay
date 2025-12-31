@@ -36,7 +36,7 @@ export default function AdminSettings() {
 
     return (
         <AdminLayout title="الحساب والأمان" icon={Settings} noPadding={true}>
-            <div className="w-full bg-transparent animate-in fade-in duration-500 pb-8">
+            <div className="w-full max-w-[1600px] mx-auto bg-transparent animate-in fade-in duration-500 pb-8">
                 <SplitSettingsLayout
                     userData={{
                         name: settings.currentUser.name,

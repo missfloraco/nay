@@ -6,6 +6,8 @@ import Table from '@/shared/table';
 import { useFeedback } from '@/shared/ui/notifications/feedback-context';
 import { Plus, Code, Trash2, Edit, Play, Pause, ShieldCheck, AlertTriangle, Terminal, Settings } from 'lucide-react';
 import ScriptForm from './components/script-form';
+import { IdentityCell, ActionCell } from '@/shared/table-cells';
+import { EditButton, DeleteButton } from '@/shared/ui/buttons/btn-crud';
 import { formatDate } from '@/shared/utils/helpers';
 import Modal from '@/shared/ui/modals/modal';
 import { useQueryClient } from '@tanstack/react-query'; // Assuming this is the 'use hook' mentioned
@@ -94,89 +96,82 @@ export default function ScriptsManager() {
         {
             header: 'السكربت',
             accessor: (script: Script) => (
-                <div className="flex items-center gap-4">
-                    <div className={`p-3 rounded-2xl ${script.isActive ? 'bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400' : 'bg-gray-100 text-gray-500'}`}>
-                        <Terminal className="w-5 h-5" />
-                    </div>
-                    <div>
-                        <div className="font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                            {script.name}
-                            {script.isActive ? (
-                                <span className="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-600 text-[10px] font-black border border-emerald-100">نشط</span>
-                            ) : (
-                                <span className="px-2 py-0.5 rounded-full bg-gray-100 text-gray-500 text-[10px] font-black border border-gray-200">معطل</span>
-                            )}
-                        </div>
-                        <div className="text-xs text-gray-500 mt-1 flex items-center gap-2">
-                            <span className="bg-gray-50 px-2 py-0.5 rounded border border-gray-100 dark:border-white/5 uppercase">{script.type}</span>
-                            <span className="text-gray-300">•</span>
-                            <span>{script.location}</span>
-                        </div>
-                    </div>
-                </div>
+                <IdentityCell
+                    name={script.name}
+                    subtext={`${script.type.toUpperCase()} • ${script.location}`}
+                    icon={Terminal}
+                    iconColor={script.isActive ? "text-blue-600" : "text-gray-400"}
+                    iconBg={script.isActive ? "bg-blue-50 dark:bg-blue-900/10" : "bg-gray-100 dark:bg-dark-800"}
+                />
             ),
             sortable: true,
-            sortKey: 'name'
+            sortKey: 'name',
+            className: 'min-w-[250px]'
         },
         {
             header: 'بيئة العمل',
             accessor: (script: Script) => (
-                <span className={`text-xs font-bold px-3 py-1 rounded-full ${script.environment === 'production' ? 'bg-purple-50 text-purple-600 border border-purple-100' :
-                    script.environment === 'development' ? 'bg-amber-50 text-amber-600 border border-amber-100' :
-                        'bg-cyan-50 text-cyan-600 border border-cyan-100'
-                    }`}>
-                    {script.environment}
-                </span>
+                <div className="flex justify-center">
+                    <span className={`text-[10px] font-black px-4 py-2 rounded-xl uppercase tracking-widest border ${script.environment === 'production' ? 'bg-purple-50 text-purple-600 border-purple-100 dark:bg-purple-900/20 dark:border-purple-500/20' :
+                        script.environment === 'development' ? 'bg-amber-50 text-amber-600 border-amber-100 dark:bg-amber-900/20 dark:border-amber-500/20' :
+                            'bg-cyan-50 text-cyan-600 border-cyan-100 dark:bg-cyan-900/20 dark:border-cyan-500/20'
+                        }`}>
+                        {script.environment}
+                    </span>
+                </div>
             ),
-            className: 'w-[120px]'
+            className: 'text-center'
+        },
+        {
+            header: 'الحالة',
+            accessor: (script: Script) => (
+                <div className="flex justify-center">
+                    {script.isActive ? (
+                        <button onClick={() => handleToggleStatus(script.id)} className="flex items-center gap-3 px-4 py-2 bg-green-50 dark:bg-green-500/10 text-green-600 rounded-[1.5rem] text-[10px] font-black border border-green-100 dark:border-green-500/20 shadow-sm hover:scale-105 transition-transform cursor-pointer">
+                            <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse shadow-[0_0_10px_rgba(34,197,94,0.5)]" />
+                            مفعل
+                        </button>
+                    ) : (
+                        <button onClick={() => handleToggleStatus(script.id)} className="flex items-center gap-3 px-4 py-2 bg-gray-100 dark:bg-dark-800 text-gray-400 rounded-[1.5rem] text-[10px] font-black border border-gray-200 dark:border-white/5 opacity-60 hover:opacity-100 hover:scale-105 transition-all cursor-pointer">
+                            <div className="w-1.5 h-1.5 rounded-full bg-gray-400" />
+                            متوقف
+                        </button>
+                    )}
+                </div>
+            ),
+            className: 'text-center w-[120px]'
         },
         {
             header: 'آخر تعديل',
             accessor: (script: Script) => (
-                <div className="text-sm font-medium text-gray-600 dark:text-gray-400" dir="ltr">
+                <div className="text-xs font-bold text-gray-500 dark:text-gray-400 text-center" dir="ltr">
                     {formatDate(script.updatedAt)}
                 </div>
             ),
             sortable: true,
             sortKey: 'updatedAt',
-            className: 'w-[150px]'
+            className: 'w-[150px] text-center'
         },
         {
-            header: 'الإجراءات',
+            header: 'التحكم',
             accessor: (script: Script) => (
-                <div className="flex items-center gap-2 justify-end">
-                    <button
-                        onClick={() => handleToggleStatus(script.id)}
-                        className={`p-2 rounded-xl transition-colors ${script.isActive
-                            ? 'bg-amber-50 text-amber-600 hover:bg-amber-100 dark:bg-amber-900/20'
-                            : 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100 dark:bg-emerald-900/20'
-                            }`}
-                        title={script.isActive ? 'تعطيل' : 'تفعيل'}
-                    >
-                        {script.isActive ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
-                    </button>
-
-                    <button
-                        onClick={() => {
-                            setSelectedScript(script);
-                            setIsModalOpen(true);
-                        }}
-                        className="p-2 rounded-xl bg-blue-50 text-blue-600 hover:bg-blue-100 dark:bg-blue-900/20 dark:hover:bg-blue-900/40 transition-colors"
-                        title="تعديل"
-                    >
-                        <Edit className="w-4 h-4" />
-                    </button>
-
-                    <button
-                        onClick={() => handleDelete(script.id)}
-                        className="p-2 rounded-xl bg-red-50 text-red-600 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/40 transition-colors"
-                        title="حذف"
-                    >
-                        <Trash2 className="w-4 h-4" />
-                    </button>
-                </div>
+                <ActionCell>
+                    <div className="flex items-center justify-end gap-2">
+                        <EditButton
+                            type="icon"
+                            onClick={() => {
+                                setSelectedScript(script);
+                                setIsModalOpen(true);
+                            }}
+                        />
+                        <DeleteButton
+                            type="icon"
+                            onClick={() => handleDelete(script.id)}
+                        />
+                    </div>
+                </ActionCell>
             ),
-            className: 'w-[180px]'
+            className: 'text-left w-[120px]'
         }
     ], []);
 
@@ -200,14 +195,12 @@ export default function ScriptsManager() {
                     </div>
                 </div>
 
-                <div className="bg-white dark:bg-dark-900 rounded-[2rem] border border-gray-100 dark:border-dark-800 shadow-sm overflow-hidden">
-                    <Table
-                        columns={columns}
-                        data={scripts}
-                        isLoading={loading}
-                        emptyMessage="لا توجد سكربتات مضافة حالياً"
-                    />
-                </div>
+                <Table
+                    columns={columns}
+                    data={scripts}
+                    isLoading={loading}
+                    emptyMessage="لا توجد سكربتات مضافة حالياً"
+                />
             </div>
 
             <Modal

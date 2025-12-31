@@ -21,10 +21,18 @@ export const SearchProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     const queryClient = useQueryClient();
     const debouncedQuery = useDebounce(searchQuery, 300);
 
-    const clearSearch = () => {
+    const clearSearch = React.useCallback(() => {
         setSearchQuery('');
         setResults([]);
-    };
+    }, []);
+
+    const contextValue = React.useMemo(() => ({
+        searchQuery,
+        setSearchQuery,
+        results,
+        isSearching,
+        clearSearch
+    }), [searchQuery, results, isSearching, clearSearch]);
 
     useEffect(() => {
         if (!debouncedQuery || debouncedQuery.length < 2) {
@@ -49,7 +57,7 @@ export const SearchProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     }, [debouncedQuery, queryClient]);
 
     return (
-        <SearchContext.Provider value={{ searchQuery, setSearchQuery, results, isSearching, clearSearch }}>
+        <SearchContext.Provider value={contextValue}>
             {children}
         </SearchContext.Provider>
     );

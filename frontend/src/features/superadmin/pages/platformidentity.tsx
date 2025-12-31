@@ -174,7 +174,7 @@ export default function PlatformIdentity() {
             icon={Layout}
             noPadding={true}
         >
-            <div className="w-full bg-transparent animate-in fade-in duration-500">
+            <div className="w-full max-w-[1600px] mx-auto bg-transparent animate-in fade-in duration-500">
                 <div className="mx-auto space-y-12 w-full max-w-7xl">
 
                     <div className="grid lg:grid-cols-[280px_1fr] gap-12 items-start">

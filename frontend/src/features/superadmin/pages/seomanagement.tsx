@@ -98,15 +98,20 @@ export default function SeoManagement() {
             icon={BarChart3}
             noPadding={true}
         >
-            <div className="w-full bg-transparent animate-in fade-in duration-500">
+            <div className="w-full max-w-[1600px] mx-auto bg-transparent animate-in fade-in duration-500">
                 <div className="max-w-6xl mx-auto space-y-12 w-full">
 
-                    <form onSubmit={handleSubmit} className="space-y-14">
-                        {/* Basic SEO */}
-                        <div className="space-y-8 animate-in slide-in-from-bottom-4 duration-500">
-                            <div className="flex items-center gap-3">
-                                <span className="w-2 h-8 bg-blue-500 rounded-full"></span>
-                                <h4 className="text-2xl font-black text-gray-900 dark:text-white">معلومات SEO الأساسية</h4>
+                    <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        {/* Basic SEO Card */}
+                        <div className="lg:col-span-2 bg-white dark:bg-dark-900 p-10 rounded-[2.5rem] border border-gray-100 dark:border-white/5 shadow-sm animate-in slide-in-from-bottom-4 duration-500">
+                            <div className="flex items-center gap-4 mb-8">
+                                <div className="p-3 bg-blue-50 dark:bg-blue-500/10 rounded-2xl text-blue-600 dark:text-blue-400">
+                                    <Search className="w-6 h-6" />
+                                </div>
+                                <div>
+                                    <h4 className="text-xl font-black text-gray-900 dark:text-white">معلومات SEO الأساسية</h4>
+                                    <p className="text-xs font-bold text-gray-400 mt-1">إعدادات الظهور في محركات البحث</p>
+                                </div>
                             </div>
 
                             <div className="grid grid-cols-1 gap-8">
@@ -116,7 +121,6 @@ export default function SeoManagement() {
                                     onChange={(e) => handleChange('title', e.target.value)}
                                     placeholder="منصة SaaS - نظام إدارة ذكي"
                                     maxLength={60}
-                                    icon={Search}
                                     hint={`الطول الموصى به: 50-60 حرف (${formData.title.length}/60)`}
                                 />
 
@@ -126,7 +130,6 @@ export default function SeoManagement() {
                                     onChange={(e) => handleChange('description', e.target.value)}
                                     placeholder="منصتك الشاملة لإدارة وتطوير مشروعك بسهولة..."
                                     maxLength={160}
-                                    icon={Eye}
                                     hint={`الطول الموصى به: 150-160 حرف (${formData.description.length}/160)`}
                                 />
 
@@ -166,11 +169,16 @@ export default function SeoManagement() {
                             </div>
                         </div>
 
-                        {/* Open Graph */}
-                        <div className="pt-12 border-t border-gray-100 dark:border-dark-800 space-y-8 animate-in slide-in-from-bottom-4 duration-700">
-                            <div className="flex items-center gap-3">
-                                <span className="w-2 h-8 bg-purple-500 rounded-full"></span>
-                                <h4 className="text-2xl font-black text-gray-900 dark:text-white">Open Graph (Facebook)</h4>
+                        {/* Open Graph Card */}
+                        <div className="bg-white dark:bg-dark-900 p-10 rounded-[2.5rem] border border-gray-100 dark:border-white/5 shadow-sm animate-in slide-in-from-bottom-4 duration-700 delay-100">
+                            <div className="flex items-center gap-4 mb-8">
+                                <div className="p-3 bg-purple-50 dark:bg-purple-500/10 rounded-2xl text-purple-600 dark:text-purple-400">
+                                    <Facebook className="w-6 h-6" />
+                                </div>
+                                <div>
+                                    <h4 className="text-xl font-black text-gray-900 dark:text-white">Open Graph (Facebook)</h4>
+                                    <p className="text-xs font-bold text-gray-400 mt-1">تخصيص الظهور عند المشاركة في فيسبوك</p>
+                                </div>
                             </div>
 
                             <div className="grid grid-cols-1 gap-8">
@@ -179,7 +187,6 @@ export default function SeoManagement() {
                                     value={formData.og_title}
                                     onChange={(e) => handleChange('og_title', e.target.value)}
                                     placeholder="اتركه فارغاً لاستخدام العنوان الأساسي"
-                                    icon={Facebook}
                                 />
 
                                 <TextareaField
@@ -187,7 +194,6 @@ export default function SeoManagement() {
                                     value={formData.og_description}
                                     onChange={(e) => handleChange('og_description', e.target.value)}
                                     placeholder="اتركه فارغاً لاستخدام الوصف الأساسي"
-                                    icon={Facebook}
                                 />
 
                                 <InputField
@@ -204,10 +210,15 @@ export default function SeoManagement() {
                         </div>
 
                         {/* Twitter Card */}
-                        <div className="pt-12 border-t border-gray-100 dark:border-dark-800 space-y-8 animate-in slide-in-from-bottom-4 duration-1000">
-                            <div className="flex items-center gap-3">
-                                <span className="w-2 h-8 bg-cyan-500 rounded-full"></span>
-                                <h4 className="text-2xl font-black text-gray-900 dark:text-white">Twitter Card</h4>
+                        <div className="bg-white dark:bg-dark-900 p-10 rounded-[2.5rem] border border-gray-100 dark:border-white/5 shadow-sm animate-in slide-in-from-bottom-4 duration-1000 delay-200">
+                            <div className="flex items-center gap-4 mb-8">
+                                <div className="p-3 bg-cyan-50 dark:bg-cyan-500/10 rounded-2xl text-cyan-500 dark:text-cyan-400">
+                                    <Twitter className="w-6 h-6" />
+                                </div>
+                                <div>
+                                    <h4 className="text-xl font-black text-gray-900 dark:text-white">Twitter Card</h4>
+                                    <p className="text-xs font-bold text-gray-400 mt-1">تخصيص الظهور عند المشاركة في تويتر/X</p>
+                                </div>
                             </div>
 
                             <div className="grid grid-cols-1 gap-8">
@@ -216,7 +227,6 @@ export default function SeoManagement() {
                                     value={formData.twitter_title}
                                     onChange={(e) => handleChange('twitter_title', e.target.value)}
                                     placeholder="اتركه فارغاً لاستخدام العنوان الأساسي"
-                                    icon={Twitter}
                                 />
 
                                 <TextareaField
@@ -224,7 +234,6 @@ export default function SeoManagement() {
                                     value={formData.twitter_description}
                                     onChange={(e) => handleChange('twitter_description', e.target.value)}
                                     placeholder="اتركه فارغاً لاستخدام الوصف الأساسي"
-                                    icon={Twitter}
                                 />
 
                                 <InputField
@@ -238,8 +247,6 @@ export default function SeoManagement() {
                                 />
                             </div>
                         </div>
-
-                        {/* Submit Button */}
                     </form>
                 </div>
             </div >

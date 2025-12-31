@@ -449,7 +449,7 @@ export default function TenantsTable() {
                 isOpen={isDetailsModalOpen}
                 onClose={() => setIsDetailsModalOpen(false)}
                 title="تفاصيل المشترك"
-                size="6xl"
+                size="xl"
             >
                 <TenantDetailsSidebar
                     tenant={selectedTenant}

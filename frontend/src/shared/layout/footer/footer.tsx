@@ -79,7 +79,7 @@ export default function BottomNav({ items, user, onLogout, settingsPath = '/sett
                         <button
                             onClick={primaryAction.onClick}
                             disabled={primaryAction.disabled || primaryAction.loading}
-                            className={`flex items-center justify-center w-16 h-16 rounded-2xl transition-all duration-300 shadow-lg transform active:scale-90 hover:scale-[1.02] ring-[6px] ring-white dark:ring-gray-950 ${primaryAction.variant === 'danger'
+                            className={`flex items-center justify-center w-16 h-16 rounded-full transition-all duration-300 shadow-lg transform active:scale-90 hover:scale-[1.02] ring-[6px] ring-white dark:ring-gray-950 ${primaryAction.variant === 'danger'
                                 ? 'bg-red-600 text-white shadow-red-500/30'
                                 : 'bg-primary text-white shadow-primary/30'
                                 }`}
@@ -93,7 +93,7 @@ export default function BottomNav({ items, user, onLogout, settingsPath = '/sett
                     ) : (
                         <Link
                             to="/app/pos"
-                            className="flex items-center justify-center w-16 h-16 bg-primary text-white rounded-2xl shadow-lg shadow-primary/30 transform transition-all duration-300 active:scale-90 hover:scale-[1.02] ring-[6px] ring-white dark:ring-gray-950"
+                            className="flex items-center justify-center w-16 h-16 bg-primary text-white rounded-full shadow-lg shadow-primary/30 transform transition-all duration-300 active:scale-90 hover:scale-[1.02] ring-[6px] ring-white dark:ring-gray-950"
                         >
                             <ShoppingCart className="w-8 h-8" />
                         </Link>

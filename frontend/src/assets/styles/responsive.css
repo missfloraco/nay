@@ -50,7 +50,8 @@
 }
 
 .page-frame-container {
-    @apply !p-4 !rounded-none;
+    @apply !p-6 !rounded-none;
+    /* 1.5rem (24px) for Mobile */
     padding-bottom: 120px !important;
     /* Space for fixed transparent footer */
     min-height: calc(100vh - 70px) !important;
@@ -156,9 +157,11 @@
     }
 
     .page-frame-container {
-        @apply bg-white dark:bg-dark-900 border border-gray-100 dark:border-white/5 shadow-premium rounded-[2.5rem] overflow-hidden !m-0;
+        @apply bg-transparent rounded-[2.5rem] !m-0;
         padding: 2.5rem;
+        /* Unified 40px */
         width: 100% !important;
+        overflow: visible;
     }
 
     .page-main-wrapper {

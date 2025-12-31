@@ -175,25 +175,25 @@ export function TenantActionModal({ tenant, onClose, onUpdate, onRecordPayment }
                 </div>
 
                 {/* Tabs */}
-                <div className="flex border-b border-gray-100 dark:border-gray-700 px-8">
+                <div className="flex gap-2 px-8 pb-4 pt-2">
                     <button
                         onClick={() => setActiveTab('overview')}
-                        className={`py-4 px-2 font-medium text-sm border-b-2 transition-colors flex items-center gap-2 ${activeTab === 'overview'
-                            ? 'border-primary text-primary'
-                            : 'border-transparent text-gray-500 hover:text-gray-700'
+                        className={`py-2.5 px-5 rounded-2xl font-black text-xs transition-all flex items-center gap-2 border ${activeTab === 'overview'
+                            ? 'bg-primary text-white border-primary shadow-lg shadow-primary/20'
+                            : 'bg-white dark:bg-gray-700/50 text-gray-500 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700'
                             }`}
                     >
-                        <Shield className="w-4 h-4" />
+                        <Shield className={`w-4 h-4 ${activeTab === 'overview' ? 'text-white' : 'text-gray-400'}`} />
                         نظرة عامة
                     </button>
                     <button
                         onClick={() => setActiveTab('settings')}
-                        className={`py-4 px-2 font-medium text-sm border-b-2 transition-colors flex items-center gap-2 ${activeTab === 'settings'
-                            ? 'border-primary text-primary'
-                            : 'border-transparent text-gray-500 hover:text-gray-700'
+                        className={`py-2.5 px-5 rounded-2xl font-black text-xs transition-all flex items-center gap-2 border ${activeTab === 'settings'
+                            ? 'bg-primary text-white border-primary shadow-lg shadow-primary/20'
+                            : 'bg-white dark:bg-gray-700/50 text-gray-500 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700'
                             }`}
                     >
-                        <Play className="w-4 h-4" />
+                        <Play className={`w-4 h-4 ${activeTab === 'settings' ? 'text-white' : 'text-gray-400'}`} />
                         الإعدادات
                     </button>
                 </div>

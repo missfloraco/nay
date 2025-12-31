@@ -9,6 +9,8 @@ interface ModalProps {
     size?: 'sm' | 'md' | 'lg' | 'xl' | 'full';
 }
 
+import { createPortal } from 'react-dom';
+
 const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children, size = 'md' }) => {
     if (!isOpen) return null;
 
@@ -17,10 +19,10 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children, size = 
         md: 'max-w-xl',
         lg: 'max-w-3xl',
         xl: 'max-w-5xl',
-        full: 'max-w-[calc(100vw-2rem)] h-[calc(100vh-2rem)]'
+        full: 'max-w-[1600px] w-full mx-auto h-[calc(100vh-2rem)]'
     };
 
-    return (
+    return createPortal(
         <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6 overflow-y-auto overflow-x-hidden" style={{ perspective: '1000px' }}>
             {/* Backdrop with premium blur */}
             <div
@@ -81,7 +83,8 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children, size = 
                     {children}
                 </div>
             </div>
-        </div>
+        </div>,
+        document.body
     );
 };
 
