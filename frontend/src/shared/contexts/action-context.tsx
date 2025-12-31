@@ -37,14 +37,36 @@ interface ActionContextType {
     exportConfig: ExportConfig | null;
     registerExportData: (config: ExportConfig) => void;
     unregisterExportData: () => void;
+    registerExtraAction: (action: Action) => string;
+    unregisterExtraAction: (id: string) => void;
 }
 
 const ActionContext = createContext<ActionContextType | undefined>(undefined);
 
 export const ActionProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const [primaryAction, setPrimaryAction] = useState<Action | null>(null);
-    const [extraActions, setExtraActions] = useState<Action[]>([]);
     const [exportConfig, setExportConfig] = useState<ExportConfig | null>(null);
+
+    // We will use a ref-like state for extra actions to avoid duplicate renders if possible,
+    // but React state is needed for UI updates.
+    // We'll use an array of objects with IDs.
+    const [extraActionsMap, setExtraActionsMap] = useState<Record<string, Action>>({});
+
+    const extraActions = useMemo(() => Object.values(extraActionsMap), [extraActionsMap]);
+
+    const registerExtraAction = useCallback((action: Action) => {
+        const id = Math.random().toString(36).substr(2, 9);
+        setExtraActionsMap(prev => ({ ...prev, [id]: action }));
+        return id;
+    }, []);
+
+    const unregisterExtraAction = useCallback((id: string) => {
+        setExtraActionsMap(prev => {
+            const next = { ...prev };
+            delete next[id];
+            return next;
+        });
+    }, []);
 
     const registerAddAction = useCallback((action: Action | (() => void), label?: string, icon?: LucideIcon, type?: Action['type'], form?: string) => {
         const actionId = Math.random().toString(36).substr(2, 9);
@@ -103,11 +125,23 @@ export const ActionProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         };
     }, []);
 
+    const setExtraActions = useCallback((actions: Action[]) => {
+        // Legacy support: overwrite map with new IDs
+        const newMap: Record<string, Action> = {};
+        actions.forEach(a => {
+            const id = Math.random().toString(36).substr(2, 9);
+            newMap[id] = a;
+        });
+        setExtraActionsMap(newMap);
+    }, []);
+
     const contextValue = useMemo(() => ({
         primaryAction,
         setPrimaryAction,
         extraActions,
         setExtraActions,
+        registerExtraAction,
+        unregisterExtraAction,
         onAdd: primaryAction?.onClick || null,
         registerAddAction,
         unregisterAddAction,
@@ -121,6 +155,9 @@ export const ActionProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     }), [
         primaryAction,
         extraActions,
+        setExtraActions, // Now stable
+        registerExtraAction,
+        unregisterExtraAction,
         registerAddAction,
         unregisterAddAction,
         registerAction,

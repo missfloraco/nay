@@ -50,7 +50,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title, noPadding = 
     const navigate = useNavigate();
     const { user, loading, logout } = useAdminAuth();
     const { settings } = useSettings();
-    const { primaryAction, setPrimaryAction } = useAction();
+    const { primaryAction, setPrimaryAction, extraActions } = useAction();
     const { isRightDrawerOpen, closeDrawers, toggleRightDrawer } = useUI();
 
     if (loading) {
@@ -63,14 +63,6 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title, noPadding = 
 
     const { t } = useText();
 
-    const { data: notificationData } = useQuery({
-        queryKey: ['admin-notifications-count'],
-        queryFn: () => api.get('/admin/notifications/support'),
-        refetchInterval: 5000,
-        enabled: !!user
-    });
-
-    const unreadCount = (notificationData as unknown as { count: number })?.count || 0;
 
     const { data: trashData } = useQuery({
         queryKey: ['admin-trash-count'],
@@ -81,26 +73,24 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title, noPadding = 
 
     const trashCount = (trashData as any)?.stats?.total || 0;
 
-    const navItems = [
-        { icon: LayoutDashboard, label: t('admin.NAV.DASHBOARD', 'لوحة التحكم'), path: '/admin', color: 'text-blue-600' },
-        { icon: Layout, label: t('admin.NAV.IDENTITY', 'هوية المنصة'), path: '/admin/identity', color: 'text-purple-600' },
+    const navItems = React.useMemo(() => [
+        { icon: LayoutDashboard, label: t('admin.NAV.DASHBOARD', 'لوحة التحكم'), path: '/admin/dashboard', color: 'text-blue-600' },
         { icon: Users, label: t('admin.NAV.TENANTS', 'إدارة المشتركين'), path: '/admin/tenants', color: 'text-[#02aa94]' },
         { icon: BarChart3, label: 'إدارة SEO', path: '/admin/seo', color: 'text-blue-600' },
         { icon: Megaphone, label: t('admin.NAV.ADS', 'إدارة الإعلانات'), path: '/admin/ads', color: 'text-[#fb005e]' },
         { icon: Code, label: 'الأكواد والنصوص', path: '/admin/scripts', color: 'text-amber-600' },
         { icon: Shield, label: 'إعدادات الحماية', path: '/admin/security', color: 'text-rose-600' },
-        { icon: MessageSquare, label: t('admin.NAV.SUPPORT', 'رسائل الدعم'), path: '/admin/support', color: 'text-[#fb005e]', badge: unreadCount },
         { icon: Trash2, label: t('admin.NAV.RECYCLE_BIN', 'سلة المحذوفات'), path: '/admin/trash', color: 'text-red-600 font-black', badge: trashCount },
-    ];
+    ], [t, trashCount]);
 
     return (
         <div className="flex h-screen w-full overflow-hidden bg-white dark:bg-dark-950" dir="rtl">
             {/* 1. Main Navigation Sidebar */}
-            <MainSidebar items={navItems} homePath="/admin/welcome" />
+            <MainSidebar items={navItems} homePath="/admin" />
 
             {/* 2. Content Column Pillar */}
             <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden relative">
-                <Header onMenuClick={() => { }} title={title || ''} icon={icon} hideBranding={true} actions={<div className="flex items-center gap-3">{actions}</div>} />
+                <Header onMenuClick={() => { }} title={title || ''} icon={icon} hideBranding={true} />
 
                 <div className="flex-1 flex flex-col min-h-0 bg-gray-50 dark:bg-dark-950">
                     {/* Middle Area */}
@@ -116,18 +106,24 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title, noPadding = 
                     </div>
 
                     {/* Flush Footer Area */}
-                    <footer className="z-40 bg-white/80 dark:bg-dark-950/80 backdrop-blur-md border-t border-gray-100 dark:border-white/5 h-[90px] flex items-center justify-between px-12 transition-all shrink-0">
-                        <div className="flex items-center gap-6"></div>
-                        <div className="flex items-center gap-6">
-                            {primaryAction && (
-                                <button onClick={primaryAction.onClick} disabled={primaryAction.disabled || primaryAction.loading} className={`hidden lg:flex items-center gap-3 px-8 py-4 rounded-2xl shadow-xl transition-all font-black text-sm uppercase ${primaryAction.variant === 'danger' ? 'bg-red-600 text-white' : 'bg-primary text-white'}`}>
-                                    {primaryAction.loading ? <Loader2 className="w-5 h-5 animate-spin" /> : React.createElement(primaryAction.icon || Plus, { className: "w-5 h-5" })}
-                                    <span className="text-base">{primaryAction.label}</span>
-                                </button>
-                            )}
-                            {settings.sidebarAdEnabled && <div className="h-10 border-r border-gray-200 dark:border-dark-700" />}
-                            <div className="h-[60px] flex items-center">
-                                <AdSlot placement="ad_footer_leaderboard" showPlaceholder={false} />
+                    <footer className="z-40 bg-white/80 dark:bg-dark-950/80 backdrop-blur-md border-t border-gray-100 dark:border-white/5 h-[90px] flex items-center justify-between transition-all shrink-0">
+                        <div className="flex items-center gap-6 pr-12">
+                            {actions}
+                        </div>
+                        <div className="flex items-center h-full">
+                            <div className="flex items-center gap-6 px-6 shrink-0 h-full border-r border-gray-100 dark:border-white/5 bg-gray-50/30 dark:bg-white/5">
+                                {extraActions.map((action, idx) => (
+                                    <button key={idx} onClick={action.onClick} disabled={action.disabled || action.loading} className={`hidden lg:flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all font-bold text-sm bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 shadow-sm`}>
+                                        {action.loading ? <Loader2 className="w-5 h-5 animate-spin" /> : React.createElement(action.icon || Plus, { className: "w-5 h-5 text-gray-500" })}
+                                        <span className="flex-1">{action.label}</span>
+                                    </button>
+                                ))}
+                                {primaryAction && (
+                                    <button onClick={primaryAction.onClick} disabled={primaryAction.disabled || primaryAction.loading} className={`hidden lg:flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all font-bold text-sm ${primaryAction.variant === 'danger' ? 'bg-red-600 text-white' : 'bg-primary text-white'} shadow-lg disabled:opacity-40 disabled:grayscale disabled:cursor-not-allowed disabled:shadow-none`}>
+                                        {primaryAction.loading ? <Loader2 className="w-5 h-5 animate-spin" /> : React.createElement(primaryAction.icon || Plus, { className: "w-5 h-5" })}
+                                        <span className="flex-1">{primaryAction.label}</span>
+                                    </button>
+                                )}
                             </div>
                         </div>
                     </footer>

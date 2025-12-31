@@ -75,6 +75,12 @@
   padding: 2.5rem;
   width: 100%;
   flex: 1;
+  /* Fix for content bleeding into footer */
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  position: relative;
+  z-index: 10;
 }
 
 /* Utilities */

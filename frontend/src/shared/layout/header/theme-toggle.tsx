@@ -25,23 +25,31 @@ export const ThemeToggle: React.FC = () => {
         setTheme(prev => prev === 'light' ? 'dark' : 'light');
     };
 
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            toggleTheme();
+        }
+    };
+
     return (
-        <button
+        <div
             onClick={toggleTheme}
-            className="p-2.5 rounded-2xl bg-gray-50 text-gray-400 hover:text-primary hover:bg-white border border-transparent hover:border-gray-100 transition-all active:scale-95 group shadow-sm hover:shadow-md"
+            onKeyDown={handleKeyDown}
+            className="cursor-pointer relative w-5 h-5"
+            role="button"
+            tabIndex={0}
             aria-label="Toggle Dark Mode"
             title={theme === 'light' ? 'تفعيل الوضع الليلي' : 'تفعيل الوضع المضيء'}
         >
-            <div className="relative w-5 h-5">
-                <Sun
-                    size={20}
-                    className={`absolute inset-0 transition-all duration-500 transform ${theme === 'light' ? 'scale-0 rotate-90 opacity-0' : 'scale-100 rotate-0 opacity-100 text-yellow-500'}`}
-                />
-                <Moon
-                    size={20}
-                    className={`absolute inset-0 transition-all duration-500 transform ${theme === 'dark' ? 'scale-0 -rotate-90 opacity-0' : 'scale-100 rotate-0 opacity-100'}`}
-                />
-            </div>
-        </button>
+            <Sun
+                size={20}
+                className={`absolute inset-0 transition-all duration-500 transform ${theme === 'light' ? 'scale-0 rotate-90 opacity-0' : 'scale-100 rotate-0 opacity-100 text-yellow-500'}`}
+            />
+            <Moon
+                size={20}
+                className={`absolute inset-0 transition-all duration-500 transform ${theme === 'dark' ? 'scale-0 -rotate-90 opacity-0' : 'scale-100 rotate-0 opacity-100'}`}
+            />
+        </div>
     );
 };

@@ -6,6 +6,7 @@ import { usePrint } from '@/shared/hooks/usePrint';
 import PrintableTable from '@/shared/components/print/PrintableTable';
 
 import { TableHeader, Column } from './table-header';
+import { useAction } from './contexts/action-context';
 
 interface PaginationMeta {
     current_page: number;
@@ -59,6 +60,7 @@ export default function Table<T>({
     onSortChange
 }: TableProps<T>) {
     const { setExportData, isPrinting, setIsPrinting, openModal } = useExport();
+    const { registerExtraAction, unregisterExtraAction } = useAction();
     const { printRef, handlePrint } = usePrint({
         documentTitle: exportFileName
     });
@@ -132,6 +134,23 @@ export default function Table<T>({
             }
         }
     }, [data, columns, isLoading, exportFileName, setExportData]);
+
+    // Register Export Action in Footer
+    React.useEffect(() => {
+        let actionId: string | null = null;
+        if (showExport && data && data.length > 0) {
+            actionId = registerExtraAction({
+                label: 'تصدير البيانات',
+                onClick: openModal,
+                icon: Download,
+                variant: 'secondary'
+            });
+        }
+
+        return () => {
+            if (actionId) unregisterExtraAction(actionId);
+        };
+    }, [showExport, data?.length, openModal, registerExtraAction, unregisterExtraAction]);
 
     // Cleanup ONLY on actual unmount
     React.useEffect(() => {
@@ -220,20 +239,7 @@ export default function Table<T>({
                 </div>
             </div>
 
-            {/* Table Footer Actions */}
-            {showExport && data.length > 0 && (
-                <div className="flex justify-start px-2">
-                    <button
-                        onClick={openModal}
-                        className="group flex items-center gap-3 px-6 py-2.5 bg-white dark:bg-dark-900 border border-gray-200 dark:border-white/10 rounded-2xl shadow-sm hover:shadow-md hover:border-primary/30 transition-all duration-300 active:scale-95"
-                    >
-                        <div className="p-1.5 bg-primary/10 rounded-lg text-primary group-hover:bg-primary group-hover:text-white transition-all duration-300">
-                            <Download className="w-3.5 h-3.5" />
-                        </div>
-                        <span className="text-xs font-black text-gray-600 dark:text-gray-300 group-hover:text-primary transition-colors">تصدير البيانات</span>
-                    </button>
-                </div>
-            )}
+            {/* Internal Table Export Button Removed - Global Footer Action Used */}
 
             {/* Pagination Controls */}
             {paginationMeta && paginationMeta.last_page > 1 && onPageChange && (

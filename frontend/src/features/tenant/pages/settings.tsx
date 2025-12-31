@@ -1,31 +1,59 @@
 ﻿import React from 'react';
 import AppLayout from '@/features/tenant/pages/applayout';
 import ProfileSettingsForm from '@/shared/components/profile-settings-form';
+import { SplitSettingsLayout } from '@/shared/components/split-settings-layout';
 import { useTenantAuth } from '@/features/auth/tenant-auth-context';
 import { useAction } from '@/shared/contexts/action-context';
-import { useEffect } from 'react';
-import { Settings } from 'lucide-react';
+import { useTrialStatus } from '@/core/hooks/usetrialstatus';
+import { useRef, useState, useEffect } from 'react';
+import { Settings, Save } from 'lucide-react';
 
 export default function TenantSettings() {
     const { user, tenant, refreshUser, updateLocalUser } = useTenantAuth();
     const { setPrimaryAction } = useAction();
-    const [loading, setLoading] = React.useState(false);
-
-    // For the extra fields (Whatsapp/Country) - separate form for now or just handled?
-    // Let's actually put them in the "slots" but we need state.
-    // If I cannot easily unify the form submission without complex code, I will separate them.
-    // "Business Profile" vs "Login Profile" settings.
+    const { isTrialActive, daysRemaining, trialExpiresAt } = useTrialStatus();
+    const formRef = useRef<HTMLFormElement>(null);
+    const [isSaving, setIsSaving] = useState(false);
 
     useEffect(() => {
-        setPrimaryAction(null);
-    }, [setPrimaryAction]);
+        setPrimaryAction({
+            label: isSaving ? 'جاري الحفظ...' : 'حفظ التعديلات',
+            icon: Save,
+            onClick: () => {
+                if (formRef.current) {
+                    setIsSaving(true);
+                    formRef.current.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+                    // Timeout fallback
+                    setTimeout(() => setIsSaving(false), 2000);
+                }
+            },
+            loading: isSaving,
+            disabled: isSaving
+        });
+        return () => setPrimaryAction(null);
+    }, [setPrimaryAction, isSaving]);
 
     if (!tenant) return null;
 
     return (
         <AppLayout title="الإعدادات" icon={Settings} noPadding={true}>
-            <div className="w-full bg-transparent animate-in fade-in duration-500">
-                <div className="max-w-none mx-auto">
+            <div className="w-full bg-transparent animate-in fade-in duration-500 pb-8">
+                <SplitSettingsLayout
+                    userData={{
+                        name: tenant.name,
+                        email: tenant.email,
+                        avatarUrl: tenant.avatar_url,
+                        role: 'مشترك',
+                        email_verified_at: tenant.email_verified_at,
+                        created_at: tenant.created_at,
+                        last_login_at: tenant.last_login_at
+                    }}
+                    trialInfo={{
+                        isActive: isTrialActive,
+                        daysRemaining: daysRemaining,
+                        expiresAt: trialExpiresAt || ''
+                    }}
+                >
                     <ProfileSettingsForm
                         initialData={{
                             name: tenant.name,
@@ -41,12 +69,12 @@ export default function TenantSettings() {
                         onSuccess={(data) => {
                             updateLocalUser(data);
                             refreshUser();
+                            setIsSaving(false);
                         }}
-                    // We are sacrificing Whatsapp/Country update in this specific unified form unless I update the form component.
-                    // I will update the form component in the next step to include Whatsapp/Country if isTenant is true.
-                    // This achieves the goal best.
+                        formRef={formRef}
+                        hideAction={true}
                     />
-                </div>
+                </SplitSettingsLayout>
             </div>
         </AppLayout>
     );

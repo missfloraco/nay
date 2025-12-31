@@ -20,7 +20,7 @@ import { Header } from '@/shared/layout/header/header';
 import api from '@/shared/services/api';
 import { logger } from '@/shared/services/logger';
 import AdSlot from '@/shared/ads/adslot';
-import { StatusWidget } from '@/shared/components/statuswidget';
+import { TrialBadge } from '@/features/tenant/components/trial-badge';
 import { ImpersonationBanner } from '@/shared/components/impersonationbanner';
 import ShieldOverlay from '@/shared/components/shield-overlay';
 import { useUI } from '@/shared/contexts/ui-context';
@@ -40,7 +40,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, title = '', icon, noPad
     const { user: adminUser } = useAdminAuth();
     const { settings, isAdBlockActive, isCheckingAdBlock } = useSettings();
     const { t } = useText();
-    const { primaryAction } = useAction();
+    const { primaryAction, extraActions } = useAction();
     const { isRightDrawerOpen, closeDrawers, toggleRightDrawer } = useUI();
     const isAdminSession = isImpersonating || !!adminUser;
     const location = useLocation();
@@ -55,14 +55,6 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, title = '', icon, noPad
         }
     };
 
-    const { data: notificationData } = useQuery({
-        queryKey: ['support-notifications-count'],
-        queryFn: () => api.get('/app/support/notifications/support'),
-        refetchInterval: 5000,
-        enabled: !!user
-    });
-
-    const unreadCount = (notificationData as unknown as { count: number })?.count || 0;
 
     const { data: trashData } = useQuery({
         queryKey: ['trash-count'],
@@ -74,8 +66,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, title = '', icon, noPad
     const trashCount = (trashData as any)?.stats?.total || 0;
 
     const menuItems = [
-        { icon: Layers, label: t('tenant.NAV.DASHBOARD', 'لوحة التحكم'), path: '/app', color: 'text-blue-600' },
-        { icon: MessageSquare, label: t('tenant.NAV.SUPPORT', 'رسائل الدعم'), path: '/app/support/messages', color: 'text-[#fb005e]', badge: unreadCount },
+        { icon: Layers, label: t('tenant.NAV.DASHBOARD', 'لوحة التحكم'), path: '/app/dashboard', color: 'text-blue-600' },
         { icon: Trash2, label: t('tenant.NAV.RECYCLE_BIN', 'سلة المحذوفات'), path: '/app/trash', color: 'text-red-600 font-black', badge: trashCount },
     ];
 
@@ -85,21 +76,11 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, title = '', icon, noPad
             <ImpersonationBanner tenantName={tenant?.name || '...'} onExit={handleExitImpersonation} />
 
             {/* 1. Main Navigation Sidebar - Full Height */}
-            <MainSidebar items={menuItems} homePath="/app/welcome" className="desktop-sidebar" />
+            <MainSidebar items={menuItems} homePath="/app" className="desktop-sidebar" />
 
             {/* 2. Content Column Pillar */}
             <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden relative">
-                <Header onMenuClick={() => { }} className="global-header shrink-0" title={title || ''} icon={icon} hideBranding={true} actions={
-                    <div className="flex items-center gap-3">
-                        {actions}
-                        {primaryAction && (
-                            <button type={primaryAction.type || 'button'} form={primaryAction.form} onClick={primaryAction.onClick} disabled={primaryAction.disabled || primaryAction.loading} className={`flex items-center justify-center gap-2 py-2 px-4 ${primaryAction.variant === 'danger' ? 'bg-red-600' : 'bg-primary'} text-white rounded-lg shadow-md transition-all font-bold hover:scale-[1.02] text-sm`}>
-                                {primaryAction.loading ? <Loader2 className="w-4 h-4 animate-spin" /> : primaryAction.icon ? <primaryAction.icon className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
-                                <span className="text-sm">{primaryAction.label}</span>
-                            </button>
-                        )}
-                    </div>
-                } />
+                <Header onMenuClick={() => { }} className="global-header shrink-0" title={title || ''} icon={icon} hideBranding={true} />
 
                 <div className="flex-1 flex flex-col min-h-0 bg-gray-50 dark:bg-dark-950">
                     <div className="flex-1 flex overflow-hidden p-[var(--page-margin)] pb-0 gap-[var(--page-margin)]">
@@ -112,19 +93,23 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, title = '', icon, noPad
                         </main>
                     </div>
 
-                    <footer className="z-40 bg-white/80 dark:bg-dark-950/80 backdrop-blur-md border-t border-gray-100 dark:border-white/5 h-[90px] flex items-center justify-between px-12 transition-all shrink-0">
-                        <div className="flex items-center gap-6"></div>
-                        <div className="flex-1 flex items-center justify-center overflow-hidden h-full">
-                            <AdSlot placement="ad_footer_leaderboard" className="w-full h-full" showPlaceholder={false} />
+                    <footer className="z-40 bg-white/80 dark:bg-dark-950/80 backdrop-blur-md border-t border-gray-100 dark:border-white/5 h-[90px] flex items-center justify-between transition-all shrink-0 overflow-hidden">
+                        <div className="flex items-center gap-6 pr-6">
+                            {actions}
                         </div>
-                        <div className="flex items-center gap-6">
+                        <div className="flex items-center px-6 shrink-0 h-full border-r border-gray-100 dark:border-white/5 bg-gray-50/30 dark:bg-white/5">
+                            {extraActions.map((action, idx) => (
+                                <button key={idx} onClick={action.onClick} disabled={action.disabled || action.loading} className={`flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all font-bold text-sm bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 shadow-sm`}>
+                                    {action.loading ? <Loader2 className="w-5 h-5 animate-spin" /> : React.createElement(action.icon || Plus, { className: "w-5 h-5 text-gray-500" })}
+                                    <span className="flex-1">{action.label}</span>
+                                </button>
+                            ))}
                             {primaryAction && (
-                                <button onClick={primaryAction.onClick} disabled={primaryAction.disabled || primaryAction.loading} className={`hidden lg:flex items-center gap-3 px-8 py-4 rounded-2xl shadow-xl transition-all font-black text-sm uppercase ${primaryAction.variant === 'danger' ? 'bg-red-600' : 'bg-primary'} text-white`}>
+                                <button onClick={primaryAction.onClick} disabled={primaryAction.disabled || primaryAction.loading} className={`flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all font-bold text-sm ${primaryAction.variant === 'danger' ? 'bg-red-600' : 'bg-primary'} text-white shadow-lg disabled:opacity-40 disabled:grayscale disabled:cursor-not-allowed disabled:shadow-none`}>
                                     {primaryAction.loading ? <Loader2 className="w-5 h-5 animate-spin" /> : React.createElement(primaryAction.icon || Plus, { className: "w-5 h-5" })}
-                                    <span className="text-base">{primaryAction.label}</span>
+                                    <span className="flex-1">{primaryAction.label}</span>
                                 </button>
                             )}
-                            {!isAdminSession && <StatusWidget type="tenant" tenant={tenant} />}
                         </div>
                     </footer>
                 </div>
@@ -148,6 +133,8 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, title = '', icon, noPad
             <div className="mobile-only">
                 <BottomNav items={menuItems} user={user} onLogout={() => logoutTenant(false)} settingsPath="/app/settings" />
             </div>
+
+            <TrialBadge />
         </div>
     );
 };

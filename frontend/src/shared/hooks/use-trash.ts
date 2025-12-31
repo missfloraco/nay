@@ -52,7 +52,7 @@ export function useTrash(options: UseTrashOptions) {
     }, [fetchItems]);
 
     // Restore single item
-    const restore = async (type: string, id: number) => {
+    const restore = useCallback(async (type: string, id: number) => {
         try {
             await api.post(`${endpoint}/restore`, { type, id });
             showSuccess('تم الاستعادة بنجاح');
@@ -61,10 +61,10 @@ export function useTrash(options: UseTrashOptions) {
         } catch (error: any) {
             showError(error.response?.data?.error || 'فشل الاستعادة');
         }
-    };
+    }, [endpoint, fetchItems, showSuccess, showError]);
 
     // Force delete single item
-    const forceDelete = async (type: string, id: number) => {
+    const forceDelete = useCallback(async (type: string, id: number) => {
         const confirmed = await showConfirm({
             title: 'حذف نهائي',
             message: 'هل أنت متأكد من الحذف النهائي؟ لا يمكن التراجع عن هذا الإجراء.',
@@ -81,10 +81,10 @@ export function useTrash(options: UseTrashOptions) {
         } catch (error: any) {
             showError(error.response?.data?.error || 'فشل الحذف');
         }
-    };
+    }, [endpoint, fetchItems, showConfirm, showSuccess, showError]);
 
     // Toggle selection
-    const toggleSelect = (item: TrashedItem) => {
+    const toggleSelect = useCallback((item: TrashedItem) => {
         setSelected(prev => {
             const isSelected = prev.some(i => i.type === item.type && i.id === item.id);
             if (isSelected) {
@@ -93,19 +93,19 @@ export function useTrash(options: UseTrashOptions) {
                 return [...prev, item];
             }
         });
-    };
+    }, []);
 
     // Select all
-    const selectAll = () => {
+    const selectAll = useCallback(() => {
         if (selected.length === items.length) {
             setSelected([]);
         } else {
             setSelected([...items]);
         }
-    };
+    }, [selected.length, items]); // items needs to be in deps, but this might cause loop if items changes. items is state, so mostly stable.
 
     // Bulk restore
-    const bulkRestore = async () => {
+    const bulkRestore = useCallback(async () => {
         if (selected.length === 0) return;
 
         try {
@@ -117,10 +117,10 @@ export function useTrash(options: UseTrashOptions) {
         } catch (error: any) {
             showError(error.response?.data?.error || 'فشل الاستعادة الجماعية');
         }
-    };
+    }, [selected, endpoint, fetchItems, showSuccess, showError]);
 
     // Bulk force delete
-    const bulkForceDelete = async () => {
+    const bulkForceDelete = useCallback(async () => {
         if (selected.length === 0) return;
 
         const confirmed = await showConfirm({
@@ -140,7 +140,7 @@ export function useTrash(options: UseTrashOptions) {
         } catch (error: any) {
             showError(error.response?.data?.error || 'فشل الحذف الجماعي');
         }
-    };
+    }, [selected, showConfirm, endpoint, fetchItems, showSuccess, showError]);
 
     // Empty trash
     const emptyTrash = async () => {

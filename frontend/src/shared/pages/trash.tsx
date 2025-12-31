@@ -8,7 +8,8 @@ import { useAction } from '@/shared/contexts/action-context';
 import { formatDate } from '@/shared/utils/helpers';
 import { TEXTS_ADMIN } from '@/shared/locales/texts';
 import Table from '@/shared/table';
-import { Trash2, RotateCcw, CheckSquare, Square, AlertTriangle, Settings2 } from 'lucide-react';
+import { Trash2, RotateCcw, CheckSquare, Square, AlertTriangle, Settings2, Download } from 'lucide-react';
+import { useExport } from '@/shared/contexts/export-context';
 import { IdentityCell, DateCell, ActionCell } from '@/shared/table-cells';
 import type { TrashedItem } from '@/shared/types/trash';
 import Modal from '@/shared/ui/modals/modal';
@@ -48,96 +49,45 @@ export default function Trash() {
     };
 
     // Sidebar/Drawer Content
-    const optionsContent = (
-        <div className="space-y-8 p-1">
-            <div className="flex items-center gap-4 mb-2">
-                <div className="p-3 bg-primary/10 rounded-2xl text-primary">
-                    <Trash2 className="w-6 h-6" />
-                </div>
-                <div>
-                    <h3 className="text-xl font-black text-gray-900 dark:text-white leading-none">خيارات السلة</h3>
-                    <p className="text-xs font-bold text-gray-400 mt-1">إحصائيات وتحكم سريع</p>
-                </div>
-            </div>
+    const { setPrimaryAction, setExtraActions } = useAction();
+    const { openModal } = useExport();
 
-            {/* Stats Card */}
-            <div className="bg-gray-50 dark:bg-dark-900/40 rounded-[2rem] p-8 border border-gray-100 dark:border-dark-800">
-                <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4 block">
-                    إجمالي المحذوفات
-                </span>
-                <p className="text-5xl font-black text-primary tracking-tighter">{trash.stats.total}</p>
-                <p className="text-xs text-gray-400 font-bold mt-3">
-                    عنصر ينتظر المعالجة
-                </p>
-            </div>
+    React.useEffect(() => {
+        // 1. Primary Action: Empty Trash
+        setPrimaryAction({
+            label: 'إفراغ السلة نهائياً',
+            onClick: () => trash.emptyTrash(),
+            icon: AlertTriangle,
+            variant: 'danger',
+            disabled: trash.stats.total === 0
+        });
 
-            {/* Type Classification */}
-            {Object.keys(trash.stats.byType).length > 0 && (
-                <div className="space-y-4">
-                    <label className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest px-1">
-                        التصنيف حسب النوع
-                    </label>
-                    <div className="grid grid-cols-1 gap-2">
-                        {Object.entries(trash.stats.byType).map(([type, count]) => (
-                            <div
-                                key={type}
-                                className="flex items-center justify-between p-4 bg-white dark:bg-dark-800/60 rounded-2xl border border-gray-100 dark:border-dark-700/50"
-                            >
-                                <span className="text-sm font-bold text-gray-700 dark:text-gray-300">
-                                    {getTypeLabel(type)}
-                                </span>
-                                <span className="px-3 py-1 bg-gray-50 dark:bg-dark-950 rounded-lg text-[10px] font-black text-primary border border-gray-100 dark:border-dark-700">
-                                    {count}
-                                </span>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            )}
+        // 2. Extra Action: Export (Only if items exist)
+        if (trash.items.length > 0) {
+            setExtraActions([
+                {
+                    label: 'تصدير البيانات',
+                    onClick: openModal,
+                    icon: Download,
+                    variant: 'secondary'
+                }
+            ]);
+        } else {
+            setExtraActions([]);
+        }
 
-            <div className="pt-6 border-t border-gray-100 dark:border-dark-800 space-y-3">
-                {/* Empty Trash Button */}
-                {trash.stats.total > 0 && (
-                    <button
-                        onClick={() => {
-                            trash.emptyTrash();
-                        }}
-                        className="w-full h-14 flex items-center justify-center gap-3 bg-red-600 text-white rounded-2xl font-black text-sm hover:bg-red-700 transition-all shadow-xl shadow-red-500/10 group active:scale-[0.98]"
-                    >
-                        <AlertTriangle className="w-5 h-5 group-hover:rotate-12 transition-transform" />
-                        إفراغ السلة نهائياً
-                    </button>
-                )}
+        return () => {
+            setPrimaryAction(null);
+            setExtraActions([]);
+        };
+    }, [
+        trash.stats.total,
+        trash.items.length,
+        setPrimaryAction,
+        setExtraActions
+    ]);
 
-                {/* Bulk Actions */}
-                {trash.selected.length > 0 && (
-                    <>
-                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1 pt-2">
-                            تحكم بالمحدد ({trash.selected.length})
-                        </p>
-                        <button
-                            onClick={() => {
-                                trash.bulkRestore();
-                            }}
-                            className="w-full h-14 flex items-center justify-center gap-3 bg-emerald-600 text-white rounded-2xl font-black text-sm hover:bg-emerald-700 transition-all shadow-xl shadow-emerald-500/10"
-                        >
-                            <RotateCcw className="w-5 h-5" />
-                            استعادة العناصر المحددة
-                        </button>
-                        <button
-                            onClick={() => {
-                                trash.bulkForceDelete();
-                            }}
-                            className="w-full h-14 flex items-center justify-center gap-3 bg-red-50 text-red-600 border border-red-100 rounded-2xl font-black text-sm hover:bg-red-100 transition-all"
-                        >
-                            <Trash2 className="w-5 h-5" />
-                            حذف العناصر المحددة نهائياً
-                        </button>
-                    </>
-                )}
-            </div>
-        </div>
-    );
+
 
     const columns = React.useMemo(() => [
         {
@@ -244,6 +194,7 @@ export default function Trash() {
                     isLoading={trash.isLoading}
                     emptyMessage="السلة فارغة حالياً"
                     exportFileName="سلة_المحذوفات"
+                    showExport={false}
                 />
             </div>
 
@@ -261,9 +212,6 @@ export default function Trash() {
             >
                 <div className="p-8">
                     {tableContent}
-                    <div className="mt-12 pt-12 border-t border-gray-100 dark:border-dark-800">
-                        {optionsContent}
-                    </div>
                 </div>
             </AdminLayout>
         );
@@ -273,20 +221,9 @@ export default function Trash() {
         <AppLayout
             title={t('trash.title', 'سلة المحذوفات')}
             icon={Trash2}
-            noPadding={true}
         >
-            <div className="flex h-full bg-white dark:bg-dark-900 overflow-hidden">
-                {/* Internal Sidebar */}
-                <div className="hidden lg:flex w-[350px] border-l border-gray-100 dark:border-dark-800 shrink-0 bg-gray-50/5 overflow-y-auto no-scrollbar">
-                    <div className="p-8 w-full">
-                        {optionsContent}
-                    </div>
-                </div>
-
-                {/* Main Content Area */}
-                <div className="flex-1 flex flex-col min-w-0 relative bg-gray-50/20 overflow-y-auto no-scrollbar p-8">
-                    {tableContent}
-                </div>
+            <div className="p-8">
+                {tableContent}
             </div>
         </AppLayout>
     );

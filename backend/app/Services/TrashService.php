@@ -18,6 +18,8 @@ class TrashService
         return [
             'tenants' => Tenant::class,
             'support_tickets' => SupportTicket::class,
+            'ads' => \App\Models\Ad::class,
+            'scripts' => \App\Models\Script::class,
             // Add more models as needed
         ];
     }

@@ -2,6 +2,7 @@
 import { Settings, Save } from 'lucide-react';
 import AdminLayout from '@/features/superadmin/pages/adminlayout';
 import ProfileSettingsForm from '@/shared/components/profile-settings-form';
+import { SplitSettingsLayout } from '@/shared/components/split-settings-layout';
 import { useSettings } from '@/shared/contexts/app-context';
 import { useAction } from '@/shared/contexts/action-context';
 
@@ -35,8 +36,18 @@ export default function AdminSettings() {
 
     return (
         <AdminLayout title="الحساب والأمان" icon={Settings} noPadding={true}>
-            <div className="w-full bg-transparent animate-in fade-in duration-500">
-                <div className="max-w-none mx-auto">
+            <div className="w-full bg-transparent animate-in fade-in duration-500 pb-8">
+                <SplitSettingsLayout
+                    userData={{
+                        name: settings.currentUser.name,
+                        email: settings.currentUser.email,
+                        avatarUrl: settings.currentUser.avatarUrl,
+                        role: 'مدير النظام',
+                        email_verified_at: settings.currentUser.email_verified_at,
+                        created_at: settings.currentUser.created_at,
+                        last_login_at: settings.currentUser.last_login_at
+                    }}
+                >
                     <ProfileSettingsForm
                         initialData={{
                             name: settings.currentUser.name,
@@ -53,7 +64,7 @@ export default function AdminSettings() {
                         formRef={formRef}
                         hideAction={true}
                     />
-                </div>
+                </SplitSettingsLayout>
             </div>
         </AdminLayout>
     );

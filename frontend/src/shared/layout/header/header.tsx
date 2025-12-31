@@ -1,5 +1,4 @@
 ﻿import React, { useState, useRef, useEffect } from 'react';
-import { Menu, Power } from 'lucide-react';
 import { useSettings } from '@/shared/contexts/app-context';
 import { useText } from '@/shared/contexts/text-context';
 import { useAdminAuth } from '@/features/auth/admin-auth-context';
@@ -11,7 +10,9 @@ import { NameHeaderLeft } from './name-header-left';
 import { GlobalSearch } from './global-search';
 import { ThemeToggle } from './theme-toggle';
 import { useUI } from '@/shared/contexts/ui-context';
-import { MoreVertical, Menu as MenuIcon } from 'lucide-react';
+import { MoreVertical, Menu as MenuIcon, MessageSquare, Headset, Menu, Power } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import api from '@/shared/services/api';
 
 export const TrialBadge = OriginalTrialBadge;
 
@@ -70,6 +71,17 @@ export const Header: React.FC<HeaderProps> = ({
     }
   };
 
+  // Support Notifications
+  const { data: supportNotif } = useQuery({
+    queryKey: [isAdmin ? 'admin-notifications-count' : 'support-notifications-count'],
+    queryFn: () => api.get(isAdmin ? '/admin/notifications/support' : '/app/support/notifications/support'),
+    refetchInterval: 10000,
+    enabled: !!currentUser
+  });
+
+  const supportUnreadCount = (supportNotif as any)?.count || 0;
+  const supportPath = isAdmin ? '/admin/support' : '/app/support/messages';
+
   return (
     <header className={`sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200 flex items-center justify-between transition-colors h-[90px] global-header ${className}`}>
       {/* 1. Branding Section - Aligns with Main Nav Sidebar (250px) */}
@@ -108,12 +120,6 @@ export const Header: React.FC<HeaderProps> = ({
               {title}
             </h1>
           </div>
-          {/* Page Actions (e.g. Primary Button) */}
-          {actions && (
-            <div className="hidden lg:flex items-center gap-2 animate-in fade-in slide-in-from-right-4 duration-500">
-              {actions}
-            </div>
-          )}
         </div>
 
         {/* Middle Section: Search Bar (Desktop & Tablet) */}
@@ -131,9 +137,26 @@ export const Header: React.FC<HeaderProps> = ({
           <ThemeToggle />
         </div>
 
-        <div className="hidden sm:flex items-center gap-4 w-full justify-end">
-          <ThemeToggle />
-          <div className="h-8 w-px bg-gray-200 mx-1" />
+        <div className="hidden sm:flex items-center gap-4 w-full justify-end h-full">
+          <Link
+            to={supportPath}
+            className="relative group flex items-center justify-center text-gray-500 dark:text-gray-400 hover:text-primary dark:hover:text-primary transition-all"
+            title={t('support.title', 'الدعم الفني')}
+          >
+            <Headset className="w-5 h-5 group-hover:scale-110 transition-transform" />
+            {supportUnreadCount > 0 && (
+              <span className="absolute -top-1 -right-1 bg-primary text-white text-[9px] font-black rounded-full min-w-[18px] h-[18px] flex items-center justify-center border-2 border-white dark:border-dark-900 shadow-lg animate-pulse">
+                {supportUnreadCount > 9 ? '9+' : supportUnreadCount}
+              </span>
+            )}
+          </Link>
+
+          <div className="text-gray-500 dark:text-gray-400 hover:text-primary dark:hover:text-primary transition-all">
+            <ThemeToggle />
+          </div>
+
+          <div className="h-6 w-px bg-gray-200 dark:bg-white/10 mx-1" />
+
           <NameHeaderLeft
             user={currentUser}
             onLogout={handleLogout}

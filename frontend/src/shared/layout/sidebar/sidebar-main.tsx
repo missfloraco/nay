@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useSettings } from '@/shared/contexts/app-context';
+import AdSlot from '@/shared/ads/adslot';
 
 interface NavItem {
     icon: any;
@@ -61,8 +62,13 @@ export const MainSidebar: React.FC<MainSidebarProps> = ({ items, homePath, class
                 })}
             </nav>
 
+            {/* Sidebar Ad Slot - Flush with edges as requested */}
+            <div className="w-full shrink-0 border-t border-gray-100 dark:border-white/5 bg-gray-50/50 dark:bg-black/20">
+                <AdSlot placement="ad_sidebar" className="w-full aspect-[250/250]" showPlaceholder={false} />
+            </div>
+
             {/* Copyright Section */}
-            <div className="mt-auto border-t border-gray-200 dark:border-dark-700 h-[90px] px-8 flex flex-col justify-center items-start text-right shrink-0">
+            <div className="border-t border-gray-100 dark:border-white/5 h-[90px] px-8 flex flex-col justify-center items-start text-right shrink-0">
                 <span className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] mb-2 opacity-80 leading-none">جميع الحقوق محفوظة</span>
                 <span className="text-xs font-black text-gray-700 dark:text-gray-400 leading-relaxed">
                     منصة {settings?.appName || 'النظام'} © {new Date().getFullYear()}

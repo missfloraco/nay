@@ -57,8 +57,8 @@ const PageLoader = () => (
 function AdminRoutes() {
     return (
         <Routes>
-            <Route path="/" element={<AdminDashboard />} />
-            <Route path="/welcome" element={<WelcomePage />} />
+            <Route path="/" element={<WelcomePage />} />
+            <Route path="/dashboard" element={<AdminDashboard />} />
             <Route path="/tenants" element={<OperationsPage />} />
             <Route path="/payments" element={<OperationsPage />} />
             <Route path="/ads" element={<AdManagement />} />
@@ -77,8 +77,8 @@ function AdminRoutes() {
 function AppSubRoutes() {
     return (
         <Routes>
-            <Route path="/" element={<TenantDashboard />} />
-            <Route path="/welcome" element={<WelcomePage />} />
+            <Route path="/" element={<WelcomePage />} />
+            <Route path="/dashboard" element={<TenantDashboard />} />
             <Route path="/settings" element={<TenantSettings />} />
             <Route path="/support/messages" element={<TenantSupportMessages />} />
             <Route path="/trash" element={<Trash />} />
@@ -103,7 +103,7 @@ function LoginRedirector() {
 
 import { useTrialStatus } from '@/core/hooks/usetrialstatus';
 
-import { FeedbackProvider, TrialAlert } from '@/shared/ui/notifications/feedback-context';
+import { FeedbackProvider } from '@/shared/ui/notifications/feedback-context';
 
 export default function MainApp() {
     return (
@@ -171,7 +171,6 @@ function MainAppContent() {
                     <SearchProvider>
                         <ScriptInjector />
                         <ExportModal />
-                        <TrialAlert />
                         <Suspense fallback={<PageLoader />}>
 
 

@@ -155,7 +155,7 @@ export default function AuthScreen({ initialMode = 'login' }: { initialMode?: Au
                 setSuccess(t('AUTH.FORGOT_PASSWORD.SUCCESS_MESSAGE'));
             }
         } catch (err: any) {
-            console.error('Auth error:', err);
+            logger.error('Auth error', err);
             if (err.errors) {
                 // Zod Error
                 setError(err.errors[0].message);

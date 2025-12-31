@@ -203,7 +203,7 @@ export default function ProfileSettingsForm({
     const countryOptions = COUNTRIES.map(c => ({ value: c.code, label: c.name }));
 
     return (
-        <form ref={formRef} onSubmit={handleSubmit(onSubmit)} className="space-y-12 max-w-6xl mx-auto w-full">
+        <form ref={formRef} onSubmit={handleSubmit(onSubmit)} className="space-y-12 w-full">
             {/* Section 1: Basic Info */}
             <div className="bg-white dark:bg-dark-900 rounded-[2.5rem] p-8 lg:p-12 border border-gray-100 dark:border-dark-800 shadow-xl shadow-gray-100/50 dark:shadow-none group space-y-10">
                 <div className="flex items-center gap-6 border-b border-gray-50 dark:border-dark-800 pb-8 transition-colors group-hover:border-primary/20">
