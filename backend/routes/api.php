@@ -148,6 +148,9 @@ Route::prefix('admin')->group(function () {
             Route::delete('/empty', [App\Http\Controllers\Admin\TrashController::class, 'emptyTrash']);
         });
 
+        // Support Upload
+        Route::post('support/upload', [App\Http\Controllers\Admin\SupportController::class, 'uploadImage'])->middleware('throttle:10,1');
+
         // Support Tickets Routes
         Route::prefix('support/tickets')->group(function () {
             Route::get('/', [App\Http\Controllers\Admin\SupportController::class, 'index']);
@@ -262,6 +265,7 @@ Route::prefix('app')->group(function () {
             Route::post('/tickets/{id}/reply', [App\Http\Controllers\Tenant\SupportController::class, 'reply']);
             Route::delete('/tickets/{id}', [App\Http\Controllers\Tenant\SupportController::class, 'destroy']);
             Route::get('/notifications/support', [App\Http\Controllers\Tenant\SupportController::class, 'notifications']);
+            Route::post('/upload', [App\Http\Controllers\Tenant\SupportController::class, 'uploadImage'])->middleware('throttle:10,1');
         });
 
         Route::post('/preferences', function (Request $request) {

@@ -24,7 +24,23 @@ trait HasUid
      */
     protected static function generateUid(Model $model): string
     {
-        $prefix = defined('static::UID_PREFIX') ? static::UID_PREFIX : 'GEN';
+        $settingKey = null;
+        if ($model instanceof \App\Models\Admin)
+            $settingKey = 'prefix_admin';
+        if ($model instanceof \App\Models\Tenant)
+            $settingKey = 'prefix_tenant';
+        if ($model instanceof \App\Models\SupportTicket)
+            $settingKey = 'prefix_ticket';
+
+        $prefix = null;
+        if ($settingKey) {
+            $prefix = \App\Models\Setting::get($settingKey);
+        }
+
+        if (!$prefix) {
+            $prefix = defined('static::UID_PREFIX') ? static::UID_PREFIX : 'GEN';
+        }
+
         $prefix = Str::upper(Str::limit($prefix, 3, ''));
 
         // Start with a base guess based on latest ID to maintain rough sequentiality

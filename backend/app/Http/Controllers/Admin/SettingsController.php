@@ -157,6 +157,12 @@ class SettingsController extends Controller
             'protect_devtools_admin',
             'protect_devtools_app',
             'protect_devtools_landing',
+            // Prefix System
+            'prefix_admin',
+            'prefix_tenant',
+            'prefix_ticket',
+            'prefix_payment',
+            'prefix_ad',
         ];
 
         $data = $request->only($allowedKeys);

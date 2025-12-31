@@ -11,7 +11,7 @@ class SupportTicket extends Model
 {
     use HasFactory, SoftDeletes, HasUid;
 
-    const UID_PREFIX = 'TCK';
+    const UID_PREFIX = 'TKT';
 
     protected $fillable = [
         'uid',

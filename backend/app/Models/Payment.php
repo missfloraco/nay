@@ -4,15 +4,19 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Traits\Filterable;
+use App\Traits\HasUid;
 
 class Payment extends Model
 {
-    use Filterable;
+    use Filterable, HasUid;
+
+    const UID_PREFIX = 'INV';
 
     // Filterable trait configuration
     protected $searchable = ['transaction_id', 'notes'];
     protected $sortable = ['id', 'amount', 'paid_at', 'created_at', 'status'];
     protected $fillable = [
+        'uid',
         'tenant_id',
         'amount',
         'currency',

@@ -32,6 +32,7 @@ const SupportTickets = lazy(() => import('@/features/superadmin/pages/supporttic
 const SeoManagement = lazy(() => import('@/features/superadmin/pages/seomanagement'));
 const ScriptsManager = lazy(() => import('@/features/superadmin/pages/scripts'));
 const SecurityManagement = lazy(() => import('@/features/superadmin/pages/securitymanagement'));
+const PrefixSettingsPage = lazy(() => import('@/features/superadmin/pages/prefix-settings-page'));
 
 const TenantDashboard = lazy(() => import('@/features/tenant/pages/dashboard'));
 const TenantSettings = lazy(() => import('@/features/tenant/pages/settings'));
@@ -68,6 +69,7 @@ function AdminRoutes() {
             <Route path="/seo" element={<SeoManagement />} />
             <Route path="/scripts" element={<ScriptsManager />} />
             <Route path="/security" element={<SecurityManagement />} />
+            <Route path="/prefixes" element={<PrefixSettingsPage />} />
             <Route path="/trash" element={<Trash />} />
             <Route path="*" element={<Navigate to="/admin" />} />
         </Routes>

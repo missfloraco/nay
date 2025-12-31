@@ -5,15 +5,18 @@ namespace App\Http\Controllers\Tenant;
 use App\Http\Controllers\Controller;
 use App\Models\SupportTicket;
 use App\Services\SupportService;
+use App\Services\ImageService;
 use Illuminate\Http\Request;
 
 class SupportController extends Controller
 {
     protected $service;
+    protected $imageService;
 
-    public function __construct(SupportService $service)
+    public function __construct(SupportService $service, ImageService $imageService)
     {
         $this->service = $service;
+        $this->imageService = $imageService;
     }
 
     public function index(Request $request)
@@ -94,5 +97,21 @@ class SupportController extends Controller
         })->count();
 
         return response()->json(['count' => $count]);
+    }
+
+    public function uploadImage(Request $request)
+    {
+        $request->validate([
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg,webp|max:5120',
+        ]);
+
+        if ($request->hasFile('image')) {
+            $path = $this->imageService->storeOptimized($request->file('image'), 'support-uploads');
+            return response()->json([
+                'url' => asset('storage/' . $path)
+            ]);
+        }
+
+        return response()->json(['message' => 'No image uploaded'], 422);
     }
 }

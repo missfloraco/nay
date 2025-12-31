@@ -20,7 +20,8 @@ import {
     X,
     Sparkles,
     Code,
-    Shield
+    Shield,
+    Hash
 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import api from '@/shared/services/api';
@@ -80,6 +81,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title, noPadding = 
         { icon: Megaphone, label: t('admin.NAV.ADS', 'إدارة الإعلانات'), path: '/admin/ads', color: 'text-[#fb005e]' },
         { icon: Code, label: 'الأكواد والنصوص', path: '/admin/scripts', color: 'text-amber-600' },
         { icon: Shield, label: 'إعدادات الحماية', path: '/admin/security', color: 'text-rose-600' },
+        { icon: Hash, label: 'نظام التسميات', path: '/admin/prefixes', color: 'text-emerald-600' },
         { icon: Trash2, label: t('admin.NAV.RECYCLE_BIN', 'سلة المحذوفات'), path: '/admin/trash', color: 'text-red-600 font-black', badge: trashCount },
     ], [t, trashCount]);
 

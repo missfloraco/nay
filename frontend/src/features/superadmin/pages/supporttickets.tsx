@@ -1,20 +1,75 @@
-﻿import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/shared/services/api';
 import AdminLayout from './adminlayout';
 import { formatDate } from '@/shared/utils/helpers';
-import { MessageSquare, SendHorizontal, CheckCircle, Clock, Info, Trash2, X, AlertCircle, Archive, Shield, Link, ShieldCheck, Search, Filter, Loader2 } from 'lucide-react';
+import { convertImageToWebP } from '@/shared/utils/image-helpers';
+import { MessageSquare, ArrowUp, CheckCircle, Clock, Info, Trash2, X, AlertCircle, Archive, Shield, Image as ImageIcon, ShieldCheck, Search, Filter, Loader2 } from 'lucide-react';
 import { useFeedback } from '@/shared/ui/notifications/feedback-context';
 import InputField from '@/shared/ui/forms/input-field';
 import Modal from '@/shared/ui/modals/modal';
 import { FooterFilters } from '@/shared/components/footer-filters';
+import ImagePreview from '@/shared/ui/image-preview';
 
 const SupportTickets = () => {
     const queryClient = useQueryClient();
     const [selectedTicketId, setSelectedTicketId] = useState<number | null>(null);
     const [chatMessage, setChatMessage] = useState('');
     const [statusFilter, setStatusFilter] = useState('all');
+    const [isUploading, setIsUploading] = useState(false);
+    const [previewImage, setPreviewImage] = useState<string | null>(null);
+    const [pendingImage, setPendingImage] = useState<string | null>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
     const { showSuccess, showError, showConfirm } = useFeedback();
+
+    const uploadImageMutation = useMutation({
+        mutationFn: async (file: File) => {
+            const formData = new FormData();
+            formData.append('image', file);
+
+            const response: any = await api.post('/admin/support/upload', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+            return response.url;
+        },
+        onSuccess: (url) => {
+            setPendingImage(url);
+            setIsUploading(false);
+        },
+        onError: () => {
+            showError('فشل رفع الصورة');
+            setIsUploading(false);
+        }
+    });
+
+    const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        processFile(file);
+    };
+
+    const handlePaste = async (e: React.ClipboardEvent) => {
+        const items = e.clipboardData.items;
+        for (let i = 0; i < items.length; i++) {
+            if (items[i].type.indexOf('image') !== -1) {
+                const file = items[i].getAsFile();
+                if (file) processFile(file);
+                e.preventDefault(); // Prevent default paste behavior for images
+            }
+        }
+    };
+
+    const processFile = async (file: File) => {
+        setIsUploading(true);
+        try {
+            const webpFile = await convertImageToWebP(file);
+            uploadImageMutation.mutate(webpFile);
+        } catch (error) {
+            console.error('WebP conversion failed', error);
+            showError('فشل معالجة الصورة');
+            setIsUploading(false);
+        }
+    };
 
     // Tickets List Query
     const { data: ticketsData, isLoading: isLoadingList } = useQuery({
@@ -108,8 +163,16 @@ const SupportTickets = () => {
 
     const handleSendMessage = (e: React.FormEvent) => {
         e.preventDefault();
-        if (!chatMessage.trim()) return;
-        replyMutation.mutate({ message: chatMessage });
+
+        if (pendingImage) {
+            replyMutation.mutate({ message: pendingImage });
+            setPendingImage(null);
+        }
+
+        if (chatMessage.trim()) {
+            replyMutation.mutate({ message: chatMessage });
+            setChatMessage('');
+        }
     };
 
     const getStatusColor = (status: string, isDeleted: boolean = false) => {
@@ -331,7 +394,16 @@ const SupportTickets = () => {
                                                         : 'bg-white dark:bg-dark-800 text-gray-900 dark:text-gray-100 border border-gray-100 dark:border-white/5 rounded-[1.5rem] rounded-tr-none'
                                                     }
                                                 `}>
-                                                    <p className="text-[15px] leading-relaxed whitespace-pre-wrap font-medium">{msg.message}</p>
+                                                    {msg.message.startsWith('http') && (msg.message.match(/\.(jpeg|jpg|gif|png|webp)$/i) || msg.message.includes('/storage/')) ? (
+                                                        <img
+                                                            src={msg.message}
+                                                            alt="Attachment"
+                                                            className="max-w-full h-auto rounded-xl border-2 border-white/20 shadow-sm cursor-pointer hover:scale-[1.02] transition-transform"
+                                                            onClick={() => setPreviewImage(msg.message)}
+                                                        />
+                                                    ) : (
+                                                        <p className="text-[15px] leading-relaxed whitespace-pre-wrap font-medium" dir="auto">{msg.message}</p>
+                                                    )}
 
                                                     {/* Timestamp inside bubble for cleaner look */}
                                                     <div className={`absolute bottom-1 ${msg.is_admin_reply ? '-left-12' : '-right-12'} flex flex-col gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity`}>
@@ -340,9 +412,16 @@ const SupportTickets = () => {
                                                 </div>
 
                                                 {/* Mini Timestamp outside */}
-                                                <span className={`text-[10px] font-bold text-gray-400 mt-2 px-2 opacity-60 ${msg.is_admin_reply ? 'text-right' : 'text-left'}`}>
-                                                    {msg.is_admin_reply ? 'أنت' : selectedTicket?.tenant?.name} • {formatDate(msg.created_at, true).split('|')[1]}
-                                                </span>
+                                                <div className={`flex items-center gap-1.5 mt-2 px-2 opacity-60 ${msg.is_admin_reply ? 'flex-row-reverse' : 'flex-row'}`}>
+                                                    <span className="text-[10px] font-bold text-gray-400">
+                                                        {msg.is_admin_reply ? 'أنت' : selectedTicket?.tenant?.name} • {formatDate(msg.created_at, true).split('|')[1]}
+                                                    </span>
+                                                    {msg.is_admin_reply && (
+                                                        <div className="flex items-center">
+                                                            <CheckCircle className="w-3 h-3 text-emerald-500" />
+                                                        </div>
+                                                    )}
+                                                </div>
                                             </div>
                                         </div>
                                     ))}
@@ -351,6 +430,7 @@ const SupportTickets = () => {
                         </div>
 
                         {/* Modal Chat Input - Floating Bar */}
+
                         <div className="p-6 bg-transparent shrink-0 relative z-20">
                             {selectedTicket?.deleted_at ? (
                                 <div className="p-1 rounded-[1.5rem] bg-gradient-to-r from-red-500/50 to-orange-500/50 p-[1px]">
@@ -366,36 +446,79 @@ const SupportTickets = () => {
                                     </div>
                                 </div>
                             ) : (
-                                <form onSubmit={handleSendMessage} className="relative group">
+                                <form
+                                    onSubmit={handleSendMessage}
+                                    className="relative group"
+                                    onPaste={handlePaste}
+                                >
+                                    <input
+                                        type="file"
+                                        ref={fileInputRef}
+                                        className="hidden"
+                                        accept="image/*"
+                                        onChange={handleFileSelect}
+                                    />
                                     <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-purple-600/20 rounded-[2rem] blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
-                                    <div className="relative flex items-end gap-2 p-2 bg-white dark:bg-dark-800 border border-gray-100 dark:border-white/5 rounded-[2rem] shadow-2xl shadow-primary/5">
-                                        <div className="flex-1">
-                                            <InputField
-                                                label=""
-                                                value={chatMessage}
-                                                onChange={(e) => setChatMessage(e.target.value)}
-                                                placeholder="اكتب ردك هنا..."
-                                                disabled={selectedTicket?.status === 'closed' || replyMutation.isPending}
-                                                className="bg-transparent border-none shadow-none focus:ring-0 p-4 text-base font-medium placeholder:text-gray-400 h-14"
-                                            />
+
+                                    <div className="relative flex flex-col bg-white dark:bg-dark-800 border border-gray-100 dark:border-white/5 rounded-[2rem] shadow-2xl shadow-primary/5 p-1">
+
+                                        {/* Pending Image Preview - Inside Container */}
+                                        {pendingImage && (
+                                            <div className="p-3 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                                                <div className="relative inline-block group/pending">
+                                                    <img src={pendingImage} alt="Pending" className="w-32 h-32 object-cover rounded-2xl border-2 border-primary/20 shadow-lg" />
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setPendingImage(null)}
+                                                        className="absolute -top-2 -right-2 w-7 h-7 bg-red-500 text-white rounded-full flex items-center justify-center shadow-xl hover:scale-110 active:scale-95 transition-all z-10"
+                                                    >
+                                                        <X className="w-4 h-4" />
+                                                    </button>
+                                                    <div className="absolute inset-0 bg-black/20 rounded-2xl opacity-0 group-hover/pending:opacity-100 transition-opacity" />
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        <div className="flex items-center gap-2 p-1">
+                                            <div className="flex-1">
+                                                <InputField
+                                                    label=""
+                                                    value={chatMessage}
+                                                    onChange={(e) => setChatMessage(e.target.value)}
+                                                    placeholder="اكتب ردك هنا... (يمكنك لصق الصور مباشرة)"
+                                                    disabled={selectedTicket?.status === 'closed' || replyMutation.isPending}
+                                                    className="bg-transparent border-none shadow-none focus:ring-0 p-4 text-base font-medium placeholder:text-gray-400 h-14"
+                                                />
+                                            </div>
+
+                                            <div className="flex items-center gap-2">
+                                                {/* Attachment Button */}
+                                                <button
+                                                    type="button"
+                                                    onClick={() => fileInputRef.current?.click()}
+                                                    disabled={isUploading || selectedTicket?.status === 'closed'}
+                                                    className="w-12 h-12 flex items-center justify-center rounded-[1.5rem] text-gray-400 hover:text-primary hover:bg-primary/5 dark:hover:bg-dark-700 transition-all disabled:opacity-50"
+                                                >
+                                                    {isUploading ? (
+                                                        <Loader2 className="w-5 h-5 animate-spin text-primary" />
+                                                    ) : (
+                                                        <ImageIcon className="w-6 h-6" />
+                                                    )}
+                                                </button>
+
+                                                <button
+                                                    type="submit"
+                                                    disabled={(!chatMessage.trim() && !pendingImage) || replyMutation.isPending || selectedTicket?.status === 'closed'}
+                                                    className="w-14 h-14 flex items-center justify-center bg-primary text-white rounded-[1.5rem] hover:bg-primary/90 hover:scale-105 active:scale-95 transition-all shadow-lg shadow-primary/25 disabled:opacity-50 disabled:shadow-none disabled:grayscale"
+                                                >
+                                                    {replyMutation.isPending ? (
+                                                        <Loader2 className="w-6 h-6 animate-spin" />
+                                                    ) : (
+                                                        <ArrowUp className="w-6 h-6" />
+                                                    )}
+                                                </button>
+                                            </div>
                                         </div>
-
-                                        {/* Attachment Button (Visual) */}
-                                        <button type="button" className="w-12 h-12 flex items-center justify-center rounded-full text-gray-400 hover:bg-gray-50 dark:hover:bg-dark-700 transition-colors">
-                                            <Link className="w-5 h-5 rotate-45" />
-                                        </button>
-
-                                        <button
-                                            type="submit"
-                                            disabled={!chatMessage.trim() || replyMutation.isPending || selectedTicket?.status === 'closed'}
-                                            className="w-14 h-14 flex items-center justify-center bg-gradient-to-tr from-primary to-blue-600 text-white rounded-[1.5rem] hover:scale-105 active:scale-95 transition-all shadow-lg shadow-primary/25 disabled:opacity-50 disabled:shadow-none disabled:grayscale"
-                                        >
-                                            {replyMutation.isPending ? (
-                                                <Loader2 className="w-6 h-6 animate-spin" />
-                                            ) : (
-                                                <SendHorizontal className="w-6 h-6 -rotate-90 rtl:rotate-90" />
-                                            )}
-                                        </button>
                                     </div>
                                 </form>
                             )}
@@ -508,6 +631,14 @@ const SupportTickets = () => {
                     </div>
                 </div>
             </Modal>
+
+            {/* Image Preview Modal */}
+            {previewImage && (
+                <ImagePreview
+                    src={previewImage}
+                    onClose={() => setPreviewImage(null)}
+                />
+            )}
         </AdminLayout>
     );
 };

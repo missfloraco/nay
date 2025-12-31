@@ -7,7 +7,7 @@ import { useSettings } from '@/shared/contexts/app-context';
 import { useAction } from '@/shared/contexts/action-context';
 
 export default function AdminSettings() {
-    const { settings, updateSettings, updateLocalSettings, loading } = useSettings();
+    const { settings, updateLocalSettings, loading } = useSettings();
     const { setPrimaryAction } = useAction();
     const formRef = useRef<HTMLFormElement>(null);
     const [isSaving, setIsSaving] = useState(false);
