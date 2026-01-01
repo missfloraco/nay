@@ -27,6 +27,7 @@ import ShieldOverlay from '@/shared/components/shield-overlay';
 import { useUI } from '@/shared/contexts/ui-context';
 import { Drawer } from '@/shared/ui/drawer';
 import { MainSidebar } from '@/shared/layout/sidebar/sidebar-main';
+import { MobileNavLinks } from '@/shared/layout/sidebar/mobile-nav-links';
 import { NameHeaderLeft } from '@/shared/layout/header/name-header-left';
 import Button from '@/shared/ui/buttons/btn-base';
 
@@ -70,11 +71,14 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, title = '', icon, noPad
     const trashCount = (trashData as any)?.stats?.total || 0;
 
     const menuItems = [
+        { isHeader: true, label: 'الرئيسية' },
         { icon: Layers, label: t('tenant.NAV.DASHBOARD', 'لوحة التحكم'), path: '/app/dashboard', color: 'text-blue-600' },
+        { isHeader: true, label: 'الخطط والاشتراك' },
         { icon: DollarSign, label: t('tenant.NAV.SUBSCRIPTIONS', 'باقات الاشتراك'), path: '/app/plans', color: 'text-emerald-600 font-bold' },
     ];
 
     const secondaryItems = [
+        { isHeader: true, label: 'النظام' },
         { icon: Settings, label: t('tenant.NAV.SETTINGS', 'الإعدادات العامة'), path: '/app/settings', color: 'text-gray-600' },
         { icon: Trash2, label: t('tenant.NAV.RECYCLE_BIN', 'سلة المحذوفات'), path: '/app/trash', color: 'text-red-600 font-black', badge: trashCount },
     ];
@@ -173,28 +177,10 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, title = '', icon, noPad
                     {/* Drawer Branding REMOVED - Moved to Drawer Header */}
 
                     {/* Drawer Navigation */}
-                    <nav className="flex-1 p-4 space-y-1.5 overflow-y-auto no-scrollbar">
-                        {([...menuItems, ...secondaryItems] as any[]).map((item, index) => {
-                            const Icon = item.icon;
-                            const isActive = location.pathname.startsWith(item.path);
-                            return (
-                                <Link
-                                    key={item.path}
-                                    to={item.path}
-                                    onClick={closeDrawers}
-                                    className={`flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all font-bold ${isActive ? 'bg-primary text-white shadow-lg' : 'text-gray-500 hover:bg-gray-50'}`}
-                                >
-                                    <Icon className={`w-5 h-5 ${item.color && !isActive ? item.color : ''}`} />
-                                    <span className="text-sm flex-1">{item.label}</span>
-                                    {item.badge !== undefined && item.badge > 0 && (
-                                        <span className={`text-[10px] font-bold rounded-full min-w-[20px] h-5 flex items-center justify-center px-1 ${isActive ? 'bg-white text-primary' : 'bg-red-500 text-white'}`}>
-                                            {item.badge}
-                                        </span>
-                                    )}
-                                </Link>
-                            );
-                        })}
-                    </nav>
+                    <MobileNavLinks
+                        items={[...menuItems, ...secondaryItems]}
+                        onClose={closeDrawers}
+                    />
 
                     {/* Drawer Footer (User & Logout) */}
                     <div className="p-4 border-t border-gray-100 dark:border-white/5 bg-gray-50/50">

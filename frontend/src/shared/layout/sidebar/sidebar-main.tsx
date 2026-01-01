@@ -36,10 +36,14 @@ export const MainSidebar: React.FC<MainSidebarProps> = ({
     const renderNavItem = (item: NavItem, index: number) => {
         // Filter out headers for a cleaner list as requested
         if (item.isHeader) {
-            // Optional: Render a small divider if needed, but 'no sections' was requested.
-            // We will just render a spacer if expanded, or nothing.
-            if (isCollapsed) return <div key={`header-${index}`} className="h-2" />;
-            return <div key={`header-${index}`} className="h-2" />;
+            if (isCollapsed) return <div key={`header-${index}`} className="h-4" />;
+            return (
+                <div key={`header-${index}`} className="px-4 pt-6 pb-2 mt-2 first:mt-0">
+                    <span className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] whitespace-nowrap">
+                        {item.label}
+                    </span>
+                </div>
+            );
         }
 
         const isActive = location.pathname.startsWith(item.path!);

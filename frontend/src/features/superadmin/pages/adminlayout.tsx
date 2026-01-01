@@ -19,8 +19,6 @@ import {
     Loader2,
     X,
     Sparkles,
-    Code,
-    Shield,
     Hash,
     Crown,
     AlertCircle
@@ -39,6 +37,7 @@ import { StatusWidget } from '@/shared/components/statuswidget';
 import { useUI } from '@/shared/contexts/ui-context';
 import { Drawer } from '@/shared/ui/drawer';
 import { MainSidebar } from '@/shared/layout/sidebar/sidebar-main';
+import { MobileNavLinks } from '@/shared/layout/sidebar/mobile-nav-links';
 import { NameHeaderLeft } from '@/shared/layout/header/name-header-left';
 import Button from '@/shared/ui/buttons/btn-base';
 
@@ -183,38 +182,10 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title, noPadding = 
                     {/* Drawer Branding REMOVED - Moved to Drawer Header */}
 
                     {/* Drawer Navigation */}
-                    <nav className="flex-1 p-4 space-y-1.5 overflow-y-auto no-scrollbar">
-                        {[...navItems, ...secondaryItems].map((item: any, index: number) => {
-                            if (item.isHeader) {
-                                return (
-                                    <div key={`header-${index}`} className="px-4 pt-6 pb-2">
-                                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">
-                                            {item.label}
-                                        </span>
-                                    </div>
-                                );
-                            }
-
-                            const Icon = item.icon;
-                            const isActive = location.pathname.startsWith(item.path);
-                            return (
-                                <Link
-                                    key={item.path}
-                                    to={item.path}
-                                    onClick={closeDrawers}
-                                    className={`flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all font-bold ${isActive ? 'bg-primary text-white shadow-lg' : 'text-gray-500 hover:bg-gray-50'}`}
-                                >
-                                    <Icon className={`w-5 h-5 ${item.color && !isActive ? item.color : ''}`} />
-                                    <span className="text-sm flex-1">{item.label}</span>
-                                    {item.badge !== undefined && item.badge > 0 && (
-                                        <span className={`text-[10px] font-bold rounded-full min-w-[20px] h-5 flex items-center justify-center px-1 ${isActive ? 'bg-white text-primary' : 'bg-red-500 text-white'}`}>
-                                            {item.badge}
-                                        </span>
-                                    )}
-                                </Link>
-                            );
-                        })}
-                    </nav>
+                    <MobileNavLinks
+                        items={[...navItems, ...secondaryItems]}
+                        onClose={closeDrawers}
+                    />
 
                     {/* Drawer Footer (User & Logout) */}
                     <div className="p-4 border-t border-gray-100 dark:border-white/5 bg-gray-50/50">

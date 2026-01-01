@@ -4,7 +4,7 @@ import { useAction } from '@/shared/contexts/action-context';
 import Table from '@/shared/table';
 import { useFeedback } from '@/shared/ui/notifications/feedback-context';
 import { Plus, Trash2, Terminal } from 'lucide-react';
-import ScriptForm from '../pages/scripts/components/script-form';
+import ScriptForm from './script-form';
 import { IdentityCell, ActionCell } from '@/shared/table-cells';
 import { EditButton, DeleteButton } from '@/shared/ui/buttons/btn-crud';
 import { formatDate } from '@/shared/utils/helpers';
