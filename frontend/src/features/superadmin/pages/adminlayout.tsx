@@ -40,6 +40,7 @@ import { useUI } from '@/shared/contexts/ui-context';
 import { Drawer } from '@/shared/ui/drawer';
 import { MainSidebar } from '@/shared/layout/sidebar/sidebar-main';
 import { NameHeaderLeft } from '@/shared/layout/header/name-header-left';
+import Button from '@/shared/ui/buttons/btn-base';
 
 interface AdminLayoutProps {
     children: ReactNode;
@@ -82,23 +83,18 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title, noPadding = 
         { isHeader: true, label: 'الرئيسية' },
         { icon: LayoutDashboard, label: t('admin.NAV.DASHBOARD', 'لوحة التحكم'), path: '/admin/dashboard', color: 'text-blue-600' },
         { icon: Users, label: t('admin.NAV.TENANTS', 'إدارة المشتركين'), path: '/admin/tenants', color: 'text-[#02aa94]' },
-        { icon: AlertCircle, label: 'طلبات الاشتراك', path: '/admin/subscription-requests', color: 'text-purple-600' },
         { icon: Crown, label: 'الخطط السعرية', path: '/admin/plans', color: 'text-orange-500' },
 
         { isHeader: true, label: 'الهوية والتصميم' },
         { icon: Layout, label: 'هوية المنصة', path: '/admin/identity', color: 'text-indigo-600' },
-        { icon: Sparkles, label: 'أكواد CSS المخصصة', path: '/admin/custom-css', color: 'text-primary' },
-        { icon: BarChart3, label: 'إدارة SEO', path: '/admin/seo', color: 'text-blue-600' },
 
-        { isHeader: true, label: 'الأدوات والإعدادات' },
-        { icon: Megaphone, label: t('admin.NAV.ADS', 'إدارة الإعلانات'), path: '/admin/ads', color: 'text-[#fb005e]' },
-        { icon: Code, label: 'الأكواد والنصوص', path: '/admin/scripts', color: 'text-amber-600' },
-        { icon: Hash, label: 'نظام التسميات', path: '/admin/prefixes', color: 'text-emerald-600' },
-        { icon: Shield, label: 'إعدادات الحماية', path: '/admin/security', color: 'text-rose-600' },
         { icon: CreditCard, label: 'طرق الدفع', path: '/admin/payment-methods', color: 'text-emerald-500' },
-        { icon: Settings, label: t('admin.NAV.SETTINGS', 'الإعدادات العامة'), path: '/admin/settings', color: 'text-gray-600' },
 
         { isHeader: true, label: 'النظام' },
+    ], [t, trashCount]);
+
+    const secondaryItems = React.useMemo(() => [
+        { icon: Settings, label: t('admin.NAV.SETTINGS', 'الإعدادات العامة'), path: '/admin/settings', color: 'text-gray-600' },
         { icon: Trash2, label: t('admin.NAV.RECYCLE_BIN', 'سلة المحذوفات'), path: '/admin/trash', color: 'text-red-600 font-black', badge: trashCount },
     ], [t, trashCount]);
 
@@ -110,7 +106,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title, noPadding = 
 
             {/* 2. Middle Section (Sidebar + Content) */}
             <div className="flex-1 flex overflow-hidden relative">
-                <MainSidebar items={navItems} homePath="/admin" hideBranding={true} hideFooter={true} />
+                <MainSidebar items={navItems} secondaryItems={secondaryItems} homePath="/admin" hideBranding={true} hideFooter={true} />
 
                 <main className="flex-1 flex flex-col min-w-0 h-auto lg:h-full overflow-y-auto no-scrollbar bg-gray-50 dark:bg-dark-950 relative content-area-main">
 
@@ -130,16 +126,27 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title, noPadding = 
                                     {/* Global Actions (Buttons) - Moved from Footer */}
                                     <div className="flex items-center gap-3 shrink-0 self-end lg:self-auto">
                                         {extraActions.map((action, idx) => (
-                                            <button key={idx} onClick={action.onClick} disabled={action.disabled || action.loading} className={`flex items-center gap-4 px-4 py-2.5 rounded-xl transition-all font-bold text-sm bg-white border border-gray-200 text-gray-500 hover:bg-gray-50 hover:text-gray-900 shadow-sm hover:shadow-md`}>
-                                                {action.loading ? <Loader2 className="w-5 h-5 animate-spin" /> : React.createElement(action.icon || Plus, { className: "w-5 h-5" })}
-                                                <span>{action.label}</span>
-                                            </button>
+                                            <Button
+                                                key={idx}
+                                                onClick={action.onClick}
+                                                disabled={action.disabled || action.loading}
+                                                variant="secondary"
+                                                icon={action.icon || Plus}
+                                                isLoading={action.loading}
+                                            >
+                                                {action.label}
+                                            </Button>
                                         ))}
                                         {primaryAction && (
-                                            <button onClick={primaryAction.onClick} disabled={primaryAction.disabled || primaryAction.loading} className={`flex items-center gap-4 px-4 py-2.5 rounded-xl transition-all font-bold text-sm ${primaryAction.variant === 'danger' ? 'bg-red-600 text-white' : 'bg-primary text-white'} shadow-lg hover:shadow-xl hover:scale-[1.02] disabled:opacity-40 disabled:grayscale disabled:cursor-not-allowed disabled:shadow-none`}>
-                                                {primaryAction.loading ? <Loader2 className="w-5 h-5 animate-spin" /> : React.createElement(primaryAction.icon || Plus, { className: "w-5 h-5" })}
-                                                <span>{primaryAction.label}</span>
-                                            </button>
+                                            <Button
+                                                onClick={primaryAction.onClick}
+                                                disabled={primaryAction.disabled || primaryAction.loading}
+                                                variant={primaryAction.variant === 'danger' ? 'danger' : 'primary'}
+                                                icon={primaryAction.icon || Plus}
+                                                isLoading={primaryAction.loading}
+                                            >
+                                                {primaryAction.label}
+                                            </Button>
                                         )}
                                     </div>
                                 </div>
@@ -157,21 +164,27 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title, noPadding = 
             {/* Drawers & Mobile Nav */}
 
             {/* Drawers & Mobile Nav */}
-            <Drawer isOpen={isRightDrawerOpen} onClose={closeDrawers} side="right" title={t('admin.navigation', 'القائمة الرئيسية')}>
-                <div className="flex flex-col h-full">
-                    {/* Drawer Branding */}
-                    <div className="p-8 border-b border-gray-100 dark:border-white/5 flex items-center gap-4">
+            <Drawer
+                isOpen={isRightDrawerOpen}
+                onClose={closeDrawers}
+                side="right"
+                branding={
+                    <div className="flex items-center gap-4">
                         {settings.systemLogoUrl && (
-                            <img src={settings.systemLogoUrl} alt={settings.appName} className="h-8 w-auto" />
+                            <img src={settings.systemLogoUrl} alt={settings.appName} className="h-10 w-auto" />
                         )}
-                        <span className="font-black text-lg text-gray-900 dark:text-white">
+                        <span className="font-black text-lg text-gray-900 dark:text-white truncate">
                             {settings.appName}
                         </span>
                     </div>
+                }
+            >
+                <div className="flex flex-col h-full">
+                    {/* Drawer Branding REMOVED - Moved to Drawer Header */}
 
                     {/* Drawer Navigation */}
                     <nav className="flex-1 p-4 space-y-1.5 overflow-y-auto no-scrollbar">
-                        {navItems.map((item, index) => {
+                        {[...navItems, ...secondaryItems].map((item: any, index: number) => {
                             if (item.isHeader) {
                                 return (
                                     <div key={`header-${index}`} className="px-4 pt-6 pb-2">
@@ -183,7 +196,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title, noPadding = 
                             }
 
                             const Icon = item.icon;
-                            const isActive = location.pathname === item.path;
+                            const isActive = location.pathname.startsWith(item.path);
                             return (
                                 <Link
                                     key={item.path}
@@ -193,7 +206,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title, noPadding = 
                                 >
                                     <Icon className={`w-5 h-5 ${item.color && !isActive ? item.color : ''}`} />
                                     <span className="text-sm flex-1">{item.label}</span>
-                                    {item.badge > 0 && (
+                                    {item.badge !== undefined && item.badge > 0 && (
                                         <span className={`text-[10px] font-bold rounded-full min-w-[20px] h-5 flex items-center justify-center px-1 ${isActive ? 'bg-white text-primary' : 'bg-red-500 text-white'}`}>
                                             {item.badge}
                                         </span>

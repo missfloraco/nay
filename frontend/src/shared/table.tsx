@@ -8,6 +8,7 @@ import PrintableTable from '@/shared/components/print/PrintableTable';
 import { TableHeader, Column } from './table-header';
 import { useAction } from './contexts/action-context';
 import { createPortal } from 'react-dom';
+import Button from './ui/buttons/btn-base';
 
 interface PaginationMeta {
     current_page: number;
@@ -254,43 +255,47 @@ export default function Table<T>({
                             </div>
 
                             <div className="flex items-center gap-1 bg-gray-100 dark:bg-dark-800/50 p-1 rounded-xl border border-gray-200 dark:border-white/5">
-                                <button
+                                <Button
                                     onClick={() => onPageChange(1)}
                                     disabled={paginationMeta.current_page === 1}
-                                    className="p-1.5 rounded-lg hover:bg-white dark:hover:bg-dark-700 text-gray-500 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                                    variant="secondary"
+                                    size="sm"
+                                    className="px-2 min-w-[36px] bg-transparent border-none shadow-none hover:bg-white dark:hover:bg-dark-700 hover:shadow-sm"
                                     title="الأولى"
-                                >
-                                    <ChevronsRight className="w-4 h-4" />
-                                </button>
-                                <button
+                                    icon={ChevronsRight}
+                                />
+                                <Button
                                     onClick={() => onPageChange(paginationMeta.current_page - 1)}
                                     disabled={paginationMeta.current_page === 1}
-                                    className="p-1.5 rounded-lg hover:bg-white dark:hover:bg-dark-700 text-gray-500 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                                    variant="secondary"
+                                    size="sm"
+                                    className="px-2 min-w-[36px] bg-transparent border-none shadow-none hover:bg-white dark:hover:bg-dark-700 hover:shadow-sm"
                                     title="السابق"
-                                >
-                                    <ChevronRight className="w-4 h-4" />
-                                </button>
+                                    icon={ChevronRight}
+                                />
 
-                                <span className="px-2 text-xs font-bold font-mono pt-0.5">
+                                <span className="px-4 text-xs font-bold font-mono pt-0.5">
                                     {paginationMeta.current_page}
                                 </span>
 
-                                <button
+                                <Button
                                     onClick={() => onPageChange(paginationMeta.current_page + 1)}
                                     disabled={paginationMeta.current_page === paginationMeta.last_page}
-                                    className="p-1.5 rounded-lg hover:bg-white dark:hover:bg-dark-700 text-gray-500 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                                    variant="secondary"
+                                    size="sm"
+                                    className="px-2 min-w-[36px] bg-transparent border-none shadow-none hover:bg-white dark:hover:bg-dark-700 hover:shadow-sm"
                                     title="التالي"
-                                >
-                                    <ChevronLeft className="w-4 h-4" />
-                                </button>
-                                <button
+                                    icon={ChevronLeft}
+                                />
+                                <Button
                                     onClick={() => onPageChange(paginationMeta.last_page)}
                                     disabled={paginationMeta.current_page === paginationMeta.last_page}
-                                    className="p-1.5 rounded-lg hover:bg-white dark:hover:bg-dark-700 text-gray-500 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                                    variant="secondary"
+                                    size="sm"
+                                    className="px-2 min-w-[36px] bg-transparent border-none shadow-none hover:bg-white dark:hover:bg-dark-700 hover:shadow-sm"
                                     title="الأخيرة"
-                                >
-                                    <ChevronsLeft className="w-4 h-4" />
-                                </button>
+                                    icon={ChevronsLeft}
+                                />
                             </div>
                         </div>
                     );

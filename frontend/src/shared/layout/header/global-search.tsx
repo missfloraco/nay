@@ -238,6 +238,7 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({ variant = 'header-ce
                     aria-expanded={showResults && results.length > 0}
                 />
 
+
                 {isSearching && <Loader2 className="w-4 h-4 text-primary animate-spin" />}
 
                 {searchQuery && (
@@ -249,10 +250,6 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({ variant = 'header-ce
                         <X size={14} />
                     </button>
                 )}
-
-                <div className="hidden lg:flex items-center gap-1.5 px-2 py-1 bg-white border border-gray-200 rounded-md shadow-sm ml-1 group-focus-within:hidden">
-                    <span className="text-[10px] font-black text-gray-400">/</span>
-                </div>
             </div>
 
             {/* Desktop Results Dropdown */}
@@ -293,4 +290,5 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({ variant = 'header-ce
         </div>
     );
 };
+
 

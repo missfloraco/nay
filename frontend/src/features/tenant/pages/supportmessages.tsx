@@ -227,10 +227,10 @@ const SupportMessages = () => {
 
                 {/* Ticket Grid List */}
                 {isLoadingTickets && !ticketsData ? (
-                    <div className="flex flex-col items-center justify-center py-32 bg-white dark:bg-dark-900 rounded-[3rem] border border-gray-100 dark:border-white/5 border-dashed">
-                        <div className="animate-spin w-10 h-10 border-4 border-primary border-t-transparent rounded-full mb-6" />
-                        <span className="text-sm font-black text-gray-400 uppercase tracking-[0.2em] animate-pulse">جاري جلب تفاصيل الدعم...</span>
+                    <div className="flex flex-col items-center justify-center py-20 bg-transparent">
+                        <div className="animate-spin w-10 h-10 border-4 border-primary border-t-transparent rounded-full" />
                     </div>
+
                 ) : (ticketsData as any)?.data?.length === 0 ? (
                     <div className="flex flex-col items-center justify-center min-h-[75vh] px-4 text-center animate-in fade-in zoom-in duration-500">
                         <div className="relative mb-8 group cursor-pointer" onClick={() => setIsCreating(true)}>

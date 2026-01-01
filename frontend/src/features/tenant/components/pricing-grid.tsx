@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Check, Star, Crown, Shield, ArrowRight, Sparkles } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import api from '@/shared/services/api';
+import Button from '@/shared/ui/buttons/btn-base';
 
 const PLAN_ICONS = {
     'الباقة الأساسية': Shield,
@@ -53,21 +54,25 @@ export const PricingGrid: React.FC<PricingGridProps> = ({
             {/* Billing Toggle */}
             <div className="flex items-center justify-center">
                 <div className="p-1.5 bg-gray-100 dark:bg-white/5 rounded-2xl flex items-center gap-1 border border-gray-200 dark:border-white/10 shadow-inner">
-                    <button
+                    <Button
                         onClick={() => setBillingCycle('monthly')}
-                        className={`px-8 py-3 rounded-xl text-sm font-black transition-all ${billingCycle === 'monthly' ? 'bg-white dark:bg-dark-800 text-gray-900 dark:text-white shadow-xl' : 'text-gray-400 hover:text-gray-600'}`}
+                        variant={billingCycle === 'monthly' ? 'secondary' : 'ghost'}
+                        size="md"
+                        className={`px-8 py-3 h-auto shadow-none ${billingCycle === 'monthly' ? 'bg-white dark:bg-dark-800 text-gray-900 dark:text-white shadow-xl' : 'text-gray-400 hover:text-gray-600 hover:bg-transparent'}`}
                     >
                         اشتراك شهري
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                         onClick={() => setBillingCycle('yearly')}
-                        className={`px-8 py-3 rounded-xl text-sm font-black transition-all flex items-center gap-2 ${billingCycle === 'yearly' ? 'bg-primary text-white shadow-xl scale-105' : 'text-gray-400 hover:text-gray-600'}`}
+                        variant={billingCycle === 'yearly' ? 'primary' : 'ghost'}
+                        size="md"
+                        className={`px-8 py-3 h-auto shadow-none ${billingCycle === 'yearly' ? 'shadow-xl scale-105' : 'text-gray-400 hover:text-gray-600 hover:bg-transparent'}`}
                     >
                         <span>اشتراك سنوي</span>
                         {maxDiscount > 0 && (
-                            <span className="px-2 py-0.5 bg-emerald-500/20 text-emerald-500 text-[10px] font-black rounded-lg">وفر {maxDiscount}%</span>
+                            <span className="px-2 py-0.5 bg-emerald-500/20 text-emerald-500 text-[10px] font-black rounded-lg mr-2">وفر {maxDiscount}%</span>
                         )}
-                    </button>
+                    </Button>
                 </div>
             </div>
 
@@ -113,23 +118,15 @@ export const PricingGrid: React.FC<PricingGridProps> = ({
                                     ))}
                                 </div>
 
-                                <button
+                                <Button
                                     onClick={() => onSelectPlan?.({ ...plan, billing_cycle: billingCycle, price: Math.round(price) })}
                                     disabled={(!isPublic && (isCurrent && !isTrial)) || !!pendingRequest}
-                                    className={`w-full py-5 rounded-2xl font-black transition-all flex items-center justify-center gap-4 text-lg ${isCurrent ? (isTrial ? 'bg-amber-50 text-amber-600 border border-amber-200' : 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/10') : 'bg-primary text-white shadow-lg shadow-primary/20 hover:scale-105 active:scale-95'} disabled:opacity-50`}
+                                    variant={isCurrent ? (isTrial ? 'secondary' : 'success') : 'primary'}
+                                    size="md"
+                                    className={`w-full ${isTrial ? 'text-amber-600 border border-amber-200' : ''}`}
                                 >
-                                    {isCurrent && !isTrial ? (
-                                        <>
-                                            <Check className="w-6 h-6" />
-                                            <span>مفعل بالكامل</span>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <Sparkles className="w-5 h-5" />
-                                            <span>{isPublic ? 'ابدأ تجربتك المجانية' : (isTrial ? 'ترقية إلى هذه الخطة' : 'اختيار هذه الخطة')}</span>
-                                        </>
-                                    )}
-                                </button>
+                                    {isCurrent && !isTrial ? 'مفعل بالكامل' : (isPublic ? 'ابدأ تجربتك المجانية' : (isTrial ? 'ترقية إلى هذه الخطة' : 'اختيار هذه الخطة'))}
+                                </Button>
                             </div>
                         </div>
                     );

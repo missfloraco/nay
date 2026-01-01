@@ -1,15 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import AdminLayout from '@/features/superadmin/pages/adminlayout';
-import { Shield, Save, Loader2, MousePointer2, Type, Move, Copy, Terminal, Info, Users, Globe, ShieldAlert } from 'lucide-react';
+import { Shield, MousePointer2, Type, Move, Copy, Terminal, Users, Globe, ShieldAlert } from 'lucide-react';
 import { useSettings } from '@/shared/contexts/app-context';
-import { useToast } from '@/shared/ui/notifications/feedback-context';
+import { useFeedback } from '@/shared/ui/notifications/feedback-context';
 import { useAction } from '@/shared/contexts/action-context';
 import { SettingsService } from '@/shared/services/settingsservice';
 import { logger } from '@/shared/services/logger';
 
-export default function SecurityManagement() {
+export const SecuritySettings: React.FC = () => {
     const { settings, refreshSettings, loading: contextLoading } = useSettings();
-    const { showToast } = useToast();
+    const { showToast } = useFeedback();
     const { setPrimaryAction } = useAction();
     const [saving, setSaving] = useState(false);
 
@@ -41,22 +40,9 @@ export default function SecurityManagement() {
         setFormData(prev => ({ ...prev, [key]: !(prev as any)[key] }));
     };
 
-    useEffect(() => {
-        setPrimaryAction({
-            label: saving ? 'جاري الحفظ...' : 'حفظ إعدادات الحماية',
-            onClick: () => handleSubmit(),
-            icon: Save,
-            loading: saving,
-            disabled: saving,
-        });
-
-        return () => setPrimaryAction(null);
-    }, [saving, formData]);
-
     const handleSubmit = async () => {
         setSaving(true);
         try {
-            // Convert boolean to '1' or '0' for backend
             const payload = Object.entries(formData).reduce((acc, [key, value]) => ({
                 ...acc,
                 [key]: value ? '1' : '0'
@@ -72,6 +58,18 @@ export default function SecurityManagement() {
             setSaving(false);
         }
     };
+
+    useEffect(() => {
+        setPrimaryAction({
+            label: saving ? 'جاري الحفظ...' : 'حفظ إعدادات الحماية',
+            onClick: handleSubmit,
+            icon: Shield,
+            loading: saving,
+            disabled: saving,
+        });
+
+        return () => setPrimaryAction(null);
+    }, [saving, formData]);
 
     const SecurityCard = ({
         id,
@@ -121,7 +119,6 @@ export default function SecurityManagement() {
                     </p>
                 </div>
 
-                {/* Granular Controls Matrix */}
                 <div className="space-y-3 pt-6 border-t border-gray-100 dark:border-dark-800">
                     <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block">تطبيق على:</span>
 
@@ -174,69 +171,59 @@ export default function SecurityManagement() {
     };
 
     return (
-        <AdminLayout
-            title="إعدادات الحماية"
-            icon={Shield}
-            noPadding={true}
-        >
-            <div className="w-full max-w-[1600px] mx-auto bg-transparent animate-in fade-in duration-500">
-                <div className="mx-auto space-y-12 w-full">
-                    {/* Header Removed */}
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                        <SecurityCard
-                            id="right-click"
-                            featureKey="right_click"
-                            title="حماية النقر بالزر الأيمن"
-                            description="منع المستخدمين من النقر بالزر الأيمن داخل المنصة لإيقاف الوصول لخيارات النسخ والمعاينة."
-                            icon={MousePointer2}
-                            colorClass="bg-blue-50 dark:bg-blue-900/10 text-blue-600"
-                        />
-                        <SecurityCard
-                            id="selection"
-                            featureKey="selection"
-                            title="منع تحديد النصوص"
-                            description="منع المستخدمين من تحديد الكلمات والفقرات داخل صفحات المنصة لحماية المحتوى المكتوب."
-                            icon={Type}
-                            colorClass="bg-purple-50 dark:bg-purple-900/10 text-purple-600"
-                        />
-                        <SecurityCard
-                            id="drag"
-                            featureKey="drag"
-                            title="منع سحب العناصر"
-                            description="إيقاف إمكانية سحب الصور والعناصر التفاعلية لإحباط عمليات الحفظ غير المصرح بها."
-                            icon={Move}
-                            colorClass="bg-orange-50 dark:bg-orange-900/10 text-orange-600"
-                        />
-                        <SecurityCard
-                            id="copy-paste"
-                            featureKey="copy_paste"
-                            title="حماية النسخ واللصق"
-                            description="تعطيل أوامر النسخ (Ctrl+C) والقص (Ctrl+X) واللصق لمنع تداول البيانات خارج المنصة."
-                            icon={Copy}
-                            colorClass="bg-emerald-50 dark:bg-emerald-900/10 text-emerald-600"
-                        />
-                        <SecurityCard
-                            id="devtools"
-                            featureKey="devtools"
-                            title="حماية أدوات المطورين"
-                            description="منع فتح شاشة الفحص (Inspect) عن طريق تعطيل (F12) ومجموعات أزرار التحكم البرمجية."
-                            icon={Terminal}
-                            colorClass="bg-rose-50 dark:bg-rose-900/10 text-rose-600"
-                        />
-                        <SecurityCard
-                            id="adblock"
-                            featureKey="adblock"
-                            title="كاشف مانع الإعلانات"
-                            description="منع المستخدمين من الوصول للمحتوى إلا بعد تعطيل مانع الإعلانات، مما يضمن استمرارية دعم المنصة."
-                            icon={ShieldAlert}
-                            colorClass="bg-red-50 dark:bg-red-900/10 text-red-600"
-                        />
-                    </div>
-
-                    {/* Bottom Action Bar */}
+        <div className="w-full max-w-[1600px] mx-auto bg-transparent animate-in fade-in duration-500 p-8">
+            <div className="mx-auto space-y-12 w-full">
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                    <SecurityCard
+                        id="right-click"
+                        featureKey="right_click"
+                        title="حماية النقر بالزر الأيمن"
+                        description="منع المستخدمين من النقر بالزر الأيمن داخل المنصة لإيقاف الوصول لخيارات النسخ والمعاينة."
+                        icon={MousePointer2}
+                        colorClass="bg-blue-50 dark:bg-blue-900/10 text-blue-600"
+                    />
+                    <SecurityCard
+                        id="selection"
+                        featureKey="selection"
+                        title="منع تحديد النصوص"
+                        description="منع المستخدمين من تحديد الكلمات والفقرات داخل صفحات المنصة لحماية المحتوى المكتوب."
+                        icon={Type}
+                        colorClass="bg-purple-50 dark:bg-purple-900/10 text-purple-600"
+                    />
+                    <SecurityCard
+                        id="drag"
+                        featureKey="drag"
+                        title="منع سحب العناصر"
+                        description="إيقاف إمكانية سحب الصور والعناصر التفاعلية لإحباط عمليات الحفظ غير المصرح بها."
+                        icon={Move}
+                        colorClass="bg-orange-50 dark:bg-orange-900/10 text-orange-600"
+                    />
+                    <SecurityCard
+                        id="copy-paste"
+                        featureKey="copy_paste"
+                        title="حماية النسخ واللصق"
+                        description="تعطيل أوامر النسخ (Ctrl+C) والقص (Ctrl+X) واللصق لمنع تداول البيانات خارج المنصة."
+                        icon={Copy}
+                        colorClass="bg-emerald-50 dark:bg-emerald-900/10 text-emerald-600"
+                    />
+                    <SecurityCard
+                        id="devtools"
+                        featureKey="devtools"
+                        title="حماية أدوات المطورين"
+                        description="منع فتح شاشة الفحص (Inspect) عن طريق تعطيل (F12) ومجموعات أزرار التحكم البرمجية."
+                        icon={Terminal}
+                        colorClass="bg-rose-50 dark:bg-rose-900/10 text-rose-600"
+                    />
+                    <SecurityCard
+                        id="adblock"
+                        featureKey="adblock"
+                        title="كاشف مانع الإعلانات"
+                        description="منع المستخدمين من الوصول للمحتوى إلا بعد تعطيل مانع الإعلانات، مما يضمن استمرارية دعم المنصة."
+                        icon={ShieldAlert}
+                        colorClass="bg-red-50 dark:bg-red-900/10 text-red-600"
+                    />
                 </div>
             </div>
-        </AdminLayout >
+        </div>
     );
-}
+};

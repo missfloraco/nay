@@ -14,16 +14,62 @@ interface NavItem {
 
 interface MainSidebarProps {
     items: NavItem[];
+    secondaryItems?: NavItem[];
     homePath: string;
     className?: string;
     hideBranding?: boolean;
     hideFooter?: boolean;
 }
 
-export const MainSidebar: React.FC<MainSidebarProps> = ({ items, homePath, className = '', hideBranding = false, hideFooter = false }) => {
+export const MainSidebar: React.FC<MainSidebarProps> = ({
+    items,
+    secondaryItems = [],
+    homePath,
+    className = '',
+    hideBranding = false,
+    hideFooter = false
+}) => {
     const { settings } = useSettings();
     const location = useLocation();
     const [isCollapsed, setIsCollapsed] = React.useState(false);
+
+    const renderNavItem = (item: NavItem, index: number) => {
+        // Filter out headers for a cleaner list as requested
+        if (item.isHeader) {
+            // Optional: Render a small divider if needed, but 'no sections' was requested.
+            // We will just render a spacer if expanded, or nothing.
+            if (isCollapsed) return <div key={`header-${index}`} className="h-2" />;
+            return <div key={`header-${index}`} className="h-2" />;
+        }
+
+        const isActive = location.pathname.startsWith(item.path!);
+        return (
+            <Link
+                key={item.path}
+                to={item.path!}
+                title={isCollapsed ? item.label : undefined}
+                className={`flex items-center ${isCollapsed ? 'justify-center px-0' : 'px-4 gap-4'} py-2.5 rounded-xl transition-all font-bold ${isActive
+                    ? 'bg-primary text-white shadow-lg active-nav-item'
+                    : 'text-gray-500 hover:bg-gray-50 dark:hover:bg-dark-800/50 hover:text-gray-900 dark:hover:text-white shadow-none'
+                    }`}
+            >
+                {/* Icon Wrapper */}
+                <div className={`flex items-center justify-center w-6 h-6 transition-all ${isActive ? 'text-white' : item.color || 'text-gray-500'}`}>
+                    {item.icon && <item.icon className="w-5 h-5" />}
+                </div>
+
+                {!isCollapsed && <span className="text-sm flex-1">{item.label}</span>}
+                {!isCollapsed && item.badge !== undefined && item.badge > 0 && (
+                    <span className={`bg-red-500 text-white text-[10px] rounded-full px-1 min-w-[18px] h-4.5 flex items-center justify-center ${isActive ? 'bg-white text-primary' : ''}`}>
+                        {item.badge > 9 ? '9+' : item.badge}
+                    </span>
+                )}
+                {isCollapsed && item.badge !== undefined && item.badge > 0 && (
+                    <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full" />
+                )}
+            </Link>
+        );
+    };
 
     return (
         <aside className={`hidden lg:flex flex-col ${isCollapsed ? 'w-[80px]' : 'w-[250px]'} h-full border-l border-gray-100 dark:border-dark-700 bg-white dark:bg-dark-900 z-40 shrink-0 overflow-hidden transition-[width] duration-300 ${className}`}>
@@ -47,44 +93,15 @@ export const MainSidebar: React.FC<MainSidebarProps> = ({ items, homePath, class
 
             {/* Navigation Section */}
             <nav className="flex-1 overflow-y-auto no-scrollbar p-3 space-y-1.5">
-                {items.map((item, index) => {
-                    // Filter out headers for a cleaner list as requested
-                    if (item.isHeader) {
-                        // Optional: Render a small divider if needed, but 'no sections' was requested.
-                        // We will just render a spacer if expanded, or nothing.
-                        if (isCollapsed) return <div key={`header-${index}`} className="h-2" />;
-                        return <div key={`header-${index}`} className="h-2" />;
-                    }
-
-                    const isActive = location.pathname.startsWith(item.path!);
-                    return (
-                        <Link
-                            key={item.path}
-                            to={item.path!}
-                            title={isCollapsed ? item.label : undefined}
-                            className={`flex items-center ${isCollapsed ? 'justify-center px-0' : 'px-4 gap-4'} py-2.5 rounded-xl transition-all font-bold ${isActive
-                                ? 'bg-primary text-white shadow-lg active-nav-item'
-                                : 'text-gray-500 hover:bg-gray-50 dark:hover:bg-dark-800/50 hover:text-gray-900 dark:hover:text-white shadow-none'
-                                }`}
-                        >
-                            {/* Icon Wrapper */}
-                            <div className={`flex items-center justify-center w-6 h-6 transition-all ${isActive ? 'text-white' : item.color || 'text-gray-500'}`}>
-                                {item.icon && <item.icon className="w-5 h-5" />}
-                            </div>
-
-                            {!isCollapsed && <span className="text-sm flex-1">{item.label}</span>}
-                            {!isCollapsed && item.badge !== undefined && item.badge > 0 && (
-                                <span className={`bg-red-500 text-white text-[10px] rounded-full px-1 min-w-[18px] h-4.5 flex items-center justify-center ${isActive ? 'bg-white text-primary' : ''}`}>
-                                    {item.badge > 9 ? '9+' : item.badge}
-                                </span>
-                            )}
-                            {isCollapsed && item.badge !== undefined && item.badge > 0 && (
-                                <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full" />
-                            )}
-                        </Link>
-                    );
-                })}
+                {items.map((item, index) => renderNavItem(item, index))}
             </nav>
+
+            {/* Secondary Navigation Section (Bottom) */}
+            {secondaryItems.length > 0 && (
+                <nav className="shrink-0 p-3 space-y-1.5 border-t border-gray-100 dark:border-white/5">
+                    {secondaryItems.map((item, index) => renderNavItem(item, index))}
+                </nav>
+            )}
 
             {/* Collapse Toggle */}
             <div className="shrink-0 p-3 border-t border-gray-100 dark:border-white/5 flex justify-center bg-gray-50/50 dark:bg-white/5">

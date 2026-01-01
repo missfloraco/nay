@@ -24,7 +24,7 @@
 /* Mobile Header Base */
 .global-header {
     @apply h-[70px] px-4 flex items-center justify-between;
-    @apply bg-white/95 backdrop-blur-xl border-b border-gray-100;
+    @apply bg-white/95 backdrop-blur-xl border-b border-gray-100/50;
 }
 
 /* Mobile Content Area */
@@ -106,7 +106,7 @@
     }
 
     .global-header {
-        @apply h-[90px] px-8;
+        @apply h-[90px];
     }
 
     /* Fixed Layout structure for desktop */

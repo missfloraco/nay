@@ -21,7 +21,7 @@ export const EditButton: React.FC<CRUDBtnProps> = ({ onClick, label = "تعدي�
         title="تعديل"
     >
         <EditIcon className="w-3.5 h-3.5" />
-        {type === 'full' && label && <span className="mr-2 font-black">{label}</span>}
+        {type === 'full' && label && <span className="mr-2">{label}</span>}
     </Button>
 );
 
@@ -36,7 +36,7 @@ export const DeleteButton: React.FC<CRUDBtnProps> = ({ onClick, label = "حذف"
         title="حذف"
     >
         <DeleteIcon className="w-3.5 h-3.5" />
-        {type === 'full' && label && <span className="mr-2 font-black">{label}</span>}
+        {type === 'full' && label && <span className="mr-2">{label}</span>}
     </Button>
 );
 
@@ -51,7 +51,7 @@ export const ViewButton: React.FC<CRUDBtnProps> = ({ onClick, label = "عرض", 
         title="عرض التفاصيل"
     >
         <ViewIcon className="w-3.5 h-3.5" />
-        {type === 'full' && label && <span className="mr-2 font-black">{label}</span>}
+        {type === 'full' && label && <span className="mr-2">{label}</span>}
     </Button>
 );
 
@@ -63,7 +63,7 @@ export const SaveButton: React.FC<Partial<CRUDBtnProps> & { isLoading?: boolean 
         isLoading={isLoading}
         variant="primary"
         size="md"
-        className={`font-black tracking-widest shadow-xl shadow-primary/20 hover:shadow-primary/40 transition-all duration-500 hover:scale-[1.02] border border-primary/20 ${className}`}
+        className={`shadow-xl shadow-primary/20 hover:shadow-primary/40 transition-all duration-500 hover:scale-[1.02] border border-primary/20 ${className}`}
     >
         <SaveIcon className="w-4 h-4 ml-2" />
         {label}
@@ -77,7 +77,7 @@ export const CancelButton: React.FC<CRUDBtnProps> = ({ onClick, label = "إلغ�
         disabled={disabled}
         variant="ghost"
         size="md"
-        className={`text-gray-500 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/5 transition-all duration-300 font-bold ${className}`}
+        className={`text-gray-500 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/5 transition-all duration-300 ${className}`}
     >
         <CancelIcon className="w-4 h-4 ml-2" />
         {label}

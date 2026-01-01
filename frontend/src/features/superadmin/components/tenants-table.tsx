@@ -14,6 +14,7 @@ import { TenantDetailsSidebar } from '@/features/superadmin/components/tenant-de
 import { IdentityCell, DateCell, ActionCell } from '@/shared/table-cells';
 import InputField from '@/shared/ui/forms/input-field';
 import Modal from '@/shared/ui/modals/modal';
+import Button from '@/shared/ui/buttons/btn-base';
 
 interface Tenant {
     id: number;
@@ -361,22 +362,24 @@ export default function TenantsTable() {
                                     نوع الحساب
                                 </label>
                                 <div className="grid grid-cols-2 gap-3">
-                                    <button
+                                    <Button
                                         type="button"
                                         onClick={() => setFormData({ ...formData, status: 'trial' })}
-                                        className={`py-3 rounded-xl border-2 transition-all font-bold text-sm flex items-center justify-center gap-2 ${formData.status === 'trial' ? 'border-primary bg-primary/5 text-primary shadow-sm shadow-primary/5' : 'border-gray-100 dark:border-white/5 bg-gray-50/50 dark:bg-white/5 text-gray-400'}`}
+                                        variant={formData.status === 'trial' ? 'primary' : 'secondary'}
+                                        className={`py-3 border-2 shadow-none hover:shadow-sm ${formData.status === 'trial' ? 'border-primary bg-primary/5 text-primary' : 'border-gray-100 dark:border-white/5 bg-gray-50/50 dark:bg-white/5'}`}
+                                        icon={Clock}
                                     >
-                                        <Clock className="w-4 h-4" />
                                         فترة تجريبية
-                                    </button>
-                                    <button
+                                    </Button>
+                                    <Button
                                         type="button"
                                         onClick={() => setFormData({ ...formData, status: 'active' })}
-                                        className={`py-3 rounded-xl border-2 transition-all font-bold text-sm flex items-center justify-center gap-2 ${formData.status === 'active' ? 'border-emerald-600 bg-emerald-50 text-emerald-600 shadow-sm shadow-emerald-500/5' : 'border-gray-100 dark:border-white/5 bg-gray-50/50 dark:bg-white/5 text-gray-400'}`}
+                                        variant={formData.status === 'active' ? 'success' : 'secondary'}
+                                        className={`py-3 border-2 shadow-none hover:shadow-sm ${formData.status === 'active' ? 'border-emerald-600 bg-emerald-50 text-emerald-600' : 'border-gray-100 dark:border-white/5 bg-gray-50/50 dark:bg-white/5'}`}
+                                        icon={Shield}
                                     >
-                                        <Shield className="w-4 h-4" />
                                         اشتراك نشط
-                                    </button>
+                                    </Button>
                                 </div>
                             </div>
 
@@ -421,25 +424,24 @@ export default function TenantsTable() {
                     </div>
 
                     <div className="flex gap-4 pt-6 mt-6 border-t border-gray-100 dark:border-white/5">
-                        <button
+                        <Button
                             type="submit"
                             disabled={createLoading}
-                            className="flex-1 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-xl py-4 font-black hover:opacity-90 transition-all disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg active:scale-95 group"
+                            isLoading={createLoading}
+                            variant="primary"
+                            className="flex-1 py-4 text-sm shadow-lg h-auto"
+                            icon={Sparkles}
                         >
-                            {createLoading ? (
-                                <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                            ) : (
-                                <Sparkles className="w-5 h-5 group-hover:rotate-12 transition-transform" />
-                            )}
                             {createLoading ? TEXTS_ADMIN.BUTTONS.SAVING : TEXTS_ADMIN.TENANTS.CREATE_TENANT}
-                        </button>
-                        <button
+                        </Button>
+                        <Button
                             type="button"
                             onClick={() => setIsCreateModalOpen(false)}
-                            className="px-8 bg-gray-100 dark:bg-white/5 text-gray-500 dark:text-gray-400 rounded-xl py-4 font-bold hover:bg-gray-200 dark:hover:bg-white/10 transition-colors"
+                            variant="secondary"
+                            className="px-8 py-4 text-sm h-auto"
                         >
                             {TEXTS_ADMIN.BUTTONS.CANCEL}
-                        </button>
+                        </Button>
                     </div>
                 </form>
             </Modal>

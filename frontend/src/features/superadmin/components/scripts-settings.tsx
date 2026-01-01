@@ -1,21 +1,18 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import AdminLayout from '@/features/superadmin/pages/adminlayout';
-import { Script, ScriptService } from '@/shared/services/scripts-service'; // Assuming Script type is now exported from here
+import { Script, ScriptService } from '@/shared/services/scripts-service';
 import { useAction } from '@/shared/contexts/action-context';
 import Table from '@/shared/table';
 import { useFeedback } from '@/shared/ui/notifications/feedback-context';
-import { Plus, Code, Trash2, Edit, Play, Pause, ShieldCheck, AlertTriangle, Terminal, Settings } from 'lucide-react';
-import ScriptForm from './components/script-form';
+import { Plus, Trash2, Terminal } from 'lucide-react';
+import ScriptForm from '../pages/scripts/components/script-form';
 import { IdentityCell, ActionCell } from '@/shared/table-cells';
 import { EditButton, DeleteButton } from '@/shared/ui/buttons/btn-crud';
 import { formatDate } from '@/shared/utils/helpers';
 import Modal from '@/shared/ui/modals/modal';
-import { useQueryClient } from '@tanstack/react-query'; // Assuming this is the 'use hook' mentioned
 
-export default function ScriptsManager() {
-    const { showSuccess, showError, showConfirm } = useFeedback();
+export const ScriptsSettings: React.FC = () => {
+    const { showSuccess, showError } = useFeedback();
     const { setPrimaryAction } = useAction();
-    const queryClient = useQueryClient();
 
     const [scripts, setScripts] = useState<Script[]>([]);
     const [loading, setLoading] = useState(true);
@@ -37,7 +34,7 @@ export default function ScriptsManager() {
             },
         });
 
-        return () => setPrimaryAction(null); // Clean up action on unmount
+        return () => setPrimaryAction(null);
     }, [setPrimaryAction]);
 
     const loadScripts = async () => {
@@ -176,32 +173,14 @@ export default function ScriptsManager() {
     ], []);
 
     return (
-        <AdminLayout
-            title="إدارة النصوص البرمجية (Scripts)"
-            icon={Code}
-        >
-            <div className="flex flex-col w-full animate-in fade-in duration-500">
-                {/* Warning Banner */}
-                <div className="bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-900/20 p-6 lg:p-10 rounded-[2rem] mb-8 flex items-start gap-6 shadow-sm">
-                    <div className="p-4 bg-amber-100 dark:bg-amber-900/30 rounded-[1.5rem] shadow-inner text-amber-600 dark:text-amber-500 shrink-0">
-                        <AlertTriangle className="w-8 h-8" />
-                    </div>
-                    <div>
-                        <h4 className="font-black text-2xl text-gray-900 dark:text-white mb-2 tracking-tight">منطقة حساسة</h4>
-                        <p className="text-base font-bold text-gray-500 dark:text-gray-400 leading-relaxed">
-                            هذه الأكواد تعمل بصلاحيات كاملة على الموقع. أي خطأ برمجي هنا قد يؤدي إلى توقف الموقع أو ثغرات أمنية.
-                            يرجى المراجعة الدقيقة قبل التفعيل.
-                        </p>
-                    </div>
-                </div>
+        <div className="flex flex-col w-full p-8 animate-in fade-in duration-500">
 
-                <Table
-                    columns={columns}
-                    data={scripts}
-                    isLoading={loading}
-                    emptyMessage="لا توجد سكربتات مضافة حالياً"
-                />
-            </div>
+            <Table
+                columns={columns}
+                data={scripts}
+                isLoading={loading}
+                emptyMessage="لا توجد سكربتات مضافة حالياً"
+            />
 
             <Modal
                 isOpen={isModalOpen}
@@ -216,6 +195,6 @@ export default function ScriptsManager() {
                     isLoading={actionLoading}
                 />
             </Modal>
-        </AdminLayout >
+        </div>
     );
-}
+};

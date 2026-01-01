@@ -7,6 +7,7 @@ interface DrawerProps {
     side?: 'right' | 'left';
     children: React.ReactNode;
     title?: string;
+    branding?: React.ReactNode;
     width?: string;
 }
 
@@ -16,7 +17,8 @@ export const Drawer: React.FC<DrawerProps> = ({
     side = 'right',
     children,
     title,
-    width = '320px'
+    branding,
+    width = '100%'
 }) => {
     // Prevent scrolling when drawer is open
     useEffect(() => {
@@ -41,22 +43,27 @@ export const Drawer: React.FC<DrawerProps> = ({
 
             {/* Drawer Panel */}
             <aside
-                className={`fixed top-0 bottom-0 w-[85%] bg-white dark:bg-dark-900 z-[70] shadow-2xl transition-transform duration-300 ease-in-out ${side === 'right'
+                className={`fixed top-0 bottom-0 bg-white dark:bg-dark-900 z-[70] shadow-2xl transition-transform duration-300 ease-in-out ${side === 'right'
                     ? (isOpen ? 'translate-x-0' : 'translate-x-[100%]')
                     : (isOpen ? 'translate-x-0' : '-translate-x-[100%]')
                     } ${side === 'right' ? 'right-0' : 'left-0'}`}
-                style={{ maxWidth: width }}
+                style={{ width: width }}
                 dir="rtl"
             >
                 <div className="flex flex-col h-full">
                     {/* Header */}
                     <div className="h-20 flex items-center justify-between px-6 border-b border-gray-100 dark:border-white/5">
-                        <span className="text-lg font-black text-gray-900 dark:text-white">
-                            {title || 'القائمة'}
-                        </span>
+                        <div className="flex items-center gap-4 overflow-hidden">
+                            {branding}
+                            {title && (
+                                <span className="text-lg font-black text-gray-900 dark:text-white truncate">
+                                    {title}
+                                </span>
+                            )}
+                        </div>
                         <button
                             onClick={onClose}
-                            className="p-2 rounded-xl bg-gray-50 dark:bg-white/5 text-gray-500 hover:text-red-500 transition-colors"
+                            className="p-2 rounded-xl bg-gray-50 dark:bg-white/5 text-gray-500 hover:text-red-500 transition-colors shrink-0"
                         >
                             <X size={24} />
                         </button>

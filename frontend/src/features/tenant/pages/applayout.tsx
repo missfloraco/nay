@@ -28,6 +28,7 @@ import { useUI } from '@/shared/contexts/ui-context';
 import { Drawer } from '@/shared/ui/drawer';
 import { MainSidebar } from '@/shared/layout/sidebar/sidebar-main';
 import { NameHeaderLeft } from '@/shared/layout/header/name-header-left';
+import Button from '@/shared/ui/buttons/btn-base';
 
 interface AppLayoutProps {
     children: ReactNode;
@@ -71,6 +72,10 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, title = '', icon, noPad
     const menuItems = [
         { icon: Layers, label: t('tenant.NAV.DASHBOARD', 'لوحة التحكم'), path: '/app/dashboard', color: 'text-blue-600' },
         { icon: DollarSign, label: t('tenant.NAV.SUBSCRIPTIONS', 'باقات الاشتراك'), path: '/app/plans', color: 'text-emerald-600 font-bold' },
+    ];
+
+    const secondaryItems = [
+        { icon: Settings, label: t('tenant.NAV.SETTINGS', 'الإعدادات العامة'), path: '/app/settings', color: 'text-gray-600' },
         { icon: Trash2, label: t('tenant.NAV.RECYCLE_BIN', 'سلة المحذوفات'), path: '/app/trash', color: 'text-red-600 font-black', badge: trashCount },
     ];
 
@@ -85,7 +90,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, title = '', icon, noPad
 
             {/* 2. Middle Section (Sidebar + Content) */}
             <div className="flex-1 flex overflow-hidden relative">
-                <MainSidebar items={menuItems} homePath="/app" className="desktop-sidebar" hideBranding={true} hideFooter={true} />
+                <MainSidebar items={menuItems} secondaryItems={secondaryItems} homePath="/app" className="desktop-sidebar" hideBranding={true} hideFooter={true} />
 
                 <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden relative">
                     <main className="flex-1 flex flex-col min-w-0 h-auto lg:h-full overflow-y-auto no-scrollbar bg-gray-50 dark:bg-dark-950 relative content-area-main">
@@ -107,16 +112,27 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, title = '', icon, noPad
                                         {/* Global Actions (Buttons) - Moved from Footer */}
                                         <div className="flex items-center gap-3 shrink-0 self-end lg:self-auto">
                                             {extraActions.map((action, idx) => (
-                                                <button key={idx} onClick={action.onClick} disabled={action.disabled || action.loading} className={`flex items-center gap-4 px-4 py-2.5 rounded-xl transition-all font-bold text-sm bg-white border border-gray-200 text-gray-500 hover:bg-gray-50 hover:text-gray-900 shadow-sm hover:shadow-md`}>
-                                                    {action.loading ? <Loader2 className="w-5 h-5 animate-spin" /> : React.createElement(action.icon || Plus, { className: "w-5 h-5" })}
-                                                    <span>{action.label}</span>
-                                                </button>
+                                                <Button
+                                                    key={idx}
+                                                    onClick={action.onClick}
+                                                    disabled={action.disabled || action.loading}
+                                                    variant="secondary"
+                                                    icon={action.icon || Plus}
+                                                    isLoading={action.loading}
+                                                >
+                                                    {action.label}
+                                                </Button>
                                             ))}
                                             {primaryAction && (
-                                                <button onClick={primaryAction.onClick} disabled={primaryAction.disabled || primaryAction.loading} className={`flex items-center gap-4 px-4 py-2.5 rounded-xl transition-all font-bold text-sm ${primaryAction.variant === 'danger' ? 'bg-red-600' : 'bg-primary'} text-white shadow-lg hover:shadow-xl hover:scale-[1.02] disabled:opacity-40 disabled:grayscale disabled:cursor-not-allowed disabled:shadow-none`}>
-                                                    {primaryAction.loading ? <Loader2 className="w-5 h-5 animate-spin" /> : React.createElement(primaryAction.icon || Plus, { className: "w-5 h-5" })}
-                                                    <span>{primaryAction.label}</span>
-                                                </button>
+                                                <Button
+                                                    onClick={primaryAction.onClick}
+                                                    disabled={primaryAction.disabled || primaryAction.loading}
+                                                    variant={primaryAction.variant === 'danger' ? 'danger' : 'primary'}
+                                                    icon={primaryAction.icon || Plus}
+                                                    isLoading={primaryAction.loading}
+                                                >
+                                                    {primaryAction.label}
+                                                </Button>
                                             )}
                                         </div>
                                     </div>
@@ -138,21 +154,27 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, title = '', icon, noPad
             </div>
 
 
-            <Drawer isOpen={isRightDrawerOpen} onClose={closeDrawers} side="right" title={t('common.navigation', 'القائمة الرئيسية')}>
-                <div className="flex flex-col h-full">
-                    {/* Drawer Branding */}
-                    <div className="p-8 border-b border-gray-100 dark:border-white/5 flex items-center gap-4">
+            <Drawer
+                isOpen={isRightDrawerOpen}
+                onClose={closeDrawers}
+                side="right"
+                branding={
+                    <div className="flex items-center gap-4">
                         {settings.systemLogoUrl && (
-                            <img src={settings.systemLogoUrl} alt={settings.appName} className="h-8 w-auto" />
+                            <img src={settings.systemLogoUrl} alt={settings.appName} className="h-10 w-auto" />
                         )}
-                        <span className="font-black text-lg text-gray-900 dark:text-white">
+                        <span className="font-black text-lg text-gray-900 dark:text-white truncate">
                             {settings.appName}
                         </span>
                     </div>
+                }
+            >
+                <div className="flex flex-col h-full">
+                    {/* Drawer Branding REMOVED - Moved to Drawer Header */}
 
                     {/* Drawer Navigation */}
                     <nav className="flex-1 p-4 space-y-1.5 overflow-y-auto no-scrollbar">
-                        {menuItems.map((item, index) => {
+                        {([...menuItems, ...secondaryItems] as any[]).map((item, index) => {
                             const Icon = item.icon;
                             const isActive = location.pathname.startsWith(item.path);
                             return (

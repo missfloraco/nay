@@ -1,8 +1,7 @@
-﻿import React from 'react';
-import { Link } from 'react-router-dom';
+﻿import React, { useState, useEffect } from 'react';
 import { Sparkles } from 'lucide-react';
 import { useSettings } from '@/shared/contexts/app-context';
-import { useState, useEffect } from 'react';
+import Button from '@/shared/ui/buttons/btn-base';
 
 export default function Hero() {
     const { settings } = useSettings();
@@ -85,18 +84,14 @@ export default function Hero() {
                         </div>
 
                         <div className="flex flex-col items-center lg:items-start gap-8">
-                            <Link
+                            <Button
                                 to="/register"
-                                className="px-12 py-5 bg-primary text-white font-black rounded-2xl transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-4 text-xl group w-full lg:w-auto min-w-[260px] shadow-xl shadow-primary/30"
+                                variant="primary"
+                                size="md"
+                                className="px-12 shadow-xl shadow-primary/30 w-full lg:w-auto min-w-[260px]"
                             >
                                 {settings.landing_hero_cta || 'ابدأ الآن'}
-                                <div
-                                    className="w-8 h-8 rounded-xl flex items-center justify-center group-hover:rotate-12 transition-transform"
-                                    style={{ backgroundColor: settings.accentColor1 ? `${settings.accentColor1}40` : 'rgba(255,255,255,0.2)' }}
-                                >
-                                    <Sparkles className="w-4 h-4 text-white" />
-                                </div>
-                            </Link>
+                            </Button>
 
                             {/* Social Proof - Positioned under button */}
                             <div className="flex items-center gap-4">

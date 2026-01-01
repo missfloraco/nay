@@ -24,15 +24,8 @@ const AdminDashboard = lazy(() => import('@/features/superadmin/pages/dashboard'
 const AdminSettings = lazy(() => import('@/features/superadmin/pages/settings'));
 const PlatformIdentity = lazy(() => import('@/features/superadmin/pages/platformidentity'));
 const OperationsPage = lazy(() => import('@/features/superadmin/pages/operations'));
-const AdManagement = lazy(() => import('@/features/superadmin/pages/admanagement'));
 const SupportTickets = lazy(() => import('@/features/superadmin/pages/supporttickets'));
-const SeoManagement = lazy(() => import('@/features/superadmin/pages/seomanagement'));
-const ScriptsManager = lazy(() => import('@/features/superadmin/pages/scripts'));
-const SecurityManagement = lazy(() => import('@/features/superadmin/pages/securitymanagement'));
-const PrefixSettingsPage = lazy(() => import('@/features/superadmin/pages/prefix-settings-page'));
 const AdminPlans = lazy(() => import('@/features/superadmin/pages/plans'));
-const AdminSubscriptionRequests = lazy(() => import('@/features/superadmin/pages/subscription-requests'));
-const CustomCSSManager = lazy(() => import('@/features/superadmin/pages/custom-css'));
 const PaymentMethods = lazy(() => import('@/features/superadmin/pages/payment-methods'));
 
 const TenantDashboard = lazy(() => import('@/features/tenant/pages/dashboard'));
@@ -65,17 +58,13 @@ function AdminRoutes() {
             <Route path="/tenants" element={<OperationsPage />} />
             <Route path="/payments" element={<OperationsPage />} />
             <Route path="/payment-methods" element={<PaymentMethods />} />
-            <Route path="/ads" element={<AdManagement />} />
+            <Route path="/identity" element={<PlatformIdentity />} />
             <Route path="/support" element={<SupportTickets />} />
             <Route path="/settings" element={<AdminSettings />} />
-            <Route path="/identity" element={<PlatformIdentity />} />
-            <Route path="/custom-css" element={<CustomCSSManager />} />
-            <Route path="/seo" element={<SeoManagement />} />
-            <Route path="/scripts" element={<ScriptsManager />} />
-            <Route path="/security" element={<SecurityManagement />} />
-            <Route path="/prefixes" element={<PrefixSettingsPage />} />
             <Route path="/plans" element={<AdminPlans />} />
-            <Route path="/subscription-requests" element={<AdminSubscriptionRequests />} />
+            <Route path="/scripts" element={<PlatformIdentity />} />
+            <Route path="/security" element={<PlatformIdentity />} />
+            <Route path="/subscription-requests" element={<OperationsPage />} />
             <Route path="/trash" element={<Trash />} />
             <Route path="*" element={<Navigate to="/admin" />} />
         </Routes>

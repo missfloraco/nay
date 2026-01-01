@@ -11,6 +11,7 @@ import { COUNTRIES } from '@/shared/constants';
 import { useFeedback } from '@/shared/ui/notifications/feedback-context';
 import { useTrialStatus } from '@/core/hooks/usetrialstatus';
 import { useTenantAuth } from '@/features/auth/tenant-auth-context';
+import Button from '@/shared/ui/buttons/btn-base';
 
 const resolveAssetUrl = (path: string | null) => {
     if (!path) return null;
@@ -330,18 +331,18 @@ export default function ProfileSettingsForm({
                 </div>
             </div>
 
-            {!hideAction && (
-                <div className="pt-12 border-t border-gray-100 dark:border-dark-800 flex justify-end">
-                    <button
-                        type="submit"
-                        disabled={loading}
-                        className="w-full md:w-auto px-12 h-16 flex items-center justify-center gap-3 bg-primary hover:bg-primary/90 text-white rounded-[1.5rem] font-black shadow-2xl shadow-primary/30 transition-all active:scale-95 disabled:opacity-50 min-w-[240px] text-lg"
-                    >
-                        {loading ? <Loader2 className="w-6 h-6 animate-spin" /> : <Save className="w-6 h-6" />}
-                        <span>حفظ التعديلات</span>
-                    </button>
-                </div>
-            )}
+            <div className="pt-12 border-t border-gray-100 dark:border-dark-800 flex justify-end">
+                <Button
+                    type="submit"
+                    disabled={loading}
+                    isLoading={loading}
+                    variant="primary"
+                    className="w-full md:w-auto px-12 h-16 shadow-2xl shadow-primary/30 min-w-[240px] text-lg rounded-[1.5rem]"
+                    icon={Save}
+                >
+                    حفظ التعديلات
+                </Button>
+            </div>
             {/* OTP Verification Modal */}
             {showOTPModal && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">

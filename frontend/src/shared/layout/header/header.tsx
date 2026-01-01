@@ -97,7 +97,7 @@ export const Header: React.FC<HeaderProps> = ({
                   <img
                     src={finalLogoUrl}
                     alt={finalAppName}
-                    className="h-[32px] lg:h-[40px] w-auto max-w-[150px] object-contain group-hover:rotate-1 transition-transform logo-img"
+                    className="h-[40px] w-auto max-w-[150px] object-contain group-hover:rotate-1 transition-transform logo-img"
                   />
                 ) : null}
                 <span

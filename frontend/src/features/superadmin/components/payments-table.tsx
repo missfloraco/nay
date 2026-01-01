@@ -24,22 +24,42 @@ interface Payment {
     };
 }
 
-export default function PaymentsTable() {
+interface PaymentsTableProps {
+    selectedTenantId?: string;
+    onTenantChange?: (id: string) => void;
+    tenants?: any[];
+}
+
+export default function PaymentsTable({ selectedTenantId: propSelectedTenantId, onTenantChange, tenants: propTenants }: PaymentsTableProps) {
     const { showSuccess, showError, showConfirm } = useFeedback();
     const { setPrimaryAction } = useAction();
     const [searchParams, setSearchParams] = useSearchParams();
 
     const [payments, setPayments] = useState<Payment[]>([]);
-    const [tenants, setTenants] = useState<any[]>([]);
+    const [tenants, setTenants] = useState<any[]>(propTenants || []);
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
 
     // Filtering State
     const [highlightedTenantId, setHighlightedTenantId] = useState<number | null>(null);
-    const [selectedTenantId, setSelectedTenantId] = useState<string>(searchParams.get('tenant') || '');
+    const [selectedTenantId, setSelectedTenantId] = useState<string>(propSelectedTenantId || searchParams.get('tenant') || '');
 
-    // Load tenants
+    // Sync props
+    useEffect(() => {
+        if (propSelectedTenantId !== undefined) {
+            setSelectedTenantId(propSelectedTenantId);
+        }
+    }, [propSelectedTenantId]);
+
+    useEffect(() => {
+        if (propTenants) {
+            setTenants(propTenants);
+        }
+    }, [propTenants]);
+
+    // Load tenants if not provided
     const loadTenants = async () => {
+        if (propTenants) return;
         try {
             const res = await api.get('/admin/tenants');
             const data = res.data || [];
@@ -119,10 +139,14 @@ export default function PaymentsTable() {
 
     const handleTenantSelect = (id: string) => {
         setSelectedTenantId(id);
-        if (id) {
-            setSearchParams({ tenant: id });
+        if (onTenantChange) {
+            onTenantChange(id);
         } else {
-            setSearchParams({});
+            if (id) {
+                setSearchParams({ tenant: id });
+            } else {
+                setSearchParams({});
+            }
         }
     };
 
@@ -205,39 +229,6 @@ export default function PaymentsTable() {
 
     return (
         <div className="flex flex-col h-full bg-white dark:bg-dark-900">
-            {/* Header Actions / Filter Toolbar */}
-            <div className="p-6 pb-0 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div className="flex items-center gap-3">
-                    {/* Internal Header Removed */}
-                </div>
-
-                {/* Filter Dropdown */}
-                <div className="flex items-center gap-3 w-full md:w-auto">
-                    <div className="relative w-full md:w-[300px]">
-                        <User className="absolute right-3 top-3 w-4 h-4 text-gray-400 z-10" />
-                        <select
-                            value={selectedTenantId}
-                            onChange={(e) => handleTenantSelect(e.target.value)}
-                            className="w-full h-10 pr-10 pl-4 rounded-xl border border-gray-200 dark:border-dark-700 bg-gray-50 dark:bg-dark-800 text-sm font-bold focus:ring-2 focus:ring-primary/20 focus:border-primary appearance-none transition-all"
-                        >
-                            <option value="">جميع المشتركين</option>
-                            {tenants.map(t => (
-                                <option key={t.id} value={t.id}>{t.name} ({t.email})</option>
-                            ))}
-                        </select>
-                        {/* Clear Filter Button */}
-                        {selectedTenantId && (
-                            <button
-                                onClick={() => handleTenantSelect('')}
-                                className="absolute left-2 top-2 p-1 text-gray-400 hover:text-red-500 rounded-full hover:bg-red-50 dark:hover:bg-red-900/20"
-                            >
-                                <X className="w-3 h-3" />
-                            </button>
-                        )}
-                    </div>
-                </div>
-            </div>
-
             {/* Table */}
             <div className="flex-1 overflow-auto p-6">
                 <Table<Payment>

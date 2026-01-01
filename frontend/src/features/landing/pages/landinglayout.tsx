@@ -8,6 +8,7 @@ import { UI_TEXT } from '@/shared/locales/texts';
 import AdSlot from '@/shared/ads/adslot';
 import ShieldOverlay from '@/shared/components/shield-overlay';
 import { ThemeToggle } from '@/shared/layout/header/theme-toggle';
+import Button from '@/shared/ui/buttons/btn-base';
 
 interface LandingLayoutProps {
     children: ReactNode;
@@ -109,35 +110,28 @@ export default function LandingLayout({ children }: LandingLayoutProps) {
                                     <a href="#faq" className="px-5 py-2.5 text-sm font-black text-gray-900 hover:text-primary transition-all uppercase tracking-[0.1em] rounded-xl">الأسئلة الشائعة</a>
                                 </nav>
 
-                                <div className="flex items-center gap-3 lg:gap-6">
-                                    <div className="flex items-center gap-2">
-                                        <ThemeToggle />
-                                    </div>
+                                <div className="flex items-center gap-4 lg:gap-6">
+                                    <Link to={`/login${isLogoutSuccess ? '?logout=success' : ''}`} className="hidden md:block text-[13px] font-black text-gray-500 hover:text-primary transition-colors uppercase tracking-[0.15em]">تسجيل الدخول</Link>
+                                    <Button
+                                        to={`/register${isLogoutSuccess ? '?logout=success' : ''}`}
+                                        variant="primary"
+                                        size="md"
+                                        className="px-8 shadow-lg shadow-primary/20"
+                                    >
+                                        ابدأ الآن
+                                    </Button>
 
-                                    <div className="h-6 w-px bg-gray-200 hidden sm:block" />
-
-                                    <div className="flex items-center gap-4 lg:gap-6">
-                                        <Link to={`/login${isLogoutSuccess ? '?logout=success' : ''}`} className="hidden md:block text-[13px] font-black text-gray-500 hover:text-primary transition-colors uppercase tracking-[0.15em]">تسجيل الدخول</Link>
-                                        <Link
-                                            to={`/register${isLogoutSuccess ? '?logout=success' : ''}`}
-                                            className="px-8 py-3 bg-primary text-white text-[12px] font-black rounded-xl hover:scale-105 active:scale-95 transition-all shadow-lg shadow-primary/20 uppercase tracking-[0.1em] flex items-center gap-2"
-                                        >
-                                            <Sparkles className="w-3.5 h-3.5" />
-                                            <span>ابدأ الآن</span>
-                                        </Link>
-
-                                        {/* Mobile Menu Button */}
-                                        <button
-                                            onClick={() => setIsMenuOpen(!isMenuOpen)}
-                                            className="xl:hidden p-2.5 text-gray-600 hover:text-primary transition-colors"
-                                        >
-                                            <div className="w-5 h-5 flex flex-col justify-between items-center relative">
-                                                <span className={`w-full h-0.5 bg-current rounded-full transition-all duration-300 ${isMenuOpen ? 'rotate-45 translate-y-2' : ''}`} />
-                                                <span className={`w-full h-0.5 bg-current rounded-full transition-all duration-300 ${isMenuOpen ? 'opacity-0' : ''}`} />
-                                                <span className={`w-full h-0.5 bg-current rounded-full transition-all duration-300 ${isMenuOpen ? '-rotate-45 -translate-y-2.5' : ''}`} />
-                                            </div>
-                                        </button>
-                                    </div>
+                                    {/* Mobile Menu Button */}
+                                    <button
+                                        onClick={() => setIsMenuOpen(!isMenuOpen)}
+                                        className="xl:hidden p-2.5 text-gray-600 hover:text-primary transition-colors"
+                                    >
+                                        <div className="w-5 h-5 flex flex-col justify-between items-center relative">
+                                            <span className={`w-full h-0.5 bg-current rounded-full transition-all duration-300 ${isMenuOpen ? 'rotate-45 translate-y-2' : ''}`} />
+                                            <span className={`w-full h-0.5 bg-current rounded-full transition-all duration-300 ${isMenuOpen ? 'opacity-0' : ''}`} />
+                                            <span className={`w-full h-0.5 bg-current rounded-full transition-all duration-300 ${isMenuOpen ? '-rotate-45 -translate-y-2.5' : ''}`} />
+                                        </div>
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -186,23 +180,39 @@ export default function LandingLayout({ children }: LandingLayoutProps) {
                     {children}
                 </main>
 
-                {/* Scroll to top/bottom FAB */}
-                <button
-                    onClick={() => {
-                        if (window.scrollY > 300) {
-                            window.scrollTo({ top: 0, behavior: 'smooth' });
-                        } else {
-                            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-                        }
-                    }}
-                    className={`fixed bottom-8 right-8 z-[70] p-4 bg-primary text-white rounded-2xl shadow-2xl shadow-primary/20 hover:scale-110 active:scale-95 transition-all duration-300 group ${window.scrollY > 300 || window.scrollY < 100 ? 'translate-y-0 opacity-100' : 'translate-y-20 opacity-0 pointer-events-none'}`}
-                >
-                    {window.scrollY > 300 ? (
-                        <ChevronUp className="w-6 h-6" />
-                    ) : (
-                        <ChevronDown className="w-6 h-6" />
-                    )}
-                </button>
+                {/* Floating Controls */}
+                <div className="fixed bottom-8 left-0 right-0 z-[70] px-8 pointer-events-none flex justify-between items-center">
+                    {/* Right: Scroll to top/bottom (First in RTL DOM = Right side) */}
+                    <div className="pointer-events-auto">
+                        <button
+                            onClick={() => {
+                                if (window.scrollY > 300) {
+                                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                                } else {
+                                    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+                                }
+                            }}
+                            className={`w-14 h-14 rounded-full bg-primary text-white shadow-2xl shadow-primary/30 flex items-center justify-center transition-all duration-500 hover:scale-110 active:scale-95 group ${window.scrollY > 300 || window.scrollY < 100 ? 'translate-y-0 opacity-100' : 'translate-y-20 opacity-0 pointer-events-none'}`}
+                            title={window.scrollY > 300 ? 'للأعلى' : 'للأسفل'}
+                        >
+                            <div className="flex items-center justify-center w-7 h-7">
+                                {window.scrollY > 300 ? (
+                                    <ChevronUp className="w-full h-full" />
+                                ) : (
+                                    <ChevronDown className="w-full h-full" />
+                                )}
+                            </div>
+                        </button>
+                    </div>
+
+                    {/* Left: Dark Mode Toggle (Second in RTL DOM = Left side) */}
+                    <div className="pointer-events-auto">
+                        <ThemeToggle
+                            invertedFloating
+                            iconClassName="w-7 h-7"
+                        />
+                    </div>
+                </div>
 
                 <footer className="bg-white text-gray-900 pb-10 border-t border-gray-200 transition-colors duration-500">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -228,10 +238,14 @@ export default function LandingLayout({ children }: LandingLayoutProps) {
                         <div className="bg-gradient-to-l from-blue-50 via-indigo-50 to-blue-50 rounded-2xl p-10 lg:p-14 mb-16 flex flex-col lg:flex-row items-center justify-between gap-10 border border-gray-200 shadow-2xl relative overflow-hidden group">
                             <div className="absolute inset-0 bg-blue-600/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
                             <h2 className="text-4xl lg:text-[56px] font-black text-gray-900 relative z-10 leading-none tracking-tight">النجاح يبدأ بخطوة</h2>
-                            <Link to="/register" className="px-10 py-4 bg-blue-600 hover:bg-blue-500 text-white font-black text-lg rounded-2xl shadow-xl shadow-blue-500/20 transition-all hover:scale-110 active:scale-95 relative z-10 flex items-center gap-3">
-                                <Sparkles className="w-5 h-5" />
-                                <span>ابدأ الآن</span>
-                            </Link>
+                            <Button
+                                to="/register"
+                                variant="primary"
+                                size="md"
+                                className="px-10 shadow-xl shadow-blue-500/20 relative z-10 bg-blue-600 hover:bg-blue-500"
+                            >
+                                ابدأ الآن
+                            </Button>
                         </div>
 
                         {/* Footer Link Grid */}
@@ -292,6 +306,6 @@ export default function LandingLayout({ children }: LandingLayoutProps) {
                     </div>
                 </footer>
             </>
-        </div >
+        </div>
     );
 }
