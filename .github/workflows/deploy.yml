@@ -45,11 +45,11 @@ jobs:
         uses: easingthemes/ssh-deploy@v5.1.0
         with:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          ARGS: "-rlgoDzvc -i --delete --set-dest-permissions"
+          ARGS: "-avz --delete"
           SOURCE: "backend/" # سنرفع مجلد الباك-اند كاملاً (بما فيه ملفات الرياكت المدمجة)
           REMOTE_HOST: ${{ secrets.SSH_HOST }}
           REMOTE_USER: ${{ secrets.SSH_USER }}
-          SSH_PORT: ${{ secrets.SSH_PORT }}
+          REMOTE_PORT: ${{ secrets.SSH_PORT }}
           TARGET: "public_html/" # Based on your Hostinger path
           EXCLUDE: "/node_modules/, /tests/, /storage/logs/, /storage/app/public/" # استثناء المجلدات غير الضرورية والملفات المرفوعة
           SSH_EXTRA_ARGS: "-o StrictHostKeyChecking=no"
