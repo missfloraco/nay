@@ -26,10 +26,6 @@ jobs:
         working-directory: ./frontend
         run: npm run build
 
-      - name: 📂 Merge React Build into Laravel Public
-        run: |
-          cp -r frontend/dist/* backend/public/
-
       - name: 🏗️ Setup PHP
         uses: shivammathur/setup-php@v2
         with:
@@ -40,18 +36,27 @@ jobs:
         working-directory: ./backend
         run: composer install --no-dev --optimize-autoloader
 
-      - name: � Install SSH Key (Official Action)
+      - name: 🔑 Install SSH Key
         uses: shimataro/ssh-key-action@v2
         with:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          known_hosts: "placeholder" # سيتم جلب الـ hosts في الخطوة التالية
+          known_hosts: "placeholder"
 
       - name: 🔍 Add Host to Known Hosts
         run: ssh-keyscan -p ${{ secrets.SSH_PORT }} -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
 
-      - name: 🚀 Sync to Hostinger (Final Sync)
+      - name: 🚀 Deploy Frontend (React) to public_html
         run: |
+          # رفع محتوى dist مباشرة إلى داخل public_html الخاص بالدومين
+          rsync -avz --delete \
+            -e "ssh -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no" \
+            frontend/dist/ \
+            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:domains/missflora.uk/public_html/
+
+      - name: 🚀 Deploy Backend (Laravel) to backend folder
+        run: |
+          # رفع كود الباك-اند إلى مجلد منفصل خلف الـ public_html
           rsync -avz --delete \
             -e "ssh -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no" \
             backend/ \
-            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:public_html/
+            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:domains/missflora.uk/backend/
