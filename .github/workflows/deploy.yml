@@ -1,0 +1,67 @@
+name: Deploy via SSH
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🚚 Checkout Code
+        uses: actions/checkout@v4
+
+      - name: 🏗️ Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: 📦 Install Frontend Dependencies
+        working-directory: ./frontend
+        run: npm install
+
+      - name: 🚀 Build Frontend
+        working-directory: ./frontend
+        run: npm run build
+
+      - name: 📂 Move Frontend Build to Laravel Public
+        run: |
+          mkdir -p backend/public
+          cp -r frontend/dist/* backend/public/
+
+      - name: 🏗️ Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          tools: composer:v2
+
+      - name: 📦 Install Backend Dependencies
+        working-directory: ./backend
+        run: composer install --no-dev --optimize-autoloader
+
+      - name: 🚀 Deploy to Server via SSH/rsync
+        uses: easingthemes/ssh-deploy@v5.1.0
+        with:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          ARGS: "-rlgoDzvc -i --delete"
+          SOURCE: "backend/"
+          REMOTE_HOST: ${{ secrets.SSH_HOST }}
+          REMOTE_USER: ${{ secrets.SSH_USER }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+          TARGET: "public_html/" # Based on your Hostinger path
+          EXCLUDE: "/node_modules/, /tests/, /storage/logs/, /.git/"
+
+      # Optional: Post-deployment scripts
+      # - name: 🛠️ Run Remote Commands
+      #   uses: appleboy/ssh-action@v1.0.3
+      #   with:
+      #     host: ${{ secrets.SSH_HOST }}
+      #     username: ${{ secrets.SSH_USER }}
+      #     key: ${{ secrets.SSH_PRIVATE_KEY }}
+      #     port: ${{ secrets.SSH_PORT }}
+      #     script: |
+      #       cd domains/yourdomain.com/public_html
+      #       php artisan migrate --force
+      #       php artisan cache:clear

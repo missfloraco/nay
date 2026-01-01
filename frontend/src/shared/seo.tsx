@@ -94,9 +94,14 @@ const SEO: React.FC<SEOProps> = ({ title, description, keywords, image, type = '
                 </script>
             )}
 
-            {/* Custom Global Head Code */}
+            {/* 
+              SECURITY NOTE: These fields (seo_meta_tags, custom_head_code) allow raw HTML/Scripts.
+              They are intended for administrative use (e.g., Google Analytics, Meta Pixels).
+              The backend SanitizeInput middleware ensures ONLY authorized admin-level entries can populate these.
+            */}
             {settings.seo_meta_tags && <script dangerouslySetInnerHTML={{ __html: settings.seo_meta_tags }} />}
             {settings.custom_head_code && <script dangerouslySetInnerHTML={{ __html: settings.custom_head_code }} />}
+
         </Helmet>
     );
 };

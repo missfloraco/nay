@@ -13,7 +13,7 @@ import InputField from '@/shared/ui/forms/input-field';
 import TextareaField from '@/shared/ui/forms/textarea-field';
 import SelectField from '@/shared/ui/forms/select-field';
 
-export default function PaymentManagement() {
+export default function PaymentMethods() {
     const { settings, updateSettings } = useSettings();
     const { showToast } = useToast();
     const { setPrimaryAction } = useAction();
@@ -33,6 +33,8 @@ export default function PaymentManagement() {
         dodopayments_api_key: settings.dodopayments_api_key || '',
         dodopayments_webhook_secret: settings.dodopayments_webhook_secret || '',
         dodopayments_mode: settings.dodopayments_mode || 'test',
+        crypto_enabled: settings.crypto_enabled === true || settings.crypto_enabled === 'true',
+        crypto_details: settings.crypto_details || '',
     });
 
     const handleSubmit = async (e?: React.FormEvent) => {
@@ -66,7 +68,7 @@ export default function PaymentManagement() {
     };
 
     return (
-        <AdminLayout title="إدارة طرق الدفع والتكامل" noPadding={true}>
+        <AdminLayout title="إعدادات طرق الدفع" icon={CreditCard} noPadding={true}>
             <div className="w-full max-w-[1600px] mx-auto bg-transparent animate-in fade-in duration-500">
                 <div className="space-y-12 w-full">
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-gray-100 dark:border-dark-800 pb-8">
@@ -260,6 +262,37 @@ export default function PaymentManagement() {
                             onChange={e => setFormData({ ...formData, bank_transfer_details: e.target.value })}
                             placeholder="اكتب تفاصيل البنك، رقم الحساب، و الـ IBAN..."
                             icon={Landmark}
+                            className="min-h-[224px]"
+                        />
+                    </div>
+
+                    {/* Cryptocurrency */}
+                    <div className="premium-card p-12 transition-all hover:shadow-2xl group/card">
+                        <div className="flex items-center justify-between gap-6 mb-12 border-b border-gray-50 dark:border-white/5 pb-8 transition-colors group-hover/card:border-orange-500/20">
+                            <div className="flex items-center gap-6">
+                                <div className="p-4 rounded-3xl bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400 group-hover/card:rotate-6 transition-all duration-500">
+                                    <Wallet className="w-10 h-10" />
+                                </div>
+                                <div>
+                                    <h3 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight leading-none">العملات الرقمية</h3>
+                                    <p className="text-gray-400 dark:text-gray-500 text-base font-medium mt-2">عناوين المحافظ الرقمية وإرشادات الدفع بالكريبتو</p>
+                                </div>
+                            </div>
+                            <button
+                                onClick={() => toggleField('crypto_enabled')}
+                                className={`flex items-center gap-4 px-8 h-14 rounded-2xl font-black transition-all ${formData.crypto_enabled ? 'bg-emerald-600 text-white shadow-xl shadow-emerald-500/20' : 'bg-gray-100 dark:bg-dark-800 text-gray-400'}`}
+                            >
+                                {formData.crypto_enabled ? <ToggleRight className="w-8 h-8" /> : <ToggleLeft className="w-8 h-8" />}
+                                <span>{formData.crypto_enabled ? 'مفعل' : 'معطل'}</span>
+                            </button>
+                        </div>
+
+                        <TextareaField
+                            label="تفاصيل محافظ العملات الرقمية"
+                            value={formData.crypto_details}
+                            onChange={e => setFormData({ ...formData, crypto_details: e.target.value })}
+                            placeholder="مثلاً: BTC: 1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa ..."
+                            icon={Wallet}
                             className="min-h-[224px]"
                         />
                     </div>

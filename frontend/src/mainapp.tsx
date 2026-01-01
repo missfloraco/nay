@@ -33,6 +33,7 @@ const PrefixSettingsPage = lazy(() => import('@/features/superadmin/pages/prefix
 const AdminPlans = lazy(() => import('@/features/superadmin/pages/plans'));
 const AdminSubscriptionRequests = lazy(() => import('@/features/superadmin/pages/subscription-requests'));
 const CustomCSSManager = lazy(() => import('@/features/superadmin/pages/custom-css'));
+const PaymentMethods = lazy(() => import('@/features/superadmin/pages/payment-methods'));
 
 const TenantDashboard = lazy(() => import('@/features/tenant/pages/dashboard'));
 const TenantSettings = lazy(() => import('@/features/tenant/pages/settings'));
@@ -61,6 +62,7 @@ function AdminRoutes() {
             <Route path="/dashboard" element={<AdminDashboard />} />
             <Route path="/tenants" element={<OperationsPage />} />
             <Route path="/payments" element={<OperationsPage />} />
+            <Route path="/payment-methods" element={<PaymentMethods />} />
             <Route path="/ads" element={<AdManagement />} />
             <Route path="/support" element={<SupportTickets />} />
             <Route path="/settings" element={<AdminSettings />} />

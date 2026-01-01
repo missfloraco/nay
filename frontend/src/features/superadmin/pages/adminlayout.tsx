@@ -93,6 +93,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title, noPadding = 
         { icon: Code, label: 'الأكواد والنصوص', path: '/admin/scripts', color: 'text-amber-600' },
         { icon: Hash, label: 'نظام التسميات', path: '/admin/prefixes', color: 'text-emerald-600' },
         { icon: Shield, label: 'إعدادات الحماية', path: '/admin/security', color: 'text-rose-600' },
+        { icon: CreditCard, label: 'طرق الدفع', path: '/admin/payment-methods', color: 'text-emerald-500' },
         { icon: Settings, label: t('admin.NAV.SETTINGS', 'الإعدادات العامة'), path: '/admin/settings', color: 'text-gray-600' },
 
         { isHeader: true, label: 'النظام' },
