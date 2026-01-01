@@ -41,18 +41,19 @@ jobs:
         run: composer install --no-dev --optimize-autoloader
 
       - name: 🚀 Sync to Hostinger (Manual rsync)
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         run: |
-          # 1. إعداد مجلد الـ SSH والمفتاح
+          # 1. إعداد المجلد والصلاحيات
           mkdir -p ~/.ssh
-          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+          chmod 700 ~/.ssh
+          
+          # 2. كتابة المفتاح بطريقة تمنع أخطاء التنسيق (حذف الوندوز كاريج وأضافة سطر فارغ)
+          printf "%s\n" "${{ secrets.SSH_PRIVATE_KEY }}" | tr -d '\r' > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           
-          # 2. إضافة السيرفر لقائمة الموثوقين
-          ssh-keyscan -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+          # 3. جلب هوية السيرفر لتجاوز السؤال التفاعلي
+          ssh-keyscan -p ${{ secrets.SSH_PORT }} -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
 
-          # 3. تشغيل الـ rsync المباشر
+          # 4. تشغيل الـ rsync المباشر بمواصفات دقيقة
           rsync -avz --delete \
             -e "ssh -p ${{ secrets.SSH_PORT }} -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no" \
             backend/ \
