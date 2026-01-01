@@ -72,9 +72,9 @@ jobs:
       - name: 🔧 Post-Deployment Setup (Storage Link & Cache Clear)
         run: |
           ssh -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no \
-            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'ENDSSH'
+            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
           cd domains/missflora.uk/backend
           /opt/php-8.2/bin/php artisan storage:link
           /opt/php-8.2/bin/php artisan config:clear
           /opt/php-8.2/bin/php artisan cache:clear
-          ENDSSH
+          EOF
