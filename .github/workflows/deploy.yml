@@ -54,7 +54,7 @@ jobs:
 
       - name: 🚀 Deploy Backend (Code Only)
         run: |
-          rsync -avz --delete --exclude='.env' \
+          rsync -avz --delete --exclude='.env' --exclude='storage' \
             -e "ssh -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no" \
             backend/ \
             ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:domains/missflora.uk/backend/
