@@ -52,7 +52,20 @@ jobs:
             frontend/dist/ \
             ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:domains/missflora.uk/public_html/
 
-      - name: 🚀 Deploy Backend (Laravel) to /backend/ folder
+      - name: 🔨 Generate Production .env File
+        run: |
+          echo "Generating .env file from Secrets..."
+          cp backend/.env.production.example backend/.env
+          
+          # استبدال القيم الحساسة بالـ Secrets
+          sed -i "s|APP_KEY=|APP_KEY=${{ secrets.APP_KEY }}|g" backend/.env
+          sed -i "s|DB_DATABASE=u135934022_nay|DB_DATABASE=${{ secrets.DB_DATABASE }}|g" backend/.env
+          sed -i "s|DB_USERNAME=u135934022_user|DB_USERNAME=${{ secrets.DB_USERNAME }}|g" backend/.env
+          sed -i "s|DB_PASSWORD=secret_password|DB_PASSWORD=${{ secrets.DB_PASSWORD }}|g" backend/.env
+          
+          echo "Production .env generated successfully."
+
+      - name: 🚀 Deploy Backend (with .env)
         run: |
           rsync -avz --delete \
             -e "ssh -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no" \
@@ -78,6 +91,5 @@ jobs:
             ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
             'export PHP_BIN=$(which php8.3 2>/dev/null || which php83 2>/dev/null || ls /opt/alt/php83/usr/bin/php 2>/dev/null || ls /opt/alt/php83/root/usr/bin/php 2>/dev/null || which php); 
              cd domains/missflora.uk/backend && 
-             [ ! -f .env ] && cp .env.production.example .env; 
              $PHP_BIN artisan config:clear && 
              $PHP_BIN artisan cache:clear'
