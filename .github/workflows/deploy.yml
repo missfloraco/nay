@@ -72,8 +72,8 @@ jobs:
             ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
             "cd domains/missflora.uk/backend && ln -sfn ../storage/app/public public/storage"
 
-      - name: 🔧 Post-Deployment Clear Cache
+      - name: 🔧 Post-Deployment: Configure Environment & Clear Cache
         run: |
           ssh -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no \
             ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
-            'export PHP_BIN=$(which php8.3 2>/dev/null || which php83 2>/dev/null || ls /opt/alt/php83/usr/bin/php 2>/dev/null || ls /opt/alt/php83/root/usr/bin/php 2>/dev/null || which php); cd domains/missflora.uk/backend && $PHP_BIN artisan config:clear && $PHP_BIN artisan cache:clear'
+            'export PHP_BIN=$(which php8.3 2>/dev/null || which php83 2>/dev/null || ls /opt/alt/php83/usr/bin/php 2>/dev/null || ls /opt/alt/php83/root/usr/bin/php 2>/dev/null || which php); cd domains/missflora.uk/backend && [ ! -f .env ] && cp .env.production.example .env; $PHP_BIN artisan config:clear && $PHP_BIN artisan cache:clear'
