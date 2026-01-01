@@ -40,15 +40,20 @@ jobs:
         working-directory: ./backend
         run: composer install --no-dev --optimize-autoloader
 
-      - name: 🚀 Sync to Hostinger (SSH/rsync)
-        uses: easingthemes/ssh-deploy@v5.1.0
-        with:
+      - name: 🚀 Sync to Hostinger (Manual rsync)
+        env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          REMOTE_HOST: ${{ secrets.SSH_HOST }}
-          REMOTE_USER: ${{ secrets.SSH_USER }}
-          REMOTE_PORT: ${{ secrets.SSH_PORT }}
-          TARGET: "public_html/"
-          EXCLUDE: "/node_modules/, /tests/, /storage/logs/, /storage/app/public/"
-          # هذه الأعلام تضمن الموافقة التلقائية على هوية السيرفر
-          ARGS: "-avz --delete"
-          SSH_EXTRA_ARGS: "-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+        run: |
+          # 1. إعداد مجلد الـ SSH والمفتاح
+          mkdir -p ~/.ssh
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          
+          # 2. إضافة السيرفر لقائمة الموثوقين
+          ssh-keyscan -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+
+          # 3. تشغيل الـ rsync المباشر
+          rsync -avz --delete \
+            -e "ssh -p ${{ secrets.SSH_PORT }} -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no" \
+            backend/ \
+            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:public_html/
