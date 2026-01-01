@@ -47,7 +47,6 @@ jobs:
 
       - name: 🚀 Deploy Frontend (React) to public_html
         run: |
-          # رفع محتوى dist مباشرة إلى داخل public_html الخاص بالدومين الرئيسي
           rsync -avz --delete \
             -e "ssh -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no" \
             frontend/dist/ \
@@ -55,7 +54,6 @@ jobs:
 
       - name: 🚀 Deploy Backend (Laravel) to /backend/ folder
         run: |
-          # رفع كود الباك-اند إلى مجلد منفصل خارج public_html (أكثر أماناً)
           rsync -avz --delete \
             -e "ssh -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no" \
             backend/ \
@@ -63,20 +61,19 @@ jobs:
 
       - name: 🔗 Deploy API Bridge to /public_html/api/
         run: |
-          # رفع ملفات الجسر الآمن (index.php + .htaccess فقط)
           rsync -avz \
             -e "ssh -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no" \
             api-bridge/ \
             ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:domains/missflora.uk/public_html/api/
 
-      - name: 🔧 Post-Deployment: Storage Link
+      - name: 🔧 Post-Deployment Storage Link
         run: |
           ssh -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no \
             ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
-            "cd domains/missflora.uk/backend && /usr/bin/php8.2 artisan storage:link"
+            "cd domains/missflora.uk/backend && /usr/bin/php8.3 artisan storage:link"
 
-      - name: 🔧 Post-Deployment: Clear Cache
+      - name: 🔧 Post-Deployment Clear Cache
         run: |
           ssh -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no \
             ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
-            "cd domains/missflora.uk/backend && /usr/bin/php8.2 artisan config:clear && /usr/bin/php8.2 artisan cache:clear"
+            "cd domains/missflora.uk/backend && /usr/bin/php8.3 artisan config:clear && /usr/bin/php8.3 artisan cache:clear"
