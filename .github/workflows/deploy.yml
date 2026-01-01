@@ -50,6 +50,6 @@ jobs:
           REMOTE_HOST: ${{ secrets.SSH_HOST }}
           REMOTE_USER: ${{ secrets.SSH_USER }}
           REMOTE_PORT: ${{ secrets.SSH_PORT }}
-          TARGET: "public_html/" # Based on your Hostinger path
-          EXCLUDE: "/node_modules/, /tests/, /storage/logs/, /storage/app/public/" # استثناء المجلدات غير الضرورية والملفات المرفوعة
-          SSH_EXTRA_ARGS: "-o StrictHostKeyChecking=no"
+          TARGET: "public_html/"
+          EXCLUDE: "/node_modules/, /tests/, /storage/logs/, /storage/app/public/"
+          ARGS: "-avz --delete -e 'ssh -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no'"
