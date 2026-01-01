@@ -3,7 +3,7 @@ name: Deploy via SSH (Full App)
 on:
   push:
     branches:
-      - master # تأكد أن هذا هو اسم فرعك (master أو main)
+      - master
 
 jobs:
   deploy:
@@ -28,7 +28,6 @@ jobs:
 
       - name: 📂 Merge React Build into Laravel Public
         run: |
-          # دمج ملفات الـ React داخل الـ Backend ليتم رفعها معاً
           cp -r frontend/dist/* backend/public/
 
       - name: 🏗️ Setup PHP
@@ -45,8 +44,6 @@ jobs:
         uses: easingthemes/ssh-deploy@v5.1.0
         with:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          ARGS: "-avz --delete"
-          SOURCE: "backend/" # سنرفع مجلد الباك-اند كاملاً (بما فيه ملفات الرياكت المدمجة)
           REMOTE_HOST: ${{ secrets.SSH_HOST }}
           REMOTE_USER: ${{ secrets.SSH_USER }}
           REMOTE_PORT: ${{ secrets.SSH_PORT }}
