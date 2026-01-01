@@ -49,4 +49,6 @@ jobs:
           REMOTE_PORT: ${{ secrets.SSH_PORT }}
           TARGET: "public_html/"
           EXCLUDE: "/node_modules/, /tests/, /storage/logs/, /storage/app/public/"
-          ARGS: "-avz --delete -e 'ssh -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no'"
+          # هذه الأعلام تضمن الموافقة التلقائية على هوية السيرفر
+          ARGS: "-avz --delete"
+          SSH_EXTRA_ARGS: "-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
