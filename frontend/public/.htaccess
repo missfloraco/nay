@@ -2,15 +2,14 @@
     RewriteEngine On
     RewriteBase /
 
-    # 1. إرسال طلبات الـ API و Sanctum إلى مجلد الـ backend
-    # نستخدم المسار الكامل من جذر الحساب إذا لزم الأمر، لكن عادة ../backend/public/index.php تعمل
-    # إذا لم تعمل، سنحتاج لتعديلها يدوياً لتناسب مسار السيرفر الحقيقي
+    # 1. توجيه طلبات /api و /sanctum و /storage إلى Laravel
+    # Laravel موجود في مجلد api/ داخل public_html
     RewriteCond %{REQUEST_URI} ^/api/ [OR]
     RewriteCond %{REQUEST_URI} ^/sanctum/ [OR]
     RewriteCond %{REQUEST_URI} ^/storage/
-    RewriteRule ^(.*)$ ../backend/public/index.php [L]
+    RewriteRule ^(.*)$ api/public/index.php [L]
 
-    # 2. توجيه كافة الطلبات الأخرى إلى الـ React (index.html)
+    # 2. توجيه كافة الطلبات الأخرى إلى React (index.html)
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteRule ^ index.html [L]

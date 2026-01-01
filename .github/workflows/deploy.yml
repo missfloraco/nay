@@ -47,16 +47,16 @@ jobs:
 
       - name: 🚀 Deploy Frontend (React) to public_html
         run: |
-          # رفع محتوى dist مباشرة إلى داخل public_html الخاص بالدومين
+          # رفع محتوى dist مباشرة إلى داخل public_html الخاص بالدومين الرئيسي
           rsync -avz --delete \
             -e "ssh -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no" \
             frontend/dist/ \
             ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:domains/missflora.uk/public_html/
 
-      - name: 🚀 Deploy Backend (Laravel) to backend folder
+      - name: 🚀 Deploy Backend (Laravel) to /api subfolder
         run: |
-          # رفع كود الباك-اند إلى مجلد منفصل خلف الـ public_html
+          # رفع كود الباك-اند إلى مجلد /api داخل public_html (متطلبات هوستنجر)
           rsync -avz --delete \
             -e "ssh -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no" \
             backend/ \
-            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:domains/missflora.uk/backend/
+            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:domains/missflora.uk/public_html/api/
