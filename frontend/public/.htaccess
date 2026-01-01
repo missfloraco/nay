@@ -1,17 +1,17 @@
-Options +FollowSymLinks
-
 <IfModule mod_rewrite.c>
-  RewriteEngine On
-  RewriteBase /
+    RewriteEngine On
+    RewriteBase /
 
-  # لا تقم بأي تحويل إذا كان الرابط يبدأ بـ storage
-  RewriteCond %{REQUEST_URI} ^/storage/ [NC]
-  RewriteRule . - [L]
+    # 1. إرسال طلبات الـ API و Sanctum إلى مجلد الـ backend
+    # نستخدم المسار الكامل من جذر الحساب إذا لزم الأمر، لكن عادة ../backend/public/index.php تعمل
+    # إذا لم تعمل، سنحتاج لتعديلها يدوياً لتناسب مسار السيرفر الحقيقي
+    RewriteCond %{REQUEST_URI} ^/api/ [OR]
+    RewriteCond %{REQUEST_URI} ^/sanctum/ [OR]
+    RewriteCond %{REQUEST_URI} ^/storage/
+    RewriteRule ^(.*)$ ../backend/public/index.php [L]
 
-  # روابط React الاعتيادية (SPA Routing)
-  RewriteRule ^index\.html$ - [L]
-  RewriteCond %{REQUEST_FILENAME} !-f
-  RewriteCond %{REQUEST_FILENAME} !-d
-  RewriteCond %{REQUEST_FILENAME} !-l
-  RewriteRule . /index.html [L]
+    # 2. توجيه كافة الطلبات الأخرى إلى الـ React (index.html)
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^ index.html [L]
 </IfModule>
