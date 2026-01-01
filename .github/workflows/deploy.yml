@@ -76,7 +76,9 @@ jobs:
         run: |
           ssh -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no \
             ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
-            'export PHP_BIN=$(which php8.3 2>/dev/null || which php83 2>/dev/null || ls /opt/alt/php83/usr/bin/php 2>/dev/null || ls /opt/alt/php83/root/usr/bin/php 2>/dev/null || which php); 
+            'export PHP_BIN="/opt/alt/php83/usr/bin/php"; 
+             if [ ! -x "$PHP_BIN" ]; then PHP_BIN=$(which php8.3 || which php); fi;
+             echo "Using PHP: $PHP_BIN";
              cd domains/missflora.uk/backend && 
              $PHP_BIN artisan config:clear && 
              $PHP_BIN artisan cache:clear'
