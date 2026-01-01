@@ -1,18 +1,23 @@
 @echo off
-set "SSH_DIR=%USERPROFILE%\.ssh"
-set "CONFIG_FILE=%SSH_DIR%\config"
+REM Standard Windows SSH config location
+set "SSH_CONFIG_DIR=%USERPROFILE%\.ssh"
+set "CONFIG_FILE=%SSH_CONFIG_DIR%\config"
 
-if not exist "%SSH_DIR%" mkdir "%SSH_DIR%"
+REM Your actual key location
+set "ACTUAL_KEY_PATH=C:/laragon/www/.ssh/github_deploy_key"
+
+if not exist "%SSH_CONFIG_DIR%" mkdir "%SSH_CONFIG_DIR%"
 
 echo Host github.com > "%CONFIG_FILE%"
 echo     HostName github.com >> "%CONFIG_FILE%"
 echo     User git >> "%CONFIG_FILE%"
-echo     IdentityFile ~/.ssh/github_deploy_key >> "%CONFIG_FILE%"
+echo     IdentityFile %ACTUAL_KEY_PATH% >> "%CONFIG_FILE%"
 echo     IdentitiesOnly yes >> "%CONFIG_FILE%"
 
 echo ==========================================
-echo        SSH Config Fixed Successfully!
+echo        SSH Config Updated to Actual Path!
 echo ==========================================
+echo Path used: %ACTUAL_KEY_PATH%
 echo.
 echo Now testing connection with GitHub...
 echo.
