@@ -641,6 +641,4 @@ export default function SupportTicketsPage() {
             )}
         </AdminLayout>
     );
-};
-
-export default SupportTickets;
+}
