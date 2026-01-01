@@ -40,28 +40,18 @@ jobs:
         working-directory: ./backend
         run: composer install --no-dev --optimize-autoloader
 
-      - name: 🚀 Sync to Hostinger (Manual rsync)
-        env:
-          SSH_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          SSH_HOST: ${{ secrets.SSH_HOST }}
-          SSH_USER: ${{ secrets.SSH_USER }}
-          SSH_PORT: ${{ secrets.SSH_PORT }}
+      - name: � Install SSH Key (Official Action)
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          known_hosts: "placeholder" # سيتم جلب الـ hosts في الخطوة التالية
+
+      - name: 🔍 Add Host to Known Hosts
+        run: ssh-keyscan -p ${{ secrets.SSH_PORT }} -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+
+      - name: 🚀 Sync to Hostinger (Final Sync)
         run: |
-          mkdir -p ~/.ssh
-          chmod 700 ~/.ssh
-          
-          # كتابة المفتاح من متغير البيئة لضمان عدم تلف التنسيق
-          echo "$SSH_KEY" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          
-          # تنظيف المفتاح من أي أحرف خفية ناتجة عن الوندوز
-          sed -i 's/\r//g' ~/.ssh/id_rsa
-          
-          # جلب بصمة السيرفر
-          ssh-keyscan -p $SSH_PORT -H $SSH_HOST >> ~/.ssh/known_hosts
-          
-          # تنفيذ الرفع الفعلي
           rsync -avz --delete \
-            -e "ssh -p $SSH_PORT -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no" \
+            -e "ssh -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no" \
             backend/ \
-            $SSH_USER@$SSH_HOST:public_html/
+            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:public_html/
