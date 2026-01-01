@@ -20,7 +20,7 @@ jobs:
 
       - name: 📦 Install Frontend Dependencies
         working-directory: ./frontend
-        run: npm install
+        run: npm install --legacy-peer-deps
 
       - name: 🚀 Build Frontend (React)
         working-directory: ./frontend
@@ -45,10 +45,11 @@ jobs:
         uses: easingthemes/ssh-deploy@v5.1.0
         with:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          ARGS: "-rlgoDzvc -i --delete"
+          ARGS: "-rlgoDzvc -i --delete --set-dest-permissions"
           SOURCE: "backend/" # سنرفع مجلد الباك-اند كاملاً (بما فيه ملفات الرياكت المدمجة)
           REMOTE_HOST: ${{ secrets.SSH_HOST }}
           REMOTE_USER: ${{ secrets.SSH_USER }}
           SSH_PORT: ${{ secrets.SSH_PORT }}
-          TARGET: "public_html/" # هذا هو المسار الذي طلبته
+          TARGET: "public_html/" # Based on your Hostinger path
           EXCLUDE: "/node_modules/, /tests/, /storage/logs/, /storage/app/public/" # استثناء المجلدات غير الضرورية والملفات المرفوعة
+          SSH_EXTRA_ARGS: "-o StrictHostKeyChecking=no"
