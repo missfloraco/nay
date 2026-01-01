@@ -70,7 +70,7 @@ jobs:
         run: |
           ssh -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no \
             ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
-            "cd domains/missflora.uk/backend && ln -sfn ../storage/app/public public/storage"
+            "cd domains/missflora.uk/backend && ln -sfn ../storage/app/public public/storage && cd ../public_html && ln -sfn ../backend/storage/app/public storage"
 
       - name: 🔧 Post-Deployment Configure Environment & Clear Cache
         run: |
