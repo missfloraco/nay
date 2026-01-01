@@ -9,10 +9,12 @@ import { SettingsService } from '@/shared/services/settingsservice';
 import { CircularImageUpload } from '@/shared/components/circularimageupload';
 import { useAction } from '@/shared/contexts/action-context';
 import { logger } from '@/shared/services/logger';
+import { GOOGLE_ARABIC_FONTS } from '@/shared/constants/fonts'; // Imported constants
+import { ChevronDown } from 'lucide-react';
 
 export default function PlatformIdentity() {
     const { settings, refreshSettings, loading: contextLoading } = useSettings();
-    const { showFeedback } = useFeedback();
+    const { showSuccess, showError } = useFeedback();
     const { setPrimaryAction } = useAction();
     const [saving, setSaving] = useState(false);
 
@@ -90,14 +92,16 @@ export default function PlatformIdentity() {
         try {
             const hasFiles = logoFiles.system_logo || logoFiles.favicon || logoFiles.custom_font || logoFiles.custom_heading_font || removeLogo || removeFavicon || removeCustomFont || removeCustomHeadingFont;
 
-            const finalFontFamily = (
+            const isCustomFontActive = (
                 logoFiles.custom_font ||
                 logoFiles.custom_heading_font ||
                 (!removeCustomFont && settings.customFontFile) ||
                 (!removeCustomHeadingFont && settings.customHeadingFontFile) ||
-                formData.custom_font_url ||
-                formData.custom_heading_font_url
-            ) ? 'Custom' : 'Default';
+                (formData.custom_font_url && !(removeCustomFont && formData.custom_font_url === settings.customFontUrl)) ||
+                (formData.custom_heading_font_url && !(removeCustomHeadingFont && formData.custom_heading_font_url === settings.customHeadingFontUrl))
+            );
+
+            const finalFontFamily = isCustomFontActive ? 'Custom' : (formData.font_family || 'Default');
 
             if (hasFiles) {
                 const logoData = new FormData();
@@ -114,22 +118,37 @@ export default function PlatformIdentity() {
                 else if (removeCustomHeadingFont) logoData.append('remove_custom_heading_font_file', '1');
 
                 Object.entries(formData).forEach(([key, value]) => {
-                    logoData.append(key, key === 'font_family' ? finalFontFamily : value as string);
+                    let finalValue = value;
+
+                    // Fix: If removing custom font file, and the URL hasn't been changed by user (still holds the old file URL), clear it.
+                    if (key === 'custom_font_url' && removeCustomFont && value === settings.customFontUrl) {
+                        finalValue = '';
+                    }
+                    // Same for heading font
+                    if (key === 'custom_heading_font_url' && removeCustomHeadingFont && value === settings.customHeadingFontUrl) {
+                        finalValue = '';
+                    }
+
+                    logoData.append(key, key === 'font_family' ? finalFontFamily : finalValue as string);
                 });
 
                 await SettingsService.updateSettings('admin', logoData);
             } else {
-                await SettingsService.updateSettings('admin', { ...formData, font_family: finalFontFamily });
+                const payload = { ...formData, font_family: finalFontFamily };
+                if (!payload.custom_font_url) payload.custom_font_url = null;
+                if (!payload.custom_heading_font_url) payload.custom_heading_font_url = null;
+
+                await SettingsService.updateSettings('admin', payload);
             }
 
             await refreshSettings();
             setLogoFiles({ system_logo: null, favicon: null, custom_font: null, custom_heading_font: null });
             setRemoveLogo(false); setRemoveFavicon(false); setRemoveCustomFont(false); setRemoveCustomHeadingFont(false);
 
-            showFeedback('تم تحديث هوية المنصة بنجاح', 'success');
+            showSuccess('تم تحديث هوية المنصة بنجاح');
         } catch (error: any) {
             logger.error(error);
-            showFeedback('حدث خطأ أثناء الحفظ', 'error');
+            showError('حدث خطأ أثناء الحفظ');
         } finally {
             setSaving(false);
         }
@@ -280,6 +299,37 @@ export default function PlatformIdentity() {
                         </div>
 
                         <div className="p-8 lg:p-12 space-y-12">
+                            {/* Google Font Selector */}
+                            <div className="space-y-4">
+                                <label className="form-label">نوع الخط المعتمد</label>
+                                <div className="relative">
+                                    <select
+                                        value={(!removeCustomFont && (settings.customFontFile || logoFiles.custom_font)) ? 'Custom' : formData.font_family}
+                                        onChange={(e) => setFormData({ ...formData, font_family: e.target.value })}
+                                        disabled={(!removeCustomFont && (!!settings.customFontFile || !!logoFiles.custom_font))}
+                                        className="select-field w-full appearance-none relative z-10 bg-transparent disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        <option value="Default">الخط الافتراضي (IBM Plex Sans Arabic)</option>
+                                        <optgroup label="خطوط جوجل العربية">
+                                            {GOOGLE_ARABIC_FONTS.map(font => (
+                                                <option key={font.name} value={font.name} style={{ fontFamily: font.name }}>
+                                                    {font.label}
+                                                </option>
+                                            ))}
+                                        </optgroup>
+                                        {((!removeCustomFont && (settings.customFontFile || logoFiles.custom_font))) && <option value="Custom">خط مخصص (تم رفع ملف)</option>}
+                                    </select>
+                                    <ChevronDown className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 z-0" />
+                                </div>
+                                {(!removeCustomFont && (settings.customFontFile || logoFiles.custom_font)) && (
+                                    <p className="text-xs text-amber-600 font-bold px-2">
+                                        * يتم استخدام الخط المخصص حالياً. لحالة اختيار خط من القائمة، يرجى حذف ملف الخط المخصص أدناه.
+                                    </p>
+                                )}
+                            </div>
+
+                            <hr className="border-gray-100 dark:border-white/5" />
+
                             {/* Body Font */}
                             <div className="space-y-6">
                                 <div className="flex items-center gap-3">
@@ -290,7 +340,7 @@ export default function PlatformIdentity() {
                                     <FileUpload
                                         label="رفع ملف الخط"
                                         accept=".ttf,.woff,.woff2,.otf"
-                                        initialPreview={settings.customFontFile ? 'font-exists' : undefined}
+                                        initialFileName={settings.customFontFile ? 'ملف الخط الحالي' : undefined}
                                         onChange={(f) => f ? handleLogoChange('custom_font', f) : handleRemoveLogo('custom_font')}
                                     />
                                     <InputField
@@ -314,7 +364,7 @@ export default function PlatformIdentity() {
                                     <FileUpload
                                         label="رفع ملف الخط"
                                         accept=".ttf,.woff,.woff2,.otf"
-                                        initialPreview={settings.customHeadingFontFile ? 'font-exists' : undefined}
+                                        initialFileName={settings.customHeadingFontFile ? 'ملف الخط الحالي' : undefined}
                                         onChange={(f) => f ? handleLogoChange('custom_heading_font', f) : handleRemoveLogo('custom_heading_font')}
                                     />
                                     <InputField

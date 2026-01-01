@@ -8,10 +8,10 @@ import { MessageSquare, ArrowUp, CheckCircle, Clock, Info, Trash2, X, AlertCircl
 import { useFeedback } from '@/shared/ui/notifications/feedback-context';
 import InputField from '@/shared/ui/forms/input-field';
 import Modal from '@/shared/ui/modals/modal';
-import { FooterFilters } from '@/shared/components/footer-filters';
+import { Toolbar } from '@/shared/components/toolbar';
 import ImagePreview from '@/shared/ui/image-preview';
 
-const SupportTickets = () => {
+export default function SupportTicketsPage() {
     const queryClient = useQueryClient();
     const [selectedTicketId, setSelectedTicketId] = useState<number | null>(null);
     const [chatMessage, setChatMessage] = useState('');
@@ -227,11 +227,8 @@ const SupportTickets = () => {
             title="إدارة رسائل الدعم"
             icon={MessageSquare}
             noPadding={false}
-        >
-            <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in duration-700">
-
-                {/* Filters Section */}
-                <FooterFilters
+            toolbar={
+                <Toolbar
                     title="تصفية التذاكر"
                     activeValue={statusFilter}
                     onChange={setStatusFilter}
@@ -244,6 +241,9 @@ const SupportTickets = () => {
                         { id: 'archived', label: 'الأرشيف', icon: Archive, color: 'text-red-400' },
                     ]}
                 />
+            }
+        >
+            <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in duration-700">
 
                 {/* Ticket Grid List */}
                 {isLoadingList && !ticketsData ? (

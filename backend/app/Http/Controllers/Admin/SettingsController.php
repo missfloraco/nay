@@ -64,6 +64,21 @@ class SettingsController extends Controller
             ];
         }
 
+        if ($request->hasFile('custom_heading_font_file')) {
+            $rules['custom_heading_font_file'] = [
+                'file',
+                'max:10240',
+                function ($attribute, $value, $fail) {
+                    $allowedExtensions = ['ttf', 'woff', 'woff2', 'otf'];
+                    $extension = strtolower($value->getClientOriginalExtension());
+
+                    if (!in_array($extension, $allowedExtensions)) {
+                        $fail('يجب أن يكون ملف الخط بإحدى الصيغ التالية: ttf, woff, woff2, otf');
+                    }
+                },
+            ];
+        }
+
         $request->validate($rules);
 
         $admin = auth()->user();
@@ -142,6 +157,8 @@ class SettingsController extends Controller
             'secondary_color',
             'accent_color1',
             'accent_color2',
+            'font_family', // Added missing key
+            'custom_font_url', // Added missing key
             'custom_heading_font_url',
             // Content Protection (Granular)
             'protect_right_click_admin',

@@ -1,179 +1,145 @@
 /* 
   ==========================================================================
-  Responsive System v2.0 (Mobile-First & Tablet Optimized)
-  RTL Support for Arabic Dashboard
+  Responsive System v3.0 (PURE MOBILE-FIRST)
+  Base styles = Mobile (< 768px)
+  Enhancements = Tablet (>= 768px) & Desktop (>= 1024px)
   ========================================================================== 
 */
 
 /* 
-  1. MOBILE BASE STYLES (Default / < 640px)
+  1. MOBILE BASE STYLES (DEFAULT) 
   ==========================================================================
 */
 
-/* Hide desktop-only elements */
+/* Hiding Desktop-Only items by default */
 .desktop-sidebar,
 .left-sidebar-root,
 .footer-copyright-section,
-.status-widget-container {
-    display: none !important;
-}
-
-/* Base Layout Changes */
-.layout-root {
-    @apply flex flex-col h-auto min-h-screen overflow-x-hidden;
-    background-color: var(--color-bg-base, #f8fafc);
-}
-
-.main-content-wrapper {
-    @apply flex flex-col flex-1 h-auto;
-}
-
-/* Top App Bar Styling */
-.global-header {
-    @apply !h-[70px] !px-2 !flex !items-center !justify-between;
-    @apply !bg-white/95 !backdrop-blur-xl !border-b !border-gray-100;
-}
-
-.global-header .flex-1.flex.items-center {
-    @apply !px-0 !gap-2;
-}
-
-/* Hide Labels on Mobile Header */
+.status-widget-container,
 .global-header .user-name-label,
 .global-header .page-title-heading {
-    display: none !important;
+    display: none;
 }
 
-/* Content Area */
+/* Mobile Header Base */
+.global-header {
+    @apply h-[70px] px-4 flex items-center justify-between;
+    @apply bg-white/95 backdrop-blur-xl border-b border-gray-100;
+}
+
+/* Mobile Content Area */
 .content-area-main {
-    @apply !w-full !flex-1 !overflow-visible;
+    @apply w-full flex-1 overflow-visible;
 }
 
 .page-frame-container {
-    @apply !p-6 !rounded-none;
-    /* 1.5rem (24px) for Mobile */
-    padding-bottom: 120px !important;
-    /* Space for fixed transparent footer */
-    min-height: calc(100vh - 70px) !important;
-    border: 0 !important;
-    box-shadow: none !important;
+    @apply p-4;
+    /* Tight padding for mobile */
 }
 
-/* Footer & Ad Slots */
-.global-footer {
-    display: none !important;
+/* Base Tables (Mobile Stack Mode) */
+.standard-table-container {
+    @apply border-0 bg-transparent shadow-none;
 }
 
-/* Table Responsiveness (Stack Mode - Only on Mobile < 640px) */
-@media (max-width: 639px) {
-    .standard-table-container {
-        @apply !border-0 !bg-transparent !shadow-none;
-    }
-
-    .standard-table {
-        @apply !block !w-full;
-    }
-
-    .standard-table thead {
-        display: none !important;
-    }
-
-    .standard-table tbody {
-        @apply !block !space-y-4;
-    }
-
-    .standard-table tr {
-        @apply !block !bg-white !rounded-3xl !p-6 !mb-4 !shadow-sm !border !border-gray-100 !relative;
-    }
-
-    .standard-table td {
-        @apply !flex !justify-between !items-center !py-2.5 !px-0 !border-0;
-        @apply !text-sm !font-bold !text-gray-800;
-    }
-
-    .standard-table td::before {
-        content: attr(data-label);
-        @apply !font-black !text-gray-400 !uppercase !text-[9px] !tracking-wider;
-    }
+.standard-table {
+    @apply block w-full;
 }
+
+.standard-table thead {
+    display: none;
+}
+
+.standard-table tbody {
+    @apply block space-y-4;
+}
+
+.standard-table tr {
+    @apply block bg-white rounded-3xl p-6 mb-4 shadow-sm border border-gray-100 relative;
+}
+
+.standard-table td {
+    @apply flex justify-between items-center py-2.5 px-0 border-0;
+    @apply text-sm font-bold text-gray-800;
+}
+
+.standard-table td::before {
+    content: attr(data-label);
+    @apply font-black text-gray-400 uppercase text-[9px] tracking-wider;
+}
+
 
 /* 
-  2. TABLET STYLES (640px - 1024px)
+  2. TABLET ENHANCEMENTS (>= 768px)
   ==========================================================================
 */
-@media (min-width: 640px) and (max-width: 1024px) {
+@media (min-width: 768px) {
     .page-frame-container {
         @apply p-8 rounded-3xl;
-        margin: 1.5rem !important;
-        min-height: calc(100vh - 120px) !important;
-        border: 1px solid rgba(0, 0, 0, 0.05) !important;
+        margin: 1.5rem;
+        border: 1px solid rgba(0, 0, 0, 0.05);
     }
 
-    /* Show page title on tablet */
     .global-header .page-title-heading {
         @apply block;
     }
 
-    /* Smaller grid for tablet */
     .dashboard-grid {
         @apply grid-cols-2 gap-6;
     }
 }
 
+
 /* 
-  3. DESKTOP STYLES (Min-width 1025px) - RESTORE DEFAULT
+  3. DESKTOP ENHANCEMENTS (>= 1024px)
   ==========================================================================
 */
-@media (min-width: 1025px) {
+@media (min-width: 1024px) {
 
+    /* Show hidden elements */
     .desktop-sidebar,
     .left-sidebar-root,
     .footer-copyright-section,
     .status-widget-container,
-    .global-footer,
-    .global-header .user-name-label,
-    .global-header .page-title-heading {
-        display: flex !important;
+    .global-header .user-name-label {
+        display: flex;
     }
 
     .global-header {
-        @apply !h-[90px];
+        @apply h-[90px] px-8;
     }
 
-    .xl\:hidden {
-        display: none !important;
-    }
-
+    /* Fixed Layout structure for desktop */
     .layout-root {
-        @apply !h-screen !flex !flex-col !overflow-hidden;
+        @apply h-screen overflow-hidden;
     }
 
     .main-content-wrapper {
-        @apply !flex !flex-row !flex-1 !overflow-hidden !h-full;
+        @apply flex-row overflow-hidden h-full;
     }
 
     .content-area-main {
-        @apply !flex-1 !overflow-hidden;
+        @apply h-full overflow-y-auto;
     }
 
+
     .page-frame-container {
-        @apply bg-transparent rounded-[2.5rem] !m-0;
-        padding: 2.5rem;
-        /* Unified 40px */
-        width: 100% !important;
+        @apply bg-transparent rounded-[2.5rem] m-0 border-0 p-10;
+        width: 100%;
         overflow: visible;
     }
 
     .page-main-wrapper {
-        @apply flex flex-col min-h-0 w-full;
-        /* External margins are now managed by the Layout frame */
-        height: min-content;
-        min-height: 100%;
+        @apply min-h-0 h-full;
     }
 
-    /* Desktop Tables back to normal */
+    /* Restore Standard Tables */
     .standard-table {
         display: table;
+    }
+
+    .standard-table-container {
+        @apply bg-white border-y border-gray-100 shadow-none rounded-none;
     }
 
     .standard-table thead {
@@ -181,12 +147,12 @@
     }
 
     .standard-table tbody {
-        display: table-row-group;
+        @apply block lg:table-row-group space-y-0;
     }
 
     .standard-table tr {
         display: table-row;
-        @apply bg-transparent shadow-none border-0 rounded-none;
+        @apply bg-transparent shadow-none border-0 rounded-none mb-0;
     }
 
     .standard-table td {
@@ -195,12 +161,13 @@
     }
 
     .standard-table td::before {
-        display: none !important;
+        display: none;
     }
 }
 
+
 /* 
-  Utility Classes
+  4. UTILITIES
   ==========================================================================
 */
 .no-scrollbar::-webkit-scrollbar {

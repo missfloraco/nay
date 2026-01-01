@@ -8,6 +8,7 @@ interface FileUploadProps {
     error?: string;
     hint?: string;
     initialPreview?: string;
+    initialFileName?: string;
     className?: string;
 }
 
@@ -18,10 +19,11 @@ const FileUpload: React.FC<FileUploadProps> = ({
     error,
     hint,
     initialPreview,
+    initialFileName,
     className = ''
 }) => {
     const [preview, setPreview] = useState<string | null>(initialPreview || null);
-    const [fileName, setFileName] = useState<string | null>(null);
+    const [fileName, setFileName] = useState<string | null>(initialFileName || null);
     const [isDragging, setIsDragging] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
 

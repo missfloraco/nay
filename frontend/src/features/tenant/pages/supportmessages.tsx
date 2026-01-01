@@ -10,7 +10,7 @@ import { Plus, MessageSquare, ArrowUp, Search, Filter, RefreshCw, SendHorizontal
 import { useFeedback } from '@/shared/ui/notifications/feedback-context';
 import Modal from '@/shared/ui/modals/modal';
 import { useAction } from '@/shared/contexts/action-context';
-import { FooterFilters } from '@/shared/components/footer-filters';
+import { Toolbar } from '@/shared/components/toolbar';
 import ImagePreview from '@/shared/ui/image-preview';
 
 const SupportMessages = () => {
@@ -207,11 +207,8 @@ const SupportMessages = () => {
             title="مركز الدعم الفني"
             icon={MessageSquare}
             noPadding={false}
-        >
-            <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in duration-700">
-
-                {/* Filters Section - Harmonized with Admin */}
-                <FooterFilters
+            toolbar={
+                <Toolbar
                     title="تصفية الرسائلك"
                     activeValue={statusFilter}
                     onChange={setStatusFilter}
@@ -224,6 +221,9 @@ const SupportMessages = () => {
                         { id: 'archived', label: 'الأرشيف', icon: Archive, color: 'text-red-400' },
                     ]}
                 />
+            }
+        >
+            <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in duration-700">
 
                 {/* Ticket Grid List */}
                 {isLoadingTickets && !ticketsData ? (

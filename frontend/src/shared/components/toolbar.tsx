@@ -1,9 +1,7 @@
 import React from 'react';
-import { createPortal } from 'react-dom';
 import { LucideIcon, ChevronLeft, ChevronRight } from 'lucide-react';
-import { Filter } from 'lucide-react';
 
-export interface FilterOption {
+export interface ToolbarOption {
     id: string;
     label: string;
     icon?: LucideIcon;
@@ -11,19 +9,19 @@ export interface FilterOption {
     count?: number;
 }
 
-interface FooterFiltersProps {
-    options: FilterOption[];
+interface ToolbarProps {
+    options: ToolbarOption[];
     activeValue: string;
     onChange: (value: string) => void;
     title?: string;
     variant?: 'pills' | 'sheets';
 }
 
-export const FooterFilters: React.FC<FooterFiltersProps> = ({
+export const Toolbar: React.FC<ToolbarProps> = ({
     options,
     activeValue,
     onChange,
-    title = 'تصفية البيانات', // Kept in props interface for compatibility, but ignored in UI
+    title = 'تصفية البيانات', // Kept for compatibility
     variant = 'pills'
 }) => {
     const scrollContainerRef = React.useRef<HTMLDivElement>(null);
@@ -39,8 +37,8 @@ export const FooterFilters: React.FC<FooterFiltersProps> = ({
         }
     };
 
-    const content = (
-        <div className="flex items-center gap-2 animate-in fade-in slide-in-from-bottom-2 duration-300">
+    return (
+        <div className="flex items-center gap-2 animate-in fade-in slide-in-from-bottom-2 duration-300 w-full">
             {/* Scroll Button (Right/Next in RTL context) */}
             {showScrollButtons && (
                 <button
@@ -54,7 +52,7 @@ export const FooterFilters: React.FC<FooterFiltersProps> = ({
             {/* Filter Items Container */}
             <div
                 ref={scrollContainerRef}
-                className={`flex items-center no-scrollbar max-w-full overflow-x-auto scroll-smooth ${variant === 'sheets' ? 'gap-1' : 'gap-2'}`}
+                className={`flex items-center no-scrollbar w-full overflow-x-auto scroll-smooth ${variant === 'sheets' ? 'gap-1' : 'gap-2'}`}
             >
                 {options.map((option) => {
                     const isActive = activeValue === option.id;
@@ -65,16 +63,16 @@ export const FooterFilters: React.FC<FooterFiltersProps> = ({
                             <button
                                 key={option.id}
                                 onClick={() => onChange(option.id)}
-                                className={`flex items-center gap-2 px-6 py-3.5 transition-all font-bold text-sm whitespace-nowrap relative group shrink-0 rounded-t-2xl
+                                className={`flex items-center gap-4 px-4 py-2.5 transition-all font-bold text-sm whitespace-nowrap relative group shrink-0 rounded-xl
                                 ${isActive
-                                        ? 'bg-white/50 dark:bg-dark-800 text-primary z-10 before:absolute before:inset-x-0 before:bottom-0 before:h-[3px] before:bg-primary before:rounded-t-lg shadow-sm'
-                                        : 'text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-dark-800/50 hover:text-gray-700 dark:hover:text-gray-200'
+                                        ? 'bg-primary text-white shadow-lg z-10'
+                                        : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900 dark:hover:text-white'
                                     }`}
                             >
-                                {Icon && <Icon className={`w-4 h-4 ${isActive ? 'text-primary' : 'text-gray-400'}`} />}
+                                {Icon && <Icon className={`w-5 h-5 ${isActive ? 'text-white' : 'text-gray-500'}`} />}
                                 <span>{option.label}</span>
                                 {option.count !== undefined && (
-                                    <span className={`mr-1 px-1.5 py-0.5 rounded-full text-[10px] ${isActive ? 'bg-primary/10 text-primary' : 'bg-gray-100 text-gray-500'}`}>
+                                    <span className={`mr-1 px-1.5 py-0.5 rounded-full text-[10px] ${isActive ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-500'}`}>
                                         {option.count}
                                     </span>
                                 )}
@@ -82,17 +80,17 @@ export const FooterFilters: React.FC<FooterFiltersProps> = ({
                         );
                     }
 
-                    // Default Pills Variant
+                    // Default Pills Variant (Unified Style)
                     return (
                         <button
                             key={option.id}
                             onClick={() => onChange(option.id)}
-                            className={`flex items-center gap-2 px-6 py-3.5 rounded-2xl transition-all font-bold text-sm whitespace-nowrap border shrink-0 ${isActive
-                                ? 'bg-primary text-white border-primary shadow-lg shadow-primary/20'
-                                : 'bg-white dark:bg-dark-800 text-gray-500 dark:text-gray-400 border-gray-200 dark:border-white/5 hover:bg-gray-50 dark:hover:bg-dark-700'
+                            className={`flex items-center gap-4 px-4 py-2.5 rounded-xl transition-all font-bold text-sm whitespace-nowrap shrink-0 ${isActive
+                                ? 'bg-primary text-white shadow-lg'
+                                : 'text-gray-500 hover:bg-gray-50 dark:hover:bg-dark-800/50 hover:text-gray-900 dark:hover:text-white border border-transparent hover:border-gray-100'
                                 }`}
                         >
-                            {Icon && <Icon className={`w-4 h-4 ${isActive ? 'text-white' : option.color || 'text-gray-400'}`} />}
+                            {Icon && <Icon className={`w-5 h-5 ${isActive ? 'text-white' : option.color || 'text-gray-500'}`} />}
                             <span>{option.label}</span>
                             {option.count !== undefined && (
                                 <span className={`mr-1 px-1.5 py-0.5 rounded-md text-[10px] ${isActive ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-500'}`}>
@@ -115,6 +113,4 @@ export const FooterFilters: React.FC<FooterFiltersProps> = ({
             )}
         </div>
     );
-
-    return content;
 };

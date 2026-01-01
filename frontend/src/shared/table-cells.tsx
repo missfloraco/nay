@@ -9,9 +9,12 @@ interface IdentityCellProps {
     email?: string;
     uid?: string;
     highlight?: boolean;
+    icon?: any;
+    iconColor?: string;
+    iconBg?: string;
 }
 
-export const IdentityCell = ({ name, avatar, subtext, email, uid, highlight }: IdentityCellProps) => (
+export const IdentityCell = ({ name, avatar, subtext, email, uid, highlight, icon: Icon, iconColor, iconBg }: IdentityCellProps) => (
     <div className={`flex items-center gap-4 transition-all duration-500 ${highlight ? 'animate-pulse bg-emerald-50 dark:bg-emerald-900/20 -mx-4 px-4 py-2 rounded-xl font-black' : ''}`}>
         {avatar ? (
             <img
@@ -19,6 +22,10 @@ export const IdentityCell = ({ name, avatar, subtext, email, uid, highlight }: I
                 alt={name}
                 className="w-11 h-11 rounded-xl object-cover border-2 border-white dark:border-dark-800 shadow-sm"
             />
+        ) : Icon ? (
+            <div className={`w-11 h-11 rounded-xl flex items-center justify-center shadow-sm border ${iconBg || 'bg-primary/10 border-primary/5'}`}>
+                <Icon className={`w-5 h-5 ${iconColor || 'text-primary'}`} />
+            </div>
         ) : (
             <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center text-primary font-black shadow-sm border border-primary/5">
                 {name.charAt(0)}

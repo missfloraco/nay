@@ -53,10 +53,10 @@ export function usePrint(options: UsePrintOptions = {}): UsePrintReturn {
                 body {
                     -webkit-print-color-adjust: exact;
                     print-color-adjust: exact;
-                    font-family: var(--theme-font, 'Alexandria', 'RTA', sans-serif) !important;
+                    font-family: var(--font-base), "IBM Plex Sans Arabic", sans-serif !important;
                 }
                 * {
-                    font-family: var(--theme-font, 'Alexandria', 'RTA', sans-serif) !important;
+                    font-family: var(--font-base), "IBM Plex Sans Arabic", sans-serif !important;
                 }
             }
         `,

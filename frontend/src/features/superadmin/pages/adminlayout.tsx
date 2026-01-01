@@ -30,7 +30,7 @@ import api from '@/shared/services/api';
 import { useAdminAuth } from '@/features/auth/admin-auth-context';
 import { useSettings } from '@/shared/contexts/app-context';
 import { useText } from '@/shared/contexts/text-context';
-import BottomNav from '@/shared/layout/footer/footer';
+
 import { useAction } from '@/shared/contexts/action-context';
 import { Header } from '@/shared/layout/header/header';
 import AdSlot from '@/shared/ads/adslot';
@@ -39,6 +39,7 @@ import { StatusWidget } from '@/shared/components/statuswidget';
 import { useUI } from '@/shared/contexts/ui-context';
 import { Drawer } from '@/shared/ui/drawer';
 import { MainSidebar } from '@/shared/layout/sidebar/sidebar-main';
+import { NameHeaderLeft } from '@/shared/layout/header/name-header-left';
 
 interface AdminLayoutProps {
     children: ReactNode;
@@ -46,9 +47,10 @@ interface AdminLayoutProps {
     noPadding?: boolean;
     actions?: ReactNode;
     icon?: any;
+    toolbar?: ReactNode; // New prop for local controls (Filters, Tabs, etc.)
 }
 
-const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title, noPadding = false, actions, icon }) => {
+const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title, noPadding = false, actions, icon, toolbar }) => {
     const location = useLocation();
     const navigate = useNavigate();
     const { user, loading, logout } = useAdminAuth();
@@ -101,57 +103,74 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title, noPadding = 
     ], [t, trashCount]);
 
     return (
-        <div className="flex h-screen w-full overflow-hidden bg-white dark:bg-dark-950" dir="rtl">
-            {/* 1. Main Navigation Sidebar */}
-            <MainSidebar items={navItems} homePath="/admin" />
+        <div className="flex flex-col min-h-screen lg:h-screen w-full lg:overflow-hidden bg-white dark:bg-dark-950" dir="rtl">
 
-            {/* 2. Content Column Pillar */}
-            <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden relative">
-                <Header onMenuClick={() => { }} title={title || ''} icon={icon} mobileOnlyBranding={true} />
+            {/* 1. Full Width Header */}
+            <Header onMenuClick={toggleRightDrawer} title={title} actions={actions} icon={icon} />
 
-                <div className="flex-1 flex flex-col min-h-0 bg-gray-50 dark:bg-dark-950">
-                    {/* Middle Area */}
-                    <div className="flex-1 flex overflow-hidden">
-                        <main className="flex-1 overflow-auto no-scrollbar relative flex flex-col">
-                            <div className="page-main-wrapper flex flex-col flex-1">
-                                <div className={`page-frame-container flex-1 flex flex-col ${noPadding ? 'p-0' : ''}`}>
-                                    {children}
+            {/* 2. Middle Section (Sidebar + Content) */}
+            <div className="flex-1 flex overflow-hidden relative">
+                <MainSidebar items={navItems} homePath="/admin" hideBranding={true} hideFooter={true} />
+
+                <main className="flex-1 flex flex-col min-w-0 h-auto lg:h-full overflow-y-auto no-scrollbar bg-gray-50 dark:bg-dark-950 relative content-area-main">
+
+
+                    {/* Content Wrapper */}
+                    <div className="page-main-wrapper flex flex-col flex-1">
+                        <div className={`page-frame-container w-full flex flex-col ${noPadding ? 'p-0' : ''}`}>
+                            {/* Unified Page Toolbar: Filters (Left/Right) + Actions (Opposite) */}
+                            {(toolbar || primaryAction || extraActions.length > 0) && (
+                                <div className="sticky top-0 z-40 mb-6 py-4 -mt-4 bg-gray-50/95 dark:bg-dark-950/95 backdrop-blur-sm flex flex-col lg:flex-row items-center justify-between gap-4 shrink-0 in-page-toolbar transition-all duration-200">
+
+                                    {/* Page Specific Toolbar (Filters/Tabs) */}
+                                    <div className="flex-1 w-full lg:w-auto overflow-hidden">
+                                        {toolbar}
+                                    </div>
+
+                                    {/* Global Actions (Buttons) - Moved from Footer */}
+                                    <div className="flex items-center gap-3 shrink-0 self-end lg:self-auto">
+                                        {extraActions.map((action, idx) => (
+                                            <button key={idx} onClick={action.onClick} disabled={action.disabled || action.loading} className={`flex items-center gap-4 px-4 py-2.5 rounded-xl transition-all font-bold text-sm bg-white border border-gray-200 text-gray-500 hover:bg-gray-50 hover:text-gray-900 shadow-sm hover:shadow-md`}>
+                                                {action.loading ? <Loader2 className="w-5 h-5 animate-spin" /> : React.createElement(action.icon || Plus, { className: "w-5 h-5" })}
+                                                <span>{action.label}</span>
+                                            </button>
+                                        ))}
+                                        {primaryAction && (
+                                            <button onClick={primaryAction.onClick} disabled={primaryAction.disabled || primaryAction.loading} className={`flex items-center gap-4 px-4 py-2.5 rounded-xl transition-all font-bold text-sm ${primaryAction.variant === 'danger' ? 'bg-red-600 text-white' : 'bg-primary text-white'} shadow-lg hover:shadow-xl hover:scale-[1.02] disabled:opacity-40 disabled:grayscale disabled:cursor-not-allowed disabled:shadow-none`}>
+                                                {primaryAction.loading ? <Loader2 className="w-5 h-5 animate-spin" /> : React.createElement(primaryAction.icon || Plus, { className: "w-5 h-5" })}
+                                                <span>{primaryAction.label}</span>
+                                            </button>
+                                        )}
+                                    </div>
                                 </div>
-                            </div>
-                        </main>
+                            )}
 
+                            {children}
+
+                            {/* Local Page Footer REMOVED */}
+                            <div id="table-pagination-portal" className="flex items-center mt-4" />
+                        </div>
                     </div>
-
-                    {/* Flush Footer Area */}
-                    <footer className="z-40 bg-white/80 dark:bg-dark-950/80 backdrop-blur-md border-t border-gray-100 dark:border-white/5 h-[90px] flex items-center justify-between transition-all shrink-0">
-                        <div className="flex items-center gap-6 pr-12">
-                            {actions}
-                            <div id="table-pagination-portal" className="flex items-center" />
-                        </div>
-                        <div className="flex items-center h-full">
-                            <div className="flex items-center gap-6 px-6 shrink-0 h-full border-r border-gray-100 dark:border-white/5 bg-gray-50/30 dark:bg-white/5">
-                                {extraActions.map((action, idx) => (
-                                    <button key={idx} onClick={action.onClick} disabled={action.disabled || action.loading} className={`hidden lg:flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all font-bold text-sm bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 shadow-sm`}>
-                                        {action.loading ? <Loader2 className="w-5 h-5 animate-spin" /> : React.createElement(action.icon || Plus, { className: "w-5 h-5 text-gray-500" })}
-                                        <span className="flex-1">{action.label}</span>
-                                    </button>
-                                ))}
-                                {primaryAction && (
-                                    <button onClick={primaryAction.onClick} disabled={primaryAction.disabled || primaryAction.loading} className={`hidden lg:flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all font-bold text-sm ${primaryAction.variant === 'danger' ? 'bg-red-600 text-white' : 'bg-primary text-white'} shadow-lg disabled:opacity-40 disabled:grayscale disabled:cursor-not-allowed disabled:shadow-none`}>
-                                        {primaryAction.loading ? <Loader2 className="w-5 h-5 animate-spin" /> : React.createElement(primaryAction.icon || Plus, { className: "w-5 h-5" })}
-                                        <span className="flex-1">{primaryAction.label}</span>
-                                    </button>
-                                )}
-                            </div>
-                        </div>
-                    </footer>
-                </div>
+                </main>
             </div>
 
             {/* Drawers & Mobile Nav */}
-            <Drawer isOpen={isRightDrawerOpen} onClose={closeDrawers} side="right" title={t('admin.navigation', 'لوحة تحكم المدير')}>
-                <nav className="p-6 space-y-1.5 h-full flex flex-col">
-                    <div className="flex-1 space-y-1.5">
+
+            {/* Drawers & Mobile Nav */}
+            <Drawer isOpen={isRightDrawerOpen} onClose={closeDrawers} side="right" title={t('admin.navigation', 'القائمة الرئيسية')}>
+                <div className="flex flex-col h-full">
+                    {/* Drawer Branding */}
+                    <div className="p-8 border-b border-gray-100 dark:border-white/5 flex items-center gap-4">
+                        {settings.systemLogoUrl && (
+                            <img src={settings.systemLogoUrl} alt={settings.appName} className="h-8 w-auto" />
+                        )}
+                        <span className="font-black text-lg text-gray-900 dark:text-white">
+                            {settings.appName}
+                        </span>
+                    </div>
+
+                    {/* Drawer Navigation */}
+                    <nav className="flex-1 p-4 space-y-1.5 overflow-y-auto no-scrollbar">
                         {navItems.map((item, index) => {
                             if (item.isHeader) {
                                 return (
@@ -164,28 +183,41 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title, noPadding = 
                             }
 
                             const Icon = item.icon;
+                            const isActive = location.pathname === item.path;
                             return (
                                 <Link
                                     key={item.path}
                                     to={item.path}
                                     onClick={closeDrawers}
-                                    className={`flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all font-bold ${location.pathname === item.path ? 'bg-primary text-white shadow-lg' : 'text-gray-500 hover:bg-gray-50 dark:hover:bg-dark-800/50'}`}
+                                    className={`flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all font-bold ${isActive ? 'bg-primary text-white shadow-lg' : 'text-gray-500 hover:bg-gray-50'}`}
                                 >
-                                    <Icon className={`w-5 h-5 ${item.color}`} />
+                                    <Icon className={`w-5 h-5 ${item.color && !isActive ? item.color : ''}`} />
                                     <span className="text-sm flex-1">{item.label}</span>
-                                    {item.badge > 0 && <span className="bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[20px] h-5 flex items-center justify-center px-1">{item.badge}</span>}
+                                    {item.badge > 0 && (
+                                        <span className={`text-[10px] font-bold rounded-full min-w-[20px] h-5 flex items-center justify-center px-1 ${isActive ? 'bg-white text-primary' : 'bg-red-500 text-white'}`}>
+                                            {item.badge}
+                                        </span>
+                                    )}
                                 </Link>
                             );
                         })}
+                    </nav>
+
+                    {/* Drawer Footer (User & Logout) */}
+                    <div className="p-4 border-t border-gray-100 dark:border-white/5 bg-gray-50/50">
+                        <NameHeaderLeft
+                            user={user}
+                            onLogout={logout}
+                            settingsPath="/admin/settings"
+                        />
                     </div>
-                </nav>
+                </div>
             </Drawer>
 
 
-            <div className="mobile-only">
-                <BottomNav items={navItems} user={user} onLogout={logout} settingsPath="/admin/settings" onMenuClick={toggleRightDrawer} />
-            </div>
-        </div>
+
+
+        </div >
     );
 };
 

@@ -2,6 +2,9 @@
 @import "./dark-mode.css";
 @import "./responsive.css";
 
+/* DEFAULT SYSTEM FONT: IBM Plex Sans Arabic */
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@100;200;300;400;500;600;700&display=swap');
+
 @theme {
   --color-primary: var(--primary);
   --color-secondary: var(--secondary);
@@ -35,12 +38,16 @@
   /* Page Wrapper Margins */
   --page-margin: 2rem;
   --footer-height: 90px;
+
+  /* TYPOGRAPHY SYSTEM */
+  --font-base: "IBM Plex Sans Arabic", system-ui, sans-serif;
+  --font-sans: var(--font-base);
 }
 
 @layer base {
   body {
     @apply bg-gray-50 text-gray-900 transition-colors duration-500;
-    font-family: var(--theme-font, sans-serif);
+    font-family: var(--font-base);
   }
 
   html {
@@ -67,16 +74,20 @@
 }
 
 .layout-root {
-  @apply h-screen flex flex-col overflow-hidden bg-gray-50 dark:bg-dark-950;
+  @apply flex flex-col min-h-screen bg-gray-50 dark:bg-dark-950;
 }
+
+
 
 .main-content-wrapper {
-  @apply flex flex-1 w-full overflow-hidden relative;
+  @apply flex flex-col flex-1 w-full relative;
 }
 
+
 .content-area-main {
-  @apply flex-1 flex flex-col min-w-0 h-full overflow-hidden;
+  @apply flex-1 flex flex-col min-w-0;
 }
+
 
 /* Unified Page Container Structure */
 .page-main-wrapper {
@@ -84,18 +95,16 @@
 }
 
 .page-frame-container {
-  @apply bg-transparent rounded-[2.5rem] transition-all duration-300;
-  padding: 2.5rem;
+  @apply bg-transparent transition-all duration-300;
+  padding: 1.5rem;
   width: 100%;
   flex: 1;
-  /* Fix for content bleeding into footer */
   display: flex;
   flex-direction: column;
   position: relative;
   z-index: 10;
-  overflow: visible;
-  /* Ensure content is not clipped */
 }
+
 
 /* Utilities */
 .no-scrollbar::-webkit-scrollbar {
@@ -203,12 +212,4 @@
 
 .animate-progress {
   animation-name: progress;
-}
-
-@media (min-width: 769px) {
-  .page-frame-container {
-    @apply w-full max-w-full mx-auto;
-    /* Unified Premium Margin */
-    padding: 2.5rem;
-  }
 }

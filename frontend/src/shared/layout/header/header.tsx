@@ -5,7 +5,6 @@ import { useAdminAuth } from '@/features/auth/admin-auth-context';
 import { useTenantAuth } from '@/features/auth/tenant-auth-context';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { resolveAssetUrl } from '@/shared/utils/helpers';
-import { TrialBadge as OriginalTrialBadge } from '@/features/tenant/components/trial-badge';
 import { NameHeaderLeft } from './name-header-left';
 import { GlobalSearch } from './global-search';
 import { ThemeToggle } from './theme-toggle';
@@ -14,7 +13,6 @@ import { MoreVertical, Menu as MenuIcon, MessageSquare, Headset, Menu, Power } f
 import { useQuery } from '@tanstack/react-query';
 import api from '@/shared/services/api';
 
-export const TrialBadge = OriginalTrialBadge;
 
 interface HeaderProps {
   onMenuClick: () => void;
@@ -85,11 +83,11 @@ export const Header: React.FC<HeaderProps> = ({
   const supportPath = isAdmin ? '/admin/support' : '/app/support/messages';
 
   return (
-    <header className={`sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200 flex items-center justify-between transition-colors h-[90px] global-header ${className}`}>
-      {/* 1. Branding Section - Aligns with Main Nav Sidebar (250px) */}
+    <header className={`sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200 flex items-center justify-between transition-colors h-[70px] lg:h-[90px] global-header ${className}`}>
+      {/* 1. Branding Section - Aligns with Main Nav Sidebar (260px) */}
       {!hideBranding && (
         <div className={`flex items-center w-auto lg:w-[250px] flex-shrink-0 global-header-branding ${mobileOnlyBranding ? 'lg:hidden' : ''}`}>
-          <div className="flex items-center h-full px-4 lg:pr-8 lg:pl-6 lg:border-l border-gray-300 flex-shrink-0 justify-between header-logo-section">
+          <div className="flex items-center h-full px-4 lg:pr-[20px] lg:pl-6 flex-shrink-0 justify-between header-logo-section">
             <Link
               to={dashboardPath}
               className="flex items-center gap-3 transition-all duration-300 hover:opacity-80 active:scale-95 group overflow-hidden"
@@ -99,7 +97,7 @@ export const Header: React.FC<HeaderProps> = ({
                   <img
                     src={finalLogoUrl}
                     alt={finalAppName}
-                    className="h-8 lg:h-9 w-auto max-w-[120px] object-contain group-hover:rotate-1 transition-transform logo-img"
+                    className="h-[32px] lg:h-[40px] w-auto max-w-[150px] object-contain group-hover:rotate-1 transition-transform logo-img"
                   />
                 ) : null}
                 <span
@@ -114,18 +112,23 @@ export const Header: React.FC<HeaderProps> = ({
       )}
 
       {/* 2. Main Bar Content - Physically MIDDLE */}
-      <div className="flex-1 flex items-center justify-center lg:justify-between h-full px-4 lg:px-8 gap-4 relative">
-        <div className="flex items-center gap-6 group/title page-title-heading truncate absolute lg:relative left-1/2 lg:left-0 -translate-x-1/2 lg:translate-x-0">
-          <div className="flex items-center gap-3 px-3">
-            {Icon && <Icon className="w-5 h-5 text-gray-400 group-hover/title:text-primary transition-colors" />}
-            <h1 className="text-sm lg:text-base font-bold text-gray-400 truncate group-hover/title:text-primary transition-colors flex items-center gap-2">
+      <div className="flex-1 flex items-center justify-between h-full px-4 lg:px-8 gap-4 relative overflow-hidden">
+        {/* Title Group - Aligned with Page Content */}
+        <div className="hidden lg:flex items-center gap-4 min-w-0 shrink-0">
+          <div className="flex items-center gap-4 px-2">
+            {Icon && <Icon className="w-6 h-6 text-primary" />}
+            <h1 className="text-lg lg:text-xl font-black text-gray-900 dark:text-white truncate tracking-tight">
               {title}
             </h1>
           </div>
+          {/* Divider if needed */}
+          {actions && <div className="h-6 w-px bg-gray-200 dark:bg-white/10 mx-2" />}
+          {/* Actions - Rendered right next to title or flexible */}
+          {actions && <div className="flex items-center gap-3">{actions}</div>}
         </div>
 
-        {/* Middle Section: Search Bar (Desktop & Tablet) */}
-        <div className="hidden sm:flex items-center justify-center flex-1 max-w-[600px] mx-auto">
+        {/* Global Search - Centered or Pushed */}
+        <div className="hidden sm:flex items-center justify-center flex-1 max-w-[500px] mx-auto opacity-100 hover:opacity-100 transition-opacity">
           <GlobalSearch variant="header-center" />
         </div>
       </div>
@@ -133,13 +136,20 @@ export const Header: React.FC<HeaderProps> = ({
       {/* 3. User Actions Section - Aligns with Filter Sidebar (250px) */}
       <div className="flex items-center w-auto lg:w-[250px] justify-end flex-shrink-0 px-4 lg:px-0 gap-3">
         {/* Mobile Actions Overlay */}
-        {/* Mobile Actions Overlay (Left side in RTL) */}
-        <div className="flex sm:hidden items-center gap-2">
+        <div className="flex lg:hidden items-center gap-2">
           {/* Mobile Search Icon */}
           <GlobalSearch variant="header-left" />
+
+          {/* Mobile Menu Trigger */}
+          <button
+            onClick={onMenuClick}
+            className="p-2 rounded-xl bg-gray-50 text-gray-500 hover:text-primary transition-all active:scale-95"
+          >
+            <MenuIcon className="w-6 h-6" />
+          </button>
         </div>
 
-        <div className="hidden sm:flex items-center gap-4 w-full justify-end h-full">
+        <div className="hidden lg:flex items-center gap-4 w-full justify-end h-full">
           <Link
             to={supportPath}
             className="relative group flex items-center justify-center text-gray-500 dark:text-gray-400 hover:text-primary dark:hover:text-primary transition-all"

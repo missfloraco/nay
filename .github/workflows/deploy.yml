@@ -81,4 +81,5 @@ jobs:
              echo "Using PHP: $PHP_BIN";
              cd domains/missflora.uk/backend && 
              $PHP_BIN artisan config:clear && 
+             $PHP_BIN artisan migrate --force &&
              $PHP_BIN artisan cache:clear'
