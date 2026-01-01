@@ -1,9 +1,9 @@
-name: Deploy via SSH
+name: Deploy via SSH (Full App)
 
 on:
   push:
     branches:
-      - main
+      - master # تأكد أن هذا هو اسم فرعك (master أو main)
 
 jobs:
   deploy:
@@ -22,13 +22,13 @@ jobs:
         working-directory: ./frontend
         run: npm install
 
-      - name: 🚀 Build Frontend
+      - name: 🚀 Build Frontend (React)
         working-directory: ./frontend
         run: npm run build
 
-      - name: 📂 Move Frontend Build to Laravel Public
+      - name: 📂 Merge React Build into Laravel Public
         run: |
-          mkdir -p backend/public
+          # دمج ملفات الـ React داخل الـ Backend ليتم رفعها معاً
           cp -r frontend/dist/* backend/public/
 
       - name: 🏗️ Setup PHP
@@ -41,27 +41,14 @@ jobs:
         working-directory: ./backend
         run: composer install --no-dev --optimize-autoloader
 
-      - name: 🚀 Deploy to Server via SSH/rsync
+      - name: 🚀 Sync to Hostinger (SSH/rsync)
         uses: easingthemes/ssh-deploy@v5.1.0
         with:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           ARGS: "-rlgoDzvc -i --delete"
-          SOURCE: "backend/"
+          SOURCE: "backend/" # سنرفع مجلد الباك-اند كاملاً (بما فيه ملفات الرياكت المدمجة)
           REMOTE_HOST: ${{ secrets.SSH_HOST }}
           REMOTE_USER: ${{ secrets.SSH_USER }}
           SSH_PORT: ${{ secrets.SSH_PORT }}
-          TARGET: "public_html/" # Based on your Hostinger path
-          EXCLUDE: "/node_modules/, /tests/, /storage/logs/, /.git/"
-
-      # Optional: Post-deployment scripts
-      # - name: 🛠️ Run Remote Commands
-      #   uses: appleboy/ssh-action@v1.0.3
-      #   with:
-      #     host: ${{ secrets.SSH_HOST }}
-      #     username: ${{ secrets.SSH_USER }}
-      #     key: ${{ secrets.SSH_PRIVATE_KEY }}
-      #     port: ${{ secrets.SSH_PORT }}
-      #     script: |
-      #       cd domains/yourdomain.com/public_html
-      #       php artisan migrate --force
-      #       php artisan cache:clear
+          TARGET: "public_html/" # هذا هو المسار الذي طلبته
+          EXCLUDE: "/node_modules/, /tests/, /storage/logs/, /storage/app/public/" # استثناء المجلدات غير الضرورية والملفات المرفوعة
