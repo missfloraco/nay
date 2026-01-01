@@ -52,27 +52,9 @@ jobs:
             frontend/dist/ \
             ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:domains/missflora.uk/public_html/
 
-      - name: 🔨 Generate Production .env File
-        env:
-          APP_KEY: ${{ secrets.APP_KEY }}
-          DB_DATABASE: ${{ secrets.DB_DATABASE }}
-          DB_USERNAME: ${{ secrets.DB_USERNAME }}
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      - name: 🚀 Deploy Backend (Code Only)
         run: |
-          echo "Generating .env file from Secrets..."
-          cp backend/.env.production.example backend/.env
-          
-          # استخدام متغيرات البيئة لتفادي مشاكل الرموز الخاصة
-          sed -i "s|APP_KEY=|APP_KEY=$APP_KEY|g" backend/.env
-          sed -i "s|DB_DATABASE=u135934022_nay|DB_DATABASE=$DB_DATABASE|g" backend/.env
-          sed -i "s|DB_USERNAME=u135934022_user|DB_USERNAME=$DB_USERNAME|g" backend/.env
-          sed -i "s|DB_PASSWORD=secret_password|DB_PASSWORD=$DB_PASSWORD|g" backend/.env
-          
-          echo "Production .env generated successfully."
-
-      - name: 🚀 Deploy Backend (with .env)
-        run: |
-          rsync -avz --delete \
+          rsync -avz --delete --exclude='.env' \
             -e "ssh -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no" \
             backend/ \
             ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:domains/missflora.uk/backend/
