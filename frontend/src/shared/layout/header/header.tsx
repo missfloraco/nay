@@ -27,6 +27,7 @@ interface HeaderProps {
   userRole?: string;
   className?: string;
   hideBranding?: boolean;
+  mobileOnlyBranding?: boolean;
   actions?: React.ReactNode;
   icon?: any; // Accepting any icon component
 }
@@ -42,6 +43,7 @@ export const Header: React.FC<HeaderProps> = ({
   userRole,
   className = '',
   hideBranding = false,
+  mobileOnlyBranding = false,
   actions,
   icon: Icon,
 }) => {
@@ -86,7 +88,7 @@ export const Header: React.FC<HeaderProps> = ({
     <header className={`sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200 flex items-center justify-between transition-colors h-[90px] global-header ${className}`}>
       {/* 1. Branding Section - Aligns with Main Nav Sidebar (250px) */}
       {!hideBranding && (
-        <div className="flex items-center w-auto lg:w-[250px] flex-shrink-0 global-header-branding">
+        <div className={`flex items-center w-auto lg:w-[250px] flex-shrink-0 global-header-branding ${mobileOnlyBranding ? 'lg:hidden' : ''}`}>
           <div className="flex items-center h-full px-4 lg:pr-8 lg:pl-6 lg:border-l border-gray-300 flex-shrink-0 justify-between header-logo-section">
             <Link
               to={dashboardPath}

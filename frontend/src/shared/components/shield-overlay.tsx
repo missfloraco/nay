@@ -1,7 +1,44 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Sparkles, ShieldCheck, AlertCircle } from 'lucide-react';
 
 export default function ShieldOverlay() {
+    useEffect(() => {
+        // 1. Disable Right Click
+        const handleContextMenu = (e: MouseEvent) => e.preventDefault();
+
+        // 2. Disable Dragging
+        const handleDragStart = (e: DragEvent) => e.preventDefault();
+
+        // 3. Disable Shortcuts (F12, Ctrl+Shift+I, Copy, Paste, Cut, View Source)
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (
+                e.key === 'F12' ||
+                (e.ctrlKey && e.shiftKey && e.key === 'I') ||
+                (e.ctrlKey && e.shiftKey && e.key === 'J') ||
+                (e.ctrlKey && e.shiftKey && e.key === 'C') ||
+                (e.ctrlKey && e.key === 'u') ||
+                (e.ctrlKey && e.key === 'U') ||
+                (e.ctrlKey && e.key === 'c') ||
+                (e.ctrlKey && e.key === 'C') ||
+                (e.ctrlKey && e.key === 'x') ||
+                (e.ctrlKey && e.key === 'X') ||
+                (e.ctrlKey && e.key === 'v') ||
+                (e.ctrlKey && e.key === 'V')
+            ) {
+                e.preventDefault();
+            }
+        };
+
+        document.addEventListener('contextmenu', handleContextMenu);
+        document.addEventListener('dragstart', handleDragStart);
+        document.addEventListener('keydown', handleKeyDown);
+
+        return () => {
+            document.removeEventListener('contextmenu', handleContextMenu);
+            document.removeEventListener('dragstart', handleDragStart);
+            document.removeEventListener('keydown', handleKeyDown);
+        };
+    }, []);
     return (
         <div
             data-shield-overlay="true"

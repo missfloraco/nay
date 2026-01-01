@@ -82,7 +82,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, title = '', icon, noPad
 
             {/* 2. Content Column Pillar */}
             <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden relative">
-                <Header onMenuClick={() => { }} className="global-header shrink-0" title={title || ''} icon={icon} hideBranding={true} />
+                <Header onMenuClick={() => { }} className="global-header shrink-0" title={title || ''} icon={icon} mobileOnlyBranding={true} />
                 <TrialBanner />
 
                 <div className="flex-1 flex flex-col min-h-0 bg-gray-50 dark:bg-dark-950">
