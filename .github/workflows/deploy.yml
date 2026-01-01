@@ -73,10 +73,10 @@ jobs:
         run: |
           ssh -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no \
             ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
-            "cd domains/missflora.uk/backend && /opt/php-8.2/bin/php artisan storage:link"
+            "cd domains/missflora.uk/backend && /usr/bin/php8.2 artisan storage:link"
 
       - name: 🔧 Post-Deployment: Clear Cache
         run: |
           ssh -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no \
             ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
-            "cd domains/missflora.uk/backend && /opt/php-8.2/bin/php artisan config:clear && /opt/php-8.2/bin/php artisan cache:clear"
+            "cd domains/missflora.uk/backend && /usr/bin/php8.2 artisan config:clear && /usr/bin/php8.2 artisan cache:clear"
