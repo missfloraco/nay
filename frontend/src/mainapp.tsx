@@ -48,6 +48,8 @@ const WelcomePage = lazy(() => import('@/shared/pages/welcome'));
 import { ProtectedRoute } from '@/shared/components/protectedroute';
 import ScriptInjector from '@/shared/script-injector';
 import { useContentProtection } from '@/shared/hooks/use-content-protection';
+import { useAdBlockDetection } from '@/shared/hooks/useAdBlockDetection';
+import ShieldOverlay from '@/shared/components/shield-overlay';
 
 const PageLoader = () => (
     <div className="min-h-[60vh] flex items-center justify-center">
@@ -133,6 +135,7 @@ function MainAppContent() {
     const { isTrialExpired } = useTrialStatus();
 
     useContentProtection();
+    const { isAdBlockActive, isCheckingAdBlock } = useAdBlockDetection(settings);
 
     if (appLoading || adminLoading || (loadingSettings && !localStorage.getItem('app_merged_settings'))) {
         return (
@@ -170,6 +173,7 @@ function MainAppContent() {
                 <ActionProvider>
                     <SearchProvider>
                         <ScriptInjector />
+                        {!isCheckingAdBlock && isAdBlockActive && <ShieldOverlay />}
                         <ExportModal />
                         <Suspense fallback={<PageLoader />}>
                             <Routes>

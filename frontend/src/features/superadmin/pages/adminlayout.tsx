@@ -107,7 +107,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title, noPadding = 
 
             {/* 2. Content Column Pillar */}
             <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden relative">
-                <Header onMenuClick={() => { }} title={title || ''} icon={icon} hideBranding={true} />
+                <Header onMenuClick={() => { }} title={title || ''} icon={icon} mobileOnlyBranding={true} />
 
                 <div className="flex-1 flex flex-col min-h-0 bg-gray-50 dark:bg-dark-950">
                     {/* Middle Area */}

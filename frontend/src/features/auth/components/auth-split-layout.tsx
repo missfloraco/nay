@@ -60,7 +60,19 @@ export const AuthSplitLayout: React.FC<AuthSplitLayoutProps> = ({ children, titl
                         </p>
                         {settings.companyName && (
                             <p className="text-[10px] font-bold text-gray-400 mt-1">
-                                أحد مشاريع شركة {settings.companyName}
+                                أحد مشاريع شركة{' '}
+                                {settings.companyLink ? (
+                                    <a
+                                        href={settings.companyLink}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="hover:text-primary transition-colors hover:underline"
+                                    >
+                                        {settings.companyName}
+                                    </a>
+                                ) : (
+                                    settings.companyName
+                                )}
                             </p>
                         )}
                     </div>

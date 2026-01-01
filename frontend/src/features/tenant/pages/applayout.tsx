@@ -74,7 +74,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, title = '', icon, noPad
 
     return (
         <div className={`transition-colors duration-500 h-screen w-full overflow-hidden flex bg-white dark:bg-dark-950 ${isImpersonating ? 'pt-[64px]' : ''}`} dir="rtl">
-            {!isCheckingAdBlock && isAdBlockActive && <ShieldOverlay />}
+            {/* ShieldOverlay moved to MainApp for global protection */}
             <ImpersonationBanner tenantName={tenant?.name || '...'} onExit={handleExitImpersonation} />
 
             {/* 1. Main Navigation Sidebar - Full Height */}
