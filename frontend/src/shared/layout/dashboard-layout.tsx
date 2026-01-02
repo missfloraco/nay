@@ -49,6 +49,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
                 items={items}
                 secondaryItems={secondaryItems}
                 homePath={homePath}
+                banners={banners}
             />
 
             {/* Main Content Area */}
@@ -58,17 +59,35 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
 
                 {/* Scrollable Content Area */}
                 <main className="flex-1 overflow-y-auto overflow-x-hidden no-scrollbar bg-gray-50 dark:bg-dark-950 relative">
-                    <div className={`mx-auto w-full flex flex-col min-h-full ${noPadding ? 'p-0' : 'p-4 lg:p-8'}`}>
-                        {/* Unified Page Toolbar */}
-                        {(toolbar || primaryAction || extraActions.length > 0) && (
-                            <div className="sticky top-0 z-40 mb-6 py-4 -mt-4 bg-gray-50/95 dark:bg-dark-950/95 backdrop-blur-sm flex flex-col lg:flex-row items-center justify-between gap-4 shrink-0 transition-all duration-200">
-                                {/* Page Specific Toolbar (Filters/Tabs) */}
-                                <div className="flex-1 w-full lg:w-auto overflow-hidden">
+                    <div className="flex flex-col min-h-full">
+                        {/* 1. Top Filter Toolbar (Sticky) */}
+                        {toolbar && (
+                            <div className="sticky top-0 z-40 py-4 px-0 bg-emerald-500/[0.03] dark:bg-emerald-500/[0.08] backdrop-blur-2xl border-b border-emerald-500/20 dark:border-emerald-500/10 shadow-xl shadow-emerald-500/[0.02] flex items-center shrink-0 transition-all duration-500 overflow-hidden relative group">
+                                {/* Decorative Accent Lines */}
+                                <div className="absolute top-0 right-1/4 w-32 h-px bg-gradient-to-r from-transparent via-emerald-500/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
+                                <div className="absolute bottom-[-1px] left-1/3 w-64 h-px bg-gradient-to-r from-transparent via-emerald-500/20 to-transparent" />
+
+                                <div className="flex-1 w-full relative z-10 px-4 lg:px-8">
                                     {toolbar}
                                 </div>
+                            </div>
+                        )}
 
-                                {/* Global Actions (Buttons) */}
-                                <div className="flex items-center gap-3 shrink-0 self-end lg:self-auto">
+                        <div className={`flex-1 ${noPadding ? 'p-0' : 'px-0 lg:px-8 py-6 lg:py-8'}`}>
+                            {children}
+                        </div>
+
+                        {/* Pagination Portal Anchor */}
+                        <div id="table-pagination-portal" className={`flex items-center mt-auto ${noPadding ? 'p-4 lg:p-8' : 'px-0 py-4'}`} />
+
+                        {/* 2. Bottom Action Toolbar (Sticky) */}
+                        {(primaryAction || extraActions.length > 0) && (
+                            <div className="sticky bottom-0 z-40 h-[70px] lg:h-[90px] px-0 bg-emerald-500/[0.03] dark:bg-emerald-500/[0.08] backdrop-blur-2xl border-t border-emerald-500/20 dark:border-emerald-500/10 shadow-[0_-10px_40px_rgba(16,185,129,0.08)] flex items-center shrink-0 transition-all duration-500 overflow-hidden relative group">
+                                {/* Decorative Accent Lines (Mirrored) */}
+                                <div className="absolute bottom-0 right-1/4 w-32 h-px bg-gradient-to-r from-transparent via-emerald-500/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
+                                <div className="absolute top-[-1px] left-1/3 w-64 h-px bg-gradient-to-r from-transparent via-emerald-500/20 to-transparent" />
+
+                                <div className="flex items-center justify-center lg:justify-end gap-3 shrink-0 w-full relative z-10 px-4 lg:px-8">
                                     {extraActions.map((action, idx) => (
                                         <Button
                                             key={idx}
@@ -95,21 +114,9 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
                                 </div>
                             </div>
                         )}
-
-                        <div className="flex-1">
-                            {children}
-                        </div>
-
-                        {/* Pagination Portal Anchor */}
-                        <div id="table-pagination-portal" className="flex items-center mt-auto pt-4" />
                     </div>
 
-                    {/* Bottom Banners (Trial etc) */}
-                    {banners && (
-                        <div className="sticky bottom-0 left-0 right-0 z-40">
-                            {banners}
-                        </div>
-                    )}
+
                 </main>
             </div>
         </div>

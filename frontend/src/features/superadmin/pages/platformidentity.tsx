@@ -430,7 +430,6 @@ export default function PlatformIdentity() {
             noPadding={true}
             toolbar={
                 <Toolbar
-                    title="خيارات الهوية"
                     activeValue={activeTab}
                     onChange={(val) => setActiveTab(val as TabType)}
                     variant="pills"
@@ -446,7 +445,7 @@ export default function PlatformIdentity() {
                 />
             }
         >
-            <div className="flex flex-col h-full w-full max-w-[1600px] mx-auto bg-white dark:bg-dark-950 shadow-sm border-x border-gray-100/50 dark:border-white/5">
+            <div className="flex flex-col h-full w-full bg-white dark:bg-dark-950 shadow-sm border-x border-gray-100/50 dark:border-white/5">
                 <div className="flex-1 bg-gray-50/50 dark:bg-dark-900/50">
                     {activeTab === 'identity' && <IdentityTab />}
                     {activeTab === 'css' && <CSSSettings />}

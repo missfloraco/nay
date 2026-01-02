@@ -41,37 +41,35 @@ export default function TrialBanner() {
             };
 
     return (
-        <div className={`w-full h-[61px] shrink-0 ${theme.bg} text-white px-6 flex items-center justify-between gap-4 overflow-hidden shadow-[0_-4px_20px_rgba(0,0,0,0.1)] relative group`}>
+        <div className={`w-full overflow-hidden rounded-2xl ${theme.bg} text-white p-4 relative group shadow-lg shadow-emerald-500/10`}>
             {/* Decoration */}
-            <div className="absolute top-0 right-0 w-64 h-full bg-white/10 -skew-x-12 translate-x-32 group-hover:translate-x-24 transition-transform duration-700" />
-            <div className="absolute top-0 right-0 w-32 h-full bg-white/5 -skew-x-12 translate-x-16 group-hover:translate-x-8 transition-transform duration-500" />
+            <div className="absolute top-0 right-0 w-32 h-full bg-white/10 -skew-x-12 translate-x-16 group-hover:translate-x-8 transition-transform duration-700" />
 
-            <div className="flex items-center gap-4 relative z-10 overflow-hidden">
-                {/* Icon Section */}
-                <div className="w-10 h-10 bg-white/20 backdrop-blur-md rounded-xl flex items-center justify-center shrink-0 shadow-inner">
-                    {theme.icon}
-                </div>
-
-                <div className="flex flex-col min-w-0">
-                    <div className="flex items-center gap-2">
-                        <span className="text-[10px] font-black uppercase tracking-widest text-white/70">
+            <div className="relative z-10 space-y-3">
+                <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-white/20 backdrop-blur-md rounded-lg flex items-center justify-center shrink-0">
+                        {React.cloneElement(theme.icon as React.ReactElement, { className: 'w-4 h-4 text-white' })}
+                    </div>
+                    <div className="min-w-0">
+                        <span className="text-[10px] font-black uppercase tracking-widest text-white/70 block leading-none mb-1">
                             {theme.label}
                         </span>
-                        {!isTrialExpired && <Sparkles className="w-3 h-3 text-white/50" />}
+                        {!isTrialExpired && <Sparkles className="w-3 h-3 text-white/50 absolute top-0 left-0" />}
                     </div>
-                    <p className="text-[13px] font-black leading-tight truncate max-w-[600px]">
-                        {theme.message}
-                    </p>
                 </div>
-            </div>
 
-            <button
-                onClick={() => navigate('/app/plans')}
-                className={`relative z-10 shrink-0 h-10 px-6 ${theme.btn} rounded-xl text-xs font-black hover:scale-105 active:scale-95 transition-all flex items-center gap-3 shadow-lg hover:shadow-xl`}
-            >
-                <span>الاشتراك الآن</span>
-                <ArrowRight className="w-4 h-4" />
-            </button>
+                <p className="text-[11px] font-bold leading-relaxed opacity-90">
+                    {theme.message}
+                </p>
+
+                <button
+                    onClick={() => navigate('/app/plans')}
+                    className={`w-full h-9 flex items-center justify-center gap-2 ${theme.btn} rounded-xl text-[10px] font-black hover:scale-[1.02] active:scale-95 transition-all shadow-md`}
+                >
+                    <span>الاشتراك الآن</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+            </div>
         </div>
     );
 }

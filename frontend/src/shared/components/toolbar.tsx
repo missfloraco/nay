@@ -38,7 +38,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
     };
 
     return (
-        <div className="flex items-center gap-2 animate-in fade-in slide-in-from-bottom-2 duration-300 w-full">
+        <div className="flex items-center gap-2 w-full animate-in fade-in slide-in-from-bottom-2 duration-300">
             {/* Scroll Button (Right/Next in RTL context) */}
             {showScrollButtons && (
                 <button
@@ -64,7 +64,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
                                 key={option.id}
                                 onClick={() => onChange(option.id)}
                                 className={`flex items-center gap-4 px-4 py-2.5 transition-all font-bold text-sm whitespace-nowrap relative group shrink-0 rounded-xl
-                                ${isActive
+                                    ${isActive
                                         ? 'bg-primary text-white shadow-lg z-10'
                                         : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900 dark:hover:text-white'
                                     }`}

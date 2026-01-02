@@ -229,7 +229,6 @@ export default function SupportTicketsPage() {
             noPadding={false}
             toolbar={
                 <Toolbar
-                    title="تصفية التذاكر"
                     activeValue={statusFilter}
                     onChange={setStatusFilter}
                     options={[

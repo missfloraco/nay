@@ -69,8 +69,8 @@ export default function PaymentMethods() {
 
     return (
         <AdminLayout title="إعدادات طرق الدفع" icon={CreditCard} noPadding={true}>
-            <div className="w-full max-w-[1600px] mx-auto bg-transparent animate-in fade-in duration-500">
-                <div className="space-y-12 w-full">
+            <div className="w-full bg-transparent animate-in fade-in duration-500">
+                <div className="space-y-12 w-full p-8">
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-gray-100 dark:border-dark-800 pb-8">
                         <div className="flex items-center gap-6 group">
                             <div className="p-4 bg-emerald-50 dark:bg-emerald-900/10 rounded-[2rem] text-emerald-600 shadow-inner group-hover:scale-110 transition-transform">

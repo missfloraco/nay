@@ -26,12 +26,14 @@ interface SidebarProps {
     items: NavItem[];
     secondaryItems?: NavItem[];
     homePath: string;
+    banners?: React.ReactNode;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
     items,
     secondaryItems = [],
-    homePath
+    homePath,
+    banners
 }) => {
     const { settings } = useSettings();
     const { isSidebarCollapsed, toggleSidebar, setSidebarCollapsed, isMobileMenuOpen, closeMobileMenu } = useUI();
@@ -143,7 +145,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             >
 
                 {/* 1. Top Section: Branding */}
-                <div className="h-[90px] flex items-center shrink-0 border-b border-gray-100 dark:border-white/5 transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]">
+                <div className="h-[70px] lg:h-[90px] flex items-center shrink-0 border-b border-gray-100 dark:border-white/5 transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]">
                     <Link to={homePath} className="flex items-center group overflow-hidden transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]">
                         {/* Fixed Logo Anchor */}
                         <div className="w-[88px] flex items-center justify-center shrink-0">
@@ -157,7 +159,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                         </div>
 
                         {/* Dynamic App Name */}
-                        <span className={`text-lg font-black text-gray-900 dark:text-white truncate transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] whitespace-nowrap overflow-hidden ${isSidebarCollapsed ? 'max-w-0 opacity-0 invisible' : 'max-w-full opacity-100 visible'}`}>
+                        <span className={`text-lg lg:text-xl font-black text-gray-900 dark:text-white truncate transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] whitespace-nowrap overflow-hidden tracking-tight ${isSidebarCollapsed ? 'max-w-0 opacity-0 invisible' : 'max-w-full opacity-100 visible'}`}>
                             {settings.appName}
                         </span>
                     </Link>
@@ -180,17 +182,24 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 )}
 
                 {/* 3. Bottom Section: Controls & Profile */}
-                <div className="shrink-0 border-t border-gray-100 dark:border-white/5 pb-6 pt-2">
+                <div className="shrink-0">
+                    {/* Optional Banners (Fixed in Sidebar) */}
+                    {banners && (
+                        <div className={`p-4 transition-all duration-500 ${isSidebarCollapsed ? 'opacity-0 invisible' : 'opacity-100 visible'}`}>
+                            {banners}
+                        </div>
+                    )}
+
                     {/* Collapse Toggle - Icon Only, Centered, Hidden on Mobile */}
-                    <div className="hidden lg:flex justify-center mb-2">
+                    <div className="hidden lg:flex justify-center py-2">
                         <button
                             onClick={() => {
                                 toggleSidebar();
                             }}
-                            className="flex items-center justify-center h-12 w-12 rounded-2xl text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] group relative"
+                            className="flex items-center justify-center h-12 w-12 rounded-2xl transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] group relative"
                         >
-                            <div className="w-10 h-10 rounded-full bg-gray-50 dark:bg-white/5 flex items-center justify-center transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] group-hover:scale-110 group-hover:bg-gray-100 dark:group-hover:bg-white/10">
-                                {isSidebarCollapsed ? <ChevronLeft className="w-5 h-5 text-gray-400" /> : <ChevronRight className="w-5 h-5 text-gray-400" />}
+                            <div className="w-10 h-10 rounded-full bg-primary/10 dark:bg-primary/20 flex items-center justify-center transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] group-hover:scale-110 group-hover:bg-primary/20 dark:group-hover:bg-primary/30 group-hover:shadow-lg group-hover:shadow-primary/20">
+                                {isSidebarCollapsed ? <ChevronLeft className="w-5 h-5 text-primary" /> : <ChevronRight className="w-5 h-5 text-primary" />}
                             </div>
 
                             {isSidebarCollapsed && (
@@ -202,11 +211,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
                         </button>
                     </div>
 
-                    {/* User Profile Section - Now at Bottom */}
-                    <div className="relative" ref={userMenuRef}>
+                    {/* User Profile Section - Now at Bottom (Mirrors Branding Height) */}
+                    <div className="relative border-t border-gray-100 dark:border-white/5 h-[70px] lg:h-[90px] flex items-center" ref={userMenuRef}>
                         <button
                             onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                            className="flex items-center w-full h-12 transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] rounded-2xl group hover:bg-gray-50 dark:hover:bg-white/5"
+                            className="flex items-center w-full h-full transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] group hover:bg-gray-50 dark:hover:bg-white/5"
                         >
                             {/* Fixed Avatar Anchor */}
                             <div className="w-[88px] flex items-center justify-center shrink-0">

@@ -209,7 +209,6 @@ const SupportMessages = () => {
             noPadding={false}
             toolbar={
                 <Toolbar
-                    title="تصفية الرسائلك"
                     activeValue={statusFilter}
                     onChange={setStatusFilter}
                     options={[

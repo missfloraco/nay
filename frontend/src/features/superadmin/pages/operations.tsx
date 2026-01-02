@@ -67,9 +67,8 @@ export default function OperationsPage() {
             icon={activeTab === 'tenants' ? Users : activeTab === 'payments' ? Wallet : AlertCircle}
             noPadding={true}
             toolbar={
-                <div className="flex flex-col lg:flex-row lg:items-center gap-4 w-full">
+                <>
                     <Toolbar
-                        title="تصفية العمليات"
                         activeValue={activeTab}
                         onChange={(val) => handleTabChange(val as 'tenants' | 'payments' | 'requests')}
                         variant="pills"
@@ -82,7 +81,7 @@ export default function OperationsPage() {
 
                     {/* Conditional select for payments tab */}
                     {activeTab === 'payments' && (
-                        <div className="flex items-center gap-3 w-full lg:w-auto lg:min-w-[300px] animate-in fade-in slide-in-from-left-4 duration-300">
+                        <div className="flex items-center gap-3 w-full lg:w-auto lg:min-w-[300px] animate-in fade-in slide-in-from-left-4 duration-300 px-2 lg:px-0">
                             <div className="relative w-full">
                                 <User className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 z-10" />
                                 <select
@@ -106,11 +105,10 @@ export default function OperationsPage() {
                             </div>
                         </div>
                     )}
-                </div>
+                </>
             }
         >
-            <div className="flex flex-col h-full w-full max-w-[1600px] mx-auto bg-white dark:bg-dark-950 shadow-sm border-x border-gray-100/50 dark:border-white/5">
-                {/* Content Area */}
+            <div className="flex flex-col h-full w-full bg-white dark:bg-dark-950 shadow-sm border-x border-gray-100/50 dark:border-white/5">
                 <div className="flex-1 bg-gray-50/50 dark:bg-dark-900/50">
                     {activeTab === 'tenants' ? (
                         <TenantsTable />
