@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { formatDate, resolveAssetUrl } from '@/shared/utils/helpers';
 import { useTrialStatus } from '@/core/hooks/usetrialstatus';
+import TrialBanner from '@/features/tenant/components/trial-banner';
 
 export default function WelcomePage() {
     const location = useLocation();
@@ -78,108 +79,7 @@ export default function WelcomePage() {
                 <main className="relative z-10 flex-1 flex flex-col min-h-0 overflow-hidden">
                     <div className="flex-1 max-w-[1600px] w-full mx-auto p-4 lg:p-8 flex flex-col justify-evenly space-y-4 text-right h-full">
 
-                        {/* Call-to-Action Banners (Moved from Dashboard) */}
-                        {!isAdmin && tenant && (
-                            <div className="shrink-0">
-                                {/* Bonus Trial Banner - Gift Version */}
-                                {!isActive && !tenant.trial_bonus_applied && (
-                                    <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-700 p-6 md:p-8 text-white shadow-xl animate-in fade-in slide-in-from-top-4 duration-1000 min-h-[180px] flex items-center mb-6">
-                                        <div className="absolute top-0 right-0 -mr-20 -mt-20 w-80 h-80 bg-white/10 rounded-full blur-3xl animate-pulse"></div>
-                                        <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 bg-cyan-400/20 rounded-full blur-3xl animate-pulse delay-700"></div>
 
-                                        <div className="relative z-10 w-full flex flex-col lg:flex-row items-center justify-between gap-6">
-                                            <div className="flex flex-col md:flex-row items-center gap-6 text-center md:text-right">
-                                                <div className="relative shrink-0">
-                                                    <div className="w-16 h-16 bg-white/20 backdrop-blur-xl rounded-2xl flex items-center justify-center shadow-inner border border-white/30 transition-transform hover:scale-110">
-                                                        <Sparkles className="w-8 h-8 text-white animate-pulse" />
-                                                    </div>
-                                                    <div className="absolute -top-2 -left-2 w-7 h-7 bg-orange-500 rounded-full border-2 border-white flex items-center justify-center shadow-lg">
-                                                        <span className="text-white text-[10px] font-black">+7</span>
-                                                    </div>
-                                                </div>
-
-                                                <div className="space-y-1">
-                                                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/20 backdrop-blur-md rounded-full text-[9px] font-black tracking-widest uppercase border border-white/10">
-                                                        <Zap className="w-2.5 h-2.5 fill-current text-yellow-300" />
-                                                        مكافأة حصرية
-                                                    </div>
-                                                    <h3 className="text-xl md:text-2xl font-black leading-tight">
-                                                        هديتك بانتظارك: <span className="underline decoration-orange-400 decoration-2 underline-offset-4">7 أيام مجاناً!</span> 🎁
-                                                    </h3>
-                                                    <p className="text-white/80 font-bold text-xs md:text-sm max-w-lg leading-relaxed">
-                                                        أضف لمستك الشخصية! قم برفع صورتك وإضافة رقم الواتساب لتمديد فترة تجربتك فوراً.
-                                                    </p>
-                                                </div>
-                                            </div>
-
-                                            <button
-                                                onClick={() => window.location.href = '/app/settings'}
-                                                className="shrink-0 group px-6 py-3 bg-white text-blue-700 rounded-xl font-black text-sm md:text-base hover:bg-blue-50 active:scale-95 transition-all shadow-xl flex items-center gap-2"
-                                            >
-                                                <span>أكمل الملف الآن</span>
-                                                <ArrowRight className="w-4 h-4 group-hover:translate-x-2 transition-transform transform rtl:rotate-180" />
-                                            </button>
-                                        </div>
-                                    </div>
-                                )}
-
-                                {/* Active Subscription Banner - Welcome Version */}
-                                {(isActive || (isTrialActive && tenant.trial_bonus_applied)) && !isBannerDismissed && (
-                                    <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-700 p-6 md:p-8 text-white shadow-xl animate-in fade-in slide-in-from-top-4 duration-1000 min-h-[180px] flex items-center mb-6">
-                                        <button
-                                            onClick={dismissBanner}
-                                            className="absolute top-4 left-4 p-1.5 bg-white/10 hover:bg-white/20 rounded-lg text-white/60 hover:text-white transition-all z-20 group"
-                                            title="إغلاق للأبد"
-                                        >
-                                            <X className="w-4 h-4 group-hover:rotate-90 transition-transform duration-300" />
-                                        </button>
-                                        <div className="absolute top-0 right-0 -mr-20 -mt-20 w-80 h-80 bg-white/10 rounded-full blur-3xl animate-pulse"></div>
-                                        <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 bg-emerald-400/20 rounded-full blur-3xl animate-pulse delay-700"></div>
-
-                                        <div className="relative z-10 w-full flex flex-col lg:flex-row items-center justify-between gap-6">
-                                            <div className="flex flex-col md:flex-row items-center gap-6 text-center md:text-right">
-                                                <div className="relative shrink-0">
-                                                    <div className="w-16 h-16 bg-white/20 backdrop-blur-xl rounded-2xl flex items-center justify-center shadow-inner border border-white/30 transition-transform hover:scale-110">
-                                                        <ShieldCheck className="w-8 h-8 text-white animate-pulse" />
-                                                    </div>
-                                                    <div className="absolute -top-2 -left-2 w-7 h-7 bg-emerald-400 rounded-full border-2 border-white flex items-center justify-center shadow-lg">
-                                                        <CheckCircle className="w-4 h-4 text-white" />
-                                                    </div>
-                                                </div>
-
-                                                <div className="space-y-1">
-                                                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/20 backdrop-blur-md rounded-full text-[9px] font-black tracking-widest uppercase border border-white/10">
-                                                        <Zap className="w-2.5 h-2.5 fill-current text-emerald-300" />
-                                                        حساب مفعل - اشتراك نشط
-                                                    </div>
-                                                    <h3 className="text-xl md:text-2xl font-black leading-tight">
-                                                        اشتراكك <span className="underline decoration-emerald-300 decoration-2 underline-offset-4">نشط بالكامل</span> ومؤمن 🛡️
-                                                    </h3>
-                                                    <p className="text-white/80 font-bold text-xs md:text-sm max-w-lg leading-relaxed">
-                                                        بإمكانك الآن الاستمتاع بكافة مزايا النظام الاحترافية. شكراً لثقتك بنا.
-                                                    </p>
-                                                </div>
-                                            </div>
-
-                                            <div className="flex flex-col sm:flex-row gap-3">
-                                                <div className="text-center px-4 py-3 bg-white/10 backdrop-blur-md rounded-xl border border-white/20 shadow-xl min-w-[120px]">
-                                                    <div className="text-[8px] font-black text-white/60 uppercase tracking-widest mb-1">بدأ في</div>
-                                                    <div className="text-base font-black text-white">
-                                                        {formatDate(tenant.subscription_started_at || tenant.created_at)}
-                                                    </div>
-                                                </div>
-                                                <div className="text-center px-4 py-3 bg-white/20 backdrop-blur-md rounded-xl border border-white/30 shadow-2xl min-w-[120px]">
-                                                    <div className="text-[8px] font-black text-white/60 uppercase tracking-widest mb-1 text-emerald-100">ينتهي في</div>
-                                                    <div className="text-base font-black text-emerald-300">
-                                                        {formatDate(tenant.subscription_ends_at || tenant.trial_expires_at)}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-                        )}
 
                         {/* 1. Slim Greeting Section */}
                         <div className="space-y-4 shrink-0">
@@ -249,6 +149,11 @@ export default function WelcomePage() {
                             ) : (
                                 /* TENANT VIEW: Modern Bento Grid */
                                 <div className="grid grid-cols-1 md:grid-cols-12 gap-6 h-full auto-rows-[minmax(100px,auto)]">
+
+                                    {/* NEW: Dedicated Trial Banner as a Bento Card */}
+                                    <div className="md:col-span-12 shrink-0">
+                                        <TrialBanner />
+                                    </div>
 
                                     {/* Main Identity Card - Large Block */}
                                     <div className="md:col-span-8 md:row-span-2 relative overflow-hidden rounded-[2.5rem] bg-white dark:bg-dark-900 border border-gray-100 dark:border-white/5 shadow-2xl shadow-gray-200/50 dark:shadow-black/20 group">

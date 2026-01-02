@@ -6,7 +6,6 @@ import { useText } from '@/shared/contexts/text-context';
 import { useAction } from '@/shared/contexts/action-context';
 import { DashboardLayout } from '@/shared/layout/dashboard-layout';
 import { ImpersonationBanner } from '@/shared/components/impersonationbanner';
-import TrialBanner from '@/features/tenant/components/trial-banner';
 import api from '@/shared/services/api';
 import { logger } from '@/shared/services/logger';
 
@@ -65,10 +64,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, title, noPadding = fals
             primaryAction={primaryAction}
             extraActions={extraActions}
             banners={
-                <>
-                    <ImpersonationBanner tenantName={tenant?.name || '...'} onExit={handleExitImpersonation} />
-                    <TrialBanner />
-                </>
+                <ImpersonationBanner tenantName={tenant?.name || '...'} onExit={handleExitImpersonation} />
             }
         >
             {children}

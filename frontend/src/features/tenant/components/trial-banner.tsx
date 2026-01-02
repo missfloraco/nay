@@ -1,44 +1,65 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTrialStatus } from '@/core/hooks/usetrialstatus';
-import { Clock, Zap, ArrowRight, Sparkles } from 'lucide-react';
+import { useTenantAuth } from '@/features/auth/tenant-auth-context';
+import { Clock, Zap, ArrowRight, Sparkles, ShieldCheck, CheckCircle } from 'lucide-react';
 
 export default function TrialBanner() {
     const navigate = useNavigate();
-    const { isTrialActive, daysRemaining, isTrialExpired } = useTrialStatus();
+    const { isTrialActive, daysRemaining, isTrialExpired, isActive } = useTrialStatus();
+    const { tenant } = useTenantAuth();
 
-    // Forced display for development/design verification (Demo Mode)
-    // To restore strict behavior later, uncomment the line below:
-    // if (!isTrialActive && !isTrialExpired) return null;
+    if (!tenant) return null;
 
-    // Use actual days if available, otherwise fallback to 7 for demo
-    const effectiveDays = (isTrialActive || isTrialExpired) ? daysRemaining : 7;
-    const isUrgent = isTrialActive && effectiveDays <= 3;
+    // 1. Bonus Eligible State
+    const isBonusEligible = !isActive && !tenant.trial_bonus_applied;
 
     // Status-specific themes
-    const theme = isTrialExpired
-        ? {
+    let theme;
+
+    if (isActive) {
+        theme = {
+            bg: 'bg-emerald-600',
+            icon: <ShieldCheck className="w-5 h-5 animate-pulse" />,
+            label: 'حساب مفعل',
+            message: 'اشتراكك نشط بالكامل ومؤمن. شكراً لثقتك بنا وبخدماتنا.',
+            btn: 'bg-white text-emerald-600',
+            btnLabel: 'إدارة الباقة'
+        };
+    } else if (isTrialExpired) {
+        theme = {
             bg: 'bg-red-600',
             icon: <Zap className="w-5 h-5 animate-pulse" />,
             label: 'انتهت الفترة التجريبية',
             message: 'لقد انتهت فترة تجربتك المجانية. اشترك الآن لمتابعة استخدام المميزات الرائعة.',
-            btn: 'bg-white text-red-600'
-        }
-        : isUrgent
-            ? {
-                bg: 'bg-amber-600',
-                icon: <Zap className="w-5 h-5 animate-pulse" />,
-                label: 'اشتراكك ينتهي قريباً',
-                message: `متبقي ${daysRemaining === 0 ? 'أقل من يوم' : `${daysRemaining} أيام`} فقط. سارع بتجديد اشتراكك لضمان استمرار الخدمة.`,
-                btn: 'bg-white text-amber-600'
-            }
-            : {
-                bg: 'bg-primary',
-                icon: <Clock className="w-5 h-5" />,
-                label: 'الفترة التجريبية',
-                message: `أنت الآن في الفترة التجريبية (${effectiveDays} أيام متبقية). أكمل بياناتك واحصل على 7 أيام إضافية!`,
-                btn: 'bg-white text-primary'
-            };
+            btn: 'bg-white text-red-600',
+            btnLabel: 'الاشتراك الآن'
+        };
+    } else if (isBonusEligible) {
+        theme = {
+            bg: 'bg-indigo-600',
+            icon: <Sparkles className="w-5 h-5 animate-pulse" />,
+            label: 'مكافأة حصرية بانتظارك',
+            message: 'أكمل إعدادات ملفك الشخصي (الصورة ورقم الواتساب) واحصل على 7 أيام إضافية مجاناً!',
+            btn: 'bg-white text-indigo-600',
+            btnLabel: 'أكمل الملف الآن',
+            path: '/app/settings'
+        };
+    } else {
+        const isUrgent = daysRemaining <= 3;
+        theme = {
+            bg: isUrgent ? 'bg-amber-600' : 'bg-primary',
+            icon: isUrgent ? <Zap className="w-5 h-5 animate-pulse" /> : <Clock className="w-5 h-5" />,
+            label: isUrgent ? 'اشتراكك ينتهي قريباً' : 'الفترة التجريبية',
+            message: isUrgent
+                ? `متبقي ${daysRemaining === 0 ? 'أقل من يوم' : `${daysRemaining} أيام`} فقط. سارع بتجديد اشتراكك لضمان استمرار الخدمة.`
+                : `أنت الآن في الفترة التجريبية (${daysRemaining} أيام متبقية). اشترك الآن للحصول على مميزات غير محدودة.`,
+            btn: 'bg-white text-primary',
+            btnLabel: 'الاشتراك الآن'
+        };
+    }
+
+    const effectivePath = theme.path || '/app/plans';
 
     return (
         <div className={`w-full overflow-hidden rounded-2xl ${theme.bg} text-white p-4 relative group shadow-lg shadow-emerald-500/10`}>
@@ -63,11 +84,11 @@ export default function TrialBanner() {
                 </p>
 
                 <button
-                    onClick={() => navigate('/app/plans')}
-                    className={`w-full h-9 flex items-center justify-center gap-2 ${theme.btn} rounded-xl text-[10px] font-black hover:scale-[1.02] active:scale-95 transition-all shadow-md`}
+                    onClick={() => navigate(effectivePath)}
+                    className={`w-full h-11 flex items-center justify-center gap-2 ${theme.btn} rounded-xl text-xs font-black hover:scale-[1.02] active:scale-95 transition-all shadow-md`}
                 >
-                    <span>الاشتراك الآن</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
+                    <span>{theme.btnLabel}</span>
+                    <ArrowRight className="w-4 h-4 rtl:rotate-180" />
                 </button>
             </div>
         </div>

@@ -189,6 +189,14 @@ Route::prefix('admin')->group(function () {
 
         Route::post('/preferences', [App\Http\Controllers\Admin\ProfileController::class, 'updatePreferences']);
 
+        // Notification Management
+        Route::prefix('notifications')->group(function () {
+            Route::get('/', [App\Http\Controllers\Shared\NotificationController::class, 'index']);
+            Route::post('/{id}/read', [App\Http\Controllers\Shared\NotificationController::class, 'markAsRead']);
+            Route::post('/read-all', [App\Http\Controllers\Shared\NotificationController::class, 'markAllAsRead']);
+            Route::delete('/{id}', [App\Http\Controllers\Shared\NotificationController::class, 'destroy']);
+        });
+
         Route::post('/logout', function (Request $request) {
             if ($request->user()) {
                 $request->user()->currentAccessToken()->delete();
@@ -272,6 +280,14 @@ Route::prefix('app')->group(function () {
         Route::get('/subscription/plans', [App\Http\Controllers\Tenant\SubscriptionController::class, 'plans']);
         Route::get('/subscription/current', [App\Http\Controllers\Tenant\SubscriptionController::class, 'current']);
         Route::post('/subscription/request', [App\Http\Controllers\Tenant\SubscriptionController::class, 'requestUpgrade']);
+
+        // Notification Management
+        Route::prefix('notifications')->group(function () {
+            Route::get('/', [App\Http\Controllers\Shared\NotificationController::class, 'index']);
+            Route::post('/{id}/read', [App\Http\Controllers\Shared\NotificationController::class, 'markAsRead']);
+            Route::post('/read-all', [App\Http\Controllers\Shared\NotificationController::class, 'markAllAsRead']);
+            Route::delete('/{id}', [App\Http\Controllers\Shared\NotificationController::class, 'destroy']);
+        });
 
         Route::post('/logout', [App\Http\Controllers\Tenant\AuthController::class, 'logout']);
     });

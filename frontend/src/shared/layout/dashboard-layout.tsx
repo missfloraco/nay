@@ -62,7 +62,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
                     <div className="flex flex-col min-h-full">
                         {/* 1. Top Filter Toolbar (Sticky) */}
                         {toolbar && (
-                            <div className="sticky top-0 z-40 py-4 px-0 bg-emerald-500/[0.03] dark:bg-emerald-500/[0.08] backdrop-blur-2xl border-b border-emerald-500/20 dark:border-emerald-500/10 shadow-xl shadow-emerald-500/[0.02] flex items-center shrink-0 transition-all duration-500 overflow-hidden relative group">
+                            <div className="sticky top-0 z-40 h-[70px] lg:h-[90px] px-0 bg-emerald-500/[0.03] dark:bg-emerald-500/[0.08] backdrop-blur-2xl border-b border-emerald-500/20 dark:border-emerald-500/10 shadow-xl shadow-emerald-500/[0.02] flex items-center shrink-0 transition-all duration-500 overflow-hidden relative group">
                                 {/* Decorative Accent Lines */}
                                 <div className="absolute top-0 right-1/4 w-32 h-px bg-gradient-to-r from-transparent via-emerald-500/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
                                 <div className="absolute bottom-[-1px] left-1/3 w-64 h-px bg-gradient-to-r from-transparent via-emerald-500/20 to-transparent" />
