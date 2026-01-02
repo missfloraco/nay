@@ -200,13 +200,25 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ childr
             const isAdmin = window.location.pathname.startsWith('/admin');
             const prefix = isAdmin ? '/admin' : '/app';
             await api.delete(`${prefix}/notifications/${id}`);
+            
+            // Success path
             setNotifications(prev => prev.filter(n => n.id !== id));
-            // Update unread count if it was unread
+            
             const deleted = notifications.find(n => n.id === id);
             if (deleted && !deleted.is_read) {
                 setUnreadCount(prev => Math.max(0, prev - 1));
             }
-        } catch (error) {
+        } catch (error: any) {
+            // If 404, it means it's already gone from server (ghost notification)
+            // So we should remove it from UI as well
+            if (error?.response?.status === 404 || error?.status === 404) {
+                setNotifications(prev => prev.filter(n => n.id !== id));
+                 const deleted = notifications.find(n => n.id === id);
+                if (deleted && !deleted.is_read) {
+                    setUnreadCount(prev => Math.max(0, prev - 1));
+                }
+                return;
+            }
             logger.error('Failed to delete notification', error);
         }
     };

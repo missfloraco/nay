@@ -25,7 +25,8 @@ class VerificationCodeMail extends Mailable
      */
     public function build()
     {
-        return $this->subject('رمز التحقق الخاص بك - Nay')
+        $appName = config('app.name');
+        return $this->subject("رمز التحقق الخاص بك - {$appName}")
             ->view('emails.verification_code');
     }
 }
