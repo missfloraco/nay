@@ -47,6 +47,15 @@ class SubscriptionRequestController extends Controller
             // Update tenant status if needed
             $tenant->update(['status' => 'active']);
 
+            // Notify Tenant about approval
+            $tenant->notify(new \App\Notifications\SystemNotification([
+                'title' => 'تم تفعيل اشتراكك',
+                'message' => 'تهانينا! تم الموافقة على طلب اشتراكك في باقة ' . ($plan->name ?? '') . ' بنجاح.',
+                'level' => 'success',
+                'action_url' => '/app/settings',
+                'icon' => 'CheckCircle'
+            ]));
+
             DB::commit();
             return response()->json(['message' => 'تم الموافقة على الاشتراك بنجاح']);
         } catch (\Exception $e) {
@@ -61,6 +70,17 @@ class SubscriptionRequestController extends Controller
             'status' => 'rejected',
             'admin_notes' => $request->admin_notes
         ]);
+
+        // Notify Tenant about rejection
+        $tenant = $subRequest->tenant;
+        $tenant->notify(new \App\Notifications\SystemNotification([
+            'title' => 'تم رفض طلب الاشتراك',
+            'message' => 'نعتذر، لقد تم رفض طلب اشتراكك. السبب: ' . ($request->admin_notes ?? 'غير محدد'),
+            'level' => 'error',
+            'action_url' => '/app/plans',
+            'icon' => 'XCircle'
+        ]));
+
         return response()->json(['message' => 'تم رفض الطلب']);
     }
 }

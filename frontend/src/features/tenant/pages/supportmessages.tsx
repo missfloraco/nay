@@ -1,5 +1,6 @@
 ﻿import React, { useState, useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useSearchParams } from 'react-router-dom';
 import api from '@/shared/services/api';
 import AppLayout from './applayout';
 import InputField from '@/shared/ui/forms/input-field';
@@ -12,12 +13,18 @@ import Modal from '@/shared/ui/modals/modal';
 import { useAction } from '@/shared/contexts/action-context';
 import { Toolbar } from '@/shared/components/toolbar';
 import ImagePreview from '@/shared/ui/image-preview';
+import { useNotifications } from '@/shared/contexts/notification-context';
 
 const SupportMessages = () => {
     const queryClient = useQueryClient();
+    const [searchParams, setSearchParams] = useSearchParams();
     const { showSuccess, showError } = useFeedback();
+    const { fetchNotifications } = useNotifications();
     const { setPrimaryAction } = useAction();
-    const [selectedTicketId, setSelectedTicketId] = useState<number | null>(null);
+    const [selectedTicketId, setSelectedTicketId] = useState<number | null>(() => {
+        const id = searchParams.get('ticket_id');
+        return id ? parseInt(id) : null;
+    });
     const [chatMessage, setChatMessage] = useState('');
     const [isCreating, setIsCreating] = useState(false);
     const [statusFilter, setStatusFilter] = useState('all');
@@ -68,7 +75,12 @@ const SupportMessages = () => {
     // Handle Query Errors
     useEffect(() => {
         if (chatError && selectedTicketId) {
-            showError('فشل تحميل بيانات التذكرة. قد تكون محذوفة أو غير موجودة.');
+            const is404 = (chatError as any)?.response?.status === 404;
+            if (is404) {
+                showError('لم يتم العثور على هذه التذكرة، قد تكون حذفت نهائياً.');
+            } else {
+                showError('فشل تحميل بيانات التذكرة.');
+            }
             setSelectedTicketId(null);
         }
     }, [chatError, selectedTicketId, showError]);
@@ -81,9 +93,20 @@ const SupportMessages = () => {
             queryClient.invalidateQueries({ queryKey: ['tenant-ticket', selectedTicketId] });
             queryClient.invalidateQueries({ queryKey: ['active-ticket'] });
             setChatMessage('');
+            // Optional: Scroll to bottom would be nice but we'd need a ref
         },
         onError: () => showError('فشل إرسال الرد')
     });
+
+    // Update URL when ticket changes
+    useEffect(() => {
+        if (selectedTicketId) {
+            setSearchParams({ ticket_id: selectedTicketId.toString() }, { replace: true });
+        } else {
+            searchParams.delete('ticket_id');
+            setSearchParams(searchParams, { replace: true });
+        }
+    }, [selectedTicketId, setSearchParams, searchParams]);
 
     const uploadImageMutation = useMutation({
         mutationFn: async (file: File) => {
@@ -141,6 +164,7 @@ const SupportMessages = () => {
         onSuccess: (data: any) => {
             queryClient.invalidateQueries({ queryKey: ['active-ticket'] });
             queryClient.invalidateQueries({ queryKey: ['tenant-tickets'] });
+            fetchNotifications(); // Refresh Bell Notifications
             showSuccess('تم إنشاء التذكرة بنجاح');
             setIsCreating(false);
             setSelectedTicketId(data.id || data.data?.id);

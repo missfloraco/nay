@@ -139,6 +139,7 @@ Route::prefix('admin')->group(function () {
         Route::post('/tenants', [App\Http\Controllers\Admin\TenantController::class, 'store'])->name('admin.tenants.store');
         Route::put('/tenants/{id}', [App\Http\Controllers\Admin\TenantController::class, 'update'])->name('admin.tenants.update');
         Route::delete('/tenants/{id}', [App\Http\Controllers\Admin\TenantController::class, 'destroy'])->name('admin.tenants.destroy');
+        Route::post('/tenants/{id}/restore', [App\Http\Controllers\Admin\TenantController::class, 'restore'])->name('admin.tenants.restore');
         Route::post('/tenants/{id}/{action}', [App\Http\Controllers\Admin\TenantController::class, 'handleAction'])->name('admin.tenants.action');
 
         // Trash Management Routes
@@ -178,6 +179,7 @@ Route::prefix('admin')->group(function () {
         // Ads Management Routes
         Route::post('ads/toggle-adblock', [App\Http\Controllers\Admin\AdController::class, 'toggleAdBlock']);
         Route::post('ads/upload', [App\Http\Controllers\Admin\AdController::class, 'uploadImage'])->middleware('throttle:5,1');
+        Route::post('ads/{id}/restore', [App\Http\Controllers\Admin\AdController::class, 'restore']);
         Route::apiResource('ads', App\Http\Controllers\Admin\AdController::class);
 
         // Manual Payments
@@ -185,6 +187,7 @@ Route::prefix('admin')->group(function () {
         Route::get('/payments', [PaymentController::class, 'index']);
         Route::get('/tenants/{tenant}/payments', [PaymentController::class, 'getTenantPayments']);
         Route::put('/payments/{payment}', [PaymentController::class, 'update']);
+        Route::post('/payments/{id}/restore', [PaymentController::class, 'restore']);
         Route::delete('/payments/{payment}', [PaymentController::class, 'destroy']);
 
         Route::post('/preferences', [App\Http\Controllers\Admin\ProfileController::class, 'updatePreferences']);
@@ -210,10 +213,12 @@ Route::prefix('admin')->group(function () {
         Route::get('/search', [App\Http\Controllers\Shared\SearchController::class, 'search'])->middleware('throttle:15,1');
 
         // Scripts Management
+        Route::post('scripts/{id}/restore', [App\Http\Controllers\Admin\ScriptController::class, 'restore']);
         Route::apiResource('scripts', App\Http\Controllers\Admin\ScriptController::class);
         Route::post('scripts/{id}/toggle', [App\Http\Controllers\Admin\ScriptController::class, 'toggleStatus']);
 
         // Subscription System
+        Route::post('plans/{id}/restore', [App\Http\Controllers\Admin\PlanController::class, 'restore']);
         Route::apiResource('plans', App\Http\Controllers\Admin\PlanController::class);
         Route::get('/subscription-requests', [App\Http\Controllers\Admin\SubscriptionRequestController::class, 'index']);
         Route::post('/subscription-requests/{subRequest}/approve', [App\Http\Controllers\Admin\SubscriptionRequestController::class, 'approve']);

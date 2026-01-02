@@ -18,7 +18,7 @@ const PLAN_ICONS = {
 
 export default function AdminPlansPage() {
     const queryClient = useQueryClient();
-    const { showToast } = useFeedback();
+    const { showSuccess, showError } = useFeedback();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingPlan, setEditingPlan] = useState<any>(null);
     const [discount, setDiscount] = useState<number>(0);
@@ -39,19 +39,45 @@ export default function AdminPlansPage() {
             : api.post('/admin/plans', data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['admin-plans'] });
-            showToast('تم حفظ الخطة بنجاح', 'success');
+            showSuccess('تم حفظ الخطة بنجاح');
             setIsModalOpen(false);
             setEditingPlan(null);
         }
     });
 
-    const deleteMutation = useMutation({
-        mutationFn: (id: number) => api.delete(`/admin/plans/${id}`),
-        onSuccess: () => {
+    const handleDelete = async (id: number) => {
+        const plan = plans.find((p: any) => p.id === id);
+        if (!plan) return;
+
+        try {
+            // Optimistic update
+            queryClient.setQueryData(['admin-plans'], (old: any) => ({
+                ...old,
+                plans: old.plans.filter((p: any) => p.id !== id)
+            }));
+
+            await api.delete(`/admin/plans/${id}`);
+
+            showSuccess(`تم نقل "${plan.name}" إلى سلة المحذوفات`, {
+                action: {
+                    label: 'تراجع',
+                    onClick: async () => {
+                        try {
+                            await api.post(`/admin/plans/${id}/restore`);
+                            showSuccess(`تم استعادة "${plan.name}" بنجاح`);
+                            queryClient.invalidateQueries({ queryKey: ['admin-plans'] });
+                        } catch (err) {
+                            showError('فشل استعادة الخطة');
+                            queryClient.invalidateQueries({ queryKey: ['admin-plans'] });
+                        }
+                    }
+                }
+            });
+        } catch (error) {
+            showError('فشل حذف الخطة');
             queryClient.invalidateQueries({ queryKey: ['admin-plans'] });
-            showToast('تم حذف الخطة', 'success');
         }
-    });
+    };
 
     const handleOpenModal = (plan: any = null) => {
         setEditingPlan(plan);
@@ -129,7 +155,7 @@ export default function AdminPlansPage() {
                                     <button onClick={() => handleOpenModal(plan)} className="p-3 bg-blue-50 text-blue-600 rounded-2xl hover:bg-blue-600 hover:text-white transition-all shadow-sm">
                                         <Edit2 className="w-4 h-4" />
                                     </button>
-                                    <button onClick={() => deleteMutation.mutate(plan.id)} className="p-3 bg-red-50 text-red-600 rounded-2xl hover:bg-red-600 hover:text-white transition-all shadow-sm">
+                                    <button onClick={() => handleDelete(plan.id)} className="p-3 bg-red-50 text-red-600 rounded-2xl hover:bg-red-600 hover:text-white transition-all shadow-sm">
                                         <Trash2 className="w-4 h-4" />
                                     </button>
                                 </div>

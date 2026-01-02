@@ -14,15 +14,15 @@ class NotificationController extends Controller
     {
         $user = $request->user();
 
+        // Auto-check for Trial Expiry (Notify 24h before) - moved to a more controlled check
+        $this->checkForTrialExpiry($user);
+
         $notifications = $user->notifications()
             ->latest()
             ->paginate(20);
 
         return response()->json([
             'notifications' => $notifications->map(function ($notif) {
-                // Laravel's DatabaseNotification has a toArray method that we custom defined in App\Models\Notification
-                // But wait, $user->notifications() returns DatabaseNotification model instances.
-                // To use our custom Notification model, we can either configure the relationship or manually transform.
                 $payload = is_string($notif->data) ? json_decode($notif->data, true) : $notif->data;
 
                 return [
@@ -81,5 +81,45 @@ class NotificationController extends Controller
         $notification->delete();
 
         return response()->json(['success' => true]);
+    }
+
+    /**
+     * Check for trial expiry and notify user.
+     */
+    private function checkForTrialExpiry($user)
+    {
+        if (!($user instanceof \App\Models\Tenant) || $user->status !== 'trial' || !$user->trial_expires_at) {
+            return;
+        }
+
+        $expiresAt = \Carbon\Carbon::parse($user->trial_expires_at);
+        if (!$expiresAt->isFuture() || $expiresAt->diffInHours(now()) > 24) {
+            return;
+        }
+
+        // Use cache to prevent hammering the DB every few seconds
+        $cacheKey = "trial_expiry_notified_{$user->id}";
+        if (\Cache::has($cacheKey)) {
+            return;
+        }
+
+        // Robust check in DB too
+        $exists = $user->notifications()
+            ->where('type', \App\Notifications\SystemNotification::class)
+            ->where('data', 'like', '%ينتهي الاشتراك التجريبي قريباً%')
+            ->exists();
+
+        if (!$exists) {
+            $user->notify(new \App\Notifications\SystemNotification([
+                'title' => 'ينتهي الاشتراك التجريبي قريباً',
+                'message' => 'باقي أقل من 24 ساعة على انتهاء الفترة التجريبية. اشترك الآن للمتابعة.',
+                'level' => 'warning',
+                'action_url' => '/app/plans',
+                'icon' => 'Clock'
+            ]));
+        }
+
+        // Cache for 12 hours
+        \Cache::put($cacheKey, true, now()->addHours(12));
     }
 }

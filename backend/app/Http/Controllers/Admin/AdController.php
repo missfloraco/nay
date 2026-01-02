@@ -18,9 +18,15 @@ class AdController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        return response()->json(Ad::where('placement', '!=', 'config_adblock')->get());
+        $query = Ad::where('placement', '!=', 'config_adblock');
+
+        if ($request->has('trashed')) {
+            $query->onlyTrashed();
+        }
+
+        return response()->json($query->latest()->get());
     }
 
     /**
@@ -68,10 +74,26 @@ class AdController extends Controller
      */
     public function destroy($id)
     {
-        $ad = Ad::findOrFail($id);
-        $ad->delete();
+        $ad = Ad::withTrashed()->findOrFail($id);
 
-        return response()->json(['message' => 'Ad deleted successfully']);
+        if ($ad->trashed()) {
+            $ad->forceDelete();
+            return response()->json(['message' => 'Ad permanently deleted']);
+        }
+
+        $ad->delete();
+        return response()->json(['message' => 'Ad moved to trash']);
+    }
+
+    /**
+     * Restore a soft-deleted ad.
+     */
+    public function restore($id)
+    {
+        $ad = Ad::onlyTrashed()->findOrFail($id);
+        $ad->restore();
+
+        return response()->json(['message' => 'Ad restored successfully', 'ad' => $ad]);
     }
 
     /**

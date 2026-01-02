@@ -69,13 +69,32 @@ export const ScriptsSettings: React.FC = () => {
     };
 
     const handleDelete = async (id: string) => {
-        if (!window.confirm('هل أنت متأكد من حذف هذا السكربت؟')) return;
+        const script = scripts.find(s => s.id === id);
+        if (!script) return;
+
         try {
+            // Optimistic Update
+            setScripts(prev => prev.filter(s => s.id !== id));
+
             await ScriptService.delete(id);
-            showSuccess('تم الحذف بنجاح');
-            loadScripts();
+            showSuccess(`تم نقل "${script.name}" إلى سلة المحذوفات`, {
+                action: {
+                    label: 'تراجع',
+                    onClick: async () => {
+                        try {
+                            await ScriptService.restore(id);
+                            showSuccess(`تم استعادة "${script.name}" بنجاح`);
+                            loadScripts();
+                        } catch (err) {
+                            showError('فشل استعادة السكربت');
+                            loadScripts();
+                        }
+                    }
+                }
+            });
         } catch (error) {
             showError('فشل الحذف');
+            loadScripts();
         }
     };
 

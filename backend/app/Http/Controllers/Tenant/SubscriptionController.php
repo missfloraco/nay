@@ -64,6 +64,19 @@ class SubscriptionController extends Controller
             'status' => 'pending',
         ]);
 
+        // Notify Admins about new subscription request
+        $admins = \App\Models\Admin::all();
+        $plan = \App\Models\Plan::find($request->plan_id);
+        foreach ($admins as $admin) {
+            $admin->notify(new \App\Notifications\SystemNotification([
+                'title' => 'طلب اشتراك جديد',
+                'message' => 'طلب ' . $tenant->name . ' الترقية إلى باقة: ' . ($plan->name ?? 'غير معروف'),
+                'level' => 'warning',
+                'action_url' => '/admin/subscription-requests',
+                'icon' => 'Zap'
+            ]));
+        }
+
         return response()->json([
             'request' => $subRequest,
             'message' => 'تم إرسال طلب الاشتراك بنجاح. سيتم التواصل معك قريباً لتفعيل الحساب.'

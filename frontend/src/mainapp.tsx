@@ -37,6 +37,7 @@ const ActivationWaiting = lazy(() => import('@/features/tenant/pages/activation-
 
 const Trash = lazy(() => import('@/shared/pages/trash'));
 const WelcomePage = lazy(() => import('@/shared/pages/welcome'));
+const NotificationsPage = lazy(() => import('@/shared/pages/notifications-page'));
 
 import { ProtectedRoute } from '@/shared/components/protectedroute';
 import ScriptInjector from '@/shared/script-injector';
@@ -66,6 +67,7 @@ function AdminRoutes() {
             <Route path="/security" element={<PlatformIdentity />} />
             <Route path="/subscription-requests" element={<OperationsPage />} />
             <Route path="/trash" element={<Trash />} />
+            <Route path="/notifications" element={<NotificationsPage />} />
             <Route path="*" element={<Navigate to="/admin" />} />
         </Routes>
     );
@@ -80,6 +82,7 @@ function AppSubRoutes() {
             <Route path="/support/messages" element={<TenantSupportMessages />} />
             <Route path="/plans" element={<TenantPlans />} />
             <Route path="/trash" element={<Trash />} />
+            <Route path="/notifications" element={<NotificationsPage />} />
             <Route path="*" element={<Navigate to="/app" />} />
         </Routes>
     );
@@ -100,16 +103,19 @@ function LoginRedirector() {
 
 import { useTrialStatus } from '@/core/hooks/usetrialstatus';
 import { FeedbackProvider } from '@/shared/ui/notifications/feedback-context';
+import { NotificationProvider } from '@/shared/contexts/notification-context';
 
 export default function MainApp() {
     return (
         <AdminAuthProvider>
             <TenantAuthProvider>
-                <TextProvider>
-                    <ExportProvider>
-                        <MainAppContent />
-                    </ExportProvider>
-                </TextProvider>
+                <NotificationProvider>
+                    <TextProvider>
+                        <ExportProvider>
+                            <MainAppContent />
+                        </ExportProvider>
+                    </TextProvider>
+                </NotificationProvider>
             </TenantAuthProvider>
         </AdminAuthProvider>
     );

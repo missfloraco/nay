@@ -40,6 +40,11 @@ export const AdsService = {
         return response;
     },
 
+    restore: async (id: number) => {
+        const response = await api.post(`/admin/ads/${id}/restore`);
+        return response;
+    },
+
     toggleAdBlock: async (enabled: boolean) => {
         return api.post('/admin/ads/toggle-adblock', { enabled });
     },

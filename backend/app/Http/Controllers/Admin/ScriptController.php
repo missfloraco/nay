@@ -9,10 +9,15 @@ use Illuminate\Support\Facades\Validator;
 
 class ScriptController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $scripts = Script::latest()->get();
-        return response()->json($scripts);
+        $query = Script::latest();
+
+        if ($request->has('trashed')) {
+            $query->onlyTrashed();
+        }
+
+        return response()->json($query->get());
     }
 
     public function store(Request $request)
@@ -83,9 +88,26 @@ class ScriptController extends Controller
 
     public function destroy($id)
     {
-        $script = Script::findOrFail($id);
+        $script = Script::withTrashed()->findOrFail($id);
+
+        if ($script->trashed()) {
+            $script->forceDelete();
+            return response()->json(['message' => 'تم حذف السكربت نهائياً']);
+        }
+
         $script->delete();
-        return response()->json(['message' => 'تم حذف السكربت بنجاح']);
+        return response()->json(['message' => 'تم نقل السكربت إلى سلة المحذوفات']);
+    }
+
+    /**
+     * Restore a soft-deleted script.
+     */
+    public function restore($id)
+    {
+        $script = Script::onlyTrashed()->findOrFail($id);
+        $script->restore();
+
+        return response()->json(['message' => 'تم استعادة السكربت بنجاح', 'script' => $script]);
     }
 
     public function toggleStatus($id)

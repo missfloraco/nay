@@ -177,20 +177,36 @@ export function TenantDetailsSidebar({ tenant, tenants, onSelect, onUpdate, onNa
 
     const handleDelete = async () => {
         if (!tenant) return;
-        const confirmResult = await showConfirm({
-            title: 'حذف المشترك؟',
-            message: 'سيتم نقل المشترك إلى سلة المحذوفات',
-            isDestructive: true
-        });
-        if (!confirmResult) return;
+
+        // Store tenant info for restore
+        const tenantId = tenant.id;
+        const tenantName = tenant.name;
 
         try {
-            await api.delete(`/admin/tenants/${tenant.id}`);
-            showSuccess(TEXTS_ADMIN.MESSAGES.SUCCESS);
+            // Optimistic Close
+            onSelect(null);
+
+            await api.delete(`/admin/tenants/${tenantId}`);
+
+            showSuccess(`تم نقل "${tenantName}" إلى سلة المحذوفات`, {
+                action: {
+                    label: 'تراجع',
+                    onClick: async () => {
+                        try {
+                            await api.post(`/admin/tenants/${tenantId}/restore`);
+                            showSuccess(`تم استعادة "${tenantName}" بنجاح`);
+                            onUpdate();
+                        } catch (err) {
+                            showError('فشل استعادة المشترك');
+                        }
+                    }
+                }
+            });
+
             onUpdate();
-            onSelect(null); // Close modal on delete
         } catch (error: any) {
             showError(error.response?.data?.message || TEXTS_ADMIN.MESSAGES.ERROR);
+            onUpdate(); // Restore UI state by re-fetching if error
         }
     };
 

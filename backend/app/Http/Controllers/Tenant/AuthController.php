@@ -102,6 +102,18 @@ class AuthController extends Controller
 
         event(new Registered($tenant));
 
+        // Notify Admins about new registration
+        $admins = \App\Models\Admin::all();
+        foreach ($admins as $admin) {
+            $admin->notify(new \App\Notifications\SystemNotification([
+                'title' => 'مستخدم جديد',
+                'message' => 'قام ' . $tenant->name . ' بإنشاء حساب جديد على المنصة.',
+                'level' => 'info',
+                'action_url' => '/admin/tenants?search=' . $tenant->email,
+                'icon' => 'UserPlus'
+            ]));
+        }
+
         Auth::guard('tenant')->login($tenant);
 
         return response()->json([

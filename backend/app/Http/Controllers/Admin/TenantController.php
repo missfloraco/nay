@@ -14,9 +14,14 @@ class TenantController extends Controller
      */
     public function index(Request $request)
     {
-        $result = Tenant::applyFilters($request)
-            ->applySort($request)
-            ->paginateData($request);
+        $query = Tenant::applyFilters($request)
+            ->applySort($request);
+
+        if ($request->has('trashed')) {
+            $query->onlyTrashed();
+        }
+
+        $result = $query->paginateData($request);
 
         return response()->json($result);
     }
@@ -124,8 +129,26 @@ class TenantController extends Controller
      */
     public function destroy($id)
     {
-        Tenant::findOrFail($id)->delete();
-        return response()->json(['message' => 'Tenant deleted successfully']);
+        $tenant = Tenant::withTrashed()->findOrFail($id);
+
+        if ($tenant->trashed()) {
+            $tenant->forceDelete();
+            return response()->json(['message' => 'Tenant permanently deleted']);
+        }
+
+        $tenant->delete();
+        return response()->json(['message' => 'Tenant moved to trash']);
+    }
+
+    /**
+     * Restore a soft-deleted tenant.
+     */
+    public function restore($id)
+    {
+        $tenant = Tenant::onlyTrashed()->findOrFail($id);
+        $tenant->restore();
+
+        return response()->json(['message' => 'Tenant restored successfully', 'data' => $tenant]);
     }
 
     /**

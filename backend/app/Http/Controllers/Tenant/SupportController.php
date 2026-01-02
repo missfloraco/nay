@@ -23,6 +23,14 @@ class SupportController extends Controller
     {
         $filters = $request->only(['status']);
         $tickets = $this->service->getTickets($request->user(), 'tenant', $filters);
+
+        // Auto-mark support notifications as read when visiting this page
+        $request->user()->unreadNotifications()
+            ->where('type', 'App\Notifications\TicketNotification')
+            ->get()
+            ->each(function ($n) {
+                $n->markAsRead(); });
+
         return response()->json(['data' => $tickets]);
     }
 

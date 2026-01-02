@@ -20,6 +20,9 @@ class TrashService
             'support_tickets' => SupportTicket::class,
             'ads' => \App\Models\Ad::class,
             'scripts' => \App\Models\Script::class,
+            'plans' => \App\Models\Plan::class,
+            'payments' => \App\Models\Payment::class,
+            'subscription_requests' => \App\Models\SubscriptionRequest::class,
             // Add more models as needed
         ];
     }

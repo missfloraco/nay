@@ -114,21 +114,33 @@ export default function PaymentsTable({ selectedTenantId: propSelectedTenantId, 
     }, [setPrimaryAction]);
 
     const handleDelete = async (id: number) => {
-        const confirmed = await showConfirm({
-            title: 'حذف سجل الدفع',
-            message: 'هل أنت متأكد من حذف هذه العملية؟',
-            confirmLabel: 'حذف',
-            isDestructive: true
-        });
-
-        if (!confirmed) return;
+        const payment = payments.find(p => p.id === id);
+        if (!payment) return;
 
         try {
+            // Optimistic update
+            setPayments(prev => prev.filter(p => p.id !== id));
+
             await api.delete(`/admin/payments/${id}`);
-            showSuccess('تم الحذف بنجاح');
-            loadPayments();
+
+            showSuccess(`تم نقل السجل إلى سلة المحذوفات`, {
+                action: {
+                    label: 'تراجع',
+                    onClick: async () => {
+                        try {
+                            await api.post(`/admin/payments/${id}/restore`);
+                            showSuccess(`تم استعادة السجل بنجاح`);
+                            loadPayments();
+                        } catch (err) {
+                            showError('فشل استعادة السجل');
+                            loadPayments();
+                        }
+                    }
+                }
+            });
         } catch (e) {
             showError('فشل الحذف');
+            loadPayments();
         }
     };
 

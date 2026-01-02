@@ -4,6 +4,8 @@ namespace App\Services;
 
 use App\Models\SupportTicket;
 use App\Models\SupportMessage;
+use App\Models\Admin;
+use App\Notifications\TicketNotification;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -65,6 +67,29 @@ class SupportService
                 'is_admin_reply' => false
             ]);
 
+            // Notify Admins
+            $admins = Admin::all();
+            foreach ($admins as $admin) {
+                $admin->notify(new TicketNotification([
+                    'ticket_id' => $ticket->id,
+                    'title' => 'تذكرة جديدة: ' . $ticket->subject,
+                    'message' => 'قام ' . $user->name . ' بفتح تذكرة دعم فني جديدة.',
+                    'level' => 'info',
+                    'action_url' => '/admin/support?ticket_id=' . $ticket->id,
+                    'icon' => 'LifeBuoy'
+                ]));
+            }
+
+            // Also Notify the Tenant who is currently logged in (for immediate feedback in Bell)
+            $user->notify(new TicketNotification([
+                'ticket_id' => $ticket->id,
+                'title' => 'تم استلام تذكرتك',
+                'message' => 'تذكرتك بموضوع "' . $ticket->subject . '" تم استلامها بنجاح.',
+                'level' => 'success',
+                'action_url' => '/app/support/messages?ticket_id=' . $ticket->id,
+                'icon' => 'LifeBuoy'
+            ]));
+
             return $ticket;
         });
     }
@@ -88,6 +113,31 @@ class SupportService
             $ticket->update(['status' => 'in_progress']);
         }
 
+        // Send Notifications
+        if ($isAdmin) {
+            // Admin replied -> Notify Tenant
+            $ticket->tenant->notify(new TicketNotification([
+                'title' => 'رد جديد على تذكرتك',
+                'message' => 'قام فريق الدعم بالرد على تذكرتك: ' . $ticket->subject,
+                'level' => 'success',
+                'action_url' => '/app/support/messages?ticket_id=' . $ticket->id,
+                'icon' => 'MessageSquare'
+            ]));
+        } else {
+            // Tenant replied -> Notify Admins
+            $admins = Admin::all();
+            foreach ($admins as $admin) {
+                $admin->notify(new TicketNotification([
+                    'ticket_id' => $ticket->id,
+                    'title' => 'رد جديد من مستخدم',
+                    'message' => 'قام ' . $ticket->tenant->name . ' بالرد على التذكرة: ' . $ticket->subject,
+                    'level' => 'info',
+                    'action_url' => '/admin/support?ticket_id=' . $ticket->id,
+                    'icon' => 'MessageSquare'
+                ]));
+            }
+        }
+
         return $msg;
     }
 
@@ -96,7 +146,19 @@ class SupportService
      */
     public function updateStatus(SupportTicket $ticket, string $status)
     {
+        $oldStatus = $ticket->status;
         $ticket->update(['status' => $status]);
+
+        if ($oldStatus !== $status && $status === 'resolved') {
+            $ticket->tenant->notify(new TicketNotification([
+                'title' => 'تم حل التذكرة',
+                'message' => 'تم تحديد تذكرتك كـ "محلولة": ' . $ticket->subject,
+                'level' => 'success',
+                'action_url' => '/app/support/messages?ticket_id=' . $ticket->id,
+                'icon' => 'CheckCircle'
+            ]));
+        }
+
         return $ticket;
     }
 
@@ -106,6 +168,13 @@ class SupportService
     public function deleteTicket(SupportTicket $ticket)
     {
         $ticket->delete();
+
+        // Clear related notifications from database for all users (Admin/Tenant)
+        // We use like query on data to find the ticket_id we just added
+        DB::table('notifications')
+            ->where('data', 'like', '%"ticket_id":' . $ticket->id . ',%')
+            ->orWhere('data', 'like', '%"ticket_id":' . $ticket->id . '}%')
+            ->delete();
     }
 
     /**

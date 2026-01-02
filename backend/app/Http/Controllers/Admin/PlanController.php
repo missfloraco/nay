@@ -8,9 +8,15 @@ use Illuminate\Http\Request;
 
 class PlanController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        return response()->json(['plans' => Plan::all()]);
+        $query = Plan::query();
+
+        if ($request->has('trashed')) {
+            $query->onlyTrashed();
+        }
+
+        return response()->json(['plans' => $query->get()]);
     }
 
     public function store(Request $request)
@@ -47,9 +53,27 @@ class PlanController extends Controller
         return response()->json(['plan' => $plan, 'message' => 'تم تحديث الخطة بنجاح']);
     }
 
-    public function destroy(Plan $plan)
+    public function destroy($id)
     {
+        $plan = Plan::withTrashed()->findOrFail($id);
+
+        if ($plan->trashed()) {
+            $plan->forceDelete();
+            return response()->json(['message' => 'تم حذف الخطة نهائياً']);
+        }
+
         $plan->delete();
-        return response()->json(['message' => 'تم حذف الخطة بنجاح']);
+        return response()->json(['message' => 'تم نقل الخطة إلى سلة المحذوفات']);
+    }
+
+    /**
+     * Restore a soft-deleted plan.
+     */
+    public function restore($id)
+    {
+        $plan = Plan::onlyTrashed()->findOrFail($id);
+        $plan->restore();
+
+        return response()->json(['message' => 'تم استعادة الخطة بنجاح', 'plan' => $plan]);
     }
 }

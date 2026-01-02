@@ -5,10 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use App\Traits\Filterable;
 use App\Traits\HasUid;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Payment extends Model
 {
-    use Filterable, HasUid;
+    use Filterable, HasUid, SoftDeletes;
 
     const UID_PREFIX = 'INV';
 

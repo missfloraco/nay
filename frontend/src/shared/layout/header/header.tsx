@@ -6,6 +6,7 @@ import { useUI } from '@/shared/contexts/ui-context';
 import { Menu, Bell, Search, Settings } from 'lucide-react';
 import { GlobalSearch } from './global-search';
 import { ThemeToggle } from './theme-toggle';
+import { NotificationBell } from '@/shared/components/notifications/NotificationBell';
 
 interface HeaderProps {
   title?: string;
@@ -62,6 +63,8 @@ export const Header: React.FC<HeaderProps> = ({ title, actions }) => {
         <div className="hidden sm:block">
           <ThemeToggle />
         </div>
+
+        <NotificationBell />
 
         <div className="h-6 w-px bg-gray-100 dark:bg-white/5 mx-1 hidden lg:block" />
       </div>

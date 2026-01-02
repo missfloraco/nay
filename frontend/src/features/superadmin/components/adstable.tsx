@@ -90,22 +90,33 @@ export default function AdsTable() {
     };
 
     const handleDelete = async (id: number) => {
-        const confirmed = await showConfirm({
-            title: 'حذف الإعلان',
-            message: 'هل أنت متأكد من حذف هذا الإعلان؟ لا يمكن التراجع عن هذا الإجراء.',
-            confirmLabel: 'نعم، احذف',
-            cancelLabel: 'إلغاء',
-            variant: 'danger'
-        });
-
-        if (!confirmed) return;
+        const ad = ads.find(a => a.id === id);
+        if (!ad) return;
 
         try {
+            // Optimistic Update: Remove from local state immediately
+            setAds(prev => prev.filter(a => a.id !== id));
+
             await AdsService.delete(id);
-            showSuccess('تم حذف الإعلان بنجاح');
-            fetchAds();
+
+            showSuccess(`تم نقل "${ad.name}" إلى سلة المحذوفات`, {
+                action: {
+                    label: 'تراجع',
+                    onClick: async () => {
+                        try {
+                            await AdsService.restore(id);
+                            showSuccess(`تم استعادة "${ad.name}" بنجاح`);
+                            fetchAds();
+                        } catch (err) {
+                            showError('فشل استعادة الإعلان');
+                            fetchAds();
+                        }
+                    }
+                }
+            });
         } catch (error) {
             showError('فشل حذف الإعلان');
+            fetchAds(); // Restore state on error
         }
     };
 

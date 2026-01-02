@@ -3,7 +3,6 @@ import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { UIProvider } from '@/shared/contexts/ui-context';
-import { FeedbackProvider } from '@/shared/ui/notifications/feedback-context';
 import { AppProvider } from '@/shared/contexts/app-context';
 import MainApp from '@/mainapp';
 import '@/assets/styles/global.css';
@@ -22,11 +21,9 @@ createRoot(document.getElementById('root')!).render(
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <UIProvider>
-          <FeedbackProvider>
-            <AppProvider>
-              <MainApp />
-            </AppProvider>
-          </FeedbackProvider>
+          <AppProvider>
+            <MainApp />
+          </AppProvider>
         </UIProvider>
       </BrowserRouter>
     </QueryClientProvider>

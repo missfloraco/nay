@@ -34,6 +34,10 @@ export const ScriptService = {
         await api.delete(`/admin/scripts/${id}`);
     },
 
+    restore: async (id: string): Promise<void> => {
+        await api.post(`/admin/scripts/${id}/restore`);
+    },
+
     toggleStatus: async (id: string): Promise<Script> => {
         const response: any = await api.post(`/admin/scripts/${id}/toggle`);
         return response.data || response;

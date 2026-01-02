@@ -31,6 +31,10 @@ export default function Trash() {
                 'translations': TEXTS_ADMIN?.RECYCLE_BIN?.TYPES?.TRANSLATIONS || 'الترجمات',
                 'users': TEXTS_ADMIN?.RECYCLE_BIN?.TYPES?.USERS || 'المستخدمين',
                 'ads': TEXTS_ADMIN?.RECYCLE_BIN?.TYPES?.ADS || 'الإعلانات',
+                'scripts': 'السكربتات',
+                'plans': 'الخطط السعرية',
+                'payments': 'سجل المدفوعات',
+                'subscription_requests': 'طلبات الاشتراك',
                 'support_tickets': TEXTS_ADMIN?.RECYCLE_BIN?.TYPES?.SUPPORT_TICKETS || 'تذاكر الدعم',
             };
             return labels[type] || type;

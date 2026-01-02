@@ -17,6 +17,10 @@ class PaymentController extends Controller
     {
         $query = Payment::with('tenant:id,name,email');
 
+        if ($request->has('trashed')) {
+            $query->onlyTrashed();
+        }
+
         $result = $query->applyFilters($request)
             ->applySort($request)
             ->paginateData($request);
@@ -102,9 +106,27 @@ class PaymentController extends Controller
     /**
      * Delete a payment.
      */
-    public function destroy(Payment $payment)
+    public function destroy($id)
     {
+        $payment = Payment::withTrashed()->findOrFail($id);
+
+        if ($payment->trashed()) {
+            $payment->forceDelete();
+            return response()->json(['message' => 'Payment permanently deleted']);
+        }
+
         $payment->delete();
-        return response()->json(['message' => 'Payment deleted successfully.']);
+        return response()->json(['message' => 'Payment moved to trash']);
+    }
+
+    /**
+     * Restore a soft-deleted payment.
+     */
+    public function restore($id)
+    {
+        $payment = Payment::onlyTrashed()->findOrFail($id);
+        $payment->restore();
+
+        return response()->json(['message' => 'Payment restored successfully', 'data' => $payment]);
     }
 }

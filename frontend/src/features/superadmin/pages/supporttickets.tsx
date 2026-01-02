@@ -1,5 +1,6 @@
 ﻿import React, { useState, useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useSearchParams } from 'react-router-dom';
 import api from '@/shared/services/api';
 import AdminLayout from './adminlayout';
 import { formatDate } from '@/shared/utils/helpers';
@@ -13,7 +14,11 @@ import ImagePreview from '@/shared/ui/image-preview';
 
 export default function SupportTicketsPage() {
     const queryClient = useQueryClient();
-    const [selectedTicketId, setSelectedTicketId] = useState<number | null>(null);
+    const [searchParams, setSearchParams] = useSearchParams();
+    const [selectedTicketId, setSelectedTicketId] = useState<number | null>(() => {
+        const id = searchParams.get('ticket_id');
+        return id ? parseInt(id) : null;
+    });
     const [chatMessage, setChatMessage] = useState('');
     const [statusFilter, setStatusFilter] = useState('all');
     const [isUploading, setIsUploading] = useState(false);
@@ -101,11 +106,16 @@ export default function SupportTicketsPage() {
     // Handle Query Errors
     useEffect(() => {
         if (chatError && selectedTicketId) {
-            showError('فشل تحميل بيانات التذكرة. قد تكون محذوفة أو غير موجودة.');
-            // eslint-disable-next-line
+            // Check if it's a 404
+            const is404 = (chatError as any)?.response?.status === 404;
+            if (is404) {
+                showError('لم يتم العثور على هذه التذكرة، قد تكون حذفت نهائياً.');
+            } else {
+                showError('فشل تحميل بيانات التذكرة.');
+            }
             setSelectedTicketId(null);
         }
-    }, [chatError, selectedTicketId]);
+    }, [chatError, selectedTicketId, showError]);
 
     // Mutations
     const replyMutation = useMutation({
@@ -118,6 +128,16 @@ export default function SupportTicketsPage() {
         },
         onError: () => showError('فشل إرسال الرد')
     });
+
+    // Update URL when ticket changes
+    useEffect(() => {
+        if (selectedTicketId) {
+            setSearchParams({ ticket_id: selectedTicketId.toString() }, { replace: true });
+        } else {
+            searchParams.delete('ticket_id');
+            setSearchParams(searchParams, { replace: true });
+        }
+    }, [selectedTicketId, setSearchParams, searchParams]);
 
     const updateStatusMutation = useMutation({
         mutationFn: (data: { status: string }) => api.patch(`/admin/support/tickets/${selectedTicketId}/status`, data),
