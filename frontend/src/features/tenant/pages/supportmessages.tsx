@@ -47,18 +47,51 @@ const SupportMessages = () => {
         refetchInterval: 5000
     });
 
+
+    // Create ticket mutation
+    const createTicketMutation = useMutation({
+        mutationFn: (data: { subject: string; message: string; priority: string }) =>
+            api.post('/app/support/tickets', data),
+        onSuccess: (data: any) => {
+            queryClient.invalidateQueries({ queryKey: ['active-ticket'] });
+            queryClient.invalidateQueries({ queryKey: ['tenant-tickets'] });
+            fetchNotifications(); // Refresh Bell Notifications
+            showSuccess('تم إنشاء التذكرة بنجاح');
+            setIsCreating(false);
+            setSelectedTicketId(data.id || data.data?.id);
+        },
+        onError: (err: any) => {
+            const errorMsg = err.response?.data?.error || 'فشل إنشاء التذكرة';
+            showError(errorMsg);
+        }
+    });
+
     const activeTicket = (activeTicketData as any)?.active_ticket || (activeTicketData as any)?.data?.active_ticket;
 
     // Set Primary Action
     useEffect(() => {
-        setPrimaryAction({
-            label: 'تذكرة جديدة',
-            icon: Plus,
-            onClick: () => setIsCreating(true),
-            disabled: !!activeTicket || isCreating
-        });
+        if (isCreating) {
+            setPrimaryAction({
+                label: createTicketMutation.isPending ? 'جاري الإرسال...' : 'إرسال التذكرة والمتابعة',
+                icon: Send,
+                loading: createTicketMutation.isPending,
+                type: 'submit',
+                form: 'create-ticket-form',
+                secondaryAction: {
+                    label: 'تراجع',
+                    onClick: () => setIsCreating(false)
+                }
+            });
+        } else {
+            setPrimaryAction({
+                label: 'فتح تذكرة دعم جديدة',
+                icon: Plus,
+                onClick: () => setIsCreating(true),
+                disabled: !!activeTicket
+            });
+        }
         return () => setPrimaryAction(null);
-    }, [activeTicket, isCreating, setPrimaryAction]);
+    }, [activeTicket, isCreating, createTicketMutation.isPending, setPrimaryAction]);
 
     // Ticket Details Query
     const { data: ticketDetails, isLoading: isLoadingChat, error: chatError } = useQuery({
@@ -157,23 +190,6 @@ const SupportMessages = () => {
         }
     };
 
-    // Create ticket mutation
-    const createTicketMutation = useMutation({
-        mutationFn: (data: { subject: string; message: string; priority: string }) =>
-            api.post('/app/support/tickets', data),
-        onSuccess: (data: any) => {
-            queryClient.invalidateQueries({ queryKey: ['active-ticket'] });
-            queryClient.invalidateQueries({ queryKey: ['tenant-tickets'] });
-            fetchNotifications(); // Refresh Bell Notifications
-            showSuccess('تم إنشاء التذكرة بنجاح');
-            setIsCreating(false);
-            setSelectedTicketId(data.id || data.data?.id);
-        },
-        onError: (err: any) => {
-            const errorMsg = err.response?.data?.error || 'فشل إنشاء التذكرة';
-            showError(errorMsg);
-        }
-    });
 
     const handleSendMessage = (e: React.FormEvent) => {
         e.preventDefault();
@@ -317,9 +333,9 @@ const SupportMessages = () => {
                 isOpen={!!selectedTicketId}
                 onClose={() => setSelectedTicketId(null)}
                 title="محادثة الدعم الفني"
-                size="full"
+                variant="content-fit"
             >
-                <div className="flex flex-col lg:flex-row h-full gap-8 bg-gray-50/20 dark:bg-dark-950/20">
+                <div className="flex flex-col lg:flex-row gap-8 bg-gray-50/20 dark:bg-dark-950/20 min-h-full">
                     {/* Chat Content (Left/Center) - Modernized 2026 */}
                     <div className="flex-1 flex flex-col bg-white/60 dark:bg-dark-900/60 backdrop-blur-xl rounded-[2.5rem] border border-white/20 shadow-2xl overflow-hidden min-h-0 relative">
                         {/* Decorative Background Elements */}
@@ -532,37 +548,107 @@ const SupportMessages = () => {
                 isOpen={isCreating}
                 onClose={() => setIsCreating(false)}
                 title="فتح تذكرة دعم جديدة"
-                size="lg"
+                variant="content-fit"
             >
-                <form onSubmit={(e) => {
-                    e.preventDefault();
-                    const formData = new FormData(e.currentTarget);
-                    createTicketMutation.mutate({
-                        subject: formData.get('subject') as string,
-                        message: formData.get('message') as string,
-                        priority: formData.get('priority') as string
-                    });
-                }} className="space-y-8 p-2">
-                    <InputField label="موضوع التذكرة" name="subject" required placeholder="لدي مشكلة في..." icon={Tag} />
-                    <div className="space-y-3">
-                        <label className="text-xs font-black text-gray-400 uppercase tracking-widest px-2">مستوى الأهمية</label>
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                            {['low', 'medium', 'high', 'urgent'].map((id) => (
-                                <label key={id} className="cursor-pointer">
-                                    <input type="radio" name="priority" value={id} defaultChecked={id === 'medium'} className="peer sr-only" />
-                                    <div className="flex items-center justify-center p-4 rounded-2xl border-2 bg-white dark:bg-dark-800 border-gray-100 dark:border-white/5 text-gray-400 peer-checked:border-primary peer-checked:text-primary transition-all font-black text-xs uppercase">
-                                        {getPriorityLabel(id)}
+                <form
+                    id="create-ticket-form"
+                    onSubmit={(e) => {
+                        e.preventDefault();
+                        const formData = new FormData(e.currentTarget);
+                        createTicketMutation.mutate({
+                            subject: formData.get('subject') as string,
+                            message: formData.get('message') as string,
+                            priority: formData.get('priority') as string
+                        });
+                    }} className="flex flex-col gap-10"
+                >
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                        {/* Right Column: Basic Information */}
+                        <div className="space-y-8">
+                            <div className="flex items-center gap-4 px-2">
+                                <div className="p-3 bg-primary/10 rounded-2xl text-primary">
+                                    <Tag className="w-6 h-6" />
+                                </div>
+                                <div>
+                                    <h4 className="text-xl font-black text-gray-900 dark:text-white leading-none">تفاصيل الطلب</h4>
+                                    <p className="text-[10px] font-bold text-gray-400 mt-1 uppercase tracking-widest">حدد موضوع التذكرة ومستوى الأهمية</p>
+                                </div>
+                            </div>
+
+                            <div className="space-y-6">
+                                <div className="space-y-2">
+                                    <InputField
+                                        label="موضوع التذكرة"
+                                        name="subject"
+                                        required
+                                        placeholder="مثلاً: مشكلة في تفعيل خطة الاشتراك"
+                                        icon={Tag}
+                                        className="bg-gray-50/50"
+                                    />
+                                    <p className="text-[10px] font-bold text-gray-400 px-2 leading-relaxed italic">
+                                        يرجى كتابة عنوان مختصر وواضح يصف المشكلة التي تواجهها.
+                                    </p>
+                                </div>
+
+                                <div className="space-y-4 pt-4 border-t border-gray-100 dark:border-white/5">
+                                    <label className="text-xs font-black text-gray-500 uppercase tracking-widest px-2">مستوى الأهمية التقنية</label>
+                                    <div className="grid grid-cols-2 gap-3">
+                                        {[
+                                            { id: 'low', label: 'منخفضة', color: 'bg-emerald-500' },
+                                            { id: 'medium', label: 'متوسطة', color: 'bg-blue-500' },
+                                            { id: 'high', label: 'عالية', color: 'bg-orange-500' },
+                                            { id: 'urgent', label: 'عاجلة جداً', color: 'bg-red-500' }
+                                        ].map((p) => (
+                                            <label key={p.id} className="cursor-pointer group">
+                                                <input type="radio" name="priority" value={p.id} defaultChecked={p.id === 'medium'} className="peer sr-only" />
+                                                <div className="relative p-5 rounded-[1.8rem] border-2 bg-white dark:bg-dark-800 border-gray-100 dark:border-white/5 peer-checked:border-primary transition-all duration-300 shadow-sm overflow-hidden group-hover:scale-[1.02] active:scale-95">
+                                                    <div className={`absolute top-0 right-0 w-1.5 h-full ${p.color} opacity-20 peer-checked:opacity-100`} />
+                                                    <div className="flex flex-col gap-1 pr-2">
+                                                        <span className="text-[11px] font-black text-gray-900 dark:text-white group-hover:text-primary transition-colors">{p.label}</span>
+                                                        <span className="text-[9px] font-bold text-gray-400 uppercase tracking-tighter">Priority: {p.id}</span>
+                                                    </div>
+                                                </div>
+                                            </label>
+                                        ))}
                                     </div>
-                                </label>
-                            ))}
+                                    <p className="text-[10px] font-bold text-gray-400 px-2 leading-relaxed">
+                                        سيتم ترتيب أولوية الرد من قبل فريقنا بناءً على المستوى الذي تختاره.
+                                    </p>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                    <TextareaField label="تفاصيل المشكلة" name="message" required placeholder="يرجى وصف المشكلة بالتفصيل..." icon={HelpCircle} className="min-h-[150px]" />
-                    <div className="flex justify-end gap-3 pt-4">
-                        <button type="button" onClick={() => setIsCreating(false)} className="px-6 py-3 rounded-2xl font-black text-gray-500 text-xs">إلغاء</button>
-                        <button type="submit" disabled={createTicketMutation.isPending} className="px-10 py-4 bg-primary text-white rounded-2xl font-black text-xs shadow-xl shadow-primary/10 flex items-center gap-2">
-                            {createTicketMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Send className="w-4 h-4 -rotate-90" /><span>إرسال التذكرة</span></>}
-                        </button>
+
+                        {/* Left Column: Message & Instructions */}
+                        <div className="space-y-8 flex flex-col">
+                            <div className="flex items-center gap-4 px-2">
+                                <div className="p-3 bg-blue-500/10 rounded-2xl text-blue-500">
+                                    <HelpCircle className="w-6 h-6" />
+                                </div>
+                                <div>
+                                    <h4 className="text-xl font-black text-gray-900 dark:text-white leading-none">محتوى الرسالة</h4>
+                                    <p className="text-[10px] font-bold text-gray-400 mt-1 uppercase tracking-widest">اشرح لنا التفاصيل ليتمكن الفريق من مساعدتك</p>
+                                </div>
+                            </div>
+
+                            <div className="flex-1 flex flex-col space-y-6">
+                                <div className="flex-1 flex flex-col space-y-2 group">
+                                    <TextareaField
+                                        label="وصف المشكلة بالتفصيل"
+                                        name="message"
+                                        required
+                                        placeholder="اكتب هنا كافة الخطوات التي أدت للمشكلة، وأي معلومات تقنية قد تفيدنا..."
+                                        icon={HelpCircle}
+                                        className="flex-1 min-h-[220px] bg-gray-50/50"
+                                    />
+                                    <div className="p-4 rounded-2xl bg-amber-500/5 border border-amber-500/10 flex items-start gap-3 mt-4">
+                                        <Info className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
+                                        <p className="text-[10px] font-bold text-amber-600 leading-relaxed">
+                                            نصيحة: يمكنك إرفاق الصور واللقطات التوضيحية داخل المحادثة مباشرة بعد إنشاء التذكرة لضمان سرعة الحل.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </form>
             </Modal>

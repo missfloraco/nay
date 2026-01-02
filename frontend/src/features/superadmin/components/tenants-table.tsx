@@ -75,18 +75,32 @@ export default function TenantsTable() {
         loadTenants();
     }, [currentPage, searchQuery, sortConfig]);
 
-    // Register Primary Action (Add Tenant)
+    // Register Footer Toolbar Actions
     useEffect(() => {
-        setPrimaryAction({
-            label: TEXTS_ADMIN.TENANTS.ADD_TENANT,
-            icon: Plus,
-            onClick: () => {
-                setFormData({ name: '', admin_email: '', admin_password: '', status: 'trial', trial_expires_at: '', subscription_ends_at: '', ads_enabled: true });
-                setIsCreateModalOpen(true);
-            }
-        });
+        if (isCreateModalOpen) {
+            setPrimaryAction({
+                label: 'إنشاء حساب المستأجر الآن',
+                icon: Sparkles,
+                type: 'submit',
+                form: 'create-tenant-form',
+                loading: createLoading,
+                secondaryAction: {
+                    label: 'إلغاء',
+                    onClick: () => setIsCreateModalOpen(false)
+                }
+            });
+        } else {
+            setPrimaryAction({
+                label: TEXTS_ADMIN.TENANTS.ADD_TENANT,
+                icon: Plus,
+                onClick: () => {
+                    setFormData({ name: '', admin_email: '', admin_password: '', status: 'trial', trial_expires_at: '', subscription_ends_at: '', ads_enabled: true });
+                    setIsCreateModalOpen(true);
+                }
+            });
+        }
         return () => setPrimaryAction(null);
-    }, [setPrimaryAction]);
+    }, [isCreateModalOpen, createLoading, setPrimaryAction]);
 
     const loadTenants = async () => {
         try {
@@ -308,141 +322,160 @@ export default function TenantsTable() {
                 isOpen={isCreateModalOpen}
                 onClose={() => setIsCreateModalOpen(false)}
                 title={TEXTS_ADMIN.TENANTS.ADD_TENANT}
-                size="xl"
+                variant="content-fit"
             >
-                <form onSubmit={handleCreate} className="flex flex-col h-full">
-                    <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-8 overflow-y-auto custom-scrollbar p-1">
-
+                <form
+                    id="create-tenant-form"
+                    onSubmit={handleCreate}
+                    className="flex flex-col gap-8"
+                >
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
                         {/* Right Column: Account Details */}
-                        <div className="space-y-6">
-                            <h4 className="flex items-center gap-2 font-bold text-gray-900 dark:text-white border-b border-gray-100 dark:border-white/5 pb-2">
-                                <User className="w-5 h-5 text-primary" />
-                                بيانات الحساب
-                            </h4>
+                        <div className="space-y-8">
+                            <div className="flex items-center gap-3 px-2">
+                                <div className="p-2 bg-primary/10 rounded-xl">
+                                    <User className="w-5 h-5 text-primary" />
+                                </div>
+                                <h5 className="text-lg font-black text-gray-900 dark:text-white">بيانات المسؤول</h5>
+                            </div>
 
-                            <InputField
-                                label={TEXTS_ADMIN.TENANTS.TENANT_NAME}
-                                value={formData.name}
-                                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                icon={LayoutGrid}
-                                required
-                                placeholder="اسم المتجر أو المؤسسة"
-                            />
+                            <div className="space-y-6">
+                                <div className="space-y-1.5">
+                                    <InputField
+                                        label={TEXTS_ADMIN.TENANTS.TENANT_NAME}
+                                        value={formData.name}
+                                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                        icon={LayoutGrid}
+                                        required
+                                        placeholder="اسم المتجر أو المؤسسة"
+                                    />
+                                    <p className="text-[10px] font-bold text-gray-400 px-2 leading-relaxed">
+                                        هذا الاسم سيظهر في واجهة المتجر ورسائل البريد الإلكتروني.
+                                    </p>
+                                </div>
 
-                            <InputField
-                                label={TEXTS_ADMIN.TENANTS.ADMIN_EMAIL}
-                                type="email"
-                                value={formData.admin_email}
-                                onChange={(e) => setFormData({ ...formData, admin_email: e.target.value })}
-                                icon={Mail}
-                                required
-                                placeholder="email@example.com"
-                            />
+                                <div className="space-y-1.5">
+                                    <InputField
+                                        label={TEXTS_ADMIN.TENANTS.ADMIN_EMAIL}
+                                        type="email"
+                                        value={formData.admin_email}
+                                        onChange={(e) => setFormData({ ...formData, admin_email: e.target.value })}
+                                        icon={Mail}
+                                        required
+                                        placeholder="email@example.com"
+                                    />
+                                    <p className="text-[10px] font-bold text-gray-400 px-2 leading-relaxed">
+                                        البريد الأساسي للدخول إلى لوحة تحكم المستأجر.
+                                    </p>
+                                </div>
 
-                            <InputField
-                                label={TEXTS_ADMIN.TENANTS.ADMIN_PASSWORD}
-                                type="password"
-                                value={formData.admin_password}
-                                onChange={(e) => setFormData({ ...formData, admin_password: e.target.value })}
-                                icon={Lock}
-                                required
-                                placeholder="••••••••"
-                            />
+                                <div className="space-y-1.5">
+                                    <InputField
+                                        label={TEXTS_ADMIN.TENANTS.ADMIN_PASSWORD}
+                                        type="password"
+                                        value={formData.admin_password}
+                                        onChange={(e) => setFormData({ ...formData, admin_password: e.target.value })}
+                                        icon={Lock}
+                                        required
+                                        placeholder="••••••••"
+                                    />
+                                    <p className="text-[10px] font-bold text-gray-400 px-2 leading-relaxed">
+                                        تأكد من اختيار كلمة مرور قوية لحماية الحساب.
+                                    </p>
+                                </div>
+                            </div>
                         </div>
 
                         {/* Left Column: Subscription Details */}
-                        <div className="space-y-6">
-                            <h4 className="flex items-center gap-2 font-bold text-gray-900 dark:text-white border-b border-gray-100 dark:border-white/5 pb-2">
-                                <Shield className="w-5 h-5 text-emerald-600" />
-                                الاشتراك والصلاحية
-                            </h4>
-
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest px-1">
-                                    نوع الحساب
-                                </label>
-                                <div className="grid grid-cols-2 gap-3">
-                                    <Button
-                                        type="button"
-                                        onClick={() => setFormData({ ...formData, status: 'trial' })}
-                                        variant={formData.status === 'trial' ? 'primary' : 'secondary'}
-                                        className={`py-3 border-2 shadow-none hover:shadow-sm ${formData.status === 'trial' ? 'border-primary bg-primary/5 text-primary' : 'border-gray-100 dark:border-white/5 bg-gray-50/50 dark:bg-white/5'}`}
-                                        icon={Clock}
-                                    >
-                                        فترة تجريبية
-                                    </Button>
-                                    <Button
-                                        type="button"
-                                        onClick={() => setFormData({ ...formData, status: 'active' })}
-                                        variant={formData.status === 'active' ? 'success' : 'secondary'}
-                                        className={`py-3 border-2 shadow-none hover:shadow-sm ${formData.status === 'active' ? 'border-emerald-600 bg-emerald-50 text-emerald-600' : 'border-gray-100 dark:border-white/5 bg-gray-50/50 dark:bg-white/5'}`}
-                                        icon={Shield}
-                                    >
-                                        اشتراك نشط
-                                    </Button>
+                        <div className="space-y-8">
+                            <div className="flex items-center gap-3 px-2">
+                                <div className="p-2 bg-emerald-500/10 rounded-xl">
+                                    <Shield className="w-5 h-5 text-emerald-600" />
                                 </div>
+                                <h5 className="text-lg font-black text-gray-900 dark:text-white">إعدادات الاشتراك</h5>
+                                <span className="mr-auto px-3 py-1 bg-emerald-500/10 rounded-full text-[10px] font-black text-emerald-600 border border-emerald-500/20 uppercase tracking-widest">الصلاحية</span>
                             </div>
 
-                            <div className="space-y-4 pt-1">
-                                <InputField
-                                    type="date"
-                                    label={`تاريخ ${formData.status === 'trial' ? 'انتهاء التجربة' : 'انتهاء الاشتراك'}`}
-                                    value={formData.status === 'trial' ? formData.trial_expires_at : formData.subscription_ends_at}
-                                    onChange={(e) => {
-                                        if (formData.status === 'trial') setFormData({ ...formData, trial_expires_at: e.target.value });
-                                        else setFormData({ ...formData, subscription_ends_at: e.target.value });
-                                    }}
-                                    icon={Calendar}
-                                    required
-                                />
-
-                                <div className="flex gap-2 flex-wrap">
-                                    {[
-                                        { label: 'شهر', months: 1, color: 'blue' },
-                                        { label: 'سنة', months: 12, color: 'purple' },
-                                        { label: 'مدى الحياة', months: 1200, color: 'green', special: true }
-                                    ].map((btn) => (
+                            <div className="space-y-6">
+                                <div className="space-y-3">
+                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">نوع الحساب ووضعية التشغيل</label>
+                                    <div className="grid grid-cols-2 gap-4">
                                         <button
-                                            key={btn.label}
                                             type="button"
-                                            onClick={() => {
-                                                const date = new Date();
-                                                date.setMonth(date.getMonth() + btn.months);
-                                                const dateStr = date.toISOString().split('T')[0];
-                                                if (formData.status === 'trial') setFormData({ ...formData, trial_expires_at: dateStr });
-                                                else setFormData({ ...formData, subscription_ends_at: dateStr });
-                                            }}
-                                            className={`flex-1 px-3 py-2 text-[10px] font-black uppercase tracking-tighter rounded-lg bg-${btn.color}-50 text-${btn.color}-600 dark:bg-${btn.color}-900/20 dark:text-${btn.color}-400 hover:opacity-80 transition-all border border-${btn.color}-100 dark:border-${btn.color}-900/30`}
+                                            onClick={() => setFormData({ ...formData, status: 'trial' })}
+                                            className={`p-5 rounded-3xl border-2 transition-all flex flex-col gap-2 items-start text-right group ${formData.status === 'trial' ? 'border-primary bg-primary/5' : 'border-gray-100 dark:border-white/5 bg-gray-50/50 hover:border-primary/30'}`}
                                         >
-                                            {btn.special ? btn.label : `+ ${btn.label}`}
+                                            <div className={`p-2 rounded-xl transition-colors ${formData.status === 'trial' ? 'bg-primary text-white' : 'bg-gray-200 dark:bg-dark-800 text-gray-500 group-hover:bg-primary/20 group-hover:text-primary'}`}>
+                                                <Clock className="w-5 h-5" />
+                                            </div>
+                                            <div>
+                                                <p className={`text-sm font-black ${formData.status === 'trial' ? 'text-primary' : 'text-gray-900 dark:text-white'}`}>فترة تجريبية</p>
+                                                <p className="text-[10px] font-bold text-gray-400">وصول محدود زمنياً للمعاينة</p>
+                                            </div>
                                         </button>
-                                    ))}
+                                        <button
+                                            type="button"
+                                            onClick={() => setFormData({ ...formData, status: 'active' })}
+                                            className={`p-5 rounded-3xl border-2 transition-all flex flex-col gap-2 items-start text-right group ${formData.status === 'active' ? 'border-emerald-500 bg-emerald-500/5' : 'border-gray-100 dark:border-white/5 bg-gray-50/50 hover:border-emerald-500/30'}`}
+                                        >
+                                            <div className={`p-2 rounded-xl transition-colors ${formData.status === 'active' ? 'bg-emerald-500 text-white' : 'bg-gray-200 dark:bg-dark-800 text-gray-500 group-hover:bg-emerald-500/20 group-hover:text-emerald-500'}`}>
+                                                <Sparkles className="w-5 h-5" />
+                                            </div>
+                                            <div>
+                                                <p className={`text-sm font-black ${formData.status === 'active' ? 'text-emerald-600' : 'text-gray-900 dark:text-white'}`}>اشتراك مدفوع</p>
+                                                <p className="text-[10px] font-bold text-gray-400">تفعيل كامل لكافة المميزات</p>
+                                            </div>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-4 pt-4 p-8 bg-gray-50/50 dark:bg-dark-800/40 rounded-[2.5rem] border border-gray-100 dark:border-white/5">
+                                    <InputField
+                                        type="date"
+                                        label={`تاريخ ${formData.status === 'trial' ? 'انتهاء التجربة' : 'انتهاء الاشتراك'}`}
+                                        value={formData.status === 'trial' ? formData.trial_expires_at : formData.subscription_ends_at}
+                                        onChange={(e) => {
+                                            if (formData.status === 'trial') setFormData({ ...formData, trial_expires_at: e.target.value });
+                                            else setFormData({ ...formData, subscription_ends_at: e.target.value });
+                                        }}
+                                        icon={Calendar}
+                                        required
+                                        className="bg-white dark:bg-dark-900"
+                                    />
+
+                                    <div className="grid grid-cols-3 gap-3">
+                                        {[
+                                            { label: 'شهر', months: 1, color: 'blue' },
+                                            { label: 'سنة', months: 12, color: 'purple' },
+                                            { label: 'مدى الحياة', months: 1200, color: 'emerald', special: true }
+                                        ].map((btn) => (
+                                            <button
+                                                key={btn.label}
+                                                type="button"
+                                                onClick={() => {
+                                                    const date = new Date();
+                                                    date.setMonth(date.getMonth() + btn.months);
+                                                    const dateStr = date.toISOString().split('T')[0];
+                                                    if (formData.status === 'trial') setFormData({ ...formData, trial_expires_at: dateStr });
+                                                    else setFormData({ ...formData, subscription_ends_at: dateStr });
+                                                }}
+                                                className={`py-3 text-[10px] font-black uppercase tracking-tighter rounded-xl transition-all border ${btn.color === 'blue'
+                                                    ? 'bg-blue-50 text-blue-600 border-blue-100 hover:bg-blue-600 hover:text-white'
+                                                    : btn.color === 'purple'
+                                                        ? 'bg-purple-50 text-purple-600 border-purple-100 hover:bg-purple-600 hover:text-white'
+                                                        : 'bg-emerald-50 text-emerald-600 border-emerald-100 hover:bg-emerald-600 hover:text-white'
+                                                    }`}
+                                            >
+                                                {btn.special ? btn.label : `+ ${btn.label}`}
+                                            </button>
+                                        ))}
+                                    </div>
                                 </div>
                             </div>
-
                         </div>
                     </div>
 
-                    <div className="flex gap-4 pt-6 mt-6 border-t border-gray-100 dark:border-white/5">
-                        <Button
-                            type="submit"
-                            disabled={createLoading}
-                            isLoading={createLoading}
-                            variant="primary"
-                            className="flex-1 py-4 text-sm shadow-lg h-auto"
-                            icon={Sparkles}
-                        >
-                            {createLoading ? TEXTS_ADMIN.BUTTONS.SAVING : TEXTS_ADMIN.TENANTS.CREATE_TENANT}
-                        </Button>
-                        <Button
-                            type="button"
-                            onClick={() => setIsCreateModalOpen(false)}
-                            variant="secondary"
-                            className="px-8 py-4 text-sm h-auto"
-                        >
-                            {TEXTS_ADMIN.BUTTONS.CANCEL}
-                        </Button>
-                    </div>
+                    {/* Local footer removed - Actions are now in global toolbar */}
                 </form>
             </Modal>
 
@@ -451,7 +484,7 @@ export default function TenantsTable() {
                 isOpen={isDetailsModalOpen}
                 onClose={() => setIsDetailsModalOpen(false)}
                 title="تفاصيل المشترك"
-                size="xl"
+                variant="content-fit"
             >
                 <TenantDetailsSidebar
                     tenant={selectedTenant}

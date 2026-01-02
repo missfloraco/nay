@@ -41,7 +41,7 @@ export const NotificationBell: React.FC = () => {
             <button
                 onClick={() => setIsOpen(!isOpen)}
                 className={`
-                    p-2.5 rounded-xl transition-all duration-300 relative group
+                    w-10 h-10 flex items-center justify-center rounded-full transition-all duration-300 relative group
                     ${isOpen
                         ? 'bg-primary/10 text-primary shadow-inner'
                         : 'bg-gray-50 dark:bg-white/5 text-gray-400 hover:text-primary hover:bg-gray-100 dark:hover:bg-white/10'
@@ -50,7 +50,7 @@ export const NotificationBell: React.FC = () => {
             >
                 <Bell className={`w-5 h-5 ${isOpen ? 'animate-none' : 'group-hover:animate-bounce'}`} />
                 {unreadCount > 0 && (
-                    <span className="absolute top-2 right-2 w-4 h-4 bg-red-500 text-white text-[10px] font-black flex items-center justify-center rounded-full border-2 border-white dark:border-dark-900 animate-pulse">
+                    <span className="absolute -top-1 -right-1 flex items-center justify-center text-[10px] font-black bg-red-500 text-white rounded-full px-1 min-w-[18px] h-[18px] border-2 border-white dark:border-dark-900 shadow-sm transition-all">
                         {unreadCount > 9 ? '9+' : unreadCount}
                     </span>
                 )}

@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Script, ScriptService } from '@/shared/services/scripts-service';
 import { useAction } from '@/shared/contexts/action-context';
 import Table from '@/shared/table';
 import { useFeedback } from '@/shared/ui/notifications/feedback-context';
-import { Plus, Trash2, Terminal } from 'lucide-react';
-import ScriptForm from './script-form';
+import { Plus, Trash2, Terminal, Save } from 'lucide-react';
+import ScriptForm, { ScriptFormHandle } from './script-form';
 import { IdentityCell, ActionCell } from '@/shared/table-cells';
 import { EditButton, DeleteButton } from '@/shared/ui/buttons/btn-crud';
 import { formatDate } from '@/shared/utils/helpers';
@@ -13,6 +13,7 @@ import Modal from '@/shared/ui/modals/modal';
 export const ScriptsSettings: React.FC = () => {
     const { showSuccess, showError } = useFeedback();
     const { setPrimaryAction } = useAction();
+    const formRef = useRef<ScriptFormHandle>(null);
 
     const [scripts, setScripts] = useState<Script[]>([]);
     const [loading, setLoading] = useState(true);
@@ -25,17 +26,38 @@ export const ScriptsSettings: React.FC = () => {
     }, []);
 
     useEffect(() => {
-        setPrimaryAction({
-            label: "إضافة سكربت جديد",
-            icon: Plus,
-            onClick: () => {
-                setSelectedScript(null);
-                setIsModalOpen(true);
-            },
-        });
+        if (isModalOpen) {
+            // Modal Mode: Save Action
+            setPrimaryAction({
+                label: selectedScript ? 'حفظ التعديلات' : 'حفظ السكربت',
+                icon: Save,
+                onClick: () => {
+                    if (formRef.current) {
+                        formRef.current.submit();
+                    }
+                },
+                disabled: actionLoading,
+                secondaryAction: {
+                    label: 'إلغاء',
+                    onClick: () => {
+                        setIsModalOpen(false);
+                    }
+                }
+            });
+        } else {
+            // Default Mode: Add New
+            setPrimaryAction({
+                label: "إضافة سكربت جديد",
+                icon: Plus,
+                onClick: () => {
+                    setSelectedScript(null);
+                    setIsModalOpen(true);
+                },
+            });
+        }
 
         return () => setPrimaryAction(null);
-    }, [setPrimaryAction]);
+    }, [isModalOpen, selectedScript, setPrimaryAction, actionLoading]);
 
     const loadScripts = async () => {
         setLoading(true);
@@ -206,12 +228,15 @@ export const ScriptsSettings: React.FC = () => {
                 onClose={() => setIsModalOpen(false)}
                 title={selectedScript ? 'تعديل السكربت' : 'إضافة سكربت جديد'}
                 size="xl"
+                variant="content-fit"
             >
                 <ScriptForm
+                    ref={formRef}
                     initialData={selectedScript}
                     onSubmit={handleSave}
                     onCancel={() => setIsModalOpen(false)}
                     isLoading={actionLoading}
+                    hideFooter={true}
                 />
             </Modal>
         </div>

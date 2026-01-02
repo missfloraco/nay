@@ -61,7 +61,7 @@ export default function Table<T>({
     currentSort,
     onSortChange
 }: TableProps<T>) {
-    const { setExportData, isPrinting, setIsPrinting, openModal } = useExport();
+    const { setExportData, isPrinting, setIsPrinting, isAnyModalOpen, openModal } = useExport();
     const { registerExtraAction, unregisterExtraAction } = useAction();
     const { printRef, handlePrint } = usePrint({
         documentTitle: exportFileName
@@ -137,10 +137,10 @@ export default function Table<T>({
         }
     }, [data, columns, isLoading, exportFileName, setExportData]);
 
-    // Register Export Action in Footer
+    // Register Export Action in Footer - Only if no modal is open
     React.useEffect(() => {
         let actionId: string | null = null;
-        if (showExport && data && data.length > 0) {
+        if (showExport && data && data.length > 0 && !isAnyModalOpen) {
             actionId = registerExtraAction({
                 label: 'تصدير البيانات',
                 onClick: openModal,
@@ -152,7 +152,7 @@ export default function Table<T>({
         return () => {
             if (actionId) unregisterExtraAction(actionId);
         };
-    }, [showExport, data?.length, openModal, registerExtraAction, unregisterExtraAction]);
+    }, [showExport, data?.length, isAnyModalOpen, openModal, registerExtraAction, unregisterExtraAction]);
 
     // Cleanup ONLY on actual unmount
     React.useEffect(() => {

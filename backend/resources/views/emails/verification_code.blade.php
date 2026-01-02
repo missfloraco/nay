@@ -116,7 +116,7 @@
     <div class="container">
         <!-- Header -->
         <div class="header">
-            <h1 class="logo-text">{{ config('app.name') }} Platform</h1>
+            <h1 class="logo-text">{{ $appName }}</h1>
         </div>
 
         <!-- Content -->
@@ -136,7 +136,7 @@
 
         <!-- Footer -->
         <div class="footer">
-            <p>&copy; {{ date('Y') }} {{ config('app.name') }}. جميع الحقوق محفوظة.</p>
+            <p>&copy; {{ date('Y') }} {{ $appName }}. جميع الحقوق محفوظة.</p>
             <p style="margin-top: 10px;">
                 تم إرسال هذا البريد تلقائياً، يرجى عدم الرد.
             </p>

@@ -11,6 +11,11 @@ export interface Action {
     type?: 'button' | 'submit' | 'reset';
     form?: string;
     color?: string;
+    secondaryAction?: {
+        label: string;
+        onClick: () => void;
+        variant?: 'primary' | 'secondary' | 'danger' | 'success';
+    };
 }
 
 export interface ExportConfig {

@@ -19,6 +19,8 @@ interface ExportContextType {
     closeModal: () => void;
     isPrinting: boolean;
     setIsPrinting: (printing: boolean) => void;
+    isAnyModalOpen: boolean;
+    setAnyModalOpen: (open: boolean) => void;
 }
 
 const ExportContext = createContext<ExportContextType | undefined>(undefined);
@@ -27,6 +29,7 @@ export const ExportProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     const [exportData, setExportState] = useState<ExportData | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isPrinting, setIsPrinting] = useState(false);
+    const [isAnyModalOpen, setIsAnyModalOpen] = useState(false);
 
     const setExportData = useCallback((data: any[] | null, columns: ExportColumn[] = [], fileName: string = 'export') => {
         if (!data || data.length === 0) {
@@ -50,6 +53,7 @@ export const ExportProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     const openModal = useCallback(() => setIsModalOpen(true), []);
     const closeModal = useCallback(() => setIsModalOpen(false), []);
     const handleSetIsPrinting = useCallback((printing: boolean) => setIsPrinting(printing), []);
+    const handleSetAnyModalOpen = useCallback((open: boolean) => setIsAnyModalOpen(open), []);
 
     const contextValue = useMemo(() => ({
         exportData,
@@ -58,8 +62,10 @@ export const ExportProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         openModal,
         closeModal,
         isPrinting,
-        setIsPrinting: handleSetIsPrinting
-    }), [exportData, setExportData, isModalOpen, openModal, closeModal, isPrinting, handleSetIsPrinting]);
+        setIsPrinting: handleSetIsPrinting,
+        isAnyModalOpen,
+        setAnyModalOpen: handleSetAnyModalOpen
+    }), [exportData, setExportData, isModalOpen, openModal, closeModal, isPrinting, handleSetIsPrinting, isAnyModalOpen, handleSetAnyModalOpen]);
 
     return (
         <ExportContext.Provider value={contextValue}>

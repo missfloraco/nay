@@ -55,13 +55,19 @@ export default function PaymentMethods() {
     useEffect(() => {
         setPrimaryAction({
             label: saving ? 'جاري الحفظ...' : 'حفظ إعدادات طرق الدفع',
-            onClick: () => handleSubmit(),
+            type: 'submit',
+            form: 'payment-settings-form',
             icon: Save,
             loading: saving,
-            variant: 'primary'
+            variant: 'primary',
+            secondaryAction: {
+                label: 'تسجيل دفعة يدوية',
+                onClick: () => setShowPaymentModal(true),
+                variant: 'secondary'
+            }
         });
         return () => setPrimaryAction(null);
-    }, [saving, formData]);
+    }, [saving, formData, setPrimaryAction]);
 
     const toggleField = (field: keyof typeof formData) => {
         setFormData(prev => ({ ...prev, [field]: !prev[field] }));
@@ -69,7 +75,7 @@ export default function PaymentMethods() {
 
     return (
         <AdminLayout title="إعدادات طرق الدفع" icon={CreditCard} noPadding={true}>
-            <div className="w-full bg-transparent animate-in fade-in duration-500">
+            <form id="payment-settings-form" onSubmit={handleSubmit} className="w-full bg-transparent animate-in fade-in duration-500">
                 <div className="space-y-12 w-full p-8">
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-gray-100 dark:border-dark-800 pb-8">
                         <div className="flex items-center gap-6 group">
@@ -81,14 +87,6 @@ export default function PaymentMethods() {
                                 <p className="text-base font-bold text-gray-400 dark:text-gray-500">تفعيل وتكوين بوابات الدفع الإلكتروني</p>
                             </div>
                         </div>
-
-                        <button
-                            onClick={() => setShowPaymentModal(true)}
-                            className="flex items-center justify-center gap-3 px-8 h-14 bg-white dark:bg-dark-900 border-2 border-dashed border-gray-200 dark:border-dark-700 hover:border-emerald-500 text-gray-700 dark:text-gray-300 hover:text-emerald-500 rounded-2xl font-black transition-all shadow-sm hover:shadow-xl active:scale-95"
-                        >
-                            <Plus className="w-6 h-6" />
-                            <span>تسجيل دفعة يدوية</span>
-                        </button>
                     </div>
 
                     {showPaymentModal && (
@@ -298,7 +296,7 @@ export default function PaymentMethods() {
                     </div>
 
                 </div>
-            </div>
+            </form>
         </AdminLayout>
     );
 }

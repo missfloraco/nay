@@ -212,7 +212,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     </div>
 
                     {/* User Profile Section - Now at Bottom (Mirrors Branding Height) */}
-                    <div className="relative border-t border-gray-100 dark:border-white/5 h-[70px] lg:h-[90px] flex items-center" ref={userMenuRef}>
+                    <div className="sidebar-user-profile relative border-t border-gray-100 dark:border-white/5 h-[70px] lg:h-[90px] flex items-center backdrop-blur-sm" ref={userMenuRef}>
                         <button
                             onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
                             className="flex items-center w-full h-full transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] group hover:bg-gray-50 dark:hover:bg-white/5"

@@ -25,8 +25,10 @@ class VerificationCodeMail extends Mailable
      */
     public function build()
     {
-        $appName = config('app.name');
+        $appName = \App\Models\Setting::get('app_name', config('app.name'));
+
         return $this->subject("رمز التحقق الخاص بك - {$appName}")
-            ->view('emails.verification_code');
+            ->view('emails.verification_code')
+            ->with(['appName' => $appName]);
     }
 }

@@ -5,10 +5,12 @@ import api from '@/shared/services/api';
 import { useFeedback } from '@/shared/ui/notifications/feedback-context';
 import Modal from '@/shared/ui/modals/modal';
 import InputField from '@/shared/ui/forms/input-field';
+import { useAction } from '@/shared/contexts/action-context';
+import { useEffect } from 'react';
 
 export default function SubscriptionRequestsTable() {
     const queryClient = useQueryClient();
-    const { showToast } = useFeedback();
+    const { showSuccess } = useFeedback();
     const [selectedRequest, setSelectedRequest] = useState<any>(null);
     const [isApproveModalOpen, setIsApproveModalOpen] = useState(false);
     const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
@@ -24,7 +26,7 @@ export default function SubscriptionRequestsTable() {
         mutationFn: (data: any) => api.post(`/admin/subscription-requests/${selectedRequest.id}/approve`, data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['admin-subscription-requests'] });
-            showToast('تم الموافقة على الطلب بنجاح', 'success');
+            showSuccess('تم الموافقة على الطلب بنجاح');
             setIsApproveModalOpen(false);
             setSelectedRequest(null);
         }
@@ -34,11 +36,45 @@ export default function SubscriptionRequestsTable() {
         mutationFn: (data: any) => api.post(`/admin/subscription-requests/${selectedRequest.id}/reject`, data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['admin-subscription-requests'] });
-            showToast('تم رفض الطلب', 'success');
+            showSuccess('تم رفض الطلب');
             setIsRejectModalOpen(false);
             setSelectedRequest(null);
         }
     });
+
+    const { setPrimaryAction } = useAction();
+
+    useEffect(() => {
+        if (isApproveModalOpen) {
+            setPrimaryAction({
+                label: 'تأكيد الموافقة وتفعيل الحساب',
+                icon: Check,
+                type: 'submit',
+                form: 'approve-form',
+                loading: approveMutation.isPending,
+                secondaryAction: {
+                    label: 'إلغاء',
+                    onClick: () => setIsApproveModalOpen(false)
+                }
+            });
+        } else if (isRejectModalOpen) {
+            setPrimaryAction({
+                label: 'تأكيد الرفض النهائي',
+                icon: X,
+                variant: 'danger',
+                type: 'submit',
+                form: 'reject-form',
+                loading: rejectMutation.isPending,
+                secondaryAction: {
+                    label: 'تراجع',
+                    onClick: () => setIsRejectModalOpen(false)
+                }
+            });
+        } else {
+            setPrimaryAction(null);
+        }
+        return () => setPrimaryAction(null);
+    }, [isApproveModalOpen, isRejectModalOpen, approveMutation.isPending, rejectMutation.isPending, setPrimaryAction]);
 
     if (isLoading) {
         return (
@@ -122,45 +158,108 @@ export default function SubscriptionRequestsTable() {
             </div>
 
             {/* Approval Modal */}
-            <Modal isOpen={isApproveModalOpen} onClose={() => setIsApproveModalOpen(false)} title="الموافقة على طلب الاشتراك">
-                <form onSubmit={(e) => {
-                    e.preventDefault();
-                    const formData = new FormData(e.currentTarget);
-                    approveMutation.mutate({
-                        payment_reference: formData.get('payment_reference'),
-                        admin_notes: formData.get('admin_notes')
-                    });
-                }} className="space-y-6">
-                    <div className="p-6 bg-emerald-50 dark:bg-emerald-900/10 rounded-[2rem] border border-emerald-100 dark:border-emerald-900/20">
-                        <p className="text-sm text-emerald-800 dark:text-emerald-500 font-bold">سيتم ترقية حساب المشترك إلى خطة <span className="text-emerald-900 dark:text-emerald-400 font-black">"{selectedRequest?.plan?.name}"</span> فور الموافقة.</p>
+            <Modal
+                isOpen={isApproveModalOpen}
+                onClose={() => setIsApproveModalOpen(false)}
+                title="الموافقة على طلب الاشتراك والتفعيل"
+                variant="content-fit"
+            >
+                <form
+                    id="approve-form"
+                    onSubmit={(e) => {
+                        e.preventDefault();
+                        const formData = new FormData(e.currentTarget);
+                        approveMutation.mutate({
+                            payment_reference: formData.get('payment_reference'),
+                            admin_notes: formData.get('admin_notes')
+                        });
+                    }}
+                    className="flex flex-col gap-8"
+                >
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                        <div className="space-y-6">
+                            <div className="p-8 bg-emerald-50 dark:bg-emerald-900/10 rounded-[2.5rem] border-2 border-emerald-100 dark:border-emerald-900/20 space-y-4">
+                                <div className="p-3 bg-emerald-500/10 rounded-2xl w-fit">
+                                    <Check className="w-6 h-6 text-emerald-600" />
+                                </div>
+                                <div>
+                                    <h4 className="text-lg font-black text-emerald-900 dark:text-emerald-400">تأكيد التفعيل</h4>
+                                    <p className="text-xs text-emerald-700/70 dark:text-emerald-500/60 font-bold leading-relaxed mt-2">
+                                        سيتم ترقية حساب المشترك إلى خطة <span className="text-emerald-900 dark:text-white font-black">"{selectedRequest?.plan?.name}"</span> فور الموافقة، وسيتمكن من الوصول لكافة مميزات الباقة.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div className="space-y-1.5">
+                                <InputField
+                                    label="مرجع الدفع (اختياري)"
+                                    name="payment_reference"
+                                    placeholder="مثلا رقم التحويل أو إيصال السداد"
+                                    className="bg-gray-50/50"
+                                />
+                                <p className="text-[10px] font-bold text-gray-400 px-2">يساعد في تتبع العملية المالية لاحقاً.</p>
+                            </div>
+                        </div>
+
+                        <div className="space-y-2 group flex flex-col h-full">
+                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-4">ملاحظات الإدارة للمشترك</label>
+                            <textarea
+                                name="admin_notes"
+                                rows={6}
+                                className="flex-1 w-full p-6 bg-gray-50 dark:bg-black/20 border-2 border-transparent focus:bg-white dark:focus:bg-dark-950 focus:border-emerald-500/20 rounded-[2rem] font-bold text-sm text-gray-700 dark:text-gray-200 outline-none transition-all resize-none shadow-inner custom-scrollbar"
+                                placeholder="اكتب أي رسالة تود إرسالها للمشترك عند التفعيل..."
+                            ></textarea>
+                        </div>
                     </div>
-                    <InputField label="مرجع الدفع (اختياري)" name="payment_reference" placeholder="مثلا رقم التحويل أو إيصال السداد" />
-                    <div className="space-y-2">
-                        <label className="text-xs font-black text-gray-400 uppercase tracking-widest px-4">ملاحظات الإدارة</label>
-                        <textarea name="admin_notes" rows={3} className="w-full p-6 bg-gray-50 dark:bg-white/5 border-none rounded-[1.5rem] font-bold text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-primary/20 outline-none transition-all resize-none"></textarea>
-                    </div>
-                    <button type="submit" disabled={approveMutation.isPending} className="w-full py-4 bg-emerald-500 text-white rounded-2xl font-black shadow-lg shadow-emerald-500/20 hover:scale-[1.02] transition-all disabled:opacity-50">
-                        {approveMutation.isPending ? 'جاري التفعيل...' : 'تأكيد الموافقة والتفعيل'}
-                    </button>
+
+                    {/* Local footer removed - Actions are now in global toolbar */}
                 </form>
             </Modal>
 
             {/* Reject Modal */}
-            <Modal isOpen={isRejectModalOpen} onClose={() => setIsRejectModalOpen(false)} title="رفض طلب الاشتراك">
-                <form onSubmit={(e) => {
-                    e.preventDefault();
-                    const formData = new FormData(e.currentTarget);
-                    rejectMutation.mutate({
-                        admin_notes: formData.get('admin_notes')
-                    });
-                }} className="space-y-6">
-                    <div className="space-y-2">
-                        <label className="text-xs font-black text-gray-400 uppercase tracking-widest px-4">سبب الرفض</label>
-                        <textarea name="admin_notes" rows={3} className="w-full p-6 bg-gray-50 dark:bg-white/5 border-none rounded-[1.5rem] font-bold text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-primary/20 outline-none transition-all resize-none"></textarea>
+            <Modal
+                isOpen={isRejectModalOpen}
+                onClose={() => setIsRejectModalOpen(false)}
+                title="رفض طلب الاشتراك"
+                variant="content-fit"
+            >
+                <form
+                    id="reject-form"
+                    onSubmit={(e) => {
+                        e.preventDefault();
+                        const formData = new FormData(e.currentTarget);
+                        rejectMutation.mutate({
+                            admin_notes: formData.get('admin_notes')
+                        });
+                    }}
+                    className="flex flex-col gap-8"
+                >
+                    <div className="space-y-4">
+                        <div className="p-8 bg-red-50 dark:bg-red-900/10 rounded-[2.5rem] border-2 border-red-100 dark:border-red-900/20 flex items-center gap-6">
+                            <div className="p-3 bg-red-500/10 rounded-2xl">
+                                <AlertCircle className="w-6 h-6 text-red-600" />
+                            </div>
+                            <div>
+                                <h4 className="text-lg font-black text-red-900 dark:text-red-400">تحذير الرفض</h4>
+                                <p className="text-xs text-red-700/70 dark:text-red-500/60 font-bold leading-relaxed mt-1">
+                                    سيتم إخطار العميل برفض طلبه، ولن يتم إجراء أي تغيير على حسابه الحالي.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="space-y-2 group">
+                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-4">سبب الرفض (يظهر للعميل)</label>
+                            <textarea
+                                name="admin_notes"
+                                rows={4}
+                                className="w-full p-8 bg-gray-50 dark:bg-black/20 border-2 border-transparent focus:bg-white dark:focus:bg-dark-950 focus:border-red-500/20 rounded-[2.5rem] font-bold text-sm text-gray-700 dark:text-gray-200 outline-none transition-all resize-none shadow-inner custom-scrollbar"
+                                placeholder="يرجى كتابة سبب واضح لمساعدة العميل في تصحيح طلبه..."
+                                required
+                            ></textarea>
+                        </div>
                     </div>
-                    <button type="submit" disabled={rejectMutation.isPending} className="w-full py-4 bg-red-600 text-white rounded-2xl font-black shadow-lg shadow-red-600/20 hover:scale-[1.02] transition-all disabled:opacity-50">
-                        {rejectMutation.isPending ? 'جاري الرفض...' : 'تأكيد الرفض'}
-                    </button>
+
+                    {/* Local footer removed - Actions are now in global toolbar */}
                 </form>
             </Modal>
         </div>

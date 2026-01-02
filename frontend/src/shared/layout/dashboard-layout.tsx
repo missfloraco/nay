@@ -8,11 +8,13 @@ import Button from '@/shared/ui/buttons/btn-base';
 
 interface DashboardAction {
     label: string;
-    onClick: () => void;
+    onClick?: () => void;
     disabled?: boolean;
     loading?: boolean;
     variant?: 'primary' | 'secondary' | 'danger';
     icon?: any;
+    type?: 'button' | 'submit' | 'reset';
+    form?: string;
 }
 
 interface DashboardLayoutProps {
@@ -73,7 +75,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
                             </div>
                         )}
 
-                        <div className={`flex-1 ${noPadding ? 'p-0' : 'px-0 lg:px-8 py-6 lg:py-8'}`}>
+                        <div className={`flex-1 ${noPadding ? 'p-0' : 'px-4 lg:px-8 py-6 lg:py-8'}`}>
                             {children}
                         </div>
 
@@ -82,7 +84,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
 
                         {/* 2. Bottom Action Toolbar (Sticky) */}
                         {(primaryAction || extraActions.length > 0) && (
-                            <div className="sticky bottom-0 z-40 h-[70px] lg:h-[90px] px-0 bg-emerald-500/[0.03] dark:bg-emerald-500/[0.08] backdrop-blur-2xl border-t border-emerald-500/20 dark:border-emerald-500/10 shadow-[0_-10px_40px_rgba(16,185,129,0.08)] flex items-center shrink-0 transition-all duration-500 overflow-hidden relative group">
+                            <div className="layout-footer-toolbar sticky bottom-0 z-40 h-[70px] lg:h-[90px] px-0 bg-emerald-500/[0.03] dark:bg-emerald-500/[0.08] backdrop-blur-2xl border-t border-emerald-500/20 dark:border-emerald-500/10 shadow-[0_-10px_40px_rgba(16,185,129,0.08)] flex items-center shrink-0 transition-all duration-500 overflow-hidden relative group">
                                 {/* Decorative Accent Lines (Mirrored) */}
                                 <div className="absolute bottom-0 right-1/4 w-32 h-px bg-gradient-to-r from-transparent via-emerald-500/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
                                 <div className="absolute top-[-1px] left-1/3 w-64 h-px bg-gradient-to-r from-transparent via-emerald-500/20 to-transparent" />
@@ -96,10 +98,20 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
                                             variant={action.variant || 'secondary'}
                                             icon={action.icon || Plus}
                                             isLoading={action.loading}
+                                            type={action.type}
+                                            form={action.form}
                                         >
                                             {action.label}
                                         </Button>
                                     ))}
+                                    {primaryAction?.secondaryAction && (
+                                        <Button
+                                            onClick={primaryAction.secondaryAction.onClick}
+                                            variant={(primaryAction.secondaryAction as any).variant || "secondary"}
+                                        >
+                                            {primaryAction.secondaryAction.label}
+                                        </Button>
+                                    )}
                                     {primaryAction && (
                                         <Button
                                             onClick={primaryAction.onClick}
@@ -107,6 +119,8 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
                                             variant={primaryAction.variant === 'danger' ? 'danger' : 'primary'}
                                             icon={primaryAction.icon || Plus}
                                             isLoading={primaryAction.loading}
+                                            type={primaryAction.type}
+                                            form={primaryAction.form}
                                         >
                                             {primaryAction.label}
                                         </Button>

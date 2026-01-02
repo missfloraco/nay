@@ -107,17 +107,19 @@ import { NotificationProvider } from '@/shared/contexts/notification-context';
 
 export default function MainApp() {
     return (
-        <AdminAuthProvider>
-            <TenantAuthProvider>
-                <NotificationProvider>
-                    <TextProvider>
-                        <ExportProvider>
-                            <MainAppContent />
-                        </ExportProvider>
-                    </TextProvider>
-                </NotificationProvider>
-            </TenantAuthProvider>
-        </AdminAuthProvider>
+        <NotificationProvider>
+            <FeedbackProvider>
+                <AdminAuthProvider>
+                    <TenantAuthProvider>
+                        <TextProvider>
+                            <ExportProvider>
+                                <MainAppContent />
+                            </ExportProvider>
+                        </TextProvider>
+                    </TenantAuthProvider>
+                </AdminAuthProvider>
+            </FeedbackProvider>
+        </NotificationProvider>
     );
 }
 

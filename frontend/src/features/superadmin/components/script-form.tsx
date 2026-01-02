@@ -1,16 +1,21 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
 import { Script } from '@/features/superadmin/services/script-service';
 import InputField from '@/shared/ui/forms/input-field';
-import { Code, Globe, Shield, Smartphone, Zap, AlertTriangle, Layers, Save, RotateCcw } from 'lucide-react';
+import { Code, Globe, Shield, Smartphone, Zap, AlertTriangle, Layers, Save, RotateCcw, Terminal } from 'lucide-react';
 
 interface ScriptFormProps {
     initialData?: Script | null;
     onSubmit: (data: any) => Promise<void>;
     onCancel: () => void;
     isLoading: boolean;
+    hideFooter?: boolean;
 }
 
-export default function ScriptForm({ initialData, onSubmit, onCancel, isLoading }: ScriptFormProps) {
+export interface ScriptFormHandle {
+    submit: () => void;
+}
+
+const ScriptForm = forwardRef<ScriptFormHandle, ScriptFormProps>(({ initialData, onSubmit, onCancel, isLoading, hideFooter }, ref) => {
     const [formData, setFormData] = useState<Partial<Script>>({
         name: '',
         type: 'analytics',
@@ -24,6 +29,22 @@ export default function ScriptForm({ initialData, onSubmit, onCancel, isLoading 
     });
 
     const [securityWarnings, setSecurityWarnings] = useState<string[]>([]);
+
+    useImperativeHandle(ref, () => ({
+        submit: () => {
+            // Trigger validation if needed, or just submit
+            // We can programmatically submit the form or call onSubmit directly
+            // onSubmit(formData); // This skips HTML5 validation
+            // Better to trigger form submission event
+            const form = document.getElementById('script-form') as HTMLFormElement;
+            if (form) {
+                if (form.requestSubmit) form.requestSubmit();
+                else form.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+            } else {
+                onSubmit(formData);
+            }
+        }
+    }));
 
     useEffect(() => {
         if (initialData) {
@@ -70,193 +91,261 @@ export default function ScriptForm({ initialData, onSubmit, onCancel, isLoading 
     const impact = getImpactLevel();
 
     return (
-        <form onSubmit={handleSubmit} className="flex flex-col h-full">
-            {/* Header Impact Badge */}
-            <div className={`flex items-center gap-4 p-4 rounded-2xl border mb-6 ${impact === 'high' ? 'bg-red-50 border-red-100 dark:bg-red-900/10 dark:border-red-900/30' :
-                    impact === 'medium' ? 'bg-amber-50 border-amber-100 dark:bg-amber-900/10 dark:border-amber-900/30' :
-                        'bg-emerald-50 border-emerald-100 dark:bg-emerald-900/10 dark:border-emerald-900/30'
-                }`}>
-                <div className={`p-2 rounded-full ${impact === 'high' ? 'bg-red-100 text-red-600' :
-                        impact === 'medium' ? 'bg-amber-100 text-amber-600' :
-                            'bg-emerald-100 text-emerald-600'
-                    }`}>
-                    <Zap className="w-5 h-5" />
-                </div>
-                <div className="flex-1">
-                    <h4 className="font-bold text-sm text-gray-900 dark:text-white">
-                        {impact === 'high' ? 'تأثير عالي على الأداء' :
-                            impact === 'medium' ? 'تأثير متوسط' :
-                                'آمن / تأثير منخفض'}
-                    </h4>
-                    <p className="text-xs opacity-70">
-                        {impact === 'high' ? 'قد يسبب بطء في التحميل.' :
-                            impact === 'medium' ? 'تأثير مقبول.' :
-                                'لن يؤثر على السرعة.'}
-                    </p>
-                </div>
+        <form
+            id="script-form"
+            onSubmit={handleSubmit}
+            className="flex flex-col bg-white dark:bg-dark-900"
+        >
+            {/* 1. Main Responsive Content Grid */}
+            <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-10 min-h-0 min-w-0 w-full mb-8">
 
-                <button type="button" className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white dark:bg-white/5 border border-gray-200 dark:border-gray-700 text-xs font-bold hover:bg-gray-50 dark:hover:bg-white/10 transition-colors">
-                    <RotateCcw className="w-3 h-3" />
-                    Archive
-                </button>
-            </div>
+                {/* Left Side: Form Controls */}
+                <div className="order-1 lg:col-span-5 min-w-0 space-y-8">
 
-            {/* Main Content Grid */}
-            <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-8 min-h-0 overflow-visible">
+                    {/* Basic Info Section */}
+                    <div className="space-y-6">
+                        <div className="flex items-center gap-3 px-2">
+                            <div className="w-1.5 h-6 bg-primary rounded-full" />
+                            <h5 className="text-lg font-black text-gray-900 dark:text-white">المعلومات الأساسية</h5>
+                        </div>
 
-                {/* Right Column: Settings (7 cols) */}
-                <div className="lg:col-span-5 space-y-6 overflow-y-auto custom-scrollbar pr-1">
-
-                    <div className="space-y-4">
-                        <InputField
-                            label="اسم السكربت"
-                            value={formData.name}
-                            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                            icon={Code}
-                            required
-                            placeholder="مثال: Google Analytics 4"
-                        />
-
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-wider">النوع</label>
-                                <select
-                                    className="w-full bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-white/10 rounded-xl px-3 py-3 font-bold text-sm outline-none focus:border-primary"
-                                    value={formData.type}
-                                    onChange={(e) => setFormData({ ...formData, type: e.target.value as any })}
-                                >
-                                    <option value="analytics">Analytics</option>
-                                    <option value="ads">Ads</option>
-                                    <option value="pixels">Pixels</option>
-                                    <option value="chat">Chat</option>
-                                    <option value="custom">Custom</option>
-                                </select>
+                        <div className="space-y-4">
+                            <div className="space-y-1.5">
+                                <InputField
+                                    label="اسم السكربت"
+                                    value={formData.name}
+                                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                    icon={Code}
+                                    required
+                                    placeholder="مثال: Google Analytics 4, Hotjar"
+                                    className="bg-gray-50/50"
+                                />
+                                <p className="text-[10px] font-bold text-gray-400 px-2 leading-relaxed">
+                                    أدخل اسماً توضيحياً للسكربت ليساعدك في التعرف عليه لاحقاً داخل لوحة التحكم.
+                                </p>
                             </div>
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-wider">البيئة</label>
-                                <select
-                                    className="w-full bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-white/10 rounded-xl px-3 py-3 font-bold text-sm outline-none focus:border-primary"
-                                    value={formData.environment}
-                                    onChange={(e) => setFormData({ ...formData, environment: e.target.value as any })}
-                                >
-                                    <option value="production">Production</option>
-                                    <option value="staging">Staging</option>
-                                    <option value="development">Dev</option>
-                                </select>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <label className="text-[11px] font-black text-gray-400 uppercase tracking-widest px-1">نوع السكربت</label>
+                                    <select
+                                        className="w-full bg-gray-50 dark:bg-gray-800/40 border border-gray-100 dark:border-white/5 rounded-[1.25rem] px-4 py-3.5 font-bold text-sm outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all appearance-none cursor-pointer"
+                                        value={formData.type}
+                                        onChange={(e) => setFormData({ ...formData, type: e.target.value as any })}
+                                    >
+                                        <option value="analytics">📊 تحليلات (Analytics)</option>
+                                        <option value="ads">📢 إعلانات (Ads)</option>
+                                        <option value="pixels">✨ تتبع (Pixels)</option>
+                                        <option value="chat">💬 محادثة (Chat)</option>
+                                        <option value="custom">🛠️ مخصص (Custom)</option>
+                                    </select>
+                                    <p className="text-[9px] font-bold text-gray-400 px-2">يساعد تحديد النوع في تنظيم السكربتات وتطبيق إعدادات تحسين الأداء المناسبة.</p>
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-[11px] font-black text-gray-400 uppercase tracking-widest px-1">بيئة العمل</label>
+                                    <select
+                                        className="w-full bg-gray-50 dark:bg-gray-800/40 border border-gray-100 dark:border-white/5 rounded-[1.25rem] px-4 py-3.5 font-bold text-sm outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all appearance-none cursor-pointer"
+                                        value={formData.environment}
+                                        onChange={(e) => setFormData({ ...formData, environment: e.target.value as any })}
+                                    >
+                                        <option value="production">🚀 الإنتاج (Live Site)</option>
+                                        <option value="staging">🧪 التجريب (Staging)</option>
+                                        <option value="development">💻 التطوير (Dev)</option>
+                                    </select>
+                                    <p className="text-[9px] font-bold text-gray-400 px-2">اختر "Live Site" ليظهر السكربت لعملائك، أو "Dev" لاختباره داخلياً أولاً.</p>
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <div className="p-4 rounded-2xl border border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/20 space-y-4">
-                        <div className="flex items-center gap-2 mb-2">
-                            <Layers className="w-4 h-4 text-primary" />
-                            <h5 className="font-bold text-sm">التكوين التقني</h5>
+                    {/* Target Configuration (Touch Friendly Toggles) */}
+                    <div className="p-6 rounded-[2rem] border border-gray-100 dark:border-white/5 bg-gray-50/30 dark:bg-dark-800/40 space-y-6">
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                                <div className="p-2 bg-primary/10 rounded-xl">
+                                    <Layers className="w-5 h-5 text-primary" />
+                                </div>
+                                <h5 className="font-black text-gray-900 dark:text-white">قواعد الاستهداف الذكي</h5>
+                            </div>
+                            <span className="text-[10px] font-black text-primary px-3 py-1 bg-primary/10 rounded-full uppercase">الاستهداف</span>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-black text-gray-400">المكان</label>
-                                <div className="flex flex-col gap-2">
-                                    <label className={`flex items-center gap-2 px-3 py-2 rounded-lg border cursor-pointer transition-all ${formData.location === 'head' ? 'bg-white border-primary shadow-sm' : 'border-transparent hover:bg-white/50'}`}>
-                                        <input type="radio" name="loc" checked={formData.location === 'head'} onChange={() => setFormData({ ...formData, location: 'head' })} className="text-primary" />
-                                        <span className="text-xs font-bold">Head</span>
-                                    </label>
-                                    <label className={`flex items-center gap-2 px-3 py-2 rounded-lg border cursor-pointer transition-all ${formData.location === 'footer' ? 'bg-white border-primary shadow-sm' : 'border-transparent hover:bg-white/50'}`}>
-                                        <input type="radio" name="loc" checked={formData.location === 'footer'} onChange={() => setFormData({ ...formData, location: 'footer' })} className="text-primary" />
-                                        <span className="text-xs font-bold">Footer</span>
-                                    </label>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {/* Location Context */}
+                            <div className="space-y-3">
+                                <label className="text-[11px] font-black text-gray-400 uppercase tracking-widest">المكان في الصفحة</label>
+                                <div className="p-1 bg-gray-100 dark:bg-dark-700/50 rounded-2xl flex">
+                                    <button
+                                        type="button"
+                                        onClick={() => setFormData({ ...formData, location: 'head' })}
+                                        className={`flex-1 py-3.5 rounded-xl text-xs font-black transition-all ${formData.location === 'head' ? 'bg-white dark:bg-dark-600 text-gray-900 dark:text-white shadow-md' : 'text-gray-400 hover:text-gray-600'}`}
+                                    >
+                                        HEAD (رأس الصفحة)
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setFormData({ ...formData, location: 'footer' })}
+                                        className={`flex-1 py-3.5 rounded-xl text-xs font-black transition-all ${formData.location === 'footer' ? 'bg-white dark:bg-dark-600 text-gray-900 dark:text-white shadow-md' : 'text-gray-400 hover:text-gray-600'}`}
+                                    >
+                                        FOOTER (تذييل الصفحة)
+                                    </button>
                                 </div>
+                                <p className="text-[9px] font-bold text-gray-400 px-2 leading-tight">
+                                    {formData.location === 'head' ? 'يستخدم لسكربتات التتبع المهمة التي يجب تحميلها بمجرد فتح الصفحة.' : 'يستخدم لسكربتات المحادثة والأدوات التي لا تحتاج للتحميل الفوري.'}
+                                </p>
                             </div>
 
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-black text-gray-400">التحميل</label>
+                            {/* Strategy Select */}
+                            <div className="space-y-3">
+                                <label className="text-[11px] font-black text-gray-400 uppercase tracking-widest">توقيت التحميل</label>
                                 <select
-                                    className="w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg px-2 py-2 text-xs font-medium"
+                                    className="w-full bg-white dark:bg-dark-700/50 border border-gray-100 dark:border-white/5 rounded-2xl px-4 py-3.5 font-bold text-xs"
                                     value={formData.loadingStrategy}
                                     onChange={(e) => setFormData({ ...formData, loadingStrategy: e.target.value as any })}
                                 >
-                                    <option value="async">Async</option>
-                                    <option value="defer">Defer</option>
-                                    <option value="lazy">Lazy Load</option>
-                                    <option value="interaction">On Interaction</option>
+                                    <option value="async">🚀 Async (تحميل متوازي - سريع)</option>
+                                    <option value="defer">⌛ Defer (بعد معالجة الصفحة)</option>
+                                    <option value="lazy">💤 Lazy Load (عند اقتراب الظهور)</option>
+                                    <option value="interaction">⚡ Interaction (عند النقر فقط)</option>
                                 </select>
+                                <p className="text-[9px] font-bold text-gray-400 px-2 leading-tight">
+                                    {formData.loadingStrategy === 'async' ? 'يتم تحميل السكربت والصفحة معاً لسرعة فائقة.' :
+                                        formData.loadingStrategy === 'interaction' ? 'أفضل أداء: لا يتم تحميل السكربت إلا إذا تفاعل المستخدم معه.' :
+                                            'يساعد تأخير التحميل في تحسين نقاط سرعة الموقع (SEO).'}
+                                </p>
                             </div>
                         </div>
-                    </div>
 
-                    <div className="space-y-3">
-                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-wider flex items-center gap-2">
-                            <Globe className="w-3 h-3" />
-                            الاستهداف
-                        </label>
-                        <div className="flex bg-gray-100 dark:bg-gray-800 p-1 rounded-xl">
-                            {['desktop', 'tablet', 'mobile'].map((d) => (
-                                <button
-                                    key={d}
-                                    type="button"
-                                    onClick={() => toggleDevice(d as any)}
-                                    className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-all ${formData.deviceAttributes?.includes(d as any)
-                                            ? 'bg-white text-gray-900 shadow-sm'
-                                            : 'text-gray-400 hover:text-gray-600'
-                                        }`}
-                                >
-                                    {d === 'desktop' ? 'PC' : d === 'tablet' ? 'Tablet' : 'Mobile'}
-                                </button>
-                            ))}
+                        {/* Device Target */}
+                        <div className="space-y-3">
+                            <label className="text-[11px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                                <Smartphone className="w-4 h-4" />
+                                استهداف الأجهزة
+                            </label>
+                            <div className="grid grid-cols-3 gap-2 p-1.5 bg-gray-100 dark:bg-dark-700/50 rounded-2xl">
+                                {['desktop', 'tablet', 'mobile'].map((d) => (
+                                    <button
+                                        key={d}
+                                        type="button"
+                                        onClick={() => toggleDevice(d as any)}
+                                        className={`py-3 rounded-xl text-[11px] font-black transition-all border-2 ${formData.deviceAttributes?.includes(d as any)
+                                            ? 'bg-white dark:bg-dark-600 border-primary/20 text-gray-900 dark:text-white shadow-sm'
+                                            : 'border-transparent text-gray-400 hover:text-gray-600'
+                                            }`}
+                                    >
+                                        {d === 'desktop' ? '🖥️ الحاسوب' : d === 'tablet' ? '📱 التابلت' : '📱 الجوال'}
+                                    </button>
+                                ))}
+                            </div>
+                            <p className="text-[9px] font-bold text-gray-400 px-2 italic">حدد الأجهزة التي ترغب بظهور هذا السكربت عليها (مثلاً: إخفاء المحادثة على الجوال).</p>
                         </div>
 
-                        <select
-                            className="w-full bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-white/10 rounded-xl px-3 py-3 font-bold text-sm outline-none focus:border-primary"
-                            value={formData.pages}
-                            onChange={(e) => setFormData({ ...formData, pages: e.target.value as any })}
-                        >
-                            <option value="all">جميع الصفحات</option>
-                            <option value="public">الصفحات العامة</option>
-                            <option value="auth">تسجيل الدخول</option>
-                            <option value="custom">تخصيص...</option>
-                        </select>
+                        {/* Page Visibility */}
+                        <div className="space-y-3">
+                            <label className="text-[11px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                                <Globe className="w-4 h-4" />
+                                رؤية الصفحات
+                            </label>
+                            <select
+                                className="w-full bg-gray-100 dark:bg-dark-700/50 border border-gray-100 dark:border-white/5 rounded-2xl px-4 py-4 font-bold text-sm"
+                                value={formData.pages}
+                                onChange={(e) => setFormData({ ...formData, pages: e.target.value as any })}
+                            >
+                                <option value="all">📍 جميع صفحات الموقع</option>
+                                <option value="public">🌐 الصفحات العامة فقط (بدون لوحة التحكم)</option>
+                                <option value="auth">🔒 صفحات تسجيل الدخول فقط</option>
+                                <option value="custom">⚙️ تصفية مخصصة للروابط...</option>
+                            </select>
+                            <p className="text-[9px] font-bold text-gray-400 px-2">يمنع السكربت من الظهور في الصفحات غير المرغوبة لخصوصية وأداء أفضل.</p>
+                        </div>
                     </div>
 
                 </div>
 
-                {/* Left Column: Code Editor (7 cols) */}
-                <div className="lg:col-span-7 flex flex-col h-full min-h-[400px]">
-                    <div className="flex justify-between items-center mb-2">
-                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-wider flex items-center gap-2">
-                            <Code className="w-3 h-3" />
-                            الكود (Javascript / HTML)
-                        </label>
+                {/* Right Side: IDE-Like Code Editor (Order 2 on mobile, 7 cols on lg) */}
+                <div className="order-2 lg:col-span-7 min-w-0 w-full flex flex-col h-full mb-6 lg:mb-0">
+                    <div className="flex justify-between items-end mb-4 px-2">
+                        <div className="space-y-1">
+                            <div className="flex items-center gap-3">
+                                <div className="w-1.5 h-6 bg-amber-500 rounded-full" />
+                                <h5 className="text-lg font-black text-gray-900 dark:text-white">محرر السكربت</h5>
+                            </div>
+                            <p className="text-[10px] font-bold text-gray-400 px-4">يدعم Javascript, CSS, HTML</p>
+                        </div>
                         {securityWarnings.length > 0 && (
-                            <span className="text-[10px] font-bold text-amber-500 bg-amber-50 px-2 py-0.5 rounded-full flex items-center gap-1">
-                                <AlertTriangle className="w-3 h-3" />
-                                {securityWarnings.length} تنبيهات
-                            </span>
+                            <div className="animate-bounce">
+                                <span className="text-[10px] font-black text-amber-600 bg-amber-100 px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-sm">
+                                    <AlertTriangle className="w-3.5 h-3.5" />
+                                    {securityWarnings.length} تنبيهات برمجية
+                                </span>
+                            </div>
                         )}
                     </div>
 
-                    <div className="relative flex-1 group rounded-2xl overflow-hidden border-2 border-gray-100 dark:border-gray-800 focus-within:border-primary transition-colors bg-gray-900">
-                        <div className="absolute top-0 right-0 left-0 h-8 bg-gray-800 flex items-center px-4 gap-2 border-b border-gray-700">
-                            <div className="w-3 h-3 rounded-full bg-red-500/50" />
-                            <div className="w-3 h-3 rounded-full bg-amber-500/50" />
-                            <div className="w-3 h-3 rounded-full bg-emerald-500/50" />
-                            <span className="mr-auto text-[10px] font-mono text-gray-400">script-editor</span>
+                    <div className="relative flex-1 min-h-[300px] lg:min-h-[500px] bg-[#0f1117] rounded-[2.5rem] shadow-2xl shadow-indigo-500/10 overflow-hidden border-4 border-gray-100 dark:border-white/5 flex flex-col group">
+                        {/* Editor Header */}
+                        <div className="h-14 bg-[#1a1d27] flex items-center px-6 gap-2 border-b border-white/5 shrink-0">
+                            <div className="flex gap-2">
+                                <div className="w-3 h-3 rounded-full bg-red-400/80 shadow-[0_0_10px_rgba(248,113,113,0.3)]" />
+                                <div className="w-3 h-3 rounded-full bg-amber-400/80 shadow-[0_0_10px_rgba(251,191,36,0.3)]" />
+                                <div className="w-3 h-3 rounded-full bg-emerald-400/80 shadow-[0_0_10px_rgba(52,211,153,0.3)]" />
+                            </div>
+                            <div className="mr-8 flex items-center gap-2">
+                                <Terminal className="w-4 h-4 text-indigo-400" />
+                                <span className="text-[10px] font-bold text-gray-400 tracking-widest font-mono uppercase">advanced_injector.js</span>
+                            </div>
+                            <div className="mr-auto hidden md:flex items-center gap-3">
+                                <span className="text-[9px] font-black text-emerald-400/60 font-mono tracking-tighter">READ_WRITE_OK</span>
+                                <div className="h-4 w-px bg-white/10" />
+                                <span className="text-[9px] font-black text-gray-600 font-mono">UTF-8</span>
+                            </div>
                         </div>
-                        <textarea
-                            value={formData.content}
-                            onChange={handleContentChange}
-                            className="w-full h-full bg-transparent text-gray-100 font-mono text-xs p-4 pt-10 outline-none resize-none leading-relaxed selection:bg-primary/30 custom-scrollbar"
-                            placeholder="// اكتب الكود هنا..."
-                            dir="ltr"
-                            spellCheck={false}
-                        />
+
+                        {/* Textarea disguised as IDE */}
+                        <div className="flex-1 relative overflow-hidden flex">
+                            {/* Line Numbers Sidebar */}
+                            <div className="w-10 bg-[#151821] border-l border-white/5 pt-10 flex flex-col items-center select-none">
+                                {[...Array(20)].map((_, i) => (
+                                    <span key={i} className="text-[9px] font-mono text-gray-700 h-6 flex items-center">{i + 1}</span>
+                                ))}
+                            </div>
+
+                            <textarea
+                                value={formData.content}
+                                onChange={handleContentChange}
+                                className="flex-1 bg-transparent text-gray-200 font-mono text-sm p-6 pt-10 outline-none resize-none leading-relaxed selection:bg-primary/20 custom-scrollbar relative z-10"
+                                placeholder="// ادخل السكربت البرمجي هنا...
+(function() {
+    console.log('Script Initialized');
+})();"
+                                dir="ltr"
+                                spellCheck={false}
+                            />
+
+                            {/* Background Overlay Subtle Gradient */}
+                            <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-transparent pointer-events-none" />
+                        </div>
+
+                        {/* Editor Footer Status */}
+                        <div className="h-10 bg-[#1a1d27] border-t border-white/5 px-6 flex items-center justify-between text-[9px] font-black text-gray-600 font-mono shrink-0">
+                            <div className="flex gap-4">
+                                <span className="text-primary tracking-widest">LN 34, COL 12</span>
+                                <span>SPACES: 4</span>
+                            </div>
+                            <div className="flex gap-2 items-center">
+                                <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+                                <span>READY TO SAVE</span>
+                            </div>
+                        </div>
                     </div>
 
+                    {/* Security Warnings Overlay Bottom */}
                     {securityWarnings.length > 0 && (
-                        <div className="mt-2 space-y-1">
+                        <div className="mt-4 space-y-2">
                             {securityWarnings.map((warning, index) => (
-                                <div key={index} className="flex items-center gap-2 text-[10px] font-bold text-amber-600 bg-amber-50 p-2 rounded-lg">
-                                    <AlertTriangle className="w-3 h-3 shrink-0" />
-                                    {warning}
+                                <div key={index} className="flex items-start gap-3 text-xs font-black text-amber-700 bg-amber-50/80 dark:bg-amber-900/10 p-3 rounded-2xl border border-amber-100 dark:border-amber-500/20 animate-in slide-in-from-right-4 duration-500">
+                                    <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
+                                    <span>{warning}</span>
                                 </div>
                             ))}
                         </div>
@@ -265,24 +354,28 @@ export default function ScriptForm({ initialData, onSubmit, onCancel, isLoading 
 
             </div>
 
-            {/* Footer Actions */}
-            <div className="flex gap-4 pt-6 mt-4 border-t border-gray-100 dark:border-white/5">
-                <button
-                    type="submit"
-                    disabled={isLoading}
-                    className="flex-1 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-xl py-4 font-black hover:opacity-90 transition-all flex items-center justify-center gap-2"
-                >
-                    {isLoading ? <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" /> : <Save className="w-5 h-5" />}
-                    حفظ ومتابعة
-                </button>
-                <button
-                    type="button"
-                    onClick={onCancel}
-                    className="px-8 bg-gray-100 dark:bg-white/5 text-gray-500 rounded-xl py-4 font-bold hover:bg-gray-200 transition-colors"
-                >
-                    إلغاء
-                </button>
-            </div>
+            {/* Footer Static Buttons (Only if not using global footer) */}
+            {!hideFooter && (
+                <div className="flex gap-4 pt-10 mt-8 border-t border-gray-100 dark:border-white/5">
+                    <button
+                        type="submit"
+                        disabled={isLoading}
+                        className="flex-[2] bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-[1.5rem] py-5 font-black hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3 shadow-xl"
+                    >
+                        {isLoading ? <div className="w-5 h-5 border-3 border-current border-t-transparent rounded-full animate-spin" /> : <Save className="w-6 h-6" />}
+                        حفظ ومتابعة الإعدادات
+                    </button>
+                    <button
+                        type="button"
+                        onClick={onCancel}
+                        className="flex-1 bg-gray-100 dark:bg-dark-800 text-gray-500 dark:text-gray-400 rounded-[1.5rem] py-5 font-black hover:bg-gray-200 dark:hover:bg-dark-700 transition-all"
+                    >
+                        إلغاء
+                    </button>
+                </div>
+            )}
         </form>
     );
-}
+});
+
+export default ScriptForm;

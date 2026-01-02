@@ -11,6 +11,8 @@ import InputField from '@/shared/ui/forms/input-field';
 import Modal from '@/shared/ui/modals/modal';
 import { Toolbar } from '@/shared/components/toolbar';
 import ImagePreview from '@/shared/ui/image-preview';
+import { useAction } from '@/shared/contexts/action-context';
+import { History } from 'lucide-react';
 
 export default function SupportTicketsPage() {
     const queryClient = useQueryClient();
@@ -181,6 +183,58 @@ export default function SupportTicketsPage() {
         onError: () => showError('فشل حذف التذكرة نهائياً')
     });
 
+    const { setPrimaryAction } = useAction();
+
+    useEffect(() => {
+        if (selectedTicketId && selectedTicket) {
+            const isArchived = !!selectedTicket.deleted_at;
+
+            if (isArchived) {
+                setPrimaryAction({
+                    label: 'استعادة التذكرة الآن',
+                    icon: History,
+                    loading: restoreTicketMutation.isPending,
+                    onClick: () => restoreTicketMutation.mutate(),
+                    secondaryAction: {
+                        label: 'حذف نهائياً',
+                        variant: 'danger',
+                        onClick: async () => {
+                            const confirmed = await showConfirm({
+                                title: 'حذف نهائي',
+                                message: 'لا يمكن التراجع عن هذا الإجراء، هل أنت متأكد؟',
+                                isDestructive: true
+                            });
+                            if (confirmed) forceDeleteMutation.mutate();
+                        }
+                    }
+                });
+            } else {
+                setPrimaryAction({
+                    label: selectedTicket.status === 'resolved' ? 'إغلاق التذكرة نهائياً' : 'تحديد كـ محلولة',
+                    icon: selectedTicket.status === 'resolved' ? X : CheckCircle,
+                    loading: updateStatusMutation.isPending,
+                    onClick: () => updateStatusMutation.mutate({ status: selectedTicket.status === 'resolved' ? 'closed' : 'resolved' }),
+                    secondaryAction: {
+                        label: 'أرشفة التذكرة',
+                        onClick: async () => {
+                            const confirmed = await showConfirm({
+                                title: 'أرشفة التذكرة',
+                                message: 'هل تريد نقل هذه التذكرة إلى الأرشيف؟',
+                                isDestructive: true
+                            });
+                            if (confirmed) deleteTicketMutation.mutate();
+                        }
+                    }
+                });
+            }
+        } else {
+            // No ticket selected, or still loading
+            // But we don't want to clear if it was already set by another screen
+            // Actually, AdminLayout handle this by primaryAction prop
+        }
+        return () => setPrimaryAction(null);
+    }, [selectedTicketId, selectedTicket, setPrimaryAction, restoreTicketMutation.isPending, updateStatusMutation.isPending]);
+
     const handleSendMessage = (e: React.FormEvent) => {
         e.preventDefault();
 
@@ -344,9 +398,9 @@ export default function SupportTicketsPage() {
                 isOpen={!!selectedTicketId}
                 onClose={() => setSelectedTicketId(null)}
                 title="محادثة الدعم الفني"
-                size="full"
+                variant="content-fit"
             >
-                <div className="flex flex-col lg:flex-row h-full gap-8 bg-gray-50/20 dark:bg-dark-950/20">
+                <div className="flex flex-col lg:flex-row gap-8 bg-gray-50/20 dark:bg-dark-950/20 min-h-full">
 
                     {/* Chat Content (Left/Center) */}
                     {/* Chat Content (Left/Center) - 2026 Redesign */}
@@ -543,110 +597,7 @@ export default function SupportTicketsPage() {
                         </div>
                     </div>
 
-                    {/* Management Sidebar (Right) */}
-                    <div className="lg:w-96 flex flex-col gap-6 shrink-0">
-                        {/* Admin Action Card */}
-                        <div className="bg-white dark:bg-dark-900 rounded-[2.5rem] border border-gray-100 dark:border-white/5 shadow-2xl overflow-hidden animate-in slide-in-from-left-4 duration-700">
-                            <div className="p-8 bg-gray-50/50 dark:bg-dark-800/50 border-b border-gray-100 dark:border-white/5">
-                                <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block">إجراءات الإدارة</span>
-                                <h4 className="text-xl font-black text-primary leading-tight">التحكم في التذكرة</h4>
-                            </div>
-
-                            <div className="p-8 space-y-8">
-                                {/* Status Toggle */}
-                                <div>
-                                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4 px-2">تغيير حالة التذكرة</label>
-                                    <div className="grid grid-cols-2 gap-2">
-                                        {['open', 'in_progress', 'resolved', 'closed'].map((status) => (
-                                            <button
-                                                key={status}
-                                                onClick={() => updateStatusMutation.mutate({ status })}
-                                                disabled={!!selectedTicket?.deleted_at}
-                                                className={`flex items-center justify-between px-6 py-4 rounded-2xl text-xs font-black transition-all border-2 ${selectedTicket?.status === status
-                                                    ? 'bg-primary/5 text-primary border-primary shadow-lg shadow-primary/5'
-                                                    : 'bg-white dark:bg-dark-800 text-gray-500 border-gray-100 dark:border-white/5 hover:border-gray-200'
-                                                    } ${selectedTicket?.deleted_at ? 'opacity-50 grayscale' : ''}`}
-                                            >
-                                                <span>{getStatusLabel(status)}</span>
-                                                {selectedTicket?.status === status && <CheckCircle className="w-4 h-4" />}
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
-
-                                {/* Danger Actions */}
-                                <div className="pt-8 border-t border-gray-100 dark:border-white/5 space-y-3">
-                                    {selectedTicket?.deleted_at ? (
-                                        <>
-                                            <button
-                                                onClick={() => restoreTicketMutation.mutate()}
-                                                className="w-full h-16 bg-emerald-600 text-white rounded-2xl font-black text-sm hover:bg-emerald-700 transition-all shadow-xl shadow-emerald-600/20 flex items-center justify-center gap-3"
-                                            >
-                                                <History className="w-5 h-5" />
-                                                استعادة التذكرة
-                                            </button>
-                                            <button
-                                                onClick={async () => {
-                                                    const confirmed = await showConfirm({
-                                                        title: 'حذف نهائي',
-                                                        message: 'لا يمكن التراجع عن هذا الإجراء، هل أنت متأكد؟',
-                                                        isDestructive: true
-                                                    });
-                                                    if (confirmed) forceDeleteMutation.mutate();
-                                                }}
-                                                className="w-full h-16 bg-red-100 dark:bg-red-500/10 text-red-600 rounded-2xl font-black text-sm hover:bg-red-200 transition-all flex items-center justify-center gap-3"
-                                            >
-                                                <Trash2 className="w-5 h-5" />
-                                                حذف التذكرة نهائياً
-                                            </button>
-                                        </>
-                                    ) : (
-                                        <button
-                                            onClick={async () => {
-                                                const confirmed = await showConfirm({
-                                                    title: 'أرشفة التذكرة',
-                                                    message: 'هل تريد نقل هذه التذكرة إلى الأرشيف؟',
-                                                    isDestructive: true
-                                                });
-                                                if (confirmed) deleteTicketMutation.mutate();
-                                            }}
-                                            className="w-full h-16 bg-red-50 dark:bg-red-500/10 text-red-600 border border-red-100 dark:border-red-900/20 rounded-2xl font-black text-sm hover:bg-red-100 transition-all flex items-center justify-center gap-3"
-                                        >
-                                            <Archive className="w-5 h-5" />
-                                            نقل إلى الأرشيف
-                                        </button>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Summary Details Card */}
-                        <div className="bg-primary/5 rounded-[2.5rem] border-2 border-primary/10 p-8 space-y-6 animate-in slide-in-from-left-6 duration-700">
-                            <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 bg-white dark:bg-dark-900 rounded-2xl flex items-center justify-center shadow-lg">
-                                    <Info className="w-6 h-6 text-primary" />
-                                </div>
-                                <h4 className="font-black text-gray-900 dark:text-white uppercase tracking-wider text-xs">ملخص التذكرة</h4>
-                            </div>
-
-                            <div className="space-y-4">
-                                <div className="flex justify-between items-center text-[11px] font-bold">
-                                    <span className="text-gray-400">تاريخ الإنشاء:</span>
-                                    <span className="text-gray-900 dark:text-white">{formatDate(selectedTicket?.created_at || '').split('|')[0]}</span>
-                                </div>
-                                <div className="flex justify-between items-center text-[11px] font-bold">
-                                    <span className="text-gray-400">الأولوية:</span>
-                                    <span className={`px-2 py-0.5 rounded-md ${selectedTicket?.priority === 'urgent' ? 'bg-red-500 text-white' : 'bg-white dark:bg-dark-800 text-primary'}`}>
-                                        {getPriorityLabel(selectedTicket?.priority || '')}
-                                    </span>
-                                </div>
-                                <div className="flex justify-between items-center text-[11px] font-bold">
-                                    <span className="text-gray-400">عدد الرسائل:</span>
-                                    <span className="text-gray-900 dark:text-white">{selectedTicket?.messages?.length || 0} رسالة</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    {/* Management Sidebar removed - Actions migrated to global footer toolbar */}
                 </div>
             </Modal>
 

@@ -2,6 +2,8 @@
 import Modal from '@/shared/ui/modals/modal';
 import Button from '@/shared/ui/buttons/btn-base';
 import { AlertTriangle, CheckCircle, Info, Trash2, XCircle } from 'lucide-react';
+import { useAction } from '@/shared/contexts/action-context';
+import { useEffect } from 'react';
 
 export type ConfirmationVariant = 'danger' | 'warning' | 'success' | 'info';
 
@@ -68,14 +70,37 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
     const Icon = currentVariant.icon;
     const finalConfirmLabel = confirmLabel || currentVariant.defaultLabel;
 
+    const { setPrimaryAction } = useAction();
+
+    useEffect(() => {
+        if (isOpen) {
+            setPrimaryAction({
+                label: finalConfirmLabel,
+                icon: Icon,
+                variant: variant === 'danger' ? 'danger' : 'primary',
+                loading: isConfirming,
+                onClick: onConfirm,
+                secondaryAction: {
+                    label: cancelLabel,
+                    onClick: onClose
+                }
+            });
+        }
+        return () => setPrimaryAction(null);
+    }, [isOpen, finalConfirmLabel, Icon, variant, isConfirming, onConfirm, cancelLabel, onClose, setPrimaryAction]);
+
     return (
-        <Modal isOpen={isOpen} onClose={onClose} size="sm">
-            <div className="flex flex-col items-center text-center pt-2 pb-2">
+        <Modal
+            isOpen={isOpen}
+            onClose={onClose}
+            variant="content-fit"
+            title={title}
+        >
+            <div className="flex flex-col items-center text-center gap-8">
                 {/* Dynamic Icon with Ripple Effect */}
                 <div className={`
                     relative w-24 h-24 rounded-[2.5rem] 
                     flex items-center justify-center 
-                    mb-6 
                     ${currentVariant.iconBg} 
                     ${currentVariant.borderColor} 
                     border-[3px]
@@ -86,34 +111,13 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
                 </div>
 
                 {/* Text Content */}
-                <div className="space-y-3 mb-8 w-full">
-                    <h3 className="text-2xl font-black text-gray-900 dark:text-white">
-                        {title}
-                    </h3>
-                    <p className="text-gray-500 dark:text-gray-400 font-medium leading-relaxed max-w-[90%] mx-auto">
+                <div className="space-y-3 w-full">
+                    <p className="text-gray-500 dark:text-gray-400 font-bold text-lg leading-relaxed max-w-[85%] mx-auto">
                         {message}
                     </p>
                 </div>
 
-                {/* Actions */}
-                <div className="flex gap-4 w-full">
-                    <Button
-                        variant="secondary"
-                        onClick={onClose}
-                        className="flex-1 py-4 text-base rounded-2xl"
-                        disabled={isConfirming}
-                    >
-                        {cancelLabel}
-                    </Button>
-                    <Button
-                        variant={currentVariant.confirmButtonVariant}
-                        onClick={onConfirm}
-                        isLoading={isConfirming}
-                        className="flex-1 py-4 text-base rounded-2xl shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all"
-                    >
-                        {finalConfirmLabel}
-                    </Button>
-                </div>
+                {/* Actions removed - Moved to global footer toolbar */}
             </div>
         </Modal>
     );

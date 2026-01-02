@@ -128,13 +128,27 @@ export default function AdminPlansPage() {
     };
 
     useEffect(() => {
-        setPrimaryAction({
-            label: 'إضافة خطة جديدة',
-            icon: Plus,
-            onClick: () => handleOpenModal(),
-        });
+        if (isModalOpen) {
+            setPrimaryAction({
+                label: editingPlan ? 'حفظ التعديلات النهائية' : 'إنشاء ونشر الخطة الآن',
+                icon: Check,
+                type: 'submit',
+                form: 'plan-form',
+                loading: saveMutation.isPending,
+                secondaryAction: {
+                    label: 'تجاهل',
+                    onClick: () => setIsModalOpen(false)
+                }
+            });
+        } else {
+            setPrimaryAction({
+                label: 'إضافة خطة جديدة',
+                icon: Plus,
+                onClick: () => handleOpenModal(),
+            });
+        }
         return () => setPrimaryAction(null);
-    }, []);
+    }, [isModalOpen, editingPlan, saveMutation.isPending, setPrimaryAction]);
 
     return (
         <AdminLayout title="إدارة الخطط السعرية" icon={Crown}>
@@ -151,13 +165,24 @@ export default function AdminPlansPage() {
                         const Icon = PLAN_ICONS[plan.name as keyof typeof PLAN_ICONS] || PLAN_ICONS.Default;
                         return (
                             <div key={plan.id} className="group relative bg-white dark:bg-dark-900 p-8 rounded-[2.5rem] border border-gray-100 dark:border-white/5 shadow-sm hover:shadow-xl transition-all duration-500 overflow-hidden">
-                                <div className="absolute top-0 right-0 p-6 opacity-0 group-hover:opacity-100 transition-all flex gap-2">
-                                    <button onClick={() => handleOpenModal(plan)} className="p-3 bg-blue-50 text-blue-600 rounded-2xl hover:bg-blue-600 hover:text-white transition-all shadow-sm">
-                                        <Edit2 className="w-4 h-4" />
-                                    </button>
-                                    <button onClick={() => handleDelete(plan.id)} className="p-3 bg-red-50 text-red-600 rounded-2xl hover:bg-red-600 hover:text-white transition-all shadow-sm">
-                                        <Trash2 className="w-4 h-4" />
-                                    </button>
+                                <div className="absolute top-4 left-4 md:top-6 md:left-6 z-20">
+                                    <div className="flex items-center gap-1 p-1 bg-white/80 dark:bg-dark-900/80 backdrop-blur-md rounded-2xl border border-gray-100 dark:border-white/5 shadow-xl transition-all duration-300">
+                                        <button
+                                            onClick={() => handleOpenModal(plan)}
+                                            className="p-2.5 bg-blue-500/10 text-blue-600 rounded-xl hover:bg-blue-600 hover:text-white transition-all duration-300"
+                                            title="تعديل الخطة"
+                                        >
+                                            <Edit2 className="w-4 h-4" />
+                                        </button>
+                                        <div className="w-px h-4 bg-gray-200 dark:bg-white/10 mx-0.5" />
+                                        <button
+                                            onClick={() => handleDelete(plan.id)}
+                                            className="p-2.5 bg-red-500/10 text-red-600 rounded-xl hover:bg-red-600 hover:text-white transition-all duration-300"
+                                            title="حذف الخطة"
+                                        >
+                                            <Trash2 className="w-4 h-4" />
+                                        </button>
+                                    </div>
                                 </div>
 
                                 <div className="w-16 h-16 bg-primary/10 rounded-[1.5rem] flex items-center justify-center mb-6">
@@ -196,69 +221,129 @@ export default function AdminPlansPage() {
                 </div>
             </div>
 
-            <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={editingPlan ? 'تعديل الخطة' : 'إضافة خطة جديدة'} size="xl">
-                <form onSubmit={handleSubmit} className="p-8 space-y-8">
-                    <InputField label="اسم الخطة" name="name" defaultValue={editingPlan?.name} required placeholder="مثلاً: الباقة الاحترافية" />
+            <Modal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                title={editingPlan ? 'تعديل الخطة' : 'إضافة خطة جديدة'}
+                variant="content-fit"
+            >
+                <form
+                    id="plan-form"
+                    onSubmit={handleSubmit}
+                    className="flex flex-col gap-8"
+                >
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                        {/* Right Column: Basic Info & Pricing */}
+                        <div className="space-y-8">
+                            <div className="flex items-center gap-3 px-2">
+                                <div className="w-1.5 h-6 bg-primary rounded-full" />
+                                <h5 className="text-lg font-black text-gray-900 dark:text-white">البيانات الأساسية</h5>
+                            </div>
 
-                    <div className="space-y-6 p-6 bg-gray-50 dark:bg-white/5 rounded-[2.5rem] border border-gray-100 dark:border-white/5">
-                        <div className="flex items-center justify-between px-4">
-                            <label className="text-xs font-black text-gray-400 uppercase tracking-widest">توفير سنوي (%)</label>
-                            <span className="text-xl font-black text-primary">{discount}%</span>
+                            <div className="space-y-6">
+                                <div className="space-y-1.5">
+                                    <InputField
+                                        label="اسم الخطة"
+                                        name="name"
+                                        defaultValue={editingPlan?.name}
+                                        required
+                                        placeholder="مثلاً: الباقة الاحترافية"
+                                        className="bg-gray-50/50"
+                                    />
+                                    <p className="text-[10px] font-bold text-gray-400 px-2">يظهر هذا الاسم للمشتركين في صفحة الأسعار.</p>
+                                </div>
+
+                                <div className="space-y-6 p-8 bg-gray-50/50 dark:bg-dark-800/40 rounded-[2.5rem] border border-gray-100 dark:border-white/5 shadow-sm">
+                                    <div className="flex items-center justify-between mb-4">
+                                        <div className="flex flex-col gap-1">
+                                            <label className="text-xs font-black text-gray-400 uppercase tracking-widest">توفير الدفع السنوي</label>
+                                            <p className="text-[9px] font-bold text-gray-400">حفز العملاء على الاشتراك السنوي بخصم مغري</p>
+                                        </div>
+                                        <div className="px-4 py-2 bg-primary/10 rounded-2xl">
+                                            <span className="text-xl font-black text-primary">{discount}%</span>
+                                        </div>
+                                    </div>
+                                    <div className="relative pt-2 pb-6">
+                                        <input
+                                            type="range"
+                                            min="0" max="50" step="5"
+                                            value={discount}
+                                            onChange={(e) => handleDiscountChange(parseInt(e.target.value))}
+                                            className="w-full h-2.5 bg-gray-200 dark:bg-dark-700 rounded-lg appearance-none cursor-pointer accent-primary"
+                                        />
+                                        <div className="absolute top-7 left-0 right-0 flex justify-between px-1 text-[8px] font-black text-gray-400 uppercase tracking-tighter">
+                                            <span>بدون خصم</span>
+                                            <span className="mr-4">توفير 25%</span>
+                                            <span>نصف السعر تقريباً</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-6">
+                                    <div className="space-y-2">
+                                        <InputField
+                                            label="السعر الشهري ($)"
+                                            name="monthly_price"
+                                            type="number"
+                                            step="0.01"
+                                            value={tempMonthlyPrice}
+                                            onChange={(e) => handleMonthlyChange(e.target.value)}
+                                            required
+                                            className="bg-white dark:bg-dark-900"
+                                        />
+                                        <p className="text-[9px] font-bold text-gray-400 px-2 italic text-center">التكلفة في الشهر الواحد</p>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <InputField
+                                            label="السعر السنوي ($)"
+                                            name="yearly_price"
+                                            type="number"
+                                            step="0.01"
+                                            value={tempYearlyPrice}
+                                            onChange={(e) => setTempYearlyPrice(e.target.value)}
+                                            required
+                                            className="bg-primary/5 border-primary/20 text-primary font-black"
+                                        />
+                                        <p className="text-[9px] font-bold text-primary/60 px-2 text-center">سعر الدفع لمرة واحدة سنوياً</p>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <input
-                            type="range"
-                            min="0" max="50" step="5"
-                            value={discount}
-                            onChange={(e) => handleDiscountChange(parseInt(e.target.value))}
-                            className="w-full h-2 bg-gray-200 dark:bg-dark-800 rounded-lg appearance-none cursor-pointer accent-primary"
-                        />
-                        <div className="flex justify-between px-2 text-[10px] font-black text-gray-400 uppercase">
-                            <span>0%</span>
-                            <span>25%</span>
-                            <span>50%</span>
+
+                        {/* Left Column: Features */}
+                        <div className="space-y-8 flex flex-col h-full">
+                            <div className="flex items-center justify-between px-2">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-1.5 h-6 bg-emerald-500 rounded-full" />
+                                    <h5 className="text-lg font-black text-gray-900 dark:text-white">مميزات الباقة</h5>
+                                </div>
+                                <div className="px-3 py-1 bg-emerald-500/10 rounded-full border border-emerald-500/20">
+                                    <span className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">نقاط البيع</span>
+                                </div>
+                            </div>
+
+                            <div className="flex-1 flex flex-col space-y-4">
+                                <div className="flex-1 relative group">
+                                    <div className="absolute inset-0 bg-emerald-500/10 rounded-[2rem] blur-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+                                    <textarea
+                                        name="features"
+                                        rows={8}
+                                        defaultValue={editingPlan?.features?.join('\n')}
+                                        className="w-full h-full p-8 bg-gray-50/50 dark:bg-white/5 border-2 border-transparent focus:border-emerald-500/20 rounded-[2rem] font-bold text-gray-700 dark:text-gray-200 outline-none transition-all resize-none shadow-inner relative z-10 custom-scrollbar leading-relaxed"
+                                        placeholder="نقاط بيع غير محدودة&#10;إدارة المخزون والطلبات&#10;تقارير احترافية ومفصلة&#10;..."
+                                    ></textarea>
+                                </div>
+                                <div className="bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-900/20 p-4 rounded-2xl flex gap-3">
+                                    <Star className="w-5 h-5 text-amber-500 shrink-0" />
+                                    <p className="text-[10px] font-bold text-amber-700 dark:text-amber-400 leading-relaxed">
+                                        نصيحة: ابدأ كل ميزة في سطر جديد. اجعل المميزات واضحة وجذابة لزيادة معدل التحويل.
+                                    </p>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-6">
-                        <div className="space-y-2">
-                            <InputField
-                                label="السعر الشهري ($)"
-                                name="monthly_price"
-                                type="number"
-                                step="0.01"
-                                value={tempMonthlyPrice}
-                                onChange={(e) => handleMonthlyChange(e.target.value)}
-                                required
-                            />
-                        </div>
-                        <div className="space-y-2">
-                            <InputField
-                                label="السعر السنوي ($)"
-                                name="yearly_price"
-                                type="number"
-                                step="0.01"
-                                value={tempYearlyPrice}
-                                onChange={(e) => setTempYearlyPrice(e.target.value)}
-                                required
-                            />
-                            <p className="text-[10px] text-gray-400 font-bold px-4 pt-1">يحتسب تلقائياً بناءً على الخصم</p>
-                        </div>
-                    </div>
-
-                    <div className="space-y-2">
-                        <label className="text-xs font-black text-gray-400 uppercase tracking-widest px-4">المميزات (سطر لكل ميزة)</label>
-                        <textarea
-                            name="features"
-                            rows={6}
-                            defaultValue={editingPlan?.features?.join('\n')}
-                            className="w-full p-6 bg-gray-50 dark:bg-white/5 border-2 border-transparent focus:border-primary/20 rounded-[2rem] font-bold text-gray-700 dark:text-gray-200 outline-none transition-all resize-none shadow-inner"
-                            placeholder="نقاط بيع غير محدودة&#10;إدارة المخزون&#10;..."
-                        ></textarea>
-                    </div>
-
-                    <button type="submit" disabled={saveMutation.isPending} className="w-full py-5 bg-primary text-white rounded-[2rem] font-black shadow-2xl shadow-primary/30 hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50 text-lg">
-                        {saveMutation.isPending ? 'جاري الحفظ...' : 'حفظ بيانات الخطة'}
-                    </button>
+                    {/* Local footer removed - Actions are now in global toolbar */}
                 </form>
             </Modal>
         </AdminLayout>
