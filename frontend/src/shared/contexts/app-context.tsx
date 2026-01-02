@@ -272,10 +272,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           }, {}),
 
           currentUser: userInfo ? {
-            ...userInfo,
+            ...(prev.currentUser || {}), // Keep existing data
+            ...userInfo, // Update with new data
             avatarUrl: (userInfo as any).avatar !== undefined || (userInfo as any).avatar_url !== undefined
               ? normalizeUrl((userInfo as any).avatar || (userInfo as any).avatar_url)
-              : prev.currentUser?.avatarUrl
+              : (prev.currentUser?.avatarUrl || null)
           } : prev.currentUser,
 
           tax_rate: authenticatedData.tax_rate !== undefined ? Number(authenticatedData.tax_rate) : prev.tax_rate,

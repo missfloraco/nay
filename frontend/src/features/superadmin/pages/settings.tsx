@@ -30,8 +30,24 @@ export default function AdminSettings() {
         return () => setPrimaryAction(null);
     }, [setPrimaryAction, isSaving]);
 
-    if (loading || !settings.currentUser) {
-        return null; // Or loader
+    if (loading) {
+        return (
+            <AdminLayout title="جاري التحميل..." icon={Settings} noPadding={true}>
+                <div className="p-10 flex items-center justify-center min-h-[60vh]">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+                </div>
+            </AdminLayout>
+        );
+    }
+
+    if (!settings.currentUser) {
+        return (
+            <AdminLayout title="خطأ في البيانات" icon={Settings} noPadding={true}>
+                <div className="p-10 text-center text-gray-500">
+                    لم يتم العثور على بيانات المستخدم. يرجى إعادة تسجيل الدخول.
+                </div>
+            </AdminLayout>
+        );
     }
 
     return (

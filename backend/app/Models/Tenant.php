@@ -44,6 +44,8 @@ class Tenant extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+        'verification_code',
+        'verification_code_expires_at',
     ];
 
     public function payments()

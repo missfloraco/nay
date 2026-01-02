@@ -187,14 +187,7 @@ Route::prefix('admin')->group(function () {
         Route::put('/payments/{payment}', [PaymentController::class, 'update']);
         Route::delete('/payments/{payment}', [PaymentController::class, 'destroy']);
 
-        Route::post('/preferences', function (Request $request) {
-            $user = $request->user();
-            $prefs = $user->settings ?: [];
-            $prefs['dark_mode'] = $request->input('dark_mode');
-            $user->settings = $prefs;
-            $user->save();
-            return response()->json(['message' => 'Preferences updated']);
-        });
+        Route::post('/preferences', [App\Http\Controllers\Admin\ProfileController::class, 'updatePreferences']);
 
         Route::post('/logout', function (Request $request) {
             if ($request->user()) {
@@ -233,12 +226,8 @@ Route::prefix('app')->group(function () {
     Route::post('/register/complete', [App\Http\Controllers\Tenant\AuthController::class, 'completeRegistration'])->middleware('throttle:5,1');
     Route::post('/register/resend-otp', [App\Http\Controllers\Tenant\AuthController::class, 'resendOTP'])->middleware('throttle:3,1');
 
-    // Forgot Password Placeholder
-    Route::post('/forgot-password', function (Request $request) {
-        $request->validate(['email' => 'required|email']);
-        // TODO: Implement actual logic in a separate controller for security
-        return response()->json(['message' => 'إذا كان البريد الإلكتروني مسجلاً لدينا، فستتلقى رابطاً لإعادة تعيين كلمة المرور قريباً.']);
-    })->middleware('throttle:3,1');
+    // Forgot Password
+    Route::post('/forgot-password', [App\Http\Controllers\Tenant\AuthController::class, 'forgotPassword'])->middleware('throttle:3,1');
 
     // Protected Tenant Routes
     Route::middleware(['auth:sanctum,tenant', 'tenant.only', 'subscription.check'])->group(function () {
@@ -277,14 +266,7 @@ Route::prefix('app')->group(function () {
             Route::post('/upload', [App\Http\Controllers\Tenant\SupportController::class, 'uploadImage'])->middleware('throttle:10,1');
         });
 
-        Route::post('/preferences', function (Request $request) {
-            $user = $request->user();
-            $prefs = $user->settings ?: [];
-            $prefs['dark_mode'] = $request->input('dark_mode');
-            $user->settings = $prefs;
-            $user->save();
-            return response()->json(['message' => 'Preferences updated']);
-        });
+        Route::post('/preferences', [App\Http\Controllers\Tenant\ProfileController::class, 'updatePreferences']);
 
         // Subscriptions
         Route::get('/subscription/plans', [App\Http\Controllers\Tenant\SubscriptionController::class, 'plans']);
@@ -294,5 +276,3 @@ Route::prefix('app')->group(function () {
         Route::post('/logout', [App\Http\Controllers\Tenant\AuthController::class, 'logout']);
     });
 });
-
-

@@ -3,11 +3,17 @@ import { createContext, useContext, useState, useEffect, ReactNode } from 'react
 export interface UIContextType {
     isRightDrawerOpen: boolean;
     isLeftDrawerOpen: boolean;
+    isSidebarCollapsed: boolean;
+    isMobileMenuOpen: boolean;
     openRightDrawer: () => void;
     openLeftDrawer: () => void;
     closeDrawers: () => void;
     toggleRightDrawer: () => void;
     toggleLeftDrawer: () => void;
+    toggleSidebar: () => void;
+    setSidebarCollapsed: (collapsed: boolean) => void;
+    toggleMobileMenu: () => void;
+    closeMobileMenu: () => void;
     darkMode: boolean;
     toggleDarkMode: () => void;
 }
@@ -23,11 +29,19 @@ export const useUI = () => {
 export const UIProvider = ({ children }: { children: ReactNode }) => {
     const [isRightDrawerOpen, setIsRightDrawerOpen] = useState(false);
     const [isLeftDrawerOpen, setIsLeftDrawerOpen] = useState(false);
+    const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
+        return localStorage.getItem('sidebar_collapsed') === 'true';
+    });
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [darkMode, setDarkMode] = useState(false);
 
     useEffect(() => {
         document.documentElement.classList.toggle('dark', darkMode);
     }, [darkMode]);
+
+    useEffect(() => {
+        localStorage.setItem('sidebar_collapsed', String(isSidebarCollapsed));
+    }, [isSidebarCollapsed]);
 
     const openRightDrawer = () => {
         setIsLeftDrawerOpen(false);
@@ -42,6 +56,7 @@ export const UIProvider = ({ children }: { children: ReactNode }) => {
     const closeDrawers = () => {
         setIsRightDrawerOpen(false);
         setIsLeftDrawerOpen(false);
+        setIsMobileMenuOpen(false);
     };
 
     const toggleRightDrawer = () => {
@@ -54,17 +69,28 @@ export const UIProvider = ({ children }: { children: ReactNode }) => {
         setIsLeftDrawerOpen(!isLeftDrawerOpen);
     };
 
+    const toggleSidebar = () => setIsSidebarCollapsed(!isSidebarCollapsed);
+    const setSidebarCollapsed = (collapsed: boolean) => setIsSidebarCollapsed(collapsed);
+    const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
+    const closeMobileMenu = () => setIsMobileMenuOpen(false);
+
     const toggleDarkMode = () => setDarkMode(!darkMode);
 
     return (
         <UIContext.Provider value={{
             isRightDrawerOpen,
             isLeftDrawerOpen,
+            isSidebarCollapsed,
+            isMobileMenuOpen,
             openRightDrawer,
             openLeftDrawer,
             closeDrawers,
             toggleRightDrawer,
             toggleLeftDrawer,
+            toggleSidebar,
+            setSidebarCollapsed,
+            toggleMobileMenu,
+            closeMobileMenu,
             darkMode,
             toggleDarkMode
         }}>

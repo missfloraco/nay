@@ -36,7 +36,8 @@ api.interceptors.request.use(config => {
 
     // 2. Bearer Token (Only for Tenant App routes to prevent leaking to Admin panel)
     const authToken = sessionStorage.getItem('tenant_token') || localStorage.getItem('tenant_token');
-    const isAppRequest = config.url?.includes('/app/') || config.url?.includes('/public/');
+    // Relaxed check: match if it contains "app/" or "public/" anywhere or starts with it
+    const isAppRequest = config.url?.includes('app/') || config.url?.includes('public/') || config.url?.startsWith('app/') || config.url?.startsWith('public/');
 
     if (authToken && isAppRequest && !config.headers['Authorization']) {
         config.headers['Authorization'] = `Bearer ${authToken}`;

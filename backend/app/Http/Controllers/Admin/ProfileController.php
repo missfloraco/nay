@@ -57,4 +57,14 @@ class ProfileController extends Controller
             'user' => $user
         ]);
     }
+
+    public function updatePreferences(Request $request)
+    {
+        $user = $request->user();
+        $prefs = $user->settings ?: [];
+        $prefs['dark_mode'] = $request->input('dark_mode');
+        $user->settings = $prefs;
+        $user->save();
+        return response()->json(['message' => 'Preferences updated']);
+    }
 }

@@ -182,5 +182,14 @@ class AuthController extends Controller
 
         return response()->json(['message' => 'Logged out successfully']);
     }
+    /**
+     * Handle forgot password request.
+     */
+    public function forgotPassword(Request $request)
+    {
+        $request->validate(['email' => 'required|email']);
+        // TODO: Implement actual logic in a separate controller or here for security
+        return response()->json(['message' => 'إذا كان البريد الإلكتروني مسجلاً لدينا، فستتلقى رابطاً لإعادة تعيين كلمة المرور قريباً.']);
+    }
 }
 
