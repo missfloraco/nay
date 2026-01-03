@@ -15,19 +15,19 @@ interface IdentityCellProps {
 }
 
 export const IdentityCell = ({ name, avatar, subtext, email, uid, highlight, icon: Icon, iconColor, iconBg }: IdentityCellProps) => (
-    <div className={`flex items-center gap-4 transition-all duration-500 ${highlight ? 'animate-pulse bg-emerald-50 dark:bg-emerald-900/20 -mx-4 px-4 py-2 rounded-xl font-black' : ''}`}>
+    <div className={`flex items-center gap-4 transition-all duration-500 ${highlight ? 'animate-pulse bg-emerald-50 dark:bg-emerald-900/20 -mx-4 px-4 py-2 rounded-2xl font-black' : ''}`}>
         {avatar ? (
             <img
                 src={resolveAssetUrl(avatar)}
                 alt={name}
-                className="w-11 h-11 rounded-xl object-cover border-2 border-white dark:border-dark-800 shadow-sm"
+                className="w-11 h-11 rounded-2xl object-cover border-2 border-white dark:border-dark-800 shadow-sm"
             />
         ) : Icon ? (
-            <div className={`w-11 h-11 rounded-xl flex items-center justify-center shadow-sm border ${iconBg || 'bg-primary/10 border-primary/5'}`}>
+            <div className={`w-11 h-11 rounded-2xl flex items-center justify-center shadow-sm border ${iconBg || 'bg-primary/10 border-primary/5'}`}>
                 <Icon className={`w-5 h-5 ${iconColor || 'text-primary'}`} />
             </div>
         ) : (
-            <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center text-primary font-black shadow-sm border border-primary/5">
+            <div className="w-11 h-11 rounded-2xl bg-primary/10 flex items-center justify-center text-primary font-black shadow-sm border border-primary/5">
                 {name.charAt(0)}
             </div>
         )}
@@ -36,7 +36,7 @@ export const IdentityCell = ({ name, avatar, subtext, email, uid, highlight, ico
                 {name}
             </div>
             {subtext && (
-                <div className="text-[10px] text-gray-400 font-bold uppercase tracking-widest bg-gray-50 dark:bg-dark-800 px-1.5 py-0.5 rounded-lg inline-block border border-gray-100 dark:border-white/5">
+                <div className="text-[10px] text-gray-400 font-bold uppercase tracking-widest bg-gray-50 dark:bg-dark-800 px-1.5 py-0.5 rounded-2xl inline-block border border-gray-100 dark:border-white/5">
                     {subtext}
                 </div>
             )}

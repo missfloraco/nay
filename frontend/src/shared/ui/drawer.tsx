@@ -63,7 +63,7 @@ export const Drawer: React.FC<DrawerProps> = ({
                         </div>
                         <button
                             onClick={onClose}
-                            className="p-2 rounded-xl bg-gray-50 dark:bg-white/5 text-gray-500 hover:text-red-500 transition-colors shrink-0"
+                            className="p-2 rounded-2xl bg-gray-50 dark:bg-white/5 text-gray-500 hover:text-red-500 transition-colors shrink-0"
                         >
                             <X size={24} />
                         </button>

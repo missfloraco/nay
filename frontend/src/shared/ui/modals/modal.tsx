@@ -49,7 +49,7 @@ const Modal: React.FC<ModalProps> = ({
     // Default Overlay Styles
     let overlayClasses = "fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6 overflow-y-auto overflow-x-hidden";
     let backdropClasses = "fixed inset-0 bg-gray-900/60 dark:bg-black/80 backdrop-blur-md transition-all duration-300 animate-in fade-in";
-    let panelClasses = `relative w-full ${sizes[size]} bg-white dark:bg-gray-900 rounded-[2rem] shadow-[0_0_50px_-12px_rgba(0,0,0,0.25)] dark:shadow-[0_0_50px_-12px_rgba(255,255,255,0.1)] border border-gray-100 dark:border-gray-800 transform transition-all duration-300 flex flex-col animate-in zoom-in-95 slide-in-from-bottom-4`;
+    let panelClasses = `relative w-full ${sizes[size]} bg-white dark:bg-gray-900 rounded-[var(--radius-card)] shadow-[0_0_50px_-12px_rgba(0,0,0,0.25)] dark:shadow-[0_0_50px_-12px_rgba(255,255,255,0.1)] border border-gray-100 dark:border-gray-800 transform transition-all duration-300 flex flex-col animate-in zoom-in-95 slide-in-from-bottom-4`;
     let panelStyles: React.CSSProperties = {};
 
     // Content-Fit Override for Desktop
@@ -109,25 +109,29 @@ const Modal: React.FC<ModalProps> = ({
 
                     .content-fit-panel-wrapper {
                         position: absolute !important;
-                        top: 0 !important;
+                        top: 140px !important; /* Header (70px) + Top Toolbar (70px) */
                         left: 0 !important;
                         right: 0 !important;
-                        bottom: 70px !important; /* Mobile footer height */
+                        bottom: 70px !important; /* Bottom Toolbar height */
                         display: flex !important;
                         flex-direction: column !important;
                         pointer-events: auto;
-                        background: white;
+                        background: #ffffff;
                         overflow: hidden !important;
-                        width: auto !important; /* CRITICAL: Prevent w-full from pushing left */
+                        width: auto !important;
                         min-width: 0 !important;
+                        border: 1.5px solid #000000 !important;
+                        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+                        z-index: 60;
                     }
 
                     @media (min-width: 1024px) {
                         .content-fit-panel-wrapper {
-                            top: 0 !important;
+                            top: 180px !important; /* Header (90px) + Top Toolbar (90px) */
                             right: ${isSidebarCollapsed ? '88px' : '250px'} !important;
                             left: 0 !important;
-                            bottom: 90px !important; /* Desktop footer height */
+                            bottom: 90px !important; /* Desktop bottom toolbar height */
+                            border: 1.5px solid #000000 !important;
                         }
                     }
 
@@ -181,6 +185,27 @@ const Modal: React.FC<ModalProps> = ({
                         display: none !important;
                     }
 
+                    /* Refine backdrop to only cover the content area, leaving header/toolbars sharp */
+                    .content-fit-backdrop {
+                        position: fixed !important;
+                        top: 140px !important;
+                        left: 0 !important;
+                        right: 0 !important;
+                        bottom: 70px !important;
+                        z-index: 55 !important;
+                        pointer-events: auto !important;
+                        background: rgba(17, 24, 39, 0.4) !important; /* Darker overlay but NO BLUR */
+                    }
+
+                    @media (min-width: 1024px) {
+                        .content-fit-backdrop {
+                            top: 180px !important;
+                            right: ${isSidebarCollapsed ? '88px' : '250px'} !important;
+                            left: 0 !important;
+                            bottom: 90px !important;
+                        }
+                    }
+
                     /* Explicitly ensure Footer toolbar remains sharp and interactive */
                     .layout-footer-toolbar {
                         filter: none !important;
@@ -194,7 +219,7 @@ const Modal: React.FC<ModalProps> = ({
 
             {/* Backdrop */}
             <div
-                className={backdropClasses}
+                className={`${variant === 'content-fit' ? 'content-fit-backdrop' : backdropClasses} fixed inset-0 transition-all duration-300 animate-in fade-in`}
                 onClick={onClose}
                 aria-hidden="true"
             />

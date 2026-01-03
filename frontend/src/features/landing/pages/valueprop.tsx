@@ -19,7 +19,7 @@ export default function ValueProp() {
                     <div className="relative z-10">
                         {/* Section Header - Bold & Centralized */}
                         <div className="text-center max-w-4xl mx-auto mb-20 lg:mb-28">
-                            <span className="inline-flex items-center px-6 py-2 rounded-xl bg-white/10 backdrop-blur-md text-white font-black text-sm tracking-widest uppercase mb-8 border border-white/20">
+                            <span className="inline-flex items-center px-6 py-2 rounded-2xl bg-white/10 backdrop-blur-md text-white font-black text-sm tracking-widest uppercase mb-8 border border-white/20">
                                 القيمة المضافة
                             </span>
                             <h2 className="text-5xl lg:text-[72px] font-black mb-8 leading-[1.05] text-white tracking-tighter">
@@ -50,7 +50,7 @@ export default function ValueProp() {
                                 }
                             ].map((item, i) => (
                                 <div key={i} className="flex flex-col items-center text-center space-y-8 p-10 bg-white/5 dark:bg-white/10 backdrop-blur-2xl rounded-2xl border border-white/10 transition-all hover:scale-[1.05] hover:bg-white/20 duration-500 group">
-                                    <div className="w-20 h-20 bg-white rounded-3xl flex items-center justify-center text-blue-600 shadow-2xl shadow-black/20 group-hover:rotate-12 transition-all duration-700">
+                                    <div className="w-20 h-20 bg-white rounded-2xl flex items-center justify-center text-blue-600 shadow-2xl shadow-black/20 group-hover:rotate-12 transition-all duration-700">
                                         <item.icon className="w-10 h-10" />
                                     </div>
                                     <div className="space-y-4">

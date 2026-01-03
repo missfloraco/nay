@@ -18,9 +18,9 @@ export default function TrialExpired() {
 
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-950 dark:to-gray-900 px-4" dir="rtl">
+        <div className="flex-1 flex items-center justify-center py-10 px-4" dir="rtl">
             <div className="max-w-2xl w-full">
-                <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] shadow-2xl border border-gray-100 dark:border-gray-800 p-12">
+                <div className="bg-white dark:bg-secondary-900/40 backdrop-blur-xl rounded-[2.5rem] shadow-2xl border border-gray-100 dark:border-white/5 p-12">
                     {/* Icon */}
                     <div className="flex justify-center mb-8">
                         <div className={`p-6 rounded-3xl ${isDisabled ? 'bg-red-100 dark:bg-red-900/20' : 'bg-amber-100 dark:bg-amber-900/20'}`}>

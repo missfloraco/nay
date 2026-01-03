@@ -203,7 +203,7 @@ export default function PlatformIdentity() {
     const IdentityTab = () => (
         <div className="grid lg:grid-cols-2 gap-8 items-start animate-in fade-in slide-in-from-bottom-4 duration-700 p-8">
             <div className="space-y-8">
-                <div className="bg-white dark:bg-dark-900 rounded-[2.5rem] border border-gray-100 dark:border-dark-800 shadow-premium overflow-hidden">
+                <div className="bg-white dark:bg-dark-900 rounded-2xl border border-gray-100 dark:border-dark-800 shadow-premium overflow-hidden">
                     <div className="p-8 border-b border-gray-50 dark:border-white/5 flex items-center gap-4">
                         <div className="p-3 rounded-2xl bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600">
                             <Fingerprint className="w-6 h-6" />
@@ -244,7 +244,7 @@ export default function PlatformIdentity() {
                     </div>
                 </div>
 
-                <div className="bg-white dark:bg-dark-900 rounded-[2.5rem] border border-gray-100 dark:border-dark-800 shadow-premium p-8 lg:p-12 space-y-8">
+                <div className="bg-white dark:bg-dark-900 rounded-2xl border border-gray-100 dark:border-dark-800 shadow-premium p-8 lg:p-12 space-y-8">
                     <InputField
                         label="اسم المنصة"
                         value={formData.app_name}
@@ -286,7 +286,7 @@ export default function PlatformIdentity() {
                     </div>
                 </div>
 
-                <div className="bg-white dark:bg-dark-900 rounded-[2.5rem] border border-gray-100 dark:border-dark-800 shadow-premium p-8 lg:p-12 space-y-8">
+                <div className="bg-white dark:bg-dark-900 rounded-2xl border border-gray-100 dark:border-dark-800 shadow-premium p-8 lg:p-12 space-y-8">
                     <div className="flex items-center gap-4 mb-2">
                         <div className="p-3 rounded-2xl bg-purple-50 dark:bg-purple-900/20 text-purple-600">
                             <ShieldCheck className="w-6 h-6" />
@@ -316,7 +316,7 @@ export default function PlatformIdentity() {
             </div>
 
             <div className="space-y-8">
-                <div className="bg-white dark:bg-dark-900 rounded-[2.5rem] border border-gray-100 dark:border-dark-800 shadow-premium overflow-hidden">
+                <div className="bg-white dark:bg-dark-900 rounded-2xl border border-gray-100 dark:border-dark-800 shadow-premium overflow-hidden">
                     <div className="p-8 border-b border-gray-50 dark:border-white/5 flex items-center justify-between">
                         <div className="flex items-center gap-4">
                             <div className="p-3 rounded-2xl bg-amber-50 dark:bg-amber-900/20 text-amber-600">
@@ -403,7 +403,7 @@ export default function PlatformIdentity() {
                     </div>
                 </div>
 
-                <div className="bg-indigo-600 rounded-[2.5rem] p-8 lg:p-12 text-white shadow-xl shadow-indigo-600/20 relative overflow-hidden group">
+                <div className="bg-indigo-600 rounded-2xl p-8 lg:p-12 text-white shadow-xl shadow-indigo-600/20 relative overflow-hidden group">
                     <div className="absolute top-0 right-0 p-12 opacity-10 scale-150 transition-transform group-hover:scale-110 duration-1000">
                         <Palette className="w-32 h-32" />
                     </div>

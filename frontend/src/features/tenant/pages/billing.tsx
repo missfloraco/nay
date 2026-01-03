@@ -67,7 +67,14 @@ export default function BillingPage() {
     const { setPrimaryAction } = useAction();
 
     useEffect(() => {
-        if (selectedPlan && activeTab === 'plans') {
+        if (activeTab === 'subscription') {
+            setPrimaryAction({
+                label: 'تغيير الخطة الآن',
+                icon: Zap,
+                onClick: () => setActiveTab('plans'),
+                variant: 'primary'
+            });
+        } else if (selectedPlan && activeTab === 'plans') {
             setPrimaryAction({
                 label: requestMutation.isPending ? 'جاري الإرسال...' : 'إرسال طلب التفعيل والمتابعة',
                 icon: ArrowRight,
@@ -78,6 +85,8 @@ export default function BillingPage() {
                     onClick: () => setSelectedPlan(null)
                 }
             });
+        } else {
+            setPrimaryAction(null);
         }
         return () => setPrimaryAction(null);
     }, [selectedPlan, activeTab, requestMutation.isPending, requestMutation.mutate, notes, setPrimaryAction]);
@@ -147,7 +156,7 @@ export default function BillingPage() {
                     {activeTab === 'subscription' && (
                         <div className="max-w-6xl mx-auto space-y-8 pb-12">
                             {/* Current Plan Hero Card */}
-                            <div className="relative group overflow-hidden bg-gradient-to-br from-primary to-primary-700 p-12 md:p-16 rounded-[4rem] shadow-2xl flex flex-col md:flex-row items-center justify-between gap-12 text-white">
+                            <div className="relative group overflow-hidden bg-gradient-to-br from-primary to-primary-700 p-12 md:p-16 rounded-[var(--radius-card)] shadow-2xl flex flex-col md:flex-row items-center justify-between gap-12 text-white">
                                 <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-3xl -mr-48 -mt-48 transition-transform group-hover:scale-110 duration-700"></div>
 
                                 <div className="relative space-y-4 max-w-2xl text-center md:text-right">
@@ -167,21 +176,23 @@ export default function BillingPage() {
                                 </div>
 
                                 <div className="relative shrink-0 flex flex-col items-center gap-6">
-                                    <div className="w-32 h-32 bg-white/20 backdrop-blur-md rounded-[3rem] border-2 border-white/30 flex items-center justify-center shadow-2xl group-hover:rotate-12 transition-transform duration-500">
+                                    <div className="w-32 h-32 bg-white/20 backdrop-blur-md rounded-2xl border-2 border-white/30 flex items-center justify-center shadow-2xl group-hover:rotate-12 transition-transform duration-500">
                                         <CheckCircle2 className="w-16 h-16 text-emerald-300" />
                                     </div>
-                                    <button
-                                        onClick={() => setActiveTab('plans')}
-                                        className="px-8 py-4 bg-white text-primary rounded-[1.5rem] font-black shadow-2xl hover:scale-110 active:scale-95 transition-all text-sm"
-                                    >
-                                        تغيير الخطة الآن
-                                    </button>
+                                    <div className="md:hidden">
+                                        <button
+                                            onClick={() => setActiveTab('plans')}
+                                            className="px-8 py-4 bg-white text-primary rounded-2xl font-black shadow-2xl hover:scale-110 active:scale-95 transition-all text-sm"
+                                        >
+                                            تغيير الخطة الآن
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
 
                             {/* Sub Stats Grid */}
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                <div className="bg-white dark:bg-dark-900 p-8 rounded-[3rem] border border-gray-100 dark:border-white/5 shadow-xl space-y-4">
+                                <div className="bg-white dark:bg-dark-900 p-8 rounded-[var(--radius-card)] border border-gray-100 dark:border-white/5 shadow-xl space-y-4">
                                     <div className="w-12 h-12 bg-blue-50 dark:bg-blue-500/10 rounded-2xl flex items-center justify-center">
                                         <Clock className="w-6 h-6 text-blue-500" />
                                     </div>
@@ -193,7 +204,7 @@ export default function BillingPage() {
                                     </div>
                                 </div>
 
-                                <div className="bg-white dark:bg-dark-900 p-8 rounded-[3rem] border border-gray-100 dark:border-white/5 shadow-xl space-y-4">
+                                <div className="bg-white dark:bg-dark-900 p-8 rounded-[var(--radius-card)] border border-gray-100 dark:border-white/5 shadow-xl space-y-4">
                                     <div className="w-12 h-12 bg-emerald-50 dark:bg-emerald-500/10 rounded-2xl flex items-center justify-center">
                                         <CheckCircle2 className="w-6 h-6 text-emerald-500" />
                                     </div>
@@ -205,7 +216,7 @@ export default function BillingPage() {
                                     </div>
                                 </div>
 
-                                <div className="bg-white dark:bg-dark-900 p-8 rounded-[3rem] border border-gray-100 dark:border-white/5 shadow-xl space-y-4">
+                                <div className="bg-white dark:bg-dark-900 p-8 rounded-[var(--radius-card)] border border-gray-100 dark:border-white/5 shadow-xl space-y-4">
                                     <div className="w-12 h-12 bg-amber-50 dark:bg-amber-500/10 rounded-2xl flex items-center justify-center">
                                         <AlertCircle className="w-6 h-6 text-amber-500" />
                                     </div>
@@ -238,7 +249,7 @@ export default function BillingPage() {
                             />
 
                             {pendingRequest && (
-                                <div className="p-8 bg-amber-50 dark:bg-amber-900/10 border-2 border-dashed border-amber-200 dark:border-amber-900/30 rounded-[3rem] flex items-center gap-8 shadow-inner">
+                                <div className="p-8 bg-amber-50 dark:bg-amber-900/10 border-2 border-dashed border-amber-200 dark:border-amber-900/30 rounded-[var(--radius-card)] flex items-center gap-8 shadow-inner">
                                     <div className="w-20 h-20 bg-amber-100 dark:bg-amber-900/20 rounded-3xl flex items-center justify-center shrink-0">
                                         <span className="text-4xl animate-pulse">⏳</span>
                                     </div>
@@ -342,7 +353,7 @@ export default function BillingPage() {
                 <div className="flex flex-col gap-8">
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
                         <div className="space-y-6">
-                            <div className="p-10 bg-primary/5 rounded-[3rem] border-2 border-primary/10 space-y-8 relative overflow-hidden group">
+                            <div className="p-10 bg-primary/5 rounded-[var(--radius-card)] border-2 border-primary/10 space-y-8 relative overflow-hidden group">
                                 <div className="absolute top-0 right-0 p-8 opacity-5">
                                     <DollarSign className="w-32 h-32 text-primary" />
                                 </div>

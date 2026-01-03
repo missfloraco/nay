@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { formatDate, resolveAssetUrl } from '@/shared/utils/helpers';
 import { useNotifications } from '@/shared/contexts/notification-context';
+import { useAction } from '@/shared/contexts/action-context';
 import api from '@/shared/services/api';
 import { TenantStatusBadge } from '@/features/superadmin/components/tenantstatusbadge';
 import { TEXTS_ADMIN } from '@/shared/locales/texts';
@@ -45,6 +46,7 @@ interface TenantDetailsSidebarProps {
 
 export function TenantDetailsSidebar({ tenant, tenants, onSelect, onUpdate, onNavigateToPayments }: TenantDetailsSidebarProps) {
     const { showSuccess, showError, showConfirm } = useNotifications();
+    const { setPrimaryAction } = useAction();
     // Edit Form State
     const [editForm, setEditForm] = useState({
         name: '',
@@ -82,6 +84,26 @@ export function TenantDetailsSidebar({ tenant, tenants, onSelect, onUpdate, onNa
             setRemoveAvatar(false);
         }
     }, [tenant]);
+
+    // Register Footer Toolbar Actions
+    useEffect(() => {
+        if (!tenant) return;
+
+        setPrimaryAction({
+            label: loading ? 'جاري الحفظ...' : 'حفظ التعديلات النهائية',
+            icon: Save,
+            type: 'submit',
+            form: 'edit-tenant-form',
+            loading: loading,
+            secondaryAction: {
+                label: 'إلغاء التعديل',
+                onClick: () => onSelect(null),
+                variant: 'secondary'
+            }
+        });
+
+        return () => setPrimaryAction(null);
+    }, [tenant, loading, setPrimaryAction, onSelect]);
 
 
     const handleUpdateDetails = async (e: React.FormEvent) => {
@@ -230,7 +252,7 @@ export function TenantDetailsSidebar({ tenant, tenants, onSelect, onUpdate, onNa
     if (!tenant) return null;
 
     return (
-        <form onSubmit={handleUpdateDetails} className="flex flex-col h-full">
+        <form id="edit-tenant-form" onSubmit={handleUpdateDetails} className="flex flex-col h-full">
             <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-8 min-h-0">
 
                 {/* Right Column: Identity & Actions (5 units) */}
@@ -444,25 +466,6 @@ export function TenantDetailsSidebar({ tenant, tenants, onSelect, onUpdate, onNa
                     </div>
 
                 </div>
-            </div>
-
-            {/* Footer Actions */}
-            <div className="flex gap-4 pt-6 mt-8 border-t border-gray-100 dark:border-white/5">
-                <button
-                    type="submit"
-                    disabled={loading}
-                    className="flex-1 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-xl py-4 font-black hover:opacity-90 transition-all flex items-center justify-center gap-2 shadow-lg active:scale-95 group"
-                >
-                    {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Sparkles className="w-5 h-5 group-hover:rotate-12 transition-transform" />}
-                    حفظ التعديلات
-                </button>
-                <button
-                    type="button"
-                    onClick={() => onSelect(null)}
-                    className="px-8 bg-gray-100 dark:bg-white/5 text-gray-500 dark:text-gray-400 rounded-xl py-4 font-bold hover:bg-gray-200 dark:hover:bg-white/10 transition-colors"
-                >
-                    إلغاء
-                </button>
             </div>
         </form>
     );

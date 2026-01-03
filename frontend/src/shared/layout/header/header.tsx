@@ -36,7 +36,7 @@ export const Header: React.FC<HeaderProps> = ({ title, actions }) => {
       <div className="flex items-center gap-4">
         <button
           onClick={toggleMobileMenu}
-          className="p-2 lg:hidden rounded-xl bg-gray-50 dark:bg-white/5 text-gray-500 hover:text-primary transition-all active:scale-95"
+          className="p-2 lg:hidden rounded-2xl bg-gray-50 dark:bg-white/5 text-gray-500 hover:text-primary transition-all active:scale-95"
         >
           <Menu className="w-6 h-6" />
         </button>
@@ -57,7 +57,7 @@ export const Header: React.FC<HeaderProps> = ({ title, actions }) => {
       <div className="flex items-center gap-2 lg:gap-4">
         {/* Mobile Search Icon only */}
         <div className="lg:hidden">
-          <div className="p-2 rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/5 shadow-sm">
+          <div className="p-2 rounded-2xl bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/5 shadow-sm">
             <GlobalSearch variant="header-left" />
           </div>
         </div>

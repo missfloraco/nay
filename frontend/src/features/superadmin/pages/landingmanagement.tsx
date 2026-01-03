@@ -91,7 +91,7 @@ export default function LandingManagement() {
             <div className="w-full max-w-[1600px] mx-auto bg-transparent animate-in fade-in duration-500">
                 <div className="max-w-7xl mx-auto space-y-12 w-full">
                     <div className="flex items-center gap-6 border-b border-gray-100 dark:border-dark-800 pb-8 group">
-                        <div className="p-4 bg-indigo-50 dark:bg-indigo-900/10 rounded-[2rem] text-indigo-600 shadow-inner group-hover:scale-110 transition-transform">
+                        <div className="p-4 bg-indigo-50 dark:bg-indigo-900/10 rounded-[var(--radius-card)] text-indigo-600 shadow-inner group-hover:scale-110 transition-transform">
                             <Home className="w-8 h-8" />
                         </div>
                         <div>
@@ -172,7 +172,7 @@ export default function LandingManagement() {
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                             {features.map((feature, index) => (
-                                <div key={index} className="p-8 rounded-[2rem] bg-gray-50/50 dark:bg-dark-900/30 border border-gray-100 dark:border-dark-800 space-y-6 relative group transition-all hover:border-primary/20 hover:bg-white dark:hover:bg-dark-900 overflow-hidden">
+                                <div key={index} className="p-8 rounded-[var(--radius-card)] bg-gray-50/50 dark:bg-dark-900/30 border border-gray-100 dark:border-dark-800 space-y-6 relative group transition-all hover:border-primary/20 hover:bg-white dark:hover:bg-dark-900 overflow-hidden">
                                     <button
                                         onClick={() => removeFeature(index)}
                                         className="absolute top-4 left-4 p-2.5 text-red-500 opacity-0 group-hover:opacity-100 transition-all hover:bg-red-50 dark:hover:bg-red-900/40 rounded-xl z-20"
@@ -221,7 +221,7 @@ export default function LandingManagement() {
 
                         <div className="space-y-8">
                             {faqs.map((faq, index) => (
-                                <div key={index} className="p-8 rounded-[2rem] bg-gray-50/50 dark:bg-dark-900/30 border border-gray-100 dark:border-dark-800 space-y-6 relative group transition-all hover:border-primary/20 hover:bg-white dark:hover:bg-dark-900 overflow-hidden">
+                                <div key={index} className="p-8 rounded-[var(--radius-card)] bg-gray-50/50 dark:bg-dark-900/30 border border-gray-100 dark:border-dark-800 space-y-6 relative group transition-all hover:border-primary/20 hover:bg-white dark:hover:bg-dark-900 overflow-hidden">
                                     <button
                                         onClick={() => removeFAQ(index)}
                                         className="absolute top-4 left-4 p-2.5 text-red-500 opacity-0 group-hover:opacity-100 transition-all hover:bg-red-50 dark:hover:bg-red-900/40 rounded-xl z-20"

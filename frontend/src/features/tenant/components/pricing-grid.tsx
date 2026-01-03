@@ -43,7 +43,7 @@ export const PricingGrid: React.FC<PricingGridProps> = ({
         return (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
                 {[1, 2, 3].map(i => (
-                    <div key={i} className="h-[600px] bg-gray-50 dark:bg-white/5 animate-pulse rounded-[4rem]" />
+                    <div key={i} className="h-[600px] bg-gray-50 dark:bg-white/5 animate-pulse rounded-[var(--radius-card)]" />
                 ))}
             </div>
         );
@@ -85,7 +85,7 @@ export const PricingGrid: React.FC<PricingGridProps> = ({
                     const price = billingCycle === 'monthly' ? plan.monthly_price : plan.yearly_price;
 
                     return (
-                        <div key={plan.id} className={`group relative bg-white dark:bg-dark-900 p-10 rounded-[4rem] border-2 transition-all duration-700 hover:scale-[1.03] ${isCurrent ? 'border-primary shadow-2xl shadow-primary/20 bg-gradient-to-b from-primary/[0.02] to-transparent' : 'border-gray-100 dark:border-white/5 shadow-xl hover:shadow-2xl'}`}>
+                        <div key={plan.id} className={`group relative bg-white dark:bg-dark-900 p-10 rounded-[var(--radius-card)] border-2 transition-all duration-700 hover:scale-[1.03] ${isCurrent ? 'border-primary shadow-2xl shadow-primary/20 bg-gradient-to-b from-primary/[0.02] to-transparent' : 'border-gray-100 dark:border-white/5 shadow-xl hover:shadow-2xl'}`}>
 
                             {isCurrent && !isTrial && (
                                 <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-6 py-2 bg-primary text-white text-[11px] font-black uppercase tracking-widest rounded-full shadow-2xl animate-bounce-subtle">
@@ -94,7 +94,7 @@ export const PricingGrid: React.FC<PricingGridProps> = ({
                             )}
 
                             <div className="text-center space-y-8">
-                                <div className={`w-20 h-20 mx-auto ${isCurrent ? 'bg-primary' : 'bg-primary/10'} rounded-[2rem] flex items-center justify-center group-hover:rotate-12 transition-transform duration-500`}>
+                                <div className={`w-20 h-20 mx-auto ${isCurrent ? 'bg-primary' : 'bg-primary/10'} rounded-[var(--radius-inner)] flex items-center justify-center group-hover:rotate-12 transition-transform duration-500`}>
                                     <Icon className={`w-10 h-10 ${isCurrent ? 'text-white' : 'text-primary'}`} />
                                 </div>
 

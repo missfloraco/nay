@@ -95,8 +95,8 @@ export default function WelcomePage() {
 
                                 {/* Avatar Presence with Premium Border */}
                                 <div className="relative inline-block group">
-                                    <div className="absolute -inset-1 bg-gradient-to-br from-primary via-emerald-500 to-blue-500 rounded-[3rem] blur-md opacity-25 group-hover:opacity-60 transition duration-1000 group-hover:duration-200"></div>
-                                    <div className="relative w-32 h-32 lg:w-48 lg:h-48 rounded-[2.8rem] overflow-hidden border-8 border-white dark:border-dark-900 bg-white dark:bg-dark-800 shadow-2xl">
+                                    <div className="absolute -inset-1 bg-gradient-to-br from-primary via-emerald-500 to-blue-500 rounded-[var(--radius-card)] blur-md opacity-25 group-hover:opacity-60 transition duration-1000 group-hover:duration-200"></div>
+                                    <div className="relative w-32 h-32 lg:w-48 lg:h-48 rounded-[var(--radius-card)] overflow-hidden border-8 border-white dark:border-dark-900 bg-white dark:bg-dark-800 shadow-2xl">
                                         <img
                                             src={resolveAssetUrl(tenant?.avatar_url || currentUser?.avatar_url) || `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser?.name || '')}&background=02aa94&color=fff&size=512`}
                                             alt={currentUser?.name}
@@ -112,7 +112,7 @@ export default function WelcomePage() {
 
                             {/* Platform Status Badge */}
                             <div className="pt-8 animate-in fade-in duration-1000 delay-500">
-                                <div className="p-5 rounded-3xl bg-white dark:bg-white/5 border border-gray-100 dark:border-white/5 flex items-center gap-4 group cursor-default">
+                                <div className="p-5 rounded-[var(--radius-inner)] bg-white dark:bg-white/5 border border-gray-100 dark:border-white/5 flex items-center gap-4 group cursor-default">
                                     <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-500">
                                         <Globe className="w-6 h-6 group-hover:rotate-12 transition-transform" />
                                     </div>
@@ -132,7 +132,7 @@ export default function WelcomePage() {
                                 {platformFeatures.map((feature, idx) => (
                                     <div
                                         key={idx}
-                                        className="p-6 rounded-[2.2rem] bg-white dark:bg-white/5 border border-gray-100 dark:border-white/5 hover:border-primary/20 hover:shadow-xl hover:shadow-primary/5 transition-all duration-300 group"
+                                        className="p-6 rounded-[var(--radius-card)] bg-white dark:bg-white/5 border border-gray-100 dark:border-white/5 hover:border-primary/20 hover:shadow-xl hover:shadow-primary/5 transition-all duration-300 group"
                                     >
                                         <div className={`w-12 h-12 rounded-2xl ${feature.bg} ${feature.color} flex items-center justify-center mb-4 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500`}>
                                             <feature.icon className="w-6 h-6" />
@@ -149,7 +149,7 @@ export default function WelcomePage() {
                                 {/* Settings Shortcut */}
                                 <button
                                     onClick={() => navigate(isAdmin ? '/admin/settings' : '/app/settings')}
-                                    className="relative group overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-gray-900 to-gray-800 dark:from-dark-900 dark:to-dark-950 p-8 flex flex-col justify-between text-right transition-all duration-500 hover:scale-[1.02] hover:-rotate-1 active:scale-[0.98] shadow-2xl hover:shadow-primary/20"
+                                    className="relative group overflow-hidden rounded-[var(--radius-card)] bg-gradient-to-br from-gray-900 to-gray-800 dark:from-dark-900 dark:to-dark-950 p-8 flex flex-col justify-between text-right transition-all duration-500 hover:scale-[1.02] hover:-rotate-1 active:scale-[0.98] shadow-2xl hover:shadow-primary/20"
                                 >
                                     <div className="absolute top-0 left-0 w-32 h-32 bg-primary/20 rounded-full blur-3xl -ml-16 -mt-16 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
                                     <div className="absolute bottom-[-20%] left-[-10%] opacity-[0.03] group-hover:opacity-[0.07] transition-opacity duration-700 pointer-events-none">
@@ -157,7 +157,7 @@ export default function WelcomePage() {
                                     </div>
 
                                     <div className="relative z-10 flex justify-between items-start">
-                                        <div className="p-4 bg-white/10 rounded-2xl backdrop-blur-md border border-white/5 text-primary group-hover:scale-110 group-hover:bg-primary group-hover:text-white transition-all duration-500 shadow-xl">
+                                        <div className="p-4 bg-white/10 rounded-[var(--radius-inner)] backdrop-blur-md border border-white/5 text-primary group-hover:scale-110 group-hover:bg-primary group-hover:text-white transition-all duration-500 shadow-xl">
                                             <Settings className="w-8 h-8 group-hover:rotate-90 transition-transform duration-700" />
                                         </div>
                                         <div className="text-left">
@@ -176,7 +176,7 @@ export default function WelcomePage() {
                                 {/* Support Shortcut */}
                                 <button
                                     onClick={() => navigate(isAdmin ? '/admin/support' : '/app/support/messages')}
-                                    className="relative group overflow-hidden rounded-[2.5rem] bg-white dark:bg-dark-900 border-2 border-transparent hover:border-emerald-500/30 p-8 flex flex-col justify-between text-right transition-all duration-500 hover:scale-[1.02] hover:rotate-1 active:scale-[0.98] shadow-2xl hover:shadow-emerald-500/10"
+                                    className="relative group overflow-hidden rounded-[var(--radius-card)] bg-white dark:bg-dark-900 border-2 border-transparent hover:border-emerald-500/30 p-8 flex flex-col justify-between text-right transition-all duration-500 hover:scale-[1.02] hover:rotate-1 active:scale-[0.98] shadow-2xl hover:shadow-emerald-500/10"
                                 >
                                     <div className="absolute top-0 left-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-3xl -ml-16 -mt-16 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
                                     <div className="absolute bottom-[-20%] left-[-10%] text-emerald-500/[0.03] group-hover:text-emerald-500/[0.08] transition-all duration-700 pointer-events-none">
@@ -184,7 +184,7 @@ export default function WelcomePage() {
                                     </div>
 
                                     <div className="relative z-10 flex justify-between items-start">
-                                        <div className="p-4 bg-emerald-500/10 rounded-2xl border border-emerald-500/20 text-emerald-500 group-hover:scale-110 group-hover:bg-emerald-500 group-hover:text-white transition-all duration-500 shadow-xl">
+                                        <div className="p-4 bg-emerald-500/10 rounded-[var(--radius-inner)] border border-emerald-500/20 text-emerald-500 group-hover:scale-110 group-hover:bg-emerald-500 group-hover:text-white transition-all duration-500 shadow-xl">
                                             <Headset className="w-8 h-8" />
                                         </div>
                                         <div className="text-left">
@@ -205,24 +205,6 @@ export default function WelcomePage() {
 
                     </div>
 
-                    {/* SLIM FOOTER: Meta Info */}
-                    <div className="pt-6 shrink-0 flex items-center justify-between border-t border-gray-100 dark:border-white/5 animate-in slide-in-from-bottom-5 duration-1000">
-                        <div className="flex items-center gap-6">
-                            <div className="flex items-center gap-2 text-[10px] font-black text-gray-400 uppercase tracking-widest">
-                                <Shield className="w-3.5 h-3.5" />
-                                <span>اتصال مشفر 256-بت</span>
-                            </div>
-                            <div className="w-px h-3 bg-gray-200 dark:bg-white/10" />
-                            <div className="flex items-center gap-2 text-[10px] font-black text-gray-400 uppercase tracking-widest">
-                                <Star className="w-3.5 h-3.5 fill-current text-amber-500" />
-                                <span>الإصدار 2.4.0 (مستقر)</span>
-                            </div>
-                        </div>
-
-                        <div className="flex items-center gap-2">
-                            <p className="text-[10px] font-black text-gray-300 dark:text-gray-700 uppercase tracking-[0.3em]">انطلق نحو آفاق جديدة مع {settings.appName || 'ناي'}</p>
-                        </div>
-                    </div>
 
                 </div>
             </div>

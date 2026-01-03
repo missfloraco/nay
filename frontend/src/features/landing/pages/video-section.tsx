@@ -15,7 +15,7 @@ export default function VideoSection() {
                 <div className="relative group max-w-5xl mx-auto">
                     {/* Video Thumbnail Wrapper */}
                     <div
-                        className="relative aspect-video rounded-[3rem] overflow-hidden shadow-[0_50px_100px_-20px_rgba(0,0,0,0.25)] dark:shadow-[0_50px_100px_-20px_rgba(59,130,246,0.15)] border-[12px] border-gray-100/50 dark:border-white/5 cursor-pointer transform transition-all duration-1000 group-hover:scale-[1.01] group-hover:translate-y-[-10px]"
+                        className="relative aspect-video rounded-2xl overflow-hidden shadow-[0_50px_100px_-20px_rgba(0,0,0,0.25)] dark:shadow-[0_50px_100px_-20px_rgba(59,130,246,0.15)] border-[12px] border-gray-100/50 dark:border-white/5 cursor-pointer transform transition-all duration-1000 group-hover:scale-[1.01] group-hover:translate-y-[-10px]"
                         onClick={() => setIsVideoOpen(true)}
                     >
                         <img
@@ -53,13 +53,13 @@ export default function VideoSection() {
                     </div>
 
                     {/* Decorative Background decorations */}
-                    <div className="absolute -top-12 -right-12 w-40 h-40 bg-gradient-to-br from-primary/30 to-blue-500/30 rounded-[3rem] -z-10 rotate-12 blur-2xl group-hover:rotate-45 transition-all duration-1000" />
-                    <div className="absolute -bottom-12 -left-12 w-48 h-48 bg-gradient-to-tr from-blue-500/20 to-purple-500/20 rounded-[4rem] -z-10 -rotate-12 blur-3xl group-hover:rotate-[-30deg] transition-all duration-1000" />
+                    <div className="absolute -top-12 -right-12 w-40 h-40 bg-gradient-to-br from-primary/30 to-blue-500/30 rounded-2xl -z-10 rotate-12 blur-2xl group-hover:rotate-45 transition-all duration-1000" />
+                    <div className="absolute -bottom-12 -left-12 w-48 h-48 bg-gradient-to-tr from-blue-500/20 to-purple-500/20 rounded-2xl -z-10 -rotate-12 blur-3xl group-hover:rotate-[-30deg] transition-all duration-1000" />
                 </div>
             </div>
 
             <Modal isOpen={isVideoOpen} onClose={() => setIsVideoOpen(false)} size="xl">
-                <div className="aspect-video w-full bg-black rounded-[2.5rem] overflow-hidden shadow-2xl ring-12 ring-white/5 dark:ring-white/5 my-4">
+                <div className="aspect-video w-full bg-black rounded-2xl overflow-hidden shadow-2xl ring-12 ring-white/5 dark:ring-white/5 my-4">
                     <iframe
                         width="100%"
                         height="100%"

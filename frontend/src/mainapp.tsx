@@ -37,6 +37,7 @@ const ActivationWaiting = lazy(() => import('@/features/tenant/pages/activation-
 
 const AdminTrash = lazy(() => import('@/features/superadmin/pages/trash'));
 const TenantTrash = lazy(() => import('@/features/tenant/pages/trash'));
+const AppLayout = lazy(() => import('@/features/tenant/pages/applayout'));
 
 // ... existing code ...
 
@@ -153,9 +154,11 @@ function MainAppContent() {
             if (tenant.status === 'pending') {
                 return (
                     <HelmetProvider>
-                        <Suspense fallback={<PageLoader />}>
-                            <ActivationWaiting />
-                        </Suspense>
+                        <AppLayout title="بانتظار التفعيل">
+                            <Suspense fallback={<PageLoader />}>
+                                <ActivationWaiting />
+                            </Suspense>
+                        </AppLayout>
                     </HelmetProvider>
                 );
             }
@@ -163,9 +166,11 @@ function MainAppContent() {
             if (tenant.status === 'expired' || tenant.status === 'disabled' || isTrialExpired) {
                 return (
                     <HelmetProvider>
-                        <Suspense fallback={<PageLoader />}>
-                            <TrialExpired />
-                        </Suspense>
+                        <AppLayout title="انتهت فترة التجربة">
+                            <Suspense fallback={<PageLoader />}>
+                                <TrialExpired />
+                            </Suspense>
+                        </AppLayout>
                     </HelmetProvider>
                 );
             }

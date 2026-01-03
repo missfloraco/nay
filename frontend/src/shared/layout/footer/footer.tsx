@@ -127,7 +127,7 @@ export default function BottomNav({ items, user, onLogout, settingsPath = '/sett
                                     <Link
                                         to={settingsPath}
                                         onClick={() => setIsUserMenuOpen(false)}
-                                        className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 transition-colors"
+                                        className="flex items-center gap-3 px-3 py-2.5 rounded-2xl hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 transition-colors"
                                     >
                                         <Settings className="w-4 h-4" />
                                         <span className="font-bold text-xs">الإعدادات</span>
@@ -137,7 +137,7 @@ export default function BottomNav({ items, user, onLogout, settingsPath = '/sett
                                             if (onLogout) onLogout();
                                             setIsUserMenuOpen(false);
                                         }}
-                                        className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-red-50 dark:hover:bg-red-900/10 text-red-600 dark:text-red-400 transition-colors"
+                                        className="w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl hover:bg-red-50 dark:hover:bg-red-900/10 text-red-600 dark:text-red-400 transition-colors"
                                     >
                                         <LogOut className="w-4 h-4" />
                                         <span className="font-bold text-xs">تسجيل الخروج</span>

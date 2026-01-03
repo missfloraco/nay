@@ -47,7 +47,7 @@ export function TenantStatusBadge({ status, trialExpiresAt }: TenantStatusBadgeP
     const Icon = config.icon;
 
     return (
-        <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-bold ${config.className}`}>
+        <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-2xl border text-xs font-bold ${config.className}`}>
             <Icon className="w-3.5 h-3.5" />
             <span>{config.label}</span>
         </div>

@@ -14,7 +14,7 @@ export const StatCard: React.FC<StatCardProps> = ({
   const isPositive = trend >= 0;
 
   return (
-    <div className="premium-card p-8 group transition-all duration-500">
+    <div className="premium-card p-8 group transition-all duration-500 rounded-[var(--radius-card)]">
       {/* Background Decorative Gradient */}
       <div className={`absolute -top-12 -right-12 w-40 h-40 bg-gradient-to-br ${colorFrom} ${colorTo} opacity-[0.03] dark:opacity-[0.07] rounded-full blur-3xl group-hover:opacity-10 transition-opacity duration-700`}></div>
 

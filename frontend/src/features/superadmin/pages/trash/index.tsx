@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import AdminLayout from '@/features/superadmin/pages/adminlayout';
 import { useTrash } from '@/shared/hooks/use-trash';
 import { useAction } from '@/shared/contexts/action-context';
@@ -14,7 +14,7 @@ export default function AdminTrash() {
     const endpoint = '/admin/trash';
     const trash = useTrash({ endpoint });
 
-    const getTypeLabel = (type: string) => {
+    const getTypeLabel = useCallback((type: string) => {
         const labels: Record<string, string> = {
             'tenants': TEXTS_ADMIN?.RECYCLE_BIN?.TYPES?.TENANTS || 'المستأجرين',
             'fonts': TEXTS_ADMIN?.RECYCLE_BIN?.TYPES?.FONTS || 'الخطوط',
@@ -29,7 +29,7 @@ export default function AdminTrash() {
             'support_tickets': TEXTS_ADMIN?.RECYCLE_BIN?.TYPES?.SUPPORT_TICKETS || 'تذاكر الدعم',
         };
         return labels[type] || type;
-    };
+    }, []);
 
     const isSelected = (item: TrashedItem) => {
         return trash.selected.some(i => i.type === item.type && i.id === item.id);
@@ -40,6 +40,8 @@ export default function AdminTrash() {
     const { openModal } = useExport();
 
     React.useEffect(() => {
+        const isAllSelected = trash.selected.length > 0 && trash.selected.length === trash.items.length;
+
         if (trash.selected.length > 0) {
             // Bulk Selection Mode
             setPrimaryAction({
@@ -59,9 +61,9 @@ export default function AdminTrash() {
                     disabled: trash.isLoading
                 },
                 {
-                    label: trash.selected.length === trash.items.length ? 'إلغاء تحديد الكل' : 'تحديد الكل',
+                    label: isAllSelected ? 'إلغاء تحديد الكل' : 'تحديد الكل',
                     onClick: trash.selectAll,
-                    icon: trash.selected.length === trash.items.length ? CheckSquare : Square,
+                    icon: isAllSelected ? CheckSquare : Square,
                     variant: 'secondary'
                 }
             ]);
@@ -76,24 +78,22 @@ export default function AdminTrash() {
             });
 
             // Extra Action: Export (Only if items exist)
+            const actions = [];
             if (trash.items.length > 0) {
-                setExtraActions([
-                    {
-                        label: 'تصدير البيانات',
-                        onClick: openModal,
-                        icon: Download,
-                        variant: 'secondary'
-                    },
-                    {
-                        label: 'تحديد الكل',
-                        onClick: trash.selectAll,
-                        icon: Square,
-                        variant: 'secondary'
-                    }
-                ]);
-            } else {
-                setExtraActions([]);
+                actions.push({
+                    label: 'تصدير البيانات',
+                    onClick: openModal,
+                    icon: Download,
+                    variant: 'secondary'
+                });
+                actions.push({
+                    label: 'تحديد الكل',
+                    onClick: trash.selectAll,
+                    icon: Square,
+                    variant: 'secondary'
+                });
             }
+            setExtraActions(actions);
         }
 
         return () => {
@@ -105,12 +105,12 @@ export default function AdminTrash() {
         trash.items.length,
         trash.selected.length,
         trash.isLoading,
-        trash.bulkRestore,
-        trash.bulkForceDelete,
-        trash.emptyTrash,
         setPrimaryAction,
         setExtraActions,
         openModal
+        // Note: actions like trash.selectAll are intentionally omitted 
+        // if they are not stable enough, but here they should be fine 
+        // since we check lengths in dependencies.
     ]);
 
     const columns = React.useMemo(() => [

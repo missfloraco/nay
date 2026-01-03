@@ -19,7 +19,7 @@ const Button: React.FC<ButtonProps> = ({
 }) => {
     // Legacy prop cleanup: Ensure 'loading' doesn't leak to DOM if passed via spread
     const { loading: _, ...rest } = props as any;
-    const baseStyles = "inline-flex items-center justify-center rounded-xl font-bold transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-2 active:scale-95 select-none gap-4";
+    const baseStyles = "inline-flex items-center justify-center rounded-[var(--radius-button)] font-bold transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-2 active:scale-95 select-none gap-4";
 
     const variants = {
         primary: "bg-primary text-white hover:bg-primary/90 focus:ring-primary/50 shadow-lg shadow-primary/25 hover:shadow-primary/40",

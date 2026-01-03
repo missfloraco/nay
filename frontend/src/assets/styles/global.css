@@ -39,6 +39,12 @@
   --page-margin: 2rem;
   --footer-height: 90px;
 
+  /* DESIGN TOKENS: RADIUS SYSTEM */
+  --radius-card: 1rem;
+  /* Updated to 1rem (rounded-2xl) across the entire system */
+  --radius-inner: 1rem;
+  --radius-button: 1rem;
+
   /* TYPOGRAPHY SYSTEM */
   --font-base: "IBM Plex Sans Arabic", system-ui, sans-serif;
   --font-sans: var(--font-base);
@@ -50,26 +56,21 @@
     font-family: var(--font-base);
   }
 
+  /* HIDE SCROLLBARS GLOBALLY - KEEP FUNCTIONALITY (Premium UX) */
+  * {
+    scrollbar-width: none !important;
+    /* Firefox */
+    -ms-overflow-style: none !important;
+    /* IE/Edge */
+  }
+
+  *::-webkit-scrollbar {
+    display: none !important;
+    /* Chrome/Safari */
+  }
+
   html {
     scroll-behavior: smooth;
-  }
-
-  ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-  }
-
-  ::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  ::-webkit-scrollbar-thumb {
-    background: #e2e8f0;
-    border-radius: 3px;
-  }
-
-  ::-webkit-scrollbar-thumb:hover {
-    background: #cbd5e1;
   }
 }
 
@@ -105,6 +106,21 @@
   z-index: 10;
 }
 
+
+/* 
+  ==========================================================================
+  Cards & Containers
+  ========================================================================== 
+*/
+
+.premium-card {
+  @apply bg-white dark:bg-dark-900 border border-gray-100 dark:border-white/5 shadow-xl shadow-gray-200/50 dark:shadow-black/20 relative overflow-hidden transition-all duration-500;
+  border-radius: var(--radius-card);
+}
+
+.premium-card-hover {
+  @apply hover:shadow-2xl hover:shadow-primary/5 hover:border-primary/20 hover:-translate-y-1;
+}
 
 /* Utilities */
 .no-scrollbar::-webkit-scrollbar {
@@ -153,6 +169,22 @@
   }
 }
 
+@keyframes pulse-subtle {
+
+  0%,
+  100% {
+    opacity: 0.15;
+  }
+
+  50% {
+    opacity: 0.3;
+  }
+}
+
+.animate-pulse-subtle {
+  animation: pulse-subtle 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
 
 /* 
   ==========================================================================
@@ -167,8 +199,9 @@
 .input-field,
 .textarea-field,
 .select-field {
-  @apply w-full bg-slate-50/50 border border-slate-200 rounded-2xl px-6 py-4.5 text-[15px] font-bold outline-none transition-all duration-500 text-start;
+  @apply w-full bg-slate-50/50 border border-slate-200 px-6 py-4.5 text-[15px] font-bold outline-none transition-all duration-500 text-start;
   @apply hover:bg-white hover:border-slate-300;
+  border-radius: var(--radius-inner);
 }
 
 .input-field:focus,

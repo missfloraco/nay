@@ -115,7 +115,7 @@ export default function Hero() {
                             <img
                                 src="/landing_hero_dashboard.png"
                                 alt="Modern Dashboard System"
-                                className="w-full h-auto object-contain relative z-10 drop-shadow-[0_20px_50px_rgba(0,0,0,0.15)] dark:drop-shadow-[0_20px_50px_rgba(59,130,246,0.2)] rounded-3xl lg:rotate-[-1deg] scale-95 lg:scale-110 transition-all duration-700 hover:scale-100 lg:hover:scale-115 hover:rotate-0"
+                                className="w-full h-auto object-contain relative z-10 drop-shadow-[0_20px_50px_rgba(0,0,0,0.15)] dark:drop-shadow-[0_20px_50px_rgba(59,130,246,0.2)] rounded-2xl lg:rotate-[-1deg] scale-95 lg:scale-110 transition-all duration-700 hover:scale-100 lg:hover:scale-115 hover:rotate-0"
                             />
                             {/* Decorative glow behind image - Theme Aware */}
                             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[110%] h-[110%] bg-primary/10 dark:bg-blue-600/5 rounded-full blur-[120px] -z-10" />

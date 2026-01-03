@@ -17,7 +17,7 @@ export default function Pricing() {
                 {/* Header - Centered */}
                 <div className="text-center max-w-4xl mx-auto mb-10">
                     <span
-                        className="inline-flex items-center px-6 py-2 rounded-xl font-black text-sm tracking-widest uppercase mb-8 border"
+                        className="inline-flex items-center px-6 py-2 rounded-2xl font-black text-sm tracking-widest uppercase mb-8 border"
                         style={{
                             backgroundColor: settings.accentColor2 ? `${settings.accentColor2}15` : undefined,
                             color: settings.accentColor2,

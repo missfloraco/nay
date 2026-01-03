@@ -89,6 +89,9 @@ export default function TenantsTable() {
                     onClick: () => setIsCreateModalOpen(false)
                 }
             });
+        } else if (isDetailsModalOpen) {
+            // Let the TenantDetailsSidebar handle the primary action
+            return;
         } else {
             setPrimaryAction({
                 label: TEXTS_ADMIN.TENANTS.ADD_TENANT,
@@ -100,7 +103,7 @@ export default function TenantsTable() {
             });
         }
         return () => setPrimaryAction(null);
-    }, [isCreateModalOpen, createLoading, setPrimaryAction]);
+    }, [isCreateModalOpen, isDetailsModalOpen, createLoading, setPrimaryAction]);
 
     const loadTenants = async () => {
         try {
@@ -333,7 +336,7 @@ export default function TenantsTable() {
                         {/* Right Column: Account Details */}
                         <div className="space-y-8">
                             <div className="flex items-center gap-3 px-2">
-                                <div className="p-2 bg-primary/10 rounded-xl">
+                                <div className="p-2 bg-primary/10 rounded-2xl">
                                     <User className="w-5 h-5 text-primary" />
                                 </div>
                                 <h5 className="text-lg font-black text-gray-900 dark:text-white">بيانات المسؤول</h5>
@@ -389,7 +392,7 @@ export default function TenantsTable() {
                         {/* Left Column: Subscription Details */}
                         <div className="space-y-8">
                             <div className="flex items-center gap-3 px-2">
-                                <div className="p-2 bg-emerald-500/10 rounded-xl">
+                                <div className="p-2 bg-emerald-500/10 rounded-2xl">
                                     <Shield className="w-5 h-5 text-emerald-600" />
                                 </div>
                                 <h5 className="text-lg font-black text-gray-900 dark:text-white">إعدادات الاشتراك</h5>
@@ -403,9 +406,9 @@ export default function TenantsTable() {
                                         <button
                                             type="button"
                                             onClick={() => setFormData({ ...formData, status: 'trial' })}
-                                            className={`p-5 rounded-3xl border-2 transition-all flex flex-col gap-2 items-start text-right group ${formData.status === 'trial' ? 'border-primary bg-primary/5' : 'border-gray-100 dark:border-white/5 bg-gray-50/50 hover:border-primary/30'}`}
+                                            className={`p-5 rounded-[var(--radius-inner)] border-2 transition-all flex flex-col gap-2 items-start text-right group ${formData.status === 'trial' ? 'border-primary bg-primary/5' : 'border-gray-100 dark:border-white/5 bg-gray-50/50 hover:border-primary/30'}`}
                                         >
-                                            <div className={`p-2 rounded-xl transition-colors ${formData.status === 'trial' ? 'bg-primary text-white' : 'bg-gray-200 dark:bg-dark-800 text-gray-500 group-hover:bg-primary/20 group-hover:text-primary'}`}>
+                                            <div className={`p-2 rounded-2xl transition-colors ${formData.status === 'trial' ? 'bg-primary text-white' : 'bg-gray-200 dark:bg-dark-800 text-gray-500 group-hover:bg-primary/20 group-hover:text-primary'}`}>
                                                 <Clock className="w-5 h-5" />
                                             </div>
                                             <div>
@@ -416,7 +419,7 @@ export default function TenantsTable() {
                                         <button
                                             type="button"
                                             onClick={() => setFormData({ ...formData, status: 'active' })}
-                                            className={`p-5 rounded-3xl border-2 transition-all flex flex-col gap-2 items-start text-right group ${formData.status === 'active' ? 'border-emerald-500 bg-emerald-500/5' : 'border-gray-100 dark:border-white/5 bg-gray-50/50 hover:border-emerald-500/30'}`}
+                                            className={`p-5 rounded-[var(--radius-inner)] border-2 transition-all flex flex-col gap-2 items-start text-right group ${formData.status === 'active' ? 'border-emerald-500 bg-emerald-500/5' : 'border-gray-100 dark:border-white/5 bg-gray-50/50 hover:border-emerald-500/30'}`}
                                         >
                                             <div className={`p-2 rounded-xl transition-colors ${formData.status === 'active' ? 'bg-emerald-500 text-white' : 'bg-gray-200 dark:bg-dark-800 text-gray-500 group-hover:bg-emerald-500/20 group-hover:text-emerald-500'}`}>
                                                 <Sparkles className="w-5 h-5" />
@@ -429,7 +432,7 @@ export default function TenantsTable() {
                                     </div>
                                 </div>
 
-                                <div className="space-y-4 pt-4 p-8 bg-gray-50/50 dark:bg-dark-800/40 rounded-[2.5rem] border border-gray-100 dark:border-white/5">
+                                <div className="space-y-4 pt-4 p-8 bg-gray-50/50 dark:bg-dark-800/40 rounded-[var(--radius-card)] border border-gray-100 dark:border-white/5">
                                     <InputField
                                         type="date"
                                         label={`تاريخ ${formData.status === 'trial' ? 'انتهاء التجربة' : 'انتهاء الاشتراك'}`}
@@ -459,7 +462,7 @@ export default function TenantsTable() {
                                                     if (formData.status === 'trial') setFormData({ ...formData, trial_expires_at: dateStr });
                                                     else setFormData({ ...formData, subscription_ends_at: dateStr });
                                                 }}
-                                                className={`py-3 text-[10px] font-black uppercase tracking-tighter rounded-xl transition-all border ${btn.color === 'blue'
+                                                className={`py-3 text-[10px] font-black uppercase tracking-tighter rounded-2xl transition-all border ${btn.color === 'blue'
                                                     ? 'bg-blue-50 text-blue-600 border-blue-100 hover:bg-blue-600 hover:text-white'
                                                     : btn.color === 'purple'
                                                         ? 'bg-purple-50 text-purple-600 border-purple-100 hover:bg-purple-600 hover:text-white'

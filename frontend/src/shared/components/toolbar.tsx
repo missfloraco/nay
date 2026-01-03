@@ -63,7 +63,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
                             <button
                                 key={option.id}
                                 onClick={() => onChange(option.id)}
-                                className={`flex items-center gap-4 px-4 py-2.5 transition-all font-bold text-sm whitespace-nowrap relative group shrink-0 rounded-xl
+                                className={`flex items-center gap-4 px-4 py-2.5 transition-all font-bold text-sm whitespace-nowrap relative group shrink-0 rounded-2xl
                                     ${isActive
                                         ? 'bg-primary text-white shadow-lg z-10'
                                         : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900 dark:hover:text-white'
@@ -85,7 +85,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
                         <button
                             key={option.id}
                             onClick={() => onChange(option.id)}
-                            className={`flex items-center gap-4 px-4 py-2.5 rounded-xl transition-all font-bold text-sm whitespace-nowrap shrink-0 ${isActive
+                            className={`flex items-center gap-4 px-4 py-2.5 rounded-2xl transition-all font-bold text-sm whitespace-nowrap shrink-0 ${isActive
                                 ? 'bg-primary text-white shadow-lg'
                                 : 'text-gray-500 hover:bg-gray-50 dark:hover:bg-dark-800/50 hover:text-gray-900 dark:hover:text-white border border-transparent hover:border-gray-100'
                                 }`}

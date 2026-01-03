@@ -119,7 +119,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
                 {/* Tooltip for collapsed state */}
                 {isSidebarCollapsed && (
-                    <div className="absolute right-full mr-4 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50 shadow-xl">
+                    <div className="absolute right-full mr-4 px-3 py-2 bg-gray-900 text-white text-xs rounded-2xl opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50 shadow-xl">
                         {item.label}
                         <div className="absolute top-1/2 -translate-y-1/2 left-full border-4 border-transparent border-l-gray-900" />
                     </div>
@@ -203,7 +203,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                             </div>
 
                             {isSidebarCollapsed && (
-                                <div className="absolute right-full mr-4 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50 shadow-xl">
+                                <div className="absolute right-full mr-4 px-3 py-2 bg-gray-900 text-white text-xs rounded-2xl opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50 shadow-xl">
                                     توسيع القائمة
                                     <div className="absolute top-1/2 -translate-y-1/2 left-full border-4 border-transparent border-l-gray-900" />
                                 </div>
@@ -246,13 +246,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
                         {/* Dropdown Menu - Always Opens Upwards */}
                         {isUserMenuOpen && (
-                            <div className="absolute bottom-full mb-2 left-4 right-4 lg:left-0 lg:right-0 bg-white dark:bg-dark-800 rounded-xl shadow-xl border border-gray-100 dark:border-white/10 p-1.5 z-[100] animate-in fade-in zoom-in-95 duration-200">
+                            <div className="absolute bottom-full mb-2 left-4 right-4 lg:left-0 lg:right-0 bg-white dark:bg-dark-800 rounded-2xl shadow-xl border border-gray-100 dark:border-white/10 p-1.5 z-[100] animate-in fade-in zoom-in-95 duration-200">
                                 <Link
                                     to={isAdmin ? '/admin/settings' : '/app/settings'}
                                     onClick={() => setIsUserMenuOpen(false)}
-                                    className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg hover:bg-gray-50 dark:hover:bg-white/5 text-gray-700 dark:text-gray-300 transition-colors group mb-1"
+                                    className="flex items-center gap-3 w-full px-3 py-2.5 rounded-2xl hover:bg-gray-50 dark:hover:bg-white/5 text-gray-700 dark:text-gray-300 transition-colors group mb-1"
                                 >
-                                    <div className="p-1.5 rounded-md bg-gray-50 dark:bg-white/5 text-gray-500 group-hover:bg-gray-100 dark:group-hover:bg-white/10 transition-colors">
+                                    <div className="p-1.5 rounded-2xl bg-gray-50 dark:bg-white/5 text-gray-500 group-hover:bg-gray-100 dark:group-hover:bg-white/10 transition-colors">
                                         <SettingsIcon className="w-4 h-4" />
                                     </div>
                                     <span className="font-bold text-xs">الإعدادات الشخصية</span>
@@ -262,9 +262,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
                                         handleLogout();
                                         setIsUserMenuOpen(false);
                                     }}
-                                    className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 text-red-600 transition-colors group"
+                                    className="flex items-center gap-3 w-full px-3 py-2.5 rounded-2xl hover:bg-red-50 dark:hover:bg-red-500/10 text-red-600 transition-colors group"
                                 >
-                                    <div className="p-1.5 rounded-md bg-red-50 dark:bg-red-500/10 text-red-500 group-hover:bg-red-100 dark:group-hover:bg-red-500/20 transition-colors">
+                                    <div className="p-1.5 rounded-2xl bg-red-50 dark:bg-red-500/10 text-red-500 group-hover:bg-red-100 dark:group-hover:bg-red-500/20 transition-colors">
                                         <LogOut className="w-4 h-4" />
                                     </div>
                                     <span className="font-bold text-xs">تسجيل الخروج</span>

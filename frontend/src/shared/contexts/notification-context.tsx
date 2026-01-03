@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useCallback, useMemo, useEffect, ReactNode } from 'react';
 import api from '@/shared/services/api';
 import { logger } from '@/shared/services/logger';
 
@@ -257,26 +257,42 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ childr
         }
     }, [fetchNotifications, window.location.pathname]);
 
+    const contextValue = useMemo(() => ({
+        notifications,
+        activeToasts,
+        unreadCount,
+        loading,
+        notify,
+        markAsRead,
+        markAllAsRead,
+        deleteNotification,
+        fetchNotifications,
+        showConfirm,
+        showSuccess,
+        showError,
+        showInfo
+    }), [
+        notifications,
+        activeToasts,
+        unreadCount,
+        loading,
+        notify,
+        markAsRead,
+        markAllAsRead,
+        deleteNotification,
+        fetchNotifications,
+        showConfirm,
+        showSuccess,
+        showError,
+        showInfo
+    ]);
+
     return (
-        <NotificationContext.Provider value={{
-            notifications,
-            activeToasts,
-            unreadCount,
-            loading,
-            notify,
-            markAsRead,
-            markAllAsRead,
-            deleteNotification,
-            fetchNotifications,
-            showConfirm,
-            showSuccess,
-            showError,
-            showInfo
-        }}>
+        <NotificationContext.Provider value={contextValue}>
             {children}
 
             {/* Toasts Rendering */}
-            <div className="fixed bottom-0 right-0 z-[200] flex flex-col gap-2 p-4 pointer-events-none">
+            <div className="fixed bottom-0 right-0 z-[9999] flex flex-col gap-2 p-4 pointer-events-none">
                 {activeToasts.map(toast => (
                     <ToastComponent
                         key={toast.id}

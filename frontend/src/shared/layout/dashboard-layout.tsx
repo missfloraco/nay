@@ -6,6 +6,9 @@ import { useSettings } from '@/shared/contexts/app-context';
 import { ImpersonationBanner } from '@/shared/components/impersonationbanner';
 import { Plus } from 'lucide-react';
 import Button from '@/shared/ui/buttons/btn-base';
+import { useAdminAuth } from '@/features/auth/admin-auth-context';
+import { useTenantAuth } from '@/features/auth/tenant-auth-context';
+import { useLocation } from 'react-router-dom';
 
 interface DashboardAction {
     label: string;
@@ -27,7 +30,7 @@ interface DashboardLayoutProps {
     banners?: ReactNode;
     noPadding?: boolean;
     toolbar?: ReactNode;
-    primaryAction?: DashboardAction;
+    primaryAction?: DashboardAction & { secondaryAction?: DashboardAction };
     extraActions?: DashboardAction[];
 }
 
@@ -43,8 +46,15 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
     primaryAction,
     extraActions = []
 }) => {
-    const { isSidebarCollapsed } = useUI();
+    const { isSidebarCollapsed, toggleMobileMenu } = useUI();
     const { settings } = useSettings();
+    const location = useLocation();
+
+    const { user: adminUser, logout: logoutAdmin } = useAdminAuth();
+    const { user: appUser, logout: logoutApp } = useTenantAuth();
+    const isAdmin = location.pathname.startsWith('/admin');
+    const currentUser = isAdmin ? adminUser : appUser;
+    const handleLogout = isAdmin ? logoutAdmin : logoutApp;
 
     const currentYear = new Date().getFullYear();
 
@@ -66,25 +76,25 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
                 {/* Scrollable Content Area */}
                 <main className="flex-1 overflow-y-auto overflow-x-hidden no-scrollbar bg-gray-50 dark:bg-dark-950 relative scroll-smooth">
                     <div className="flex flex-col min-h-full">
-                        {/* 1. Top Filter Toolbar (Sticky) */}
-                        {toolbar && (
-                            <div className="sticky top-0 z-40 h-[70px] lg:h-[90px] px-0 bg-emerald-500/[0.03] dark:bg-emerald-500/[0.08] backdrop-blur-2xl border-b border-emerald-500/20 dark:border-emerald-500/10 shadow-xl shadow-emerald-500/[0.02] flex items-center shrink-0 transition-all duration-500 overflow-hidden relative group">
-                                {/* Decorative Accent Lines */}
-                                <div className="absolute top-0 right-1/4 w-32 h-px bg-gradient-to-r from-transparent via-emerald-500/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
-                                <div className="absolute bottom-[-1px] left-1/3 w-64 h-px bg-gradient-to-r from-transparent via-emerald-500/20 to-transparent" />
+                        {/* 1. Top Filter Toolbar (Sticky) - Always Visible */}
+                        <div className="sticky top-0 z-40 h-[70px] lg:h-[90px] px-0 bg-white/95 dark:bg-dark-900/95 backdrop-blur-2xl border-b border-emerald-500/20 dark:border-emerald-500/10 shadow-[0_10px_40px_rgba(0,0,0,0.08)] flex items-center shrink-0 transition-all duration-500 overflow-hidden relative group">
+                            {/* Decorative Accent Lines */}
+                            <div className="absolute top-0 right-1/4 w-32 h-px bg-gradient-to-r from-transparent via-emerald-500/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
+                            <div className="absolute bottom-[-1px] left-1/3 w-64 h-px bg-gradient-to-r from-transparent via-emerald-500/20 to-transparent" />
 
-                                <div className="flex-1 w-full relative z-10 px-4 lg:px-8 max-w-full overflow-x-hidden">
-                                    {toolbar}
-                                </div>
+                            <div className="flex-1 w-full relative z-10 px-4 lg:px-8 max-w-full overflow-x-hidden">
+                                {toolbar || (
+                                    <div className="flex items-center justify-between opacity-20">
+                                        <div className="h-4 w-32 bg-emerald-500/20 rounded-full" />
+                                    </div>
+                                )}
                             </div>
-                        )}
+                        </div>
 
                         <div className={`flex-1 ${noPadding ? 'p-0' : 'px-4 lg:px-8 py-6 lg:py-8'}`}>
                             {children}
                         </div>
 
-                        {/* Pagination Portal Anchor */}
-                        <div id="table-pagination-portal" className={`flex items-center mt-auto ${noPadding ? 'p-4 lg:p-8' : 'px-0 py-4'}`} />
 
                         {/* 2. Bottom Action Toolbar (Sticky) - Always Visible */}
                         <div className="layout-footer-toolbar sticky bottom-0 z-40 h-[70px] lg:h-[90px] px-0 bg-white/80 dark:bg-dark-900/80 backdrop-blur-2xl border-t border-emerald-500/20 dark:border-emerald-500/10 shadow-[0_-10px_40px_rgba(16,185,129,0.08)] flex items-center shrink-0 transition-all duration-500 overflow-hidden relative group">
@@ -95,6 +105,9 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
                             <div className="flex items-center justify-end gap-3 shrink-0 w-full relative z-10 px-4 lg:px-8">
                                 {/* Right Side: Actions */}
                                 <div className="flex items-center gap-3">
+                                    {(!primaryAction && extraActions.length === 0) && (
+                                        <div className="h-10 w-32 bg-gray-100 dark:bg-white/5 rounded-2xl animate-pulse-subtle opacity-20" />
+                                    )}
                                     <div className="flex items-center gap-3">
                                         {extraActions.map((action, idx) => (
                                             <Button
@@ -142,8 +155,6 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
                             </div>
                         </div>
                     </div>
-
-
                 </main>
             </div>
         </div>

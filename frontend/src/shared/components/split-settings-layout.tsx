@@ -37,7 +37,7 @@ export const SplitSettingsLayout: React.FC<SplitSettingsLayoutProps> = ({
             <div className="w-full xl:w-[380px] shrink-0 space-y-8">
 
                 {/* 1. Profile Identity Card - High Premium Style */}
-                <div className="bg-white dark:bg-dark-900 rounded-[3rem] p-10 border border-gray-100 dark:border-white/5 shadow-2xl shadow-gray-200/50 dark:shadow-none relative overflow-hidden group">
+                <div className="bg-white dark:bg-dark-900 rounded-2xl p-10 border border-gray-100 dark:border-white/5 shadow-2xl shadow-gray-200/50 dark:shadow-none relative overflow-hidden group">
                     {/* Decorative Background Elements */}
                     <div className="absolute -right-12 -top-12 w-48 h-48 bg-primary/5 rounded-full blur-3xl group-hover:bg-primary/10 transition-colors duration-1000" />
                     <div className="absolute -left-12 -bottom-12 w-48 h-48 bg-secondary/5 rounded-full blur-3xl group-hover:bg-secondary/10 transition-colors duration-1000" />
@@ -91,21 +91,21 @@ export const SplitSettingsLayout: React.FC<SplitSettingsLayoutProps> = ({
 
                 {/* 2. Trial Experience (Dynamic Slot) */}
                 {trialInfo && (
-                    <div className="bg-primary rounded-[3rem] p-10 text-white shadow-2xl shadow-primary/30 relative overflow-hidden group border border-white/10">
+                    <div className="bg-primary rounded-2xl p-10 text-white shadow-2xl shadow-primary/30 relative overflow-hidden group border border-white/10">
                         {/* Abstract Shapes */}
                         <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
                         <div className="absolute bottom-0 left-0 w-24 h-24 bg-secondary/20 rounded-full blur-2xl translate-y-1/2 -translate-x-1/2" />
 
                         <div className="relative space-y-8">
                             <div className="flex items-center gap-4">
-                                <div className="p-3.5 bg-white/20 rounded-[1.25rem] backdrop-blur-md shadow-inner border border-white/20">
+                                <div className="p-3.5 bg-white/20 rounded-2xl backdrop-blur-md shadow-inner border border-white/20">
                                     <Clock className="w-6 h-6 text-white" />
                                 </div>
                                 <h3 className="font-black text-xl tracking-tight">الاشتراك التجريبي</h3>
                             </div>
 
                             <div className="space-y-4">
-                                <div className="p-6 bg-white/10 rounded-[2rem] border border-white/10 backdrop-blur-sm flex items-end justify-between hover:bg-white/20 transition-all">
+                                <div className="p-6 bg-white/10 rounded-2xl border border-white/10 backdrop-blur-sm flex items-end justify-between hover:bg-white/20 transition-all">
                                     <div className="space-y-1">
                                         <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/60">أيام متبقية</p>
                                         <div className="text-5xl font-black">{trialInfo.daysRemaining}</div>
@@ -124,7 +124,7 @@ export const SplitSettingsLayout: React.FC<SplitSettingsLayoutProps> = ({
                 )}
 
                 {/* 3. Metrics/Details - CLEAN MINIMAL */}
-                <div className="bg-white dark:bg-dark-900 rounded-[3rem] p-8 border border-gray-100 dark:border-white/5 shadow-xl shadow-gray-200/50 dark:shadow-none space-y-8">
+                <div className="bg-white dark:bg-dark-900 rounded-2xl p-8 border border-gray-100 dark:border-white/5 shadow-xl shadow-gray-200/50 dark:shadow-none space-y-8">
                     <div className="flex items-center gap-4 px-2">
                         <div className="w-1 h-6 bg-primary rounded-full" />
                         <h3 className="font-black text-lg text-gray-900 dark:text-white">سجلات الوصول</h3>

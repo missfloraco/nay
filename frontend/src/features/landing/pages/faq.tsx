@@ -38,7 +38,7 @@ export default function FAQ() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                 {/* Header - Right Aligned like Hero */}
                 <div className="text-right max-w-4xl mb-20 lg:mb-32">
-                    <span className="inline-flex items-center px-6 py-2 rounded-xl bg-blue-500/10 text-blue-500 dark:text-blue-400 font-black text-sm tracking-widest uppercase mb-8 border border-blue-500/20">
+                    <span className="inline-flex items-center px-6 py-2 rounded-2xl bg-blue-500/10 text-blue-500 dark:text-blue-400 font-black text-sm tracking-widest uppercase mb-8 border border-blue-500/20">
                         الأسئلة الشائعة
                     </span>
                     <h2 className="text-5xl lg:text-7xl font-black text-gray-900 dark:text-white mb-8 tracking-tighter leading-[1.1]">

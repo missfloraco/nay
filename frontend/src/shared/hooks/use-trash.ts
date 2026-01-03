@@ -99,12 +99,11 @@ export function useTrash(options: UseTrashOptions) {
 
     // Select all
     const selectAll = useCallback(() => {
-        if (selected.length === items.length) {
-            setSelected([]);
-        } else {
-            setSelected([...items]);
-        }
-    }, [selected.length, items]); // items needs to be in deps, but this might cause loop if items changes. items is state, so mostly stable.
+        setSelected(prev => {
+            if (prev.length === items.length) return [];
+            return [...items];
+        });
+    }, [items]);
 
     // Bulk restore
     const bulkRestore = useCallback(async () => {

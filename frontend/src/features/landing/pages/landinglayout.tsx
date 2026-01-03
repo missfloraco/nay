@@ -69,7 +69,7 @@ export default function LandingLayout({ children }: LandingLayoutProps) {
             {!isCheckingAdBlock && isAdBlockActive && <ShieldOverlay />}
 
             <>
-                <header className={`fixed top-4 sm:top-8 left-0 right-0 z-[60] pointer-events-none transition-transform duration-500 ease-out ${isHeaderVisible ? 'translate-y-0' : '-translate-y-[150%]'}`}>
+                <header className="fixed top-4 sm:top-8 left-0 right-0 z-[60] pointer-events-auto transition-all duration-500">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pointer-events-auto">
                         <div className="bg-white/90 backdrop-blur-2xl border border-gray-200 rounded-2xl shadow-2xl shadow-primary/5 transition-all duration-500 hover:shadow-primary/10 px-6 sm:px-10">
                             <div className="flex items-center justify-between h-20"> {/* Fixed 80px Height */}

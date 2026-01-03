@@ -8,8 +8,8 @@ export default function ActivationWaiting() {
     const { settings } = useSettings();
 
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-dark-950 flex items-center justify-center p-6" dir="rtl">
-            <div className="max-w-md w-full bg-white dark:bg-dark-900 rounded-[2.5rem] shadow-2xl border border-gray-100 dark:border-dark-800 p-10 text-center space-y-8 animate-in zoom-in-95 duration-500">
+        <div className="flex-1 flex items-center justify-center py-10" dir="rtl">
+            <div className="max-w-md w-full bg-white dark:bg-secondary-900/40 backdrop-blur-xl rounded-[2.5rem] shadow-2xl border border-gray-100 dark:border-white/5 p-10 text-center space-y-8 animate-in zoom-in-95 duration-500">
                 <div className="relative inline-block">
                     <div className="w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center mx-auto ring-8 ring-primary/5">
                         <Clock className="w-12 h-12 text-primary animate-pulse" />

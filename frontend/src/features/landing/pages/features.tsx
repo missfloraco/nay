@@ -105,7 +105,7 @@ export default function Features() {
                 {/* Section Header - Perfectly Centered */}
                 <div className="text-center max-w-4xl mx-auto mb-20 lg:mb-32">
                     <span
-                        className="inline-flex items-center px-6 py-2 rounded-xl font-black text-sm tracking-widest uppercase mb-8 border shadow-lg"
+                        className="inline-flex items-center px-6 py-2 rounded-2xl font-black text-sm tracking-widest uppercase mb-8 border shadow-lg"
                         style={{
                             backgroundColor: settings.accentColor2 ? `${settings.accentColor2}15` : undefined,
                             color: settings.accentColor2,
@@ -125,10 +125,10 @@ export default function Features() {
                     {displayFeatures.map((feature: any, index: number) => (
                         <div
                             key={index}
-                            className="bg-white/50 dark:bg-[#1a1c1e] p-10 lg:p-12 rounded-2xl border border-gray-200 dark:border-white/5 hover:border-primary/30 hover:shadow-2xl hover:shadow-primary/5 transition-all duration-500 group text-center flex flex-col items-center"
+                            className="bg-white/50 dark:bg-[#1a1c1e] p-10 lg:p-12 rounded-[var(--radius-card)] border border-gray-200 dark:border-white/5 hover:border-primary/30 hover:shadow-2xl hover:shadow-primary/5 transition-all duration-500 group text-center flex flex-col items-center"
                         >
                             <div
-                                className="w-20 h-20 bg-gray-50 dark:bg-white/5 rounded-3xl flex items-center justify-center mb-10 group-hover:bg-primary group-hover:text-white transition-all duration-700 shadow-inner border border-gray-100 dark:border-white/10 group-hover:scale-110 group-hover:rotate-6"
+                                className="w-20 h-20 bg-gray-50 dark:bg-white/5 rounded-[var(--radius-inner)] flex items-center justify-center mb-10 group-hover:bg-primary group-hover:text-white transition-all duration-700 shadow-inner border border-gray-100 dark:border-white/10 group-hover:scale-110 group-hover:rotate-6"
                                 style={{ color: settings.accentColor1 }}
                             >
                                 {feature.icon ? <feature.icon className="w-10 h-10" /> : <Zap className="w-10 h-10" />}

@@ -164,12 +164,12 @@ export default function AdminPlansPage() {
                     {plans.map((plan: any) => {
                         const Icon = PLAN_ICONS[plan.name as keyof typeof PLAN_ICONS] || PLAN_ICONS.Default;
                         return (
-                            <div key={plan.id} className="group relative bg-white dark:bg-dark-900 p-8 rounded-[2.5rem] border border-gray-100 dark:border-white/5 shadow-sm hover:shadow-xl transition-all duration-500 overflow-hidden">
+                            <div key={plan.id} className="group relative bg-white dark:bg-dark-900 p-8 rounded-[var(--radius-card)] border border-gray-100 dark:border-white/5 shadow-sm hover:shadow-xl transition-all duration-500 overflow-hidden">
                                 <div className="absolute top-4 left-4 md:top-6 md:left-6 z-20">
                                     <div className="flex items-center gap-1 p-1 bg-white/80 dark:bg-dark-900/80 backdrop-blur-md rounded-2xl border border-gray-100 dark:border-white/5 shadow-xl transition-all duration-300">
                                         <button
                                             onClick={() => handleOpenModal(plan)}
-                                            className="p-2.5 bg-blue-500/10 text-blue-600 rounded-xl hover:bg-blue-600 hover:text-white transition-all duration-300"
+                                            className="p-2.5 bg-blue-500/10 text-blue-600 rounded-2xl hover:bg-blue-600 hover:text-white transition-all duration-300"
                                             title="تعديل الخطة"
                                         >
                                             <Edit2 className="w-4 h-4" />
@@ -177,7 +177,7 @@ export default function AdminPlansPage() {
                                         <div className="w-px h-4 bg-gray-200 dark:bg-white/10 mx-0.5" />
                                         <button
                                             onClick={() => handleDelete(plan.id)}
-                                            className="p-2.5 bg-red-500/10 text-red-600 rounded-xl hover:bg-red-600 hover:text-white transition-all duration-300"
+                                            className="p-2.5 bg-red-500/10 text-red-600 rounded-2xl hover:bg-red-600 hover:text-white transition-all duration-300"
                                             title="حذف الخطة"
                                         >
                                             <Trash2 className="w-4 h-4" />
@@ -185,7 +185,7 @@ export default function AdminPlansPage() {
                                     </div>
                                 </div>
 
-                                <div className="w-16 h-16 bg-primary/10 rounded-[1.5rem] flex items-center justify-center mb-6">
+                                <div className="w-16 h-16 bg-primary/10 rounded-[var(--radius-inner)] flex items-center justify-center mb-6">
                                     <Icon className="w-8 h-8 text-primary" />
                                 </div>
 
@@ -253,7 +253,7 @@ export default function AdminPlansPage() {
                                     <p className="text-[10px] font-bold text-gray-400 px-2">يظهر هذا الاسم للمشتركين في صفحة الأسعار.</p>
                                 </div>
 
-                                <div className="space-y-6 p-8 bg-gray-50/50 dark:bg-dark-800/40 rounded-[2.5rem] border border-gray-100 dark:border-white/5 shadow-sm">
+                                <div className="space-y-6 p-8 bg-gray-50/50 dark:bg-dark-800/40 rounded-[var(--radius-card)] border border-gray-100 dark:border-white/5 shadow-sm">
                                     <div className="flex items-center justify-between mb-4">
                                         <div className="flex flex-col gap-1">
                                             <label className="text-xs font-black text-gray-400 uppercase tracking-widest">توفير الدفع السنوي</label>
@@ -324,12 +324,12 @@ export default function AdminPlansPage() {
 
                             <div className="flex-1 flex flex-col space-y-4">
                                 <div className="flex-1 relative group">
-                                    <div className="absolute inset-0 bg-emerald-500/10 rounded-[2rem] blur-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+                                    <div className="absolute inset-0 bg-emerald-500/10 rounded-[var(--radius-inner)] blur-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
                                     <textarea
                                         name="features"
                                         rows={8}
                                         defaultValue={editingPlan?.features?.join('\n')}
-                                        className="w-full h-full p-8 bg-gray-50/50 dark:bg-white/5 border-2 border-transparent focus:border-emerald-500/20 rounded-[2rem] font-bold text-gray-700 dark:text-gray-200 outline-none transition-all resize-none shadow-inner relative z-10 custom-scrollbar leading-relaxed"
+                                        className="w-full h-full p-8 bg-gray-50/50 dark:bg-white/5 border-2 border-transparent focus:border-emerald-500/20 rounded-[var(--radius-inner)] font-bold text-gray-700 dark:text-gray-200 outline-none transition-all resize-none shadow-inner relative z-10 custom-scrollbar leading-relaxed"
                                         placeholder="نقاط بيع غير محدودة&#10;إدارة المخزون والطلبات&#10;تقارير احترافية ومفصلة&#10;..."
                                     ></textarea>
                                 </div>

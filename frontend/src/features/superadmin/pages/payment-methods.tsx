@@ -8,7 +8,6 @@ import { TEXTS_ADMIN } from '@/shared/locales/texts';
 import { SettingsService } from '@/shared/services/settingsservice';
 import api from '@/shared/services/api';
 import { logger } from '@/shared/services/logger';
-import { RecordPaymentModal } from '@/features/superadmin/components/record-payment-modal';
 import InputField from '@/shared/ui/forms/input-field';
 import TextareaField from '@/shared/ui/forms/textarea-field';
 import SelectField from '@/shared/ui/forms/select-field';
@@ -18,7 +17,6 @@ export default function PaymentMethods() {
     const { showSuccess, showError } = useNotifications();
     const { setPrimaryAction } = useAction();
     const [saving, setSaving] = useState(false);
-    const [showPaymentModal, setShowPaymentModal] = useState(false);
 
     const [formData, setFormData] = useState({
         bank_transfer_enabled: settings.bank_transfer_enabled === true || settings.bank_transfer_enabled === 'true',
@@ -59,12 +57,7 @@ export default function PaymentMethods() {
             form: 'payment-settings-form',
             icon: Save,
             loading: saving,
-            variant: 'primary',
-            secondaryAction: {
-                label: 'تسجيل دفعة يدوية',
-                onClick: () => setShowPaymentModal(true),
-                variant: 'secondary'
-            }
+            variant: 'primary'
         });
         return () => setPrimaryAction(null);
     }, [saving, formData, setPrimaryAction]);
@@ -88,15 +81,6 @@ export default function PaymentMethods() {
                             </div>
                         </div>
                     </div>
-
-                    {showPaymentModal && (
-                        <RecordPaymentModal
-                            onClose={() => setShowPaymentModal(false)}
-                            onSuccess={() => {
-                                // Optionally refresh stats or list if we had one here
-                            }}
-                        />
-                    )}
 
                     {/* Stripe Integration */}
                     <div className="premium-card p-12 transition-all hover:shadow-2xl group/card">

@@ -96,7 +96,7 @@ export default function Testimonials() {
             <div className="relative z-10">
                 {/* Header - Perfectly Centered */}
                 <div className="text-center max-w-4xl mx-auto mb-20 lg:mb-32 px-4 sm:px-6 lg:px-8">
-                    <span className="inline-flex items-center px-6 py-2 rounded-xl bg-primary/10 text-primary font-black text-sm tracking-widest uppercase mb-8 border border-primary/20">
+                    <span className="inline-flex items-center px-6 py-2 rounded-2xl bg-primary/10 text-primary font-black text-sm tracking-widest uppercase mb-8 border border-primary/20">
                         ماذا يقولون عنا؟
                     </span>
                     <h2 className="text-5xl lg:text-7xl font-black text-gray-900 dark:text-white mb-8 leading-[1.05] tracking-tight">
