@@ -48,19 +48,9 @@ export const Header: React.FC<HeaderProps> = ({ title, actions }) => {
         )}
       </div>
 
-      {/* Middle: Global Search */}
-      <div className="flex-1 max-w-xl mx-8 hidden lg:block">
-        <GlobalSearch variant="header-center" />
-      </div>
-
       {/* Right: Actions & User */}
       <div className="flex items-center gap-2 lg:gap-4">
-        {/* Mobile Search Icon only */}
-        <div className="lg:hidden">
-          <div className="p-2 rounded-2xl bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/5 shadow-sm">
-            <GlobalSearch variant="header-left" />
-          </div>
-        </div>
+        <GlobalSearch />
 
         <div className="hidden sm:block">
           <ThemeToggle />

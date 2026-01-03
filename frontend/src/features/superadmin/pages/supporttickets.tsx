@@ -84,7 +84,8 @@ export default function SupportTicketsPage() {
         queryFn: async () => {
             return await api.get(`/admin/support/tickets?status=${statusFilter}`) as any;
         },
-        refetchInterval: 10000
+        refetchInterval: 30000, // 30 seconds
+        staleTime: 1000 * 60 * 5 // 5 minutes
     });
 
     // Clear selection when filter changes to prevent stuck states
@@ -101,7 +102,7 @@ export default function SupportTicketsPage() {
             return await api.get(`/admin/support/tickets/${selectedTicketId}`) as any;
         },
         enabled: !!selectedTicketId,
-        refetchInterval: 5000,
+        refetchInterval: 10000, // 10 seconds
         retry: 1
     });
 
@@ -151,15 +152,28 @@ export default function SupportTicketsPage() {
         }
     });
 
+    const archiveTicketMutation = useMutation({
+        mutationFn: () => api.patch(`/admin/support/tickets/${selectedTicketId}/status`, { status: 'archived' }),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['admin-ticket', selectedTicketId] });
+            queryClient.invalidateQueries({ queryKey: ['admin-tickets'] });
+            queryClient.invalidateQueries({ queryKey: ['admin-notifications-count'] });
+            showSuccess('تم أرشفة التذكرة بنجاح');
+            setSelectedTicketId(null);
+        },
+        onError: () => showError('فشل أرشفة التذكرة')
+    });
+
     const deleteTicketMutation = useMutation({
         mutationFn: () => api.delete(`/admin/support/tickets/${selectedTicketId}`),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['admin-tickets'] });
             queryClient.invalidateQueries({ queryKey: ['admin-notifications-count'] });
-            showSuccess('تم نقل التذكرة للأرشيف بنجاح');
+            queryClient.invalidateQueries({ queryKey: ['admin-notifications-count'] });
+            showSuccess('تم نقل التذكرة لسلة المحذوفات');
             setSelectedTicketId(null);
         },
-        onError: () => showError('فشل أرشفة التذكرة')
+        onError: () => showError('فشل نقل التذكرة للمحذوفات')
     });
 
     const restoreTicketMutation = useMutation({
@@ -187,11 +201,12 @@ export default function SupportTicketsPage() {
 
     useEffect(() => {
         if (selectedTicketId && selectedTicket) {
-            const isArchived = !!selectedTicket.deleted_at;
+            const isArchived = selectedTicket.status === 'archived';
+            const isTrash = !!selectedTicket.deleted_at;
 
-            if (isArchived) {
+            if (isTrash) {
                 setPrimaryAction({
-                    label: 'استعادة التذكرة الآن',
+                    label: 'استعادة من المحذوفات',
                     icon: History,
                     loading: restoreTicketMutation.isPending,
                     onClick: () => restoreTicketMutation.mutate(),
@@ -201,15 +216,27 @@ export default function SupportTicketsPage() {
                         onClick: () => forceDeleteMutation.mutate()
                     }
                 });
+            } else if (isArchived) {
+                setPrimaryAction({
+                    label: 'إعادة فتح التذكرة',
+                    icon: CheckCircle,
+                    loading: updateStatusMutation.isPending,
+                    onClick: () => updateStatusMutation.mutate({ status: 'open' }),
+                    secondaryAction: {
+                        label: 'نقل للمحذوفات',
+                        variant: 'danger',
+                        onClick: () => deleteTicketMutation.mutate()
+                    }
+                });
             } else {
                 setPrimaryAction({
-                    label: selectedTicket.status === 'resolved' ? 'إغلاق التذكرة نهائياً' : 'تحديد كـ محلولة',
-                    icon: selectedTicket.status === 'resolved' ? X : CheckCircle,
+                    label: selectedTicket.status === 'closed' ? 'إعادة فتح التذكرة' : 'إغلاق التذكرة',
+                    icon: selectedTicket.status === 'closed' ? CheckCircle : X,
                     loading: updateStatusMutation.isPending,
-                    onClick: () => updateStatusMutation.mutate({ status: selectedTicket.status === 'resolved' ? 'closed' : 'resolved' }),
+                    onClick: () => updateStatusMutation.mutate({ status: selectedTicket.status === 'closed' ? 'open' : 'closed' }),
                     secondaryAction: {
                         label: 'أرشفة التذكرة',
-                        onClick: () => deleteTicketMutation.mutate()
+                        onClick: () => archiveTicketMutation.mutate()
                     }
                 });
             }
@@ -294,8 +321,6 @@ export default function SupportTicketsPage() {
                     options={[
                         { id: 'all', label: 'الكل', icon: MessageSquare, color: 'text-gray-400' },
                         { id: 'open', label: 'مفتوحة', icon: AlertCircle, color: 'text-blue-500' },
-                        { id: 'in_progress', label: 'قيد المعالجة', icon: Clock, color: 'text-yellow-500' },
-                        { id: 'resolved', label: 'محلولة', icon: CheckCircle, color: 'text-green-500' },
                         { id: 'closed', label: 'مغلقة', icon: X, color: 'text-gray-500' },
                         { id: 'archived', label: 'الأرشيف', icon: Archive, color: 'text-red-400' },
                     ]}
@@ -390,7 +415,7 @@ export default function SupportTicketsPage() {
 
                     {/* Chat Content (Left/Center) */}
                     {/* Chat Content (Left/Center) - 2026 Redesign */}
-                    <div className="flex-1 flex flex-col bg-white/60 dark:bg-dark-900/60 backdrop-blur-xl rounded-[2.5rem] border border-white/20 shadow-2xl overflow-hidden min-h-0 relative">
+                    <div className="flex-1 flex flex-col bg-white/60 dark:bg-dark-900/60 backdrop-blur-xl rounded-2xl md:rounded-[2.5rem] border border-white/20 shadow-2xl overflow-hidden min-h-0 relative">
                         {/* Decorative Background Elements */}
                         <div className="absolute top-0 right-0 w-full h-full overflow-hidden pointer-events-none opacity-30">
                             <div className="absolute top-[-10%] right-[-10%] w-96 h-96 bg-primary/20 rounded-full blur-[100px]" />

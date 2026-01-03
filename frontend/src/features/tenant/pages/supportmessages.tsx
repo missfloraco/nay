@@ -253,8 +253,6 @@ const SupportMessages = () => {
                     options={[
                         { id: 'all', label: 'الكل', icon: MessageSquare, color: 'text-gray-400' },
                         { id: 'open', label: 'مفتوحة', icon: AlertCircle, color: 'text-blue-500' },
-                        { id: 'in_progress', label: 'قيد المعالجة', icon: Clock, color: 'text-yellow-500' },
-                        { id: 'resolved', label: 'محلولة', icon: CheckCircle, color: 'text-green-500' },
                         { id: 'closed', label: 'مغلقة', icon: X, color: 'text-gray-500' },
                         { id: 'archived', label: 'الأرشيف', icon: Archive, color: 'text-red-400' },
                     ]}
@@ -509,36 +507,7 @@ const SupportMessages = () => {
                         </div>
                     </div>
 
-                    {/* Ticket Summary Sidebar */}
-                    <div className="lg:w-96 flex flex-col gap-6 shrink-0">
-                        <div className="bg-primary/5 rounded-[2.5rem] border-2 border-primary/10 p-8 space-y-6">
-                            <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 bg-white dark:bg-dark-900 rounded-2xl flex items-center justify-center shadow-lg">
-                                    <Info className="w-6 h-6 text-primary" />
-                                </div>
-                                <h4 className="font-black text-gray-900 dark:text-white uppercase tracking-wider text-xs">ملخص التذكرة</h4>
-                            </div>
-                            <div className="space-y-4">
-                                <div className="flex justify-between items-center text-[11px] font-bold">
-                                    <span className="text-gray-400">تاريخ الإنشاء:</span>
-                                    <span className="text-gray-900 dark:text-white">{formatDate(currentTicket?.created_at || '').split('|')[0]}</span>
-                                </div>
-                                <div className="flex justify-between items-center text-[11px] font-bold">
-                                    <span className="text-gray-400">الأولوية:</span>
-                                    <span className={`px-2 py-0.5 rounded-md ${currentTicket?.priority === 'urgent' ? 'bg-red-500 text-white' : 'bg-primary/10 text-primary'}`}>
-                                        {getPriorityLabel(currentTicket?.priority || '')}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
 
-                        <div className="p-8 rounded-[2.5rem] bg-white dark:bg-dark-900 border border-gray-100 dark:border-white/5 space-y-4">
-                            <h4 className="font-black text-sm text-gray-900 dark:text-white">تعليمات الدعم</h4>
-                            <p className="text-xs font-bold text-gray-500 leading-relaxed">
-                                يرجى شرح استفسارك بوضوح لضمان الحصول على أفضل مساعدة ممكنة من فريقنا التقني.
-                            </p>
-                        </div>
-                    </div>
                 </div>
             </Modal>
 

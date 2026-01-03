@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Search, Loader2, User as UserIcon, Building2, X, Command } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useSearch } from '@/shared/contexts/search-context';
@@ -65,22 +66,26 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({ variant = 'header-ce
         clearSearch();
     };
 
-    // 1. Mobile Search Trigger (Icon only)
-    if (variant === 'header-left') {
-        return (
-            <>
-                <button
-                    onClick={() => setIsOverlayOpen(true)}
-                    className="flex items-center justify-center text-gray-500 dark:text-gray-400 hover:text-primary dark:hover:text-primary transition-all active:scale-90"
-                    aria-label={t('common.search', 'بحث')}
-                    aria-haspopup="true"
-                    aria-expanded={isOverlayOpen}
-                >
-                    <Search size={22} className="w-5.5 h-5.5 transition-transform group-hover:scale-110" />
-                </button>
+    // Unified Render: Always Icon + Modal
+    return (
+        <>
+            <button
+                onClick={() => setIsOverlayOpen(true)}
+                className={`
+                    w-10 h-10 flex items-center justify-center rounded-full transition-all duration-300 relative group border
+                    ${isOverlayOpen
+                        ? 'bg-primary/10 text-primary shadow-inner border-primary/20'
+                        : 'bg-gray-100 dark:bg-dark-800 text-gray-500 hover:text-primary hover:bg-primary/5 dark:hover:bg-primary/10 border-gray-200 dark:border-white/10 hover:border-primary/30'
+                    }
+                `}
+                title={t('common.search', 'بحث (Ctrl+K)')}
+            >
+                <Search size={20} />
+            </button>
 
-                {/* Mobile/Tablet Command Palette Modal */}
-                {isOverlayOpen && (
+            {/* Command Palette Modal - Portaled to body to escape Header constraints */}
+            {isOverlayOpen && (
+                createPortal(
                     <div className="fixed inset-0 z-[10000] flex items-start justify-center p-4 sm:p-6 overflow-hidden">
                         {/* Backdrop */}
                         <div
@@ -88,8 +93,8 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({ variant = 'header-ce
                             onClick={() => setIsOverlayOpen(false)}
                         />
 
-                        {/* Search Window (Command Palette) */}
-                        <div className="relative w-full max-w-2xl bg-white/98 dark:bg-dark-900/98 backdrop-blur-2xl rounded-[2.5rem] shadow-[0_0_80px_-12px_rgba(0,0,0,0.4)] border border-white/20 dark:border-white/5 flex flex-col overflow-hidden animate-in zoom-in-95 slide-in-from-top-10 duration-500 mt-2 sm:mt-20">
+                        {/* Search Window */}
+                        <div className="relative w-full max-w-2xl bg-white/98 dark:bg-dark-900/98 backdrop-blur-2xl rounded-[2.5rem] shadow-[0_0_80px_-12px_rgba(0,0,0,0.4)] border border-white/20 dark:border-white/5 flex flex-col overflow-hidden animate-in zoom-in-95 slide-in-from-top-10 duration-500 mt-2 sm:mt-24">
 
                             {/* Search Box Header */}
                             <div className="relative flex items-center p-4 sm:p-6 border-b border-gray-100/50">
@@ -203,91 +208,11 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({ variant = 'header-ce
                             {/* Mobile Close Handle/Indicator */}
                             <div className="sm:hidden h-1 w-12 bg-gray-200 rounded-full mx-auto my-3" />
                         </div>
-                    </div>
-                )}
-            </>
-        );
-    }
-
-    // 2. Desktop Centered Search (Standard Input)
-    return (
-        <div
-            ref={searchRef}
-            className="relative w-full max-w-[500px] group global-search-centered"
-            role="search"
-        >
-            <div className={`
-                relative flex items-center gap-3 px-5 py-3 bg-gray-50 border transition-all duration-300 rounded-2xl
-                ${showResults && searchQuery.length >= 2 ? 'border-primary shadow-xl bg-white' : 'border-transparent hover:bg-gray-100 focus-within:bg-white focus-within:border-primary focus-within:ring-4 focus-within:ring-primary/5'}
-            `}>
-                <Search className={`w-5 h-5 transition-colors ${showResults || searchQuery ? 'text-primary' : 'text-gray-400'}`} />
-
-                <input
-                    ref={inputRef}
-                    type="text"
-                    value={searchQuery}
-                    onFocus={() => setShowResults(true)}
-                    onChange={(e) => {
-                        setSearchQuery(e.target.value);
-                        setShowResults(true);
-                    }}
-                    placeholder={t('common.search', 'بحث عن أي شيء...')}
-                    className="flex-1 bg-transparent border-none outline-none text-sm font-bold text-gray-900 placeholder:text-gray-400 text-start"
-                    role="combobox"
-                    aria-autocomplete="list"
-                    aria-expanded={showResults && results.length > 0}
-                />
-
-
-                {isSearching && <Loader2 className="w-4 h-4 text-primary animate-spin" />}
-
-                {searchQuery && (
-                    <button
-                        onClick={() => { setSearchQuery(''); inputRef.current?.focus(); }}
-                        className="p-1 hover:bg-gray-100 rounded-lg text-gray-400 transition-colors"
-                        aria-label="مسح البحث"
-                    >
-                        <X size={14} />
-                    </button>
-                )}
-            </div>
-
-            {/* Desktop Results Dropdown */}
-            {showResults && searchQuery.length >= 2 && (
-                <div className="absolute top-full left-0 right-0 mt-3 bg-white rounded-3xl shadow-2xl border border-gray-100 py-3 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-300 max-h-[450px] overflow-y-auto no-scrollbar z-50">
-                    {results.length > 0 ? (
-                        <div className="px-2 space-y-1">
-                            {results.map((res) => (
-                                <button
-                                    key={`${res.type}-${res.id}`}
-                                    onClick={() => handleResultClick(res.url)}
-                                    className="w-full flex items-center gap-3 px-4 py-3 hover:bg-primary/5 rounded-2xl transition-all text-start group/res"
-                                >
-                                    <div className="w-11 h-11 rounded-xl bg-gray-50 flex items-center justify-center flex-shrink-0 overflow-hidden border border-gray-100 group-hover/res:border-primary/20 transition-colors">
-                                        {res.image ? (
-                                            <img src={res.image.startsWith('/uploads') ? `${BASE_URL}${res.image}` : res.image} className="w-full h-full object-cover" alt="" />
-                                        ) : (
-                                            <div className="text-primary opacity-60">
-                                                {res.type === 'tenant' ? <Building2 size={20} /> : <UserIcon size={20} />}
-                                            </div>
-                                        )}
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                        <p className="text-sm font-black text-gray-900 group-hover/res:text-primary transition-colors truncate">{res.title}</p>
-                                        <p className="text-[10px] text-gray-400 font-bold truncate">{res.subtitle}</p>
-                                    </div>
-                                </button>
-                            ))}
-                        </div>
-                    ) : !isSearching ? (
-                        <div className="px-6 py-10 text-center">
-                            <Search className="w-10 h-10 text-gray-200 mx-auto mb-3" />
-                            <p className="text-sm text-gray-400 font-black">لا توجد نتائج مطابقة لـ "{searchQuery}"</p>
-                        </div>
-                    ) : null}
-                </div>
+                    </div>,
+                    document.body
+                )
             )}
-        </div>
+        </>
     );
 };
 

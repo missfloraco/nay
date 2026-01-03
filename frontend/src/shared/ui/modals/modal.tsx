@@ -21,8 +21,12 @@ const Modal: React.FC<ModalProps> = ({
     size = 'md',
     variant = 'default'
 }) => {
-    const { isSidebarCollapsed } = useUI();
+    // Get dark mode from UI Context or check document
+    const { isSidebarCollapsed, darkMode } = useUI();
     const { setAnyModalOpen } = useExport();
+
+    // Explicitly check for dark mode class on html tag as fallback
+    const isDark = darkMode || document.documentElement.classList.contains('dark');
 
     // Track modal state for content-fit variant
     useEffect(() => {
@@ -91,7 +95,7 @@ const Modal: React.FC<ModalProps> = ({
 
     return createPortal(
         <div
-            className={`fixed z-[60] flex flex-col ${variant === 'content-fit' ? 'content-fit-root' : overlayClasses}`}
+            className={`fixed z-[60] flex flex-col ${isDark ? 'dark' : ''} ${variant === 'content-fit' ? 'content-fit-root' : overlayClasses}`}
             style={variant !== 'content-fit' ? { perspective: '1000px' } : {}}
         >
             {/* Unified Styles for Content Fit */}
@@ -112,7 +116,7 @@ const Modal: React.FC<ModalProps> = ({
                         top: 140px !important; /* Header (70px) + Top Toolbar (70px) */
                         left: 0 !important;
                         right: 0 !important;
-                        bottom: 90px !important; /* Bottom Toolbar height + extra padding */
+                        bottom: 85px !important; /* Bottom Toolbar height + extra padding */
                         display: flex !important;
                         flex-direction: column !important;
                         pointer-events: auto;
@@ -123,7 +127,7 @@ const Modal: React.FC<ModalProps> = ({
                         border: 1.5px solid #000000 !important;
                         box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
                         z-index: 60;
-                        margin: 0 1rem 1rem 1rem !important; /* Add side and bottom margins for mobile */
+                        margin: 0 0.5rem 0.5rem 0.5rem !important; /* Reduce margins for mobile */
                     }
 
                     @media (min-width: 1024px) {
@@ -138,7 +142,8 @@ const Modal: React.FC<ModalProps> = ({
                     }
 
                     .dark .content-fit-panel-wrapper {
-                        background: #0f1117;
+                        background: #0f1117 !important;
+                        border-color: rgba(255, 255, 255, 0.1) !important;
                     }
 
                     /* Ensure the panel takes full space accurately */

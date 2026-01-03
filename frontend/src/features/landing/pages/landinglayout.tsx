@@ -138,43 +138,78 @@ export default function LandingLayout({ children }: LandingLayoutProps) {
                     </div>
                 </header>
 
-                {/* Mobile Navigation Drawer */}
-                <div className={`fixed inset-0 z-[100] transition-all duration-500 ${isMenuOpen ? 'visible' : 'invisible'}`}>
-                    <div className={`absolute inset-0 bg-white/80 backdrop-blur-xl transition-opacity duration-500 ${isMenuOpen ? 'opacity-100' : 'opacity-0'}`} onClick={() => setIsMenuOpen(false)} />
-                    <div className={`absolute right-0 top-0 bottom-0 w-[280px] bg-white border-l border-gray-100 shadow-2xl transition-transform duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] ${isMenuOpen ? 'translate-x-0' : 'translate-x-full'}`}>
-                        <div className="p-8 h-full flex flex-col">
-                            <div className="flex items-center justify-between mb-12">
-                                <span className="text-xl font-black tracking-tighter text-gray-900">{finalAppName}</span>
-                                <button onClick={() => setIsMenuOpen(false)} className="p-2 text-gray-400 hover:text-primary transition-colors">
-                                    <RotateCcw className="w-6 h-6 rotate-45" />
-                                </button>
-                            </div>
+                {/* Mobile Navigation Drawer - Matches Control Panel Sidebar */}
+                <div
+                    className={`fixed inset-0 bg-black/50 z-[60] xl:hidden transition-opacity duration-300 ${isMenuOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+                    onClick={() => setIsMenuOpen(false)}
+                />
 
-                            <nav className="flex-1 space-y-2">
-                                {[
-                                    { label: 'الرئيسية', href: '/' },
-                                    { label: 'المميزات', href: '#features' },
-                                    { label: 'الأسعار', href: '#pricing' },
-                                    { label: 'لماذا نحن ؟', href: '#about' },
-                                    { label: 'الأسئلة الشائعة', href: '#faq' }
-                                ].map((item) => (
-                                    <a
-                                        key={item.label}
-                                        href={item.href}
-                                        onClick={() => setIsMenuOpen(false)}
-                                        className="block p-4 text-[15px] font-black text-gray-600 hover:text-primary hover:bg-gray-50 rounded-2xl transition-all"
-                                    >
-                                        {item.label}
-                                    </a>
-                                ))}
-                            </nav>
-
-                            <div className="pt-8 mt-auto border-t border-gray-100 flex flex-col gap-4">
-                                <Link to="/login" onClick={() => setIsMenuOpen(false)} className="w-full py-4 text-center text-[13px] font-black text-gray-500 uppercase tracking-widest hover:text-primary">تسجيل الدخول</Link>
-                            </div>
+                <aside
+                    className={`fixed inset-y-0 right-0 z-[70] flex flex-col bg-white dark:bg-dark-900 border-l border-black transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] w-[250px]
+                        ${isMenuOpen ? 'translate-x-0' : 'translate-x-full'}
+                    `}
+                >
+                    {/* 1. Header Section */}
+                    <div className="h-[70px] flex items-center shrink-0 border-b border-black px-6 gap-3">
+                        {settings.systemLogoUrl || settings.logoUrl ? (
+                            <img
+                                src={settings.systemLogoUrl || settings.logoUrl || ''}
+                                alt={finalAppName}
+                                className="w-10 h-10 object-contain"
+                            />
+                        ) : null}
+                        <span className="text-xl font-black text-gray-900 dark:text-white truncate tracking-tight">
+                            {finalAppName}
+                        </span>
+                        <div className="mr-auto">
+                            <button
+                                onClick={() => setIsMenuOpen(false)}
+                                className="p-2 text-gray-400 hover:text-red-500 transition-colors"
+                            >
+                                <RotateCcw className="w-5 h-5 rotate-45" />
+                            </button>
                         </div>
                     </div>
-                </div>
+
+                    {/* 2. Content Section */}
+                    <div className="flex-1 overflow-y-auto no-scrollbar py-4 px-3 space-y-1">
+                        {[
+                            { label: 'الرئيسية', href: '/' },
+                            { label: 'المميزات', href: '#features' },
+                            { label: 'الأسعار', href: '#pricing' },
+                            { label: 'لماذا نحن ؟', href: '#about' },
+                            { label: 'الأسئلة الشائعة', href: '#faq' }
+                        ].map((item) => (
+                            <a
+                                key={item.label}
+                                href={item.href}
+                                onClick={() => setIsMenuOpen(false)}
+                                className="flex items-center h-14 px-4 rounded-2xl text-sm font-bold text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/5 transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]"
+                            >
+                                {item.label}
+                            </a>
+                        ))}
+                    </div>
+
+                    {/* 3. Footer Section */}
+                    <div className="p-4 border-t border-black bg-white dark:bg-dark-900 flex gap-3">
+                        <Link
+                            to="/login"
+                            onClick={() => setIsMenuOpen(false)}
+                            className="flex-1 flex items-center justify-center h-12 rounded-2xl bg-gray-50 dark:bg-white/5 text-gray-900 dark:text-gray-200 font-bold hover:bg-gray-100 dark:hover:bg-white/10 transition-all duration-300"
+                        >
+                            تسجيل الدخول
+                        </Link>
+                        <Button
+                            to={`/register${isLogoutSuccess ? '?logout=success' : ''}`}
+                            onClick={() => setIsMenuOpen(false)}
+                            variant="primary"
+                            className="flex-[1.5] h-12 shadow-lg shadow-primary/20"
+                        >
+                            ابدأ الآن
+                        </Button>
+                    </div>
+                </aside>
 
                 <main className="pt-28 sm:pt-32">
                     {children}

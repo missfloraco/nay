@@ -239,7 +239,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
                             <div className={`transition-all duration-500 flex items-center justify-center ${isSidebarCollapsed ? 'w-0 opacity-0' : 'w-10 opacity-100'}`}>
                                 <ChevronDown
-                                    className={`w-4 h-4 text-gray-400 transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] ${isUserMenuOpen ? 'rotate-180' : ''}`}
+                                    className={`w-4 h-4 text-gray-400 transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] ${isUserMenuOpen ? '' : 'rotate-180'}`}
                                 />
                             </div>
                         </button>

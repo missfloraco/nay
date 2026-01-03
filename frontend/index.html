@@ -66,6 +66,14 @@
           console.error('Failed to load cached SEO title:', e);
         }
       }
+      // 5. Safe Viewport Height for Mobile (Replaces risky 100vh)
+      const setVH = () => {
+        let vh = window.innerHeight * 0.01;
+        document.documentElement.style.setProperty('--vh', `${vh}px`);
+      };
+      setVH();
+      window.addEventListener('resize', setVH);
+      window.addEventListener('orientationchange', () => setTimeout(setVH, 100));
     })();
   </script>
 </head>

@@ -94,7 +94,7 @@ const ScriptForm = forwardRef<ScriptFormHandle, ScriptFormProps>(({ initialData,
         <form
             id="script-form"
             onSubmit={handleSubmit}
-            className="flex flex-col bg-white dark:bg-dark-900"
+            className="flex flex-col bg-white dark:bg-dark-900 h-full"
         >
             {/* 1. Main Responsive Content Grid */}
             <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-10 min-h-0 min-w-0 w-full mb-8">
@@ -118,7 +118,7 @@ const ScriptForm = forwardRef<ScriptFormHandle, ScriptFormProps>(({ initialData,
                                     icon={Code}
                                     required
                                     placeholder="مثال: Google Analytics 4, Hotjar"
-                                    className="bg-gray-50/50"
+                                    className="bg-gray-50/50 dark:bg-gray-800/40 dark:text-white dark:border-white/5"
                                 />
                                 <p className="text-[10px] font-bold text-gray-400 px-2 leading-relaxed">
                                     أدخل اسماً توضيحياً للسكربت ليساعدك في التعرف عليه لاحقاً داخل لوحة التحكم.
@@ -129,7 +129,7 @@ const ScriptForm = forwardRef<ScriptFormHandle, ScriptFormProps>(({ initialData,
                                 <div className="space-y-2">
                                     <label className="text-[11px] font-black text-gray-400 uppercase tracking-widest px-1">نوع السكربت</label>
                                     <select
-                                        className="w-full bg-gray-50 dark:bg-gray-800/40 border border-gray-100 dark:border-white/5 rounded-[1.25rem] px-4 py-3.5 font-bold text-sm outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all appearance-none cursor-pointer"
+                                        className="w-full bg-gray-50 dark:bg-gray-800/40 border border-gray-100 dark:border-white/5 rounded-[1.25rem] px-4 py-3.5 font-bold text-sm outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all appearance-none cursor-pointer dark:text-white"
                                         value={formData.type}
                                         onChange={(e) => setFormData({ ...formData, type: e.target.value as any })}
                                     >
@@ -144,7 +144,7 @@ const ScriptForm = forwardRef<ScriptFormHandle, ScriptFormProps>(({ initialData,
                                 <div className="space-y-2">
                                     <label className="text-[11px] font-black text-gray-400 uppercase tracking-widest px-1">بيئة العمل</label>
                                     <select
-                                        className="w-full bg-gray-50 dark:bg-gray-800/40 border border-gray-100 dark:border-white/5 rounded-[1.25rem] px-4 py-3.5 font-bold text-sm outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all appearance-none cursor-pointer"
+                                        className="w-full bg-gray-50 dark:bg-gray-800/40 border border-gray-100 dark:border-white/5 rounded-[1.25rem] px-4 py-3.5 font-bold text-sm outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all appearance-none cursor-pointer dark:text-white"
                                         value={formData.environment}
                                         onChange={(e) => setFormData({ ...formData, environment: e.target.value as any })}
                                     >
@@ -199,7 +199,7 @@ const ScriptForm = forwardRef<ScriptFormHandle, ScriptFormProps>(({ initialData,
                             <div className="space-y-3">
                                 <label className="text-[11px] font-black text-gray-400 uppercase tracking-widest">توقيت التحميل</label>
                                 <select
-                                    className="w-full bg-white dark:bg-dark-700/50 border border-gray-100 dark:border-white/5 rounded-2xl px-4 py-3.5 font-bold text-xs"
+                                    className="w-full bg-white dark:bg-dark-700/50 border border-gray-100 dark:border-white/5 rounded-2xl px-4 py-3.5 font-bold text-xs dark:text-white"
                                     value={formData.loadingStrategy}
                                     onChange={(e) => setFormData({ ...formData, loadingStrategy: e.target.value as any })}
                                 >
@@ -247,7 +247,7 @@ const ScriptForm = forwardRef<ScriptFormHandle, ScriptFormProps>(({ initialData,
                                 رؤية الصفحات
                             </label>
                             <select
-                                className="w-full bg-gray-100 dark:bg-dark-700/50 border border-gray-100 dark:border-white/5 rounded-2xl px-4 py-4 font-bold text-sm"
+                                className="w-full bg-gray-100 dark:bg-dark-700/50 border border-gray-100 dark:border-white/5 rounded-2xl px-4 py-4 font-bold text-sm dark:text-white"
                                 value={formData.pages}
                                 onChange={(e) => setFormData({ ...formData, pages: e.target.value as any })}
                             >

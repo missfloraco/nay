@@ -27,7 +27,20 @@ export const Toolbar: React.FC<ToolbarProps> = ({
     className
 }) => {
     const scrollContainerRef = React.useRef<HTMLDivElement>(null);
-    const showScrollButtons = options.length > 5;
+    const [canScrollLeft, setCanScrollLeft] = React.useState(false);
+
+    const checkOverflow = React.useCallback(() => {
+        if (scrollContainerRef.current) {
+            const { scrollWidth, clientWidth } = scrollContainerRef.current;
+            setCanScrollLeft(scrollWidth > clientWidth);
+        }
+    }, []);
+
+    React.useEffect(() => {
+        checkOverflow();
+        window.addEventListener('resize', checkOverflow);
+        return () => window.removeEventListener('resize', checkOverflow);
+    }, [checkOverflow, options]);
 
     const scroll = (direction: 'left' | 'right') => {
         if (scrollContainerRef.current) {
@@ -41,15 +54,6 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 
     return (
         <div className={`flex items-center gap-2 w-full animate-in fade-in slide-in-from-bottom-2 duration-300 ${className || ''}`}>
-            {/* Scroll Button (Right/Next in RTL context) */}
-            {showScrollButtons && (
-                <button
-                    onClick={() => scroll('left')} // In RTL, negative scroll moves towards logic start (Right)
-                    className="p-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-white/10 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors hidden sm:flex"
-                >
-                    <ChevronLeft className="w-5 h-5 rtl:rotate-180" />
-                </button>
-            )}
 
             {/* Filter Items Container */}
             <div
@@ -104,11 +108,11 @@ export const Toolbar: React.FC<ToolbarProps> = ({
                 })}
             </div>
 
-            {/* Scroll Button (Left/Prev in RTL context) */}
-            {showScrollButtons && (
+            {/* Scroll Button (Left/Prev in RTL context) - Only shows if overflow exists */}
+            {canScrollLeft && (
                 <button
                     onClick={() => scroll('right')} // In RTL, positive scroll moves towards logic end (Left)
-                    className="p-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-white/10 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors hidden sm:flex"
+                    className="flex items-center justify-center p-2.5 rounded-2xl transition-all font-bold text-sm shrink-0 text-gray-500 hover:bg-gray-50 dark:hover:bg-dark-800/50 hover:text-gray-900 dark:hover:text-white border border-transparent hover:border-gray-100"
                 >
                     <ChevronRight className="w-5 h-5 rtl:rotate-180" />
                 </button>

@@ -9,6 +9,10 @@ import { ImpersonationBanner } from '@/shared/components/impersonationbanner';
 import api from '@/shared/services/api';
 import { logger } from '@/shared/services/logger';
 
+import { useLocation } from 'react-router-dom';
+import { TrialFooter } from '@/features/tenant/components/trial-footer';
+import { TopStatusToolbar } from '@/features/tenant/components/top-status-toolbar';
+
 interface AppLayoutProps {
     children: ReactNode;
     title?: string;
@@ -22,6 +26,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, title, noPadding = fals
     const { user, tenant, isImpersonating, logout: logoutTenant } = useTenantAuth();
     const { t } = useText();
     const { primaryAction, extraActions } = useAction();
+    const location = useLocation();
 
     const handleExitImpersonation = async () => {
         try {
@@ -52,6 +57,12 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, title, noPadding = fals
         { icon: Trash2, label: t('tenant.NAV.RECYCLE_BIN', 'سلة المحذوفات'), path: '/app/trash', color: 'text-red-600 font-black', badge: trashCount },
     ], [t, trashCount]);
 
+    const isDashboard = location.pathname === '/app' || location.pathname === '/app/dashboard';
+    const showTrialFooter = isDashboard && tenant?.status === 'trial';
+
+    // logic: if page provides toolbar, use it. otherwise if dashboard, try to show TopStatusToolbar
+    const effectiveToolbar = toolbar || (isDashboard ? <TopStatusToolbar /> : undefined);
+
     return (
         <DashboardLayout
             title={title}
@@ -59,12 +70,13 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, title, noPadding = fals
             items={menuItems}
             secondaryItems={secondaryItems}
             noPadding={noPadding}
-            toolbar={toolbar}
+            toolbar={effectiveToolbar}
             primaryAction={primaryAction}
             extraActions={extraActions}
             banners={
                 <ImpersonationBanner tenantName={tenant?.name || '...'} onExit={handleExitImpersonation} />
             }
+            footerContent={showTrialFooter ? <TrialFooter /> : undefined}
         >
             {children}
         </DashboardLayout>

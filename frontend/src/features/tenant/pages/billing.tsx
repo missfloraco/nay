@@ -8,7 +8,6 @@ import { PricingGrid } from '@/features/tenant/components/pricing-grid';
 import {
     Zap,
     History,
-    CreditCard,
     ArrowRight,
     MessageSquare,
     DollarSign,
@@ -16,7 +15,7 @@ import {
     CheckCircle2,
     AlertCircle,
     Download,
-    Star
+    LayoutDashboard
 } from 'lucide-react';
 import { useAction } from '@/shared/contexts/action-context';
 import { formatDate } from '@/shared/utils/helpers';
@@ -26,7 +25,7 @@ import { Toolbar } from '@/shared/components/toolbar';
 export default function BillingPage() {
     const queryClient = useQueryClient();
     const { showSuccess } = useNotifications();
-    const [activeTab, setActiveTab] = useState<'subscription' | 'plans' | 'payments' | 'requests'>('subscription');
+    const [activeTab, setActiveTab] = useState<'overview' | 'payments' | 'requests'>('overview');
     const [selectedPlan, setSelectedPlan] = useState<any>(null);
     const [notes, setNotes] = useState('');
 
@@ -67,14 +66,7 @@ export default function BillingPage() {
     const { setPrimaryAction } = useAction();
 
     useEffect(() => {
-        if (activeTab === 'subscription') {
-            setPrimaryAction({
-                label: 'تغيير الخطة الآن',
-                icon: Zap,
-                onClick: () => setActiveTab('plans'),
-                variant: 'primary'
-            });
-        } else if (selectedPlan && activeTab === 'plans') {
+        if (selectedPlan && activeTab === 'overview') {
             setPrimaryAction({
                 label: requestMutation.isPending ? 'جاري الإرسال...' : 'إرسال طلب التفعيل والمتابعة',
                 icon: ArrowRight,
@@ -142,8 +134,7 @@ export default function BillingPage() {
                     onChange={(val) => setActiveTab(val as any)}
                     variant="pills"
                     options={[
-                        { id: 'subscription', label: 'اشتراكي الحالي', icon: Zap },
-                        { id: 'plans', label: 'الخطط والمميزات', icon: Star },
+                        { id: 'overview', label: 'نظرة عامة', icon: LayoutDashboard },
                         { id: 'payments', label: 'سجل المدفوعات', icon: History },
                         { id: 'requests', label: 'طلبات الترقية', icon: Clock }
                     ]}
@@ -153,8 +144,8 @@ export default function BillingPage() {
             <div className="flex flex-col h-full w-full bg-white dark:bg-dark-950 shadow-sm border-x border-gray-100/50 dark:border-white/5">
                 <div className="flex-1 bg-gray-50/50 dark:bg-dark-900/50 p-8 overflow-y-auto custom-scrollbar animate-in fade-in duration-500">
 
-                    {activeTab === 'subscription' && (
-                        <div className="max-w-6xl mx-auto space-y-8 pb-12">
+                    {activeTab === 'overview' && (
+                        <div className="max-w-6xl mx-auto space-y-12 pb-12">
                             {/* Current Plan Hero Card */}
                             <div className="relative group overflow-hidden bg-gradient-to-br from-primary to-primary-700 p-12 md:p-16 rounded-[var(--radius-card)] shadow-2xl flex flex-col md:flex-row items-center justify-between gap-12 text-white">
                                 <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-3xl -mr-48 -mt-48 transition-transform group-hover:scale-110 duration-700"></div>
@@ -178,14 +169,6 @@ export default function BillingPage() {
                                 <div className="relative shrink-0 flex flex-col items-center gap-6">
                                     <div className="w-32 h-32 bg-white/20 backdrop-blur-md rounded-2xl border-2 border-white/30 flex items-center justify-center shadow-2xl group-hover:rotate-12 transition-transform duration-500">
                                         <CheckCircle2 className="w-16 h-16 text-emerald-300" />
-                                    </div>
-                                    <div className="md:hidden">
-                                        <button
-                                            onClick={() => setActiveTab('plans')}
-                                            className="px-8 py-4 bg-white text-primary rounded-2xl font-black shadow-2xl hover:scale-110 active:scale-95 transition-all text-sm"
-                                        >
-                                            تغيير الخطة الآن
-                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -228,37 +211,38 @@ export default function BillingPage() {
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    )}
 
-                    {activeTab === 'plans' && (
-                        <div className="max-w-6xl mx-auto space-y-12 pb-12">
-                            <div className="text-center space-y-4 max-w-3xl mx-auto">
-                                <h1 className="text-3xl md:text-5xl font-black text-gray-900 dark:text-white tracking-tight">
-                                    اختر الباقة <span className="text-primary">الأنسب لنمو أعمالك</span>
-                                </h1>
-                                <p className="text-lg text-gray-500 dark:text-gray-400 font-bold leading-relaxed">
-                                    نقدم لك باقات مرنة صممت خصيصاً لتلبي احتياجات تجارة التجزئة، مع دعم فني متكامل ومميزات حصرية.
-                                </p>
-                            </div>
+                            <hr className="border-gray-100 dark:border-white/5" />
 
-                            <PricingGrid
-                                onSelectPlan={setSelectedPlan}
-                                currentSub={currentSub}
-                                pendingRequest={pendingRequest}
-                            />
-
-                            {pendingRequest && (
-                                <div className="p-8 bg-amber-50 dark:bg-amber-900/10 border-2 border-dashed border-amber-200 dark:border-amber-900/30 rounded-[var(--radius-card)] flex items-center gap-8 shadow-inner">
-                                    <div className="w-20 h-20 bg-amber-100 dark:bg-amber-900/20 rounded-3xl flex items-center justify-center shrink-0">
-                                        <span className="text-4xl animate-pulse">⏳</span>
-                                    </div>
-                                    <div>
-                                        <h3 className="text-xl font-black text-amber-900 dark:text-amber-500 mb-1">طلبك قيد المراجعة</h3>
-                                        <p className="text-sm text-amber-700/70 dark:text-amber-500/60 font-medium">لقد طلبت الاشتراك في "{pendingRequest.plan?.name}". سيقوم فريقنا بالمراجعة والتواصل معك فوراً.</p>
-                                    </div>
+                            {/* Plans Section */}
+                            <div className="space-y-12">
+                                <div className="text-center space-y-4 max-w-3xl mx-auto">
+                                    <h1 className="text-3xl md:text-5xl font-black text-gray-900 dark:text-white tracking-tight">
+                                        اختر الباقة <span className="text-primary">الأنسب لنمو أعمالك</span>
+                                    </h1>
+                                    <p className="text-lg text-gray-500 dark:text-gray-400 font-bold leading-relaxed">
+                                        نقدم لك باقات مرنة صممت خصيصاً لتلبي احتياجات تجارة التجزئة، مع دعم فني متكامل ومميزات حصرية.
+                                    </p>
                                 </div>
-                            )}
+
+                                <PricingGrid
+                                    onSelectPlan={setSelectedPlan}
+                                    currentSub={currentSub}
+                                    pendingRequest={pendingRequest}
+                                />
+
+                                {pendingRequest && (
+                                    <div className="p-8 bg-amber-50 dark:bg-amber-900/10 border-2 border-dashed border-amber-200 dark:border-amber-900/30 rounded-[var(--radius-card)] flex items-center gap-8 shadow-inner">
+                                        <div className="w-20 h-20 bg-amber-100 dark:bg-amber-900/20 rounded-3xl flex items-center justify-center shrink-0">
+                                            <span className="text-4xl animate-pulse">⏳</span>
+                                        </div>
+                                        <div>
+                                            <h3 className="text-xl font-black text-amber-900 dark:text-amber-500 mb-1">طلبك قيد المراجعة</h3>
+                                            <p className="text-sm text-amber-700/70 dark:text-amber-500/60 font-medium">لقد طلبت الاشتراك في "{pendingRequest.plan?.name}". سيقوم فريقنا بالمراجعة والتواصل معك فوراً.</p>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     )}
 

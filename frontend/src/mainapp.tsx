@@ -112,19 +112,21 @@ import { NotificationProvider } from '@/shared/contexts/notification-context';
 
 export default function MainApp() {
     return (
-        <ActionProvider>
-            <ExportProvider>
-                <NotificationProvider>
-                    <AdminAuthProvider>
-                        <TenantAuthProvider>
-                            <TextProvider>
-                                <MainAppContent />
-                            </TextProvider>
-                        </TenantAuthProvider>
-                    </AdminAuthProvider>
-                </NotificationProvider>
-            </ExportProvider>
-        </ActionProvider>
+        <HelmetProvider>
+            <ActionProvider>
+                <ExportProvider>
+                    <NotificationProvider>
+                        <AdminAuthProvider>
+                            <TenantAuthProvider>
+                                <TextProvider>
+                                    <MainAppContent />
+                                </TextProvider>
+                            </TenantAuthProvider>
+                        </AdminAuthProvider>
+                    </NotificationProvider>
+                </ExportProvider>
+            </ActionProvider>
+        </HelmetProvider>
     );
 }
 
@@ -153,66 +155,60 @@ function MainAppContent() {
         if (!isBillingPage) {
             if (tenant.status === 'pending') {
                 return (
-                    <HelmetProvider>
-                        <AppLayout title="بانتظار التفعيل">
-                            <Suspense fallback={<PageLoader />}>
-                                <ActivationWaiting />
-                            </Suspense>
-                        </AppLayout>
-                    </HelmetProvider>
+                    <AppLayout title="بانتظار التفعيل">
+                        <Suspense fallback={<PageLoader />}>
+                            <ActivationWaiting />
+                        </Suspense>
+                    </AppLayout>
                 );
             }
 
             if (tenant.status === 'expired' || tenant.status === 'disabled' || isTrialExpired) {
                 return (
-                    <HelmetProvider>
-                        <AppLayout title="انتهت فترة التجربة">
-                            <Suspense fallback={<PageLoader />}>
-                                <TrialExpired />
-                            </Suspense>
-                        </AppLayout>
-                    </HelmetProvider>
+                    <AppLayout title="انتهت فترة التجربة">
+                        <Suspense fallback={<PageLoader />}>
+                            <TrialExpired />
+                        </Suspense>
+                    </AppLayout>
                 );
             }
         }
     }
 
     return (
-        <HelmetProvider>
-            <AnalyticsProvider>
-                <SearchProvider>
-                    <ScriptInjector />
-                    {!isCheckingAdBlock && isAdBlockActive && <ShieldOverlay />}
-                    <ExportModal />
-                    <Suspense fallback={<PageLoader />}>
-                        <Routes>
-                            <Route path="/" element={<LandingPage />} />
-                            <Route path="/login" element={
-                                loadingLogoutSuccess ? <AuthScreen initialMode="login" /> : <LoginRedirector />
-                            } />
-                            <Route path="/register" element={<AuthScreen initialMode="register" />} />
-                            <Route path="/forgot-password" element={<AuthScreen initialMode="forgot-password" />} />
-                            <Route path="/reset-password" element={<ResetPassword />} />
-                            <Route path="/403" element={<Forbidden />} />
-                            <Route path="/admin/*" element={
-                                <ProtectedRoute requiredRole="admin" fallbackPath="/login?role=admin">
-                                    <Suspense fallback={<PageLoader />}>
-                                        <AdminRoutes />
-                                    </Suspense>
-                                </ProtectedRoute>
-                            } />
-                            <Route path="/app/*" element={
-                                <ProtectedRoute requiredRole="tenant" fallbackPath="/login">
-                                    <Suspense fallback={<PageLoader />}>
-                                        <AppSubRoutes />
-                                    </Suspense>
-                                </ProtectedRoute>
-                            } />
-                            <Route path="*" element={<Navigate to="/" />} />
-                        </Routes>
-                    </Suspense>
-                </SearchProvider>
-            </AnalyticsProvider>
-        </HelmetProvider>
+        <AnalyticsProvider>
+            <SearchProvider>
+                <ScriptInjector />
+                {!isCheckingAdBlock && isAdBlockActive && <ShieldOverlay />}
+                <ExportModal />
+                <Suspense fallback={<PageLoader />}>
+                    <Routes>
+                        <Route path="/" element={<LandingPage />} />
+                        <Route path="/login" element={
+                            loadingLogoutSuccess ? <AuthScreen initialMode="login" /> : <LoginRedirector />
+                        } />
+                        <Route path="/register" element={<AuthScreen initialMode="register" />} />
+                        <Route path="/forgot-password" element={<AuthScreen initialMode="forgot-password" />} />
+                        <Route path="/reset-password" element={<ResetPassword />} />
+                        <Route path="/403" element={<Forbidden />} />
+                        <Route path="/admin/*" element={
+                            <ProtectedRoute requiredRole="admin" fallbackPath="/login?role=admin">
+                                <Suspense fallback={<PageLoader />}>
+                                    <AdminRoutes />
+                                </Suspense>
+                            </ProtectedRoute>
+                        } />
+                        <Route path="/app/*" element={
+                            <ProtectedRoute requiredRole="tenant" fallbackPath="/login">
+                                <Suspense fallback={<PageLoader />}>
+                                    <AppSubRoutes />
+                                </Suspense>
+                            </ProtectedRoute>
+                        } />
+                        <Route path="*" element={<Navigate to="/" />} />
+                    </Routes>
+                </Suspense>
+            </SearchProvider>
+        </AnalyticsProvider>
     );
 }

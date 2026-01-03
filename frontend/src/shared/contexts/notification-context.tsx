@@ -291,8 +291,8 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ childr
         <NotificationContext.Provider value={contextValue}>
             {children}
 
-            {/* Toasts Rendering */}
-            <div className="fixed bottom-0 right-0 z-[9999] flex flex-col gap-2 p-4 pointer-events-none">
+            {/* Toasts Rendering - MOVED TO DASHBOARD LAYOUT FOOTER */}
+            {/* <div className="fixed bottom-0 right-0 z-[9999] flex flex-col gap-2 p-4 pointer-events-none">
                 {activeToasts.map(toast => (
                     <ToastComponent
                         key={toast.id}
@@ -300,7 +300,7 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ childr
                         onClose={() => setActiveToasts(prev => prev.filter(t => t.id !== toast.id))}
                     />
                 ))}
-            </div>
+            </div> */}
 
             {/* Confirmation Modal Placeholder */}
             {confirmState && (

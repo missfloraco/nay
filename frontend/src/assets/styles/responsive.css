@@ -34,7 +34,7 @@
 
 .page-frame-container {
     @apply p-4;
-    width: 100vw;
+    width: 100%;
     max-width: 100%;
     overflow-x: hidden;
     padding-bottom: 90px;
