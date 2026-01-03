@@ -1,6 +1,7 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import React from 'react';
 import api from '@/shared/services/api';
-import { useFeedback } from '@/shared/ui/notifications/feedback-context';
+import { useNotifications } from '@/shared/contexts/notification-context';
 
 export interface TrashedItem {
     id: number;
@@ -24,7 +25,7 @@ interface UseTrashOptions {
 
 export function useTrash(options: UseTrashOptions) {
     const { endpoint } = options;
-    const { showSuccess, showError, showConfirm } = useFeedback();
+    const { showSuccess, showError, showConfirm } = useNotifications();
 
     const [items, setItems] = useState<TrashedItem[]>([]);
     const [stats, setStats] = useState<TrashStats>({ total: 0, byType: {} });
@@ -35,7 +36,8 @@ export function useTrash(options: UseTrashOptions) {
     const fetchItems = useCallback(async () => {
         try {
             setIsLoading(true);
-            const response: any = await api.get(endpoint);
+            // The interceptor unwraps the response, so we get the data directly
+            const response = await api.get(endpoint) as { data: TrashedItem[]; stats: TrashStats };
             setItems(response.data || []);
             setStats(response.stats || { total: 0, byType: {} });
         } catch (error: any) {
@@ -110,7 +112,7 @@ export function useTrash(options: UseTrashOptions) {
 
         try {
             const itemsData = selected.map(item => ({ type: item.type, id: item.id }));
-            const response: any = await api.post(`${endpoint}/bulk-restore`, { items: itemsData });
+            const response = await api.post(`${endpoint}/bulk-restore`, { items: itemsData }) as { success: number };
             showSuccess(`تم استعادة ${response.success} عنصر`);
             fetchItems();
             setSelected([]);
@@ -133,7 +135,7 @@ export function useTrash(options: UseTrashOptions) {
 
         try {
             const itemsData = selected.map(item => ({ type: item.type, id: item.id }));
-            const response: any = await api.delete(`${endpoint}/bulk-force`, { data: { items: itemsData } });
+            const response = await api.delete(`${endpoint}/bulk-force`, { data: { items: itemsData } }) as { success: number };
             showSuccess(`تم حذف ${response.success} عنصر نهائياً`);
             fetchItems();
             setSelected([]);
@@ -143,7 +145,7 @@ export function useTrash(options: UseTrashOptions) {
     }, [selected, showConfirm, endpoint, fetchItems, showSuccess, showError]);
 
     // Empty trash
-    const emptyTrash = async () => {
+    const emptyTrash = useCallback(async () => {
         const confirmed = await showConfirm({
             title: 'إفراغ سلة المحذوفات',
             message: 'هل أنت متأكد من حذف جميع العناصر نهائياً؟ لا يمكن التراجع عن هذا الإجراء.',
@@ -153,16 +155,16 @@ export function useTrash(options: UseTrashOptions) {
         if (!confirmed) return;
 
         try {
-            const response: any = await api.delete(`${endpoint}/empty`);
+            const response = await api.delete(`${endpoint}/empty`) as { count: number };
             showSuccess(`تم حذف ${response.count} عنصر نهائياً`);
             fetchItems();
             setSelected([]);
         } catch (error: any) {
             showError(error.response?.data?.error || 'فشل إفراغ السلة');
         }
-    };
+    }, [endpoint, fetchItems, showConfirm, showSuccess, showError]);
 
-    return {
+    return React.useMemo(() => ({
         items,
         stats,
         isLoading,
@@ -175,5 +177,18 @@ export function useTrash(options: UseTrashOptions) {
         bulkForceDelete,
         emptyTrash,
         refresh: fetchItems,
-    };
+    }), [
+        items,
+        stats,
+        isLoading,
+        selected,
+        toggleSelect,
+        selectAll,
+        restore,
+        forceDelete,
+        bulkRestore,
+        bulkForceDelete,
+        emptyTrash,
+        fetchItems
+    ]);
 }

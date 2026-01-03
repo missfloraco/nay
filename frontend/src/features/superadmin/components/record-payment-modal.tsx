@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X, User as UserIcon, DollarSign, Calendar, MessageSquare, CreditCard, Clock } from 'lucide-react';
-import { useFeedback } from '@/shared/ui/notifications/feedback-context';
+import { useNotifications } from '@/shared/contexts/notification-context';
 import { useAction } from '@/shared/contexts/action-context';
 import api from '@/shared/services/api';
 import { logger } from '@/shared/services/logger';
@@ -16,7 +16,7 @@ interface RecordPaymentModalProps {
 }
 
 export const RecordPaymentModal = ({ onClose, onSuccess, initialTenantId }: RecordPaymentModalProps) => {
-    const { showSuccess, showError } = useFeedback();
+    const { showSuccess, showError } = useNotifications();
     const [loading, setLoading] = useState(false);
     const [tenants, setTenants] = useState<any[]>([]);
 

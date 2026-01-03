@@ -43,31 +43,19 @@ trait HasUid
 
         $prefix = Str::upper(Str::limit($prefix, 3, ''));
 
-        // Start with a base guess based on latest ID to maintain rough sequentiality
-        $query = static::query();
-
-        if (method_exists(static::class, 'withTrashed')) {
-            $query = static::withTrashed();
-        }
-
-        $lastRecord = $query->latest('id')->first();
-        $nextNumber = $lastRecord ? ($lastRecord->id + 1) : 1;
-
+        // Generate random 6-digit number to minimize race conditions
         do {
-            $sequence = str_pad((string) $nextNumber, 6, '0', STR_PAD_LEFT);
+            // Generate 6 random digits
+            $sequence = str_pad((string) random_int(1, 999999), 6, '0', STR_PAD_LEFT);
             $uid = "{$prefix}-{$sequence}";
 
             // Check if this specific UID already exists
-            // We use a fresh query clone for the check
             $existsQuery = static::query();
             if (method_exists(static::class, 'withTrashed')) {
                 $existsQuery = static::withTrashed();
             }
             $exists = $existsQuery->where('uid', $uid)->exists();
 
-            if ($exists) {
-                $nextNumber++;
-            }
         } while ($exists);
 
         return $uid;

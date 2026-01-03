@@ -65,7 +65,7 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ childr
     const [unreadCount, setUnreadCount] = useState(0);
     const lastUnreadCountRef = React.useRef(0);
     const [loading, setLoading] = useState(false);
-    const [hasInitialFetch, setHasInitialFetch] = useState(false);
+    const hasInitialFetchRef = React.useRef(false);
     const [confirmState, setConfirmState] = useState<{
         options: ConfirmOptions;
         resolve: (value: boolean) => void;
@@ -80,7 +80,7 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ childr
         successAudioRef.current.load();
 
         errorAudioRef.current = new Audio('https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3');
-        errorAudioRef.current.volume = 0.4; // Slightly lower as buzzes are loud
+        errorAudioRef.current.volume = 0.4;
         errorAudioRef.current.load();
     }, []);
 
@@ -105,7 +105,7 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ childr
             const newUnreadCount = response?.unread_count || 0;
 
             // If unread count increased and it's not the first load, play sound
-            if (hasInitialFetch && newUnreadCount > lastUnreadCountRef.current) {
+            if (hasInitialFetchRef.current && newUnreadCount > lastUnreadCountRef.current) {
                 // Determine level of newest notification to play appropriate sound
                 const newest = notificationsList[0];
                 playSound(newest?.level || 'info');
@@ -114,11 +114,11 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ childr
             lastUnreadCountRef.current = newUnreadCount;
             setNotifications(notificationsList);
             setUnreadCount(newUnreadCount);
-            setHasInitialFetch(true);
+            hasInitialFetchRef.current = true;
         } catch (error) {
             logger.error('Failed to fetch notifications', error);
         }
-    }, [playSound, hasInitialFetch]);
+    }, [playSound]);
 
     const notify = useCallback((options: {
         message: string;
@@ -200,10 +200,10 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ childr
             const isAdmin = window.location.pathname.startsWith('/admin');
             const prefix = isAdmin ? '/admin' : '/app';
             await api.delete(`${prefix}/notifications/${id}`);
-            
+
             // Success path
             setNotifications(prev => prev.filter(n => n.id !== id));
-            
+
             const deleted = notifications.find(n => n.id === id);
             if (deleted && !deleted.is_read) {
                 setUnreadCount(prev => Math.max(0, prev - 1));
@@ -213,7 +213,7 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ childr
             // So we should remove it from UI as well
             if (error?.response?.status === 404 || error?.status === 404) {
                 setNotifications(prev => prev.filter(n => n.id !== id));
-                 const deleted = notifications.find(n => n.id === id);
+                const deleted = notifications.find(n => n.id === id);
                 if (deleted && !deleted.is_read) {
                     setUnreadCount(prev => Math.max(0, prev - 1));
                 }

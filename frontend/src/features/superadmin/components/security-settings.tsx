@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Shield, MousePointer2, Type, Move, Copy, Terminal, Users, Globe, ShieldAlert } from 'lucide-react';
 import { useSettings } from '@/shared/contexts/app-context';
-import { useFeedback } from '@/shared/ui/notifications/feedback-context';
+import { useNotifications } from '@/shared/contexts/notification-context';
 import { useAction } from '@/shared/contexts/action-context';
 import { SettingsService } from '@/shared/services/settingsservice';
 import { logger } from '@/shared/services/logger';
 
 export const SecuritySettings: React.FC = () => {
     const { settings, refreshSettings, loading: contextLoading } = useSettings();
-    const { showToast } = useFeedback();
+    const { showSuccess, showError } = useNotifications();
     const { setPrimaryAction } = useAction();
     const [saving, setSaving] = useState(false);
 
@@ -50,10 +50,10 @@ export const SecuritySettings: React.FC = () => {
 
             await SettingsService.updateSettings('admin', payload);
             await refreshSettings();
-            showToast('تم تحديث إعدادات الحماية بنجاح', 'success');
+            showSuccess('تم تحديث إعدادات الحماية بنجاح');
         } catch (error: any) {
             logger.error(error);
-            showToast(error.response?.data?.message || 'حدث خطأ أثناء الحفظ', 'error');
+            showError(error.response?.data?.message || 'حدث خطأ أثناء الحفظ');
         } finally {
             setSaving(false);
         }

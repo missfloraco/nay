@@ -82,4 +82,25 @@ class SubscriptionController extends Controller
             'message' => 'تم إرسال طلب الاشتراك بنجاح. سيتم التواصل معك قريباً لتفعيل الحساب.'
         ]);
     }
+
+    /**
+     * Get payment history for the tenant.
+     */
+    public function payments(Request $request)
+    {
+        $payments = $request->user()->payments()->latest()->get();
+        return response()->json(['payments' => $payments]);
+    }
+
+    /**
+     * Get subscription requests history.
+     */
+    public function requests(Request $request)
+    {
+        $requests = SubscriptionRequest::where('tenant_id', $request->user()->id)
+            ->with('plan')
+            ->latest()
+            ->get();
+        return response()->json(['requests' => $requests]);
+    }
 }

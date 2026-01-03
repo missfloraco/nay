@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/shared/services/api';
-import { useFeedback } from '@/shared/ui/notifications/feedback-context';
+import { useNotifications } from '@/shared/contexts/notification-context';
 import Modal from '@/shared/ui/modals/modal';
 import AppLayout from '@/features/tenant/pages/applayout';
 import { PricingGrid } from '@/features/tenant/components/pricing-grid';
@@ -10,7 +10,7 @@ import { useAction } from '@/shared/contexts/action-context';
 
 export default function TenantPlansPage() {
     const queryClient = useQueryClient();
-    const { showSuccess } = useFeedback();
+    const { showSuccess } = useNotifications();
     const [selectedPlan, setSelectedPlan] = useState<any>(null);
     const [notes, setNotes] = useState('');
 

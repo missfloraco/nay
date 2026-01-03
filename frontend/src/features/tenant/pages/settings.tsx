@@ -36,8 +36,8 @@ export default function TenantSettings() {
     if (!tenant) return null;
 
     return (
-        <AppLayout title="الإعدادات" icon={Settings} noPadding={true}>
-            <div className="w-full bg-transparent animate-in fade-in duration-500 pb-8">
+        <AppLayout title="الإعدادات الشخصية" icon={Settings} noPadding={true}>
+            <div className="w-full bg-transparent animate-in fade-in duration-700 p-4 lg:p-8">
                 <SplitSettingsLayout
                     userData={{
                         name: tenant.name,
@@ -62,7 +62,8 @@ export default function TenantSettings() {
                             logo_url: tenant.logo_url,
                             whatsapp: tenant.whatsapp,
                             country_code: tenant.country_code,
-                            email_verified_at: tenant.email_verified_at
+                            email_verified_at: tenant.email_verified_at,
+                            created_at: tenant.created_at
                         }}
                         apiEndpoint="/app/profile"
                         isTenant={true}

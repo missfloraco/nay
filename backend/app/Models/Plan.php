@@ -5,10 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Traits\HasUid;
 
 class Plan extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, HasUid;
+
+    const UID_PREFIX = 'PLN';
     protected $fillable = [
         'name',
         'slug',

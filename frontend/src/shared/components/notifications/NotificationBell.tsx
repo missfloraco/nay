@@ -41,14 +41,14 @@ export const NotificationBell: React.FC = () => {
             <button
                 onClick={() => setIsOpen(!isOpen)}
                 className={`
-                    w-10 h-10 flex items-center justify-center rounded-full transition-all duration-300 relative group
+                    w-10 h-10 flex items-center justify-center rounded-full transition-all duration-300 relative group border
                     ${isOpen
-                        ? 'bg-primary/10 text-primary shadow-inner'
-                        : 'bg-gray-50 dark:bg-white/5 text-gray-400 hover:text-primary hover:bg-gray-100 dark:hover:bg-white/10'
+                        ? 'bg-primary/10 text-primary shadow-inner border-primary/20'
+                        : 'bg-gray-100 dark:bg-dark-800 text-gray-500 hover:text-primary hover:bg-primary/5 dark:hover:bg-primary/10 border-gray-200 dark:border-white/10 hover:border-primary/30'
                     }
                 `}
             >
-                <Bell className={`w-5 h-5 ${isOpen ? 'animate-none' : 'group-hover:animate-bounce'}`} />
+                <Bell className="w-5 h-5" />
                 {unreadCount > 0 && (
                     <span className="absolute -top-1 -right-1 flex items-center justify-center text-[10px] font-black bg-red-500 text-white rounded-full px-1 min-w-[18px] h-[18px] border-2 border-white dark:border-dark-900 shadow-sm transition-all">
                         {unreadCount > 9 ? '9+' : unreadCount}

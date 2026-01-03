@@ -1,8 +1,8 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import axios from 'axios';
-import api from '../services/api';
-import { DEFAULT_TEXTS } from '../locales/defaults';
-import { logger } from '../services/logger';
+import api from '@/shared/services/api';
+import { DEFAULT_TEXTS } from '@/shared/locales/defaults';
+import { logger } from '@/shared/services/logger';
 
 // Fallback texts in case API fails (Importing just one important set or keeping it minimal)
 // Ideally, we might want to import the existing structures as fallback, 

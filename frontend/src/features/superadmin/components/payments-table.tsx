@@ -4,7 +4,7 @@ import api from '@/shared/services/api';
 import { logger } from '@/shared/services/logger';
 import Table from '@/shared/table';
 import { formatDate } from '@/shared/utils/helpers';
-import { useFeedback } from '@/shared/ui/notifications/feedback-context';
+import { useNotifications } from '@/shared/contexts/notification-context';
 import { useSearchParams } from 'react-router-dom';
 import { IdentityCell, DateCell, CurrencyCell, ActionCell } from '@/shared/table-cells';
 import { RecordPaymentModal } from '@/features/superadmin/components/record-payment-modal';
@@ -31,7 +31,7 @@ interface PaymentsTableProps {
 }
 
 export default function PaymentsTable({ selectedTenantId: propSelectedTenantId, onTenantChange, tenants: propTenants }: PaymentsTableProps) {
-    const { showSuccess, showError, showConfirm } = useFeedback();
+    const { showSuccess, showError, showConfirm } = useNotifications();
     const { setPrimaryAction } = useAction();
     const [searchParams, setSearchParams] = useSearchParams();
 

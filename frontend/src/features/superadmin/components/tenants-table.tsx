@@ -2,7 +2,7 @@ import { resolveAssetUrl } from '@/shared/utils/helpers';
 import { useState, useEffect, useMemo } from 'react';
 import { formatDate } from '@/shared/utils/helpers';
 import { Users, User, Lock, Globe, Sparkles, Search, Filter, Plus, Mail, CheckCircle, XCircle, Trash2, Edit, ExternalLink, Shield, Loader2, MoreVertical, LayoutGrid, List as ListIcon, Calendar, Check, X, AlertTriangle, AlertCircle, Info, Database, HardDrive, Eye, Save, Clock } from 'lucide-react';
-import { useFeedback } from '@/shared/ui/notifications/feedback-context';
+import { useNotifications } from '@/shared/contexts/notification-context';
 import api from '@/shared/services/api';
 import { logger } from '@/shared/services/logger';
 import { useAction } from '@/shared/contexts/action-context';
@@ -37,7 +37,7 @@ interface Tenant {
 }
 
 export default function TenantsTable() {
-    const { showSuccess, showError } = useFeedback();
+    const { showSuccess, showError } = useNotifications();
     const { setPrimaryAction } = useAction();
 
     const [tenants, setTenants] = useState<Tenant[]>([]);

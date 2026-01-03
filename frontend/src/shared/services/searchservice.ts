@@ -1,5 +1,5 @@
-import api from './api';
-import { logger } from './logger';
+import api from '@/shared/services/api';
+import { logger } from '@/shared/services/logger';
 
 export interface SearchResult {
     id: number;

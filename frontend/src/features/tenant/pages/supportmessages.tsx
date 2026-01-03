@@ -2,24 +2,23 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSearchParams } from 'react-router-dom';
 import api from '@/shared/services/api';
-import AppLayout from './applayout';
+import AppLayout from '@/features/tenant/pages/applayout';
 import InputField from '@/shared/ui/forms/input-field';
 import TextareaField from '@/shared/ui/forms/textarea-field';
 import { formatDate } from '@/shared/utils/helpers';
 import { convertImageToWebP } from '@/shared/utils/image-helpers';
 import { Plus, MessageSquare, ArrowUp, Search, Filter, RefreshCw, SendHorizontal, Paperclip, X, Clock, Shield, LifeBuoy, ShieldCheck, Image as ImageIcon, CheckCircle, Archive, Link, Loader2, AlertCircle, Info, Tag, HelpCircle, Send } from 'lucide-react';
-import { useFeedback } from '@/shared/ui/notifications/feedback-context';
+import { useNotifications } from '@/shared/contexts/notification-context';
 import Modal from '@/shared/ui/modals/modal';
 import { useAction } from '@/shared/contexts/action-context';
 import { Toolbar } from '@/shared/components/toolbar';
 import ImagePreview from '@/shared/ui/image-preview';
-import { useNotifications } from '@/shared/contexts/notification-context';
+
 
 const SupportMessages = () => {
     const queryClient = useQueryClient();
     const [searchParams, setSearchParams] = useSearchParams();
-    const { showSuccess, showError } = useFeedback();
-    const { fetchNotifications } = useNotifications();
+    const { showSuccess, showError, fetchNotifications } = useNotifications();
     const { setPrimaryAction } = useAction();
     const [selectedTicketId, setSelectedTicketId] = useState<number | null>(() => {
         const id = searchParams.get('ticket_id');

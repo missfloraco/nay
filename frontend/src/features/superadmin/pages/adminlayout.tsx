@@ -41,7 +41,6 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title, noPadding = 
     ], [t]);
 
     const secondaryItems = React.useMemo(() => [
-        { icon: Settings, label: t('admin.NAV.SETTINGS', 'الإعدادات العامة'), path: '/admin/settings', color: 'text-gray-600' },
         { icon: Trash2, label: t('admin.NAV.RECYCLE_BIN', 'سلة المحذوفات'), path: '/admin/trash', color: 'text-red-600 font-black', badge: trashCount },
     ], [t, trashCount]);
 

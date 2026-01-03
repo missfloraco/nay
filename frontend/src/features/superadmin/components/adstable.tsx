@@ -4,7 +4,7 @@ import api from '@/shared/services/api';
 import { useAction } from '@/shared/contexts/action-context';
 import { useQueryClient } from '@tanstack/react-query';
 import { Plus, Trash2, Edit2, X, Image as ImageIcon, Code, Type, Megaphone, Save, Check, Loader2, Link } from 'lucide-react';
-import { useFeedback } from '@/shared/ui/notifications/feedback-context';
+import { useNotifications } from '@/shared/contexts/notification-context';
 import Table from '@/shared/table';
 import { IdentityCell, ActionCell } from '@/shared/table-cells';
 import { EditButton, DeleteButton } from '@/shared/ui/buttons/btn-crud';
@@ -14,7 +14,7 @@ import Modal from '@/shared/ui/modals/modal';
 export default function AdsTable() {
     const [ads, setAds] = useState<Ad[]>([]);
     const [loading, setLoading] = useState(true);
-    const { showSuccess, showError, showConfirm } = useFeedback();
+    const { showSuccess, showError, showConfirm } = useNotifications();
     const { setPrimaryAction } = useAction();
     const queryClient = useQueryClient();
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -426,8 +426,9 @@ export default function AdsTable() {
                                             <textarea
                                                 value={formData.content}
                                                 onChange={e => setFormData({ ...formData, content: e.target.value })}
-                                                className="w-full h-full min-h-[350px] px-6 py-6 rounded-[1.5rem] border border-gray-100 dark:border-white/10 bg-[#0d1117] text-blue-300 font-mono text-[13px] outline-none focus:ring-4 focus:ring-primary/10 transition-all ltr custom-scrollbar leading-relaxed shadow-2xl"
+                                                className="w-full h-full min-h-[350px] px-6 py-6 rounded-[1.5rem] border border-gray-100 dark:border-white/10 bg-[#0d1117] text-blue-300 font-mono text-[13px] outline-none focus:ring-4 focus:ring-primary/10 transition-all text-left custom-scrollbar leading-relaxed shadow-2xl"
                                                 placeholder={formData.type === 'script' ? '<script src="..."></script>' : '<div>...</div>'}
+                                                dir="ltr"
                                                 required
                                             />
                                         </div>

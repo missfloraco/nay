@@ -1,270 +1,230 @@
 import React from 'react';
-import { useLocation, useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useTenantAuth } from '@/features/auth/tenant-auth-context';
 import { useAdminAuth } from '@/features/auth/admin-auth-context';
 import { useSettings } from '@/shared/contexts/app-context';
 import { useText } from '@/shared/contexts/text-context';
-import { useAction } from '@/shared/contexts/action-context';
 import AdminLayout from '@/features/superadmin/pages/adminlayout';
 import AppLayout from '@/features/tenant/pages/applayout';
 import {
-    Sparkles, Calendar, Zap, Layout, ShieldCheck,
-    User as UserIcon, ArrowLeft, ArrowRight, Users, BarChart3,
-    Megaphone, Code, Shield, MessageSquare, Trash2,
-    LayoutDashboard, Fingerprint, Mail, Globe,
-    ChevronLeft, Star, FileText, CheckCircle, X, Settings2
+    Sparkles, Settings, Headset, ShieldCheck,
+    Zap, Layout, BarChart3, ArrowLeft, Star,
+    Shield, Globe, MessageSquare, CheckCircle,
+    User as UserIcon, Bell, Rocket
 } from 'lucide-react';
-import { formatDate, resolveAssetUrl } from '@/shared/utils/helpers';
+import { resolveAssetUrl } from '@/shared/utils/helpers';
 import { useTrialStatus } from '@/core/hooks/usetrialstatus';
-import TrialBanner from '@/features/tenant/components/trial-banner';
 
 export default function WelcomePage() {
-    const location = useLocation();
     const navigate = useNavigate();
-    const isAdmin = location.pathname.startsWith('/admin');
+    const isAdmin = window.location.pathname.startsWith('/admin');
     const { user: tenantUser, tenant } = useTenantAuth();
     const { user: adminUser } = useAdminAuth();
     const { settings } = useSettings();
     const { t } = useText();
     const { isActive, isTrialActive } = useTrialStatus();
-    const [isBannerDismissed, setIsBannerDismissed] = React.useState(false);
-
-    React.useEffect(() => {
-        const dismissed = localStorage.getItem('active_banner_dismissed');
-        if (dismissed === 'true') {
-            setIsBannerDismissed(true);
-        }
-    }, []);
-
-    const dismissBanner = () => {
-        localStorage.setItem('active_banner_dismissed', 'true');
-        setIsBannerDismissed(true);
-    };
-
-    const { setPrimaryAction } = useAction();
-
-    // Set Footer Action
-    React.useEffect(() => {
-        setPrimaryAction({
-            label: 'الإعدادات',
-            onClick: () => navigate(isAdmin ? '/admin/settings' : '/app/settings'),
-            icon: Settings2
-        });
-
-        return () => setPrimaryAction(null);
-    }, [isAdmin, navigate, setPrimaryAction]);
 
     const currentUser = isAdmin ? adminUser : tenantUser;
     const LayoutComponent = isAdmin ? AdminLayout : AppLayout;
 
-    // Admin Navigation Items for shortcuts - Slightly more compact
-    const adminShortcuts = [
-        { icon: LayoutDashboard, label: t('admin.NAV.DASHBOARD', 'لوحة التحكم'), path: '/admin', color: 'text-blue-500', bg: 'bg-blue-500/5' },
-        { icon: Layout, label: t('admin.NAV.IDENTITY', 'هوية المنصة'), path: '/admin/identity', color: 'text-purple-500', bg: 'bg-purple-500/5' },
-        { icon: Users, label: t('admin.NAV.TENANTS', 'إدارة المشتركين'), path: '/admin/tenants', color: 'text-[#02aa94]', bg: 'bg-[#02aa94]/5' },
-        { icon: BarChart3, label: 'إدارة SEO', path: '/admin/seo', color: 'text-blue-500', bg: 'bg-blue-500/5' },
-        { icon: Megaphone, label: t('admin.NAV.ADS', 'إدارة الإعلانات'), path: '/admin/ads', color: 'text-[#fb005e]', bg: 'bg-[#fb005e]/5' },
-        { icon: Code, label: 'الأكواد والنصوص', path: '/admin/scripts', color: 'text-amber-500', bg: 'bg-amber-500/5' },
-        { icon: Shield, label: 'إعدادات الحماية', path: '/admin/security', color: 'text-rose-500', bg: 'bg-rose-500/5' },
-        { icon: MessageSquare, label: t('admin.NAV.SUPPORT', 'رسائل الدعم'), path: '/admin/support', color: 'text-[#fb005e]', bg: 'bg-[#fb005e]/5' },
-        { icon: Trash2, label: t('admin.NAV.RECYCLE_BIN', 'سلة المحذوفات'), path: '/admin/trash', color: 'text-red-500', bg: 'bg-red-500/5' },
+    const platformFeatures = [
+        {
+            title: 'إدارة متكاملة',
+            desc: 'بنية تحتية قوية تدعم تعدد المستأجرين مع أداء مستقر وعالٍ.',
+            icon: Layout,
+            color: 'text-blue-500',
+            bg: 'bg-blue-500/10'
+        },
+        {
+            title: 'سرعة وكفاءة',
+            desc: 'تقنيات حديثة تضمن تجربة مستخدم سريعة ومعالجة بيانات لحظية.',
+            icon: Zap,
+            color: 'text-amber-500',
+            bg: 'bg-amber-500/10'
+        },
+        {
+            title: 'أمان البيانات',
+            desc: 'أعلى معايير الحماية والتشفير لبياناتك وبيانات عملائك.',
+            icon: ShieldCheck,
+            color: 'text-emerald-500',
+            bg: 'bg-emerald-500/10'
+        }
     ];
 
     return (
         <LayoutComponent title="الرئيسية" icon={Sparkles} noPadding={true}>
-            <div className="flex flex-col h-full w-full animate-in fade-in duration-700 bg-gray-50/50 dark:bg-dark-950 overflow-hidden relative" dir="rtl">
-                {/* Background Decoration - Subtle */}
-                <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[100px] -mr-48 -mt-48 z-0"></div>
+            <div className="flex flex-col h-full w-full bg-gray-50 dark:bg-dark-950 overflow-hidden relative selection:bg-primary/20" dir="rtl">
 
-                <main className="relative z-10 flex-1 flex flex-col min-h-0 overflow-hidden">
-                    <div className="flex-1 max-w-[1600px] w-full mx-auto p-4 lg:p-8 flex flex-col justify-evenly space-y-4 text-right h-full">
+                {/* Visual Decorations - Static & Fixed */}
+                <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/5 rounded-full blur-[120px] pointer-events-none" />
+                <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-emerald-500/5 rounded-full blur-[120px] pointer-events-none" />
 
+                <div className="flex-1 w-full max-w-[1600px] mx-auto p-6 lg:p-10 flex flex-col relative z-10 overflow-hidden">
 
+                    {/* HUB GRID: Viewport Optimized */}
+                    <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-8 min-h-0">
 
-                        {/* 1. Slim Greeting Section */}
-                        <div className="space-y-4 shrink-0">
-                            <div className="space-y-2">
-                                <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-primary/10 text-primary rounded-full text-[10px] font-black uppercase tracking-widest border border-primary/5">
-                                    <Star className="w-3.5 h-3.5 fill-current" />
-                                    <span>نظام الإدارة الذكية المتكامل</span>
+                        {/* LEFT COLUMN: Identity & Story (5/12) */}
+                        <div className="lg:col-span-5 flex flex-col justify-between py-4 min-h-0">
+
+                            {/* Identity Section */}
+                            <div className="space-y-8 animate-in slide-in-from-right-10 duration-700">
+                                <div className="space-y-4">
+                                    <div className="inline-flex items-center gap-2.5 px-4 py-2 bg-white dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-2xl shadow-sm">
+                                        <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                                        <span className="text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">
+                                            {isAdmin ? 'بيئة المدير العام' : 'لوحة تحكم المتجر'}
+                                        </span>
+                                    </div>
+
+                                    <div className="space-y-1">
+                                        <h1 className="text-4xl lg:text-6xl font-black text-gray-900 dark:text-white leading-[1.1]">
+                                            مرحباً بك، <br />
+                                            <span className="text-transparent bg-clip-text bg-gradient-to-l from-primary to-emerald-500">
+                                                {currentUser?.name}
+                                            </span>
+                                        </h1>
+                                        <p className="text-lg lg:text-xl font-bold text-gray-500 dark:text-gray-400 leading-relaxed max-w-md">
+                                            {isAdmin
+                                                ? `أنت الآن في مركز التحكم الرئيسي لـ ${settings.appName}. وجهتك لإدارة المنصة بالكامل.`
+                                                : `سعداء برؤيتك مرة أخرى. إليك نظرة سريعة على ما يمكنك فعله اليوم في متجرك الخاص.`
+                                            }
+                                        </p>
+                                    </div>
                                 </div>
-                                <h1 className="text-2xl md:text-4xl font-black text-gray-900 dark:text-white leading-tight">
-                                    مرحباً بك، <span className="text-primary">{currentUser?.name}</span> 👋
-                                </h1>
-                                <p className="text-sm md:text-base font-bold text-gray-500 dark:text-gray-400 max-w-3xl ml-auto leading-relaxed">
-                                    {isAdmin
-                                        ? `أنت تشاهد لوحة الإدارة المركزية لـ ${settings.appName}. تحكم في المشتركين، الإعلانات، والهوية البصرية بكل سهولة.`
-                                        : `سعداء بعودتك. تابع آخر التحديثات في متجرك وأكمل إعداداتك للحصول على أفضل النتائج.`
-                                    }
-                                </p>
+
+                                {/* Avatar Presence with Premium Border */}
+                                <div className="relative inline-block group">
+                                    <div className="absolute -inset-1 bg-gradient-to-br from-primary via-emerald-500 to-blue-500 rounded-[3rem] blur-md opacity-25 group-hover:opacity-60 transition duration-1000 group-hover:duration-200"></div>
+                                    <div className="relative w-32 h-32 lg:w-48 lg:h-48 rounded-[2.8rem] overflow-hidden border-8 border-white dark:border-dark-900 bg-white dark:bg-dark-800 shadow-2xl">
+                                        <img
+                                            src={resolveAssetUrl(tenant?.avatar_url || currentUser?.avatar_url) || `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser?.name || '')}&background=02aa94&color=fff&size=512`}
+                                            alt={currentUser?.name}
+                                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                                        />
+                                        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none" />
+                                    </div>
+                                    <div className="absolute -bottom-3 -right-3 w-12 h-12 bg-white dark:bg-dark-800 rounded-2xl shadow-xl border-4 border-gray-50 dark:border-dark-900 flex items-center justify-center text-emerald-500">
+                                        <CheckCircle className="w-6 h-6 fill-current animate-in zoom-in-50 duration-500 delay-300" />
+                                    </div>
+                                </div>
                             </div>
 
-                            {/* Moved System Intro Text */}
-                            <div className="p-6 rounded-2xl bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/5">
-                                <h2 className="text-lg font-black text-gray-900 dark:text-white mb-2">
-                                    {t('dashboard.welcome', 'مرحباً بك في نظام ')} {settings?.appName || 'SaaS Platform'}
-                                </h2>
-                                <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed max-w-4xl">
-                                    هذه النسخة الأساسية من النظام جاهزة للتطوير. تم إزالة جميع الوحدات التجارية (المبيعات، المنتجات، إلخ) مع الحفاظ على البنية التحتية للنظام متعدد المستأجرين.
-                                </p>
+                            {/* Platform Status Badge */}
+                            <div className="pt-8 animate-in fade-in duration-1000 delay-500">
+                                <div className="p-5 rounded-3xl bg-white dark:bg-white/5 border border-gray-100 dark:border-white/5 flex items-center gap-4 group cursor-default">
+                                    <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-500">
+                                        <Globe className="w-6 h-6 group-hover:rotate-12 transition-transform" />
+                                    </div>
+                                    <div>
+                                        <p className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-0.5">حالة النظام الآن</p>
+                                        <p className="text-sm font-black text-gray-900 dark:text-white">المنصة تعمل بأعلى كفاءة مستقرة</p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
-                        {/* 2. Role Specific Content - Balanced for Viewport */}
-                        <div className="flex-1 min-h-0 py-2 flex flex-col justify-center overflow-hidden">
-                            {isAdmin ? (
-                                /* SUPER ADMIN VIEW: Command Center Grid */
-                                <div className="h-full flex flex-col">
-                                    <div className="flex items-center gap-3 mb-6">
-                                        <div className="p-2 bg-primary/10 rounded-lg text-primary">
-                                            <LayoutDashboard className="w-5 h-5" />
+                        {/* RIGHT COLUMN: Strategy & Actions (7/12) */}
+                        <div className="lg:col-span-7 flex flex-col gap-8 min-h-0">
+
+                            {/* Feature Showcase Grid */}
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 animate-in slide-in-from-left-10 duration-700">
+                                {platformFeatures.map((feature, idx) => (
+                                    <div
+                                        key={idx}
+                                        className="p-6 rounded-[2.2rem] bg-white dark:bg-white/5 border border-gray-100 dark:border-white/5 hover:border-primary/20 hover:shadow-xl hover:shadow-primary/5 transition-all duration-300 group"
+                                    >
+                                        <div className={`w-12 h-12 rounded-2xl ${feature.bg} ${feature.color} flex items-center justify-center mb-4 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500`}>
+                                            <feature.icon className="w-6 h-6" />
                                         </div>
-                                        <h3 className="text-lg font-black text-gray-900 dark:text-white">مركز التحكم</h3>
+                                        <h4 className="text-base font-black text-gray-900 dark:text-white mb-2">{feature.title}</h4>
+                                        <p className="text-xs font-bold text-gray-500 dark:text-gray-400 leading-relaxed">{feature.desc}</p>
+                                    </div>
+                                ))}
+                            </div>
+
+                            {/* OPERATIONS HUB: Large Visual Shortcuts */}
+                            <div className="flex-1 min-h-0 grid grid-cols-1 sm:grid-cols-2 gap-6 pb-2">
+
+                                {/* Settings Shortcut */}
+                                <button
+                                    onClick={() => navigate(isAdmin ? '/admin/settings' : '/app/settings')}
+                                    className="relative group overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-gray-900 to-gray-800 dark:from-dark-900 dark:to-dark-950 p-8 flex flex-col justify-between text-right transition-all duration-500 hover:scale-[1.02] hover:-rotate-1 active:scale-[0.98] shadow-2xl hover:shadow-primary/20"
+                                >
+                                    <div className="absolute top-0 left-0 w-32 h-32 bg-primary/20 rounded-full blur-3xl -ml-16 -mt-16 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+                                    <div className="absolute bottom-[-20%] left-[-10%] opacity-[0.03] group-hover:opacity-[0.07] transition-opacity duration-700 pointer-events-none">
+                                        <Settings className="w-64 h-64 rotate-[-15deg]" />
                                     </div>
 
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 flex-1 content-start">
-                                        {adminShortcuts.map((item) => (
-                                            <Link
-                                                key={item.path}
-                                                to={item.path}
-                                                className="group relative overflow-hidden bg-white dark:bg-dark-900 border border-gray-100 dark:border-white/5 rounded-2xl p-6 hover:shadow-xl hover:shadow-primary/5 hover:border-primary/20 transition-all duration-300 flex flex-col justify-between"
-                                            >
-                                                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-gray-50 to-transparent dark:from-white/5 rounded-bl-[100px] -mr-16 -mt-16 transition-transform group-hover:scale-110 opacity-50"></div>
-
-                                                <div className="relative z-10 flex justify-between items-start mb-4">
-                                                    <div className={`w-12 h-12 rounded-2xl ${item.bg} flex items-center justify-center ${item.color} group-hover:scale-110 group-hover:rotate-3 transition-all duration-500 shadow-sm`}>
-                                                        <item.icon className="w-6 h-6" />
-                                                    </div>
-                                                    <ArrowLeft className="w-4 h-4 text-gray-300 group-hover:text-primary transition-colors rtl:rotate-180" />
-                                                </div>
-
-                                                <div className="relative z-10">
-                                                    <h4 className="text-base font-black text-gray-900 dark:text-white mb-1 group-hover:text-primary transition-colors">{item.label}</h4>
-                                                    <p className="text-[10px] font-bold text-gray-400">وصول سريع</p>
-                                                </div>
-                                            </Link>
-                                        ))}
-                                    </div>
-                                </div>
-                            ) : (
-                                /* TENANT VIEW: Modern Bento Grid */
-                                <div className="grid grid-cols-1 md:grid-cols-12 gap-6 h-full auto-rows-[minmax(100px,auto)]">
-
-                                    {/* NEW: Dedicated Trial Banner as a Bento Card */}
-                                    <div className="md:col-span-12 shrink-0">
-                                        <TrialBanner />
-                                    </div>
-
-                                    {/* Main Identity Card - Large Block */}
-                                    <div className="md:col-span-8 md:row-span-2 relative overflow-hidden rounded-[2.5rem] bg-white dark:bg-dark-900 border border-gray-100 dark:border-white/5 shadow-2xl shadow-gray-200/50 dark:shadow-black/20 group">
-                                        {/* Dynamic Background */}
-                                        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-blue-500/5 opacity-50 group-hover:opacity-100 transition-opacity duration-700"></div>
-                                        <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -mr-32 -mt-32"></div>
-
-                                        <div className="relative z-10 p-8 h-full flex flex-col justify-between">
-                                            <div className="flex items-start justify-between">
-                                                <div className="space-y-4">
-                                                    <div className="relative inline-block">
-                                                        <div className="absolute inset-0 bg-primary/20 blur-xl rounded-full"></div>
-                                                        <img
-                                                            src={resolveAssetUrl(tenant?.avatar_url || currentUser?.avatar_url) || `https://ui-avatars.com/api/?name=${currentUser?.name}&background=random&size=256`}
-                                                            className="w-24 h-24 rounded-[2rem] shadow-xl border-4 border-white dark:border-dark-800 object-cover relative z-10"
-                                                            alt={currentUser?.name}
-                                                        />
-                                                        <div className="absolute -bottom-2 -right-2 bg-green-500 text-white p-1.5 rounded-full border-4 border-white dark:border-dark-800 shadow-lg" title="نشط">
-                                                            <CheckCircle className="w-4 h-4 fill-current" />
-                                                        </div>
-                                                    </div>
-
-                                                    <div>
-                                                        <h2 className="text-3xl font-black text-gray-900 dark:text-white leading-tight mb-2">
-                                                            {currentUser?.name}
-                                                        </h2>
-                                                        <div className="flex items-center gap-3">
-                                                            <span className="px-3 py-1 bg-gray-100 dark:bg-white/5 rounded-full text-xs font-bold text-gray-500">
-                                                                ID: #{tenant?.uid || currentUser?.id}
-                                                            </span>
-                                                            <span className="w-1 h-1 rounded-full bg-gray-300 dark:bg-gray-600"></span>
-                                                            <span className="text-xs text-gray-400 font-medium truncate max-w-[200px]">{currentUser?.email}</span>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <div className="hidden md:block text-left">
-                                                    <Globe className="w-32 h-32 text-gray-50 dark:text-white/5 absolute top-4 left-4 rotate-12" />
-                                                </div>
-                                            </div>
-
-                                            <div className="grid grid-cols-2 gap-4 mt-8">
-                                                <div className="p-4 bg-gray-50 dark:bg-white/5 rounded-2xl border border-gray-100 dark:border-white/5">
-                                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">نوع الاشتراك</p>
-                                                    <div className="flex items-center gap-2">
-                                                        <Zap className="w-5 h-5 text-amber-500 fill-current" />
-                                                        <span className="text-lg font-black text-gray-900 dark:text-white">الباقة الاحترافية</span>
-                                                    </div>
-                                                </div>
-                                                <div className="p-4 bg-gray-50 dark:bg-white/5 rounded-2xl border border-gray-100 dark:border-white/5">
-                                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">حالة المتجر</p>
-                                                    <div className="flex items-center gap-2">
-                                                        <Globe className="w-5 h-5 text-emerald-500" />
-                                                        <span className="text-lg font-black text-gray-900 dark:text-white">متصل بالإنترنت</span>
-                                                    </div>
-                                                </div>
+                                    <div className="relative z-10 flex justify-between items-start">
+                                        <div className="p-4 bg-white/10 rounded-2xl backdrop-blur-md border border-white/5 text-primary group-hover:scale-110 group-hover:bg-primary group-hover:text-white transition-all duration-500 shadow-xl">
+                                            <Settings className="w-8 h-8 group-hover:rotate-90 transition-transform duration-700" />
+                                        </div>
+                                        <div className="text-left">
+                                            <div className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center text-white/40 group-hover:text-primary transition-colors">
+                                                <ArrowLeft className="w-5 h-5 rtl:rotate-180" />
                                             </div>
                                         </div>
                                     </div>
 
-                                    {/* Stats Column */}
-                                    <div className="md:col-span-4 grid grid-rows-2 gap-6">
-                                        {/* Time Remaining */}
-                                        <div className="relative overflow-hidden rounded-[2.5rem] bg-gray-900 text-white p-6 flex flex-col justify-center shadow-xl group">
-                                            <div className="absolute inset-0 bg-gradient-to-tr from-primary to-purple-600 opacity-20 group-hover:opacity-30 transition-opacity"></div>
-                                            <div className="absolute top-0 right-0 w-32 h-32 bg-primary/20 rounded-full blur-2xl -mr-16 -mt-16"></div>
+                                    <div className="relative z-10">
+                                        <h3 className="text-2xl lg:text-3xl font-black text-white mb-2">إعدادات المنصة</h3>
+                                        <p className="text-sm font-bold text-white/50 leading-relaxed">تحكم في البيانات، المظهر، وإعدادات الحساب الشخصية.</p>
+                                    </div>
+                                </button>
 
-                                            <div className="relative z-10">
-                                                <div className="flex items-center justify-between mb-4">
-                                                    <div className="p-3 bg-white/10 rounded-2xl backdrop-blur-md">
-                                                        <Calendar className="w-6 h-6 text-white" />
-                                                    </div>
-                                                    <span className="px-3 py-1 bg-white/10 rounded-full text-[10px] font-bold">باقي للاشتراك</span>
-                                                </div>
-                                                <div>
-                                                    <h3 className="text-4xl font-black mb-1">
-                                                        {Math.ceil((new Date(tenant?.subscription_ends_at || tenant?.trial_expires_at).getTime() - new Date().getTime()) / (1000 * 3600 * 24))}
-                                                    </h3>
-                                                    <p className="text-white/60 text-sm font-bold">يوم للإنتهاء</p>
-                                                </div>
+                                {/* Support Shortcut */}
+                                <button
+                                    onClick={() => navigate(isAdmin ? '/admin/support' : '/app/support/messages')}
+                                    className="relative group overflow-hidden rounded-[2.5rem] bg-white dark:bg-dark-900 border-2 border-transparent hover:border-emerald-500/30 p-8 flex flex-col justify-between text-right transition-all duration-500 hover:scale-[1.02] hover:rotate-1 active:scale-[0.98] shadow-2xl hover:shadow-emerald-500/10"
+                                >
+                                    <div className="absolute top-0 left-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-3xl -ml-16 -mt-16 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+                                    <div className="absolute bottom-[-20%] left-[-10%] text-emerald-500/[0.03] group-hover:text-emerald-500/[0.08] transition-all duration-700 pointer-events-none">
+                                        <Headset className="w-64 h-64 rotate-[15deg]" />
+                                    </div>
+
+                                    <div className="relative z-10 flex justify-between items-start">
+                                        <div className="p-4 bg-emerald-500/10 rounded-2xl border border-emerald-500/20 text-emerald-500 group-hover:scale-110 group-hover:bg-emerald-500 group-hover:text-white transition-all duration-500 shadow-xl">
+                                            <Headset className="w-8 h-8" />
+                                        </div>
+                                        <div className="text-left">
+                                            <div className="w-10 h-10 rounded-full border border-gray-100 dark:border-white/10 flex items-center justify-center text-gray-300 dark:text-white/20 group-hover:text-emerald-500 transition-colors">
+                                                <ArrowLeft className="w-5 h-5 rtl:rotate-180" />
                                             </div>
                                         </div>
-
-                                        {/* Quick Action */}
-                                        <button
-                                            onClick={() => navigate('/app/settings')}
-                                            className="relative overflow-hidden rounded-[2.5rem] bg-white dark:bg-dark-900 border border-gray-100 dark:border-white/5 p-6 flex flex-col justify-center shadow-xl hover:shadow-2xl transition-all group text-right"
-                                        >
-                                            <div className="absolute inset-0 bg-gray-50 dark:bg-white/5 origin-bottom scale-y-0 group-hover:scale-y-100 transition-transform duration-500"></div>
-                                            <div className="relative z-10">
-                                                <div className="flex items-center justify-between mb-6">
-                                                    <div className="p-3 bg-indigo-50 dark:bg-indigo-900/20 rounded-2xl text-indigo-600 dark:text-indigo-400">
-                                                        <Settings2 className="w-6 h-6" />
-                                                    </div>
-                                                    <ArrowLeft className="w-5 h-5 text-gray-300 group-hover:text-primary transition-colors rtl:rotate-180" />
-                                                </div>
-                                                <h3 className="text-xl font-black text-gray-900 dark:text-white mb-1">إعدادات المتجر</h3>
-                                                <p className="text-xs text-gray-500 font-bold">تخصيص الهوية والبيانات</p>
-                                            </div>
-                                        </button>
                                     </div>
-                                </div>
-                            )}
+
+                                    <div className="relative z-10">
+                                        <h3 className="text-2xl lg:text-3xl font-black text-gray-900 dark:text-white mb-2">الدعم الفني</h3>
+                                        <p className="text-sm font-bold text-gray-500 dark:text-gray-400 leading-relaxed">تواصل معنا للحصول على المساعدة التقنية وتقديم الاستفسارات.</p>
+                                    </div>
+                                </button>
+
+                            </div>
                         </div>
 
-                        {/* 3. Global Action Footer (Simplified) - Removed Button, kept text */}
-                        <div className="text-center pt-2">
-                            <p className="text-[9px] font-black text-gray-400 dark:text-gray-600 uppercase tracking-[0.3em] mb-4">انطلق نحو آفاق جديدة</p>
+                    </div>
+
+                    {/* SLIM FOOTER: Meta Info */}
+                    <div className="pt-6 shrink-0 flex items-center justify-between border-t border-gray-100 dark:border-white/5 animate-in slide-in-from-bottom-5 duration-1000">
+                        <div className="flex items-center gap-6">
+                            <div className="flex items-center gap-2 text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                                <Shield className="w-3.5 h-3.5" />
+                                <span>اتصال مشفر 256-بت</span>
+                            </div>
+                            <div className="w-px h-3 bg-gray-200 dark:bg-white/10" />
+                            <div className="flex items-center gap-2 text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                                <Star className="w-3.5 h-3.5 fill-current text-amber-500" />
+                                <span>الإصدار 2.4.0 (مستقر)</span>
+                            </div>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                            <p className="text-[10px] font-black text-gray-300 dark:text-gray-700 uppercase tracking-[0.3em]">انطلق نحو آفاق جديدة مع {settings.appName || 'ناي'}</p>
                         </div>
                     </div>
-                </main>
+
+                </div>
             </div>
         </LayoutComponent>
     );

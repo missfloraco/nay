@@ -138,14 +138,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
             {/* Sidebar Content */}
             <aside
-                className={`fixed lg:static inset-y-0 right-0 z-[70] flex flex-col bg-white dark:bg-dark-900 border-l border-gray-100 dark:border-white/5 transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]
+                className={`fixed lg:static inset-y-0 right-0 z-[70] flex flex-col bg-white dark:bg-dark-900 border-l border-black transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]
                     ${isMobileMenuOpen ? 'translate-x-0 w-[250px]' : 'translate-x-full lg:translate-x-0'}
                     ${isSidebarCollapsed ? 'lg:w-[88px]' : 'lg:w-[250px]'}
                 `}
             >
 
                 {/* 1. Top Section: Branding */}
-                <div className="h-[70px] lg:h-[90px] flex items-center shrink-0 border-b border-gray-100 dark:border-white/5 transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]">
+                <div className="h-[70px] lg:h-[90px] flex items-center shrink-0 border-b border-black transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]">
                     <Link to={homePath} className="flex items-center group overflow-hidden transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]">
                         {/* Fixed Logo Anchor */}
                         <div className="w-[88px] flex items-center justify-center shrink-0">
@@ -168,15 +168,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 {/* 2. Middle Section: Nav Items */}
                 <div className="flex-1 overflow-y-auto no-scrollbar space-y-1 py-4">
                     {items.map((item) => renderNavItem(item))}
-                    {secondaryItems.length > 0 && (
-                        <div className="mt-2 text-transparent h-px" />
-                    )}
                     {secondaryItems.map((item) => renderNavItem(item))}
                 </div>
 
                 {/* Sidebar Ad Slot */}
                 {!isSidebarCollapsed && (
-                    <div className="w-full shrink-0 border-t border-gray-100 dark:border-white/5 bg-white dark:bg-dark-900">
+                    <div className="w-full shrink-0 bg-white dark:bg-dark-900">
                         <AdSlot placement="ad_sidebar" className="w-full aspect-[250/250]" showPlaceholder={false} />
                     </div>
                 )}
@@ -190,16 +187,19 @@ export const Sidebar: React.FC<SidebarProps> = ({
                         </div>
                     )}
 
-                    {/* Collapse Toggle - Icon Only, Centered, Hidden on Mobile */}
-                    <div className="hidden lg:flex justify-center py-2">
+                    {/* Collapse Toggle - Aligned with Logo and User Profile */}
+                    <div className="hidden lg:flex items-center h-[70px] lg:h-[90px]">
                         <button
                             onClick={() => {
                                 toggleSidebar();
                             }}
-                            className="flex items-center justify-center h-12 w-12 rounded-2xl transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] group relative"
+                            className="flex items-center transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] group relative w-full"
                         >
-                            <div className="w-10 h-10 rounded-full bg-primary/10 dark:bg-primary/20 flex items-center justify-center transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] group-hover:scale-110 group-hover:bg-primary/20 dark:group-hover:bg-primary/30 group-hover:shadow-lg group-hover:shadow-primary/20">
-                                {isSidebarCollapsed ? <ChevronLeft className="w-5 h-5 text-primary" /> : <ChevronRight className="w-5 h-5 text-primary" />}
+                            {/* Fixed Icon Anchor - Same as Logo and Avatar */}
+                            <div className="w-[88px] flex items-center justify-center shrink-0">
+                                <div className="w-10 h-10 rounded-full bg-primary/10 dark:bg-primary/20 flex items-center justify-center transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] group-hover:scale-110 group-hover:bg-primary/20 dark:group-hover:bg-primary/30 group-hover:shadow-lg group-hover:shadow-primary/20">
+                                    {isSidebarCollapsed ? <ChevronLeft className="w-5 h-5 text-primary" /> : <ChevronRight className="w-5 h-5 text-primary" />}
+                                </div>
                             </div>
 
                             {isSidebarCollapsed && (
@@ -212,7 +212,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     </div>
 
                     {/* User Profile Section - Now at Bottom (Mirrors Branding Height) */}
-                    <div className="sidebar-user-profile relative border-t border-gray-100 dark:border-white/5 h-[70px] lg:h-[90px] flex items-center backdrop-blur-sm" ref={userMenuRef}>
+                    <div className="sidebar-user-profile relative border-t border-black h-[70px] lg:h-[90px] flex items-center backdrop-blur-sm" ref={userMenuRef}>
                         <button
                             onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
                             className="flex items-center w-full h-full transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] group hover:bg-gray-50 dark:hover:bg-white/5"
@@ -247,6 +247,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
                         {/* Dropdown Menu - Always Opens Upwards */}
                         {isUserMenuOpen && (
                             <div className="absolute bottom-full mb-2 left-4 right-4 lg:left-0 lg:right-0 bg-white dark:bg-dark-800 rounded-xl shadow-xl border border-gray-100 dark:border-white/10 p-1.5 z-[100] animate-in fade-in zoom-in-95 duration-200">
+                                <Link
+                                    to={isAdmin ? '/admin/settings' : '/app/settings'}
+                                    onClick={() => setIsUserMenuOpen(false)}
+                                    className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg hover:bg-gray-50 dark:hover:bg-white/5 text-gray-700 dark:text-gray-300 transition-colors group mb-1"
+                                >
+                                    <div className="p-1.5 rounded-md bg-gray-50 dark:bg-white/5 text-gray-500 group-hover:bg-gray-100 dark:group-hover:bg-white/10 transition-colors">
+                                        <SettingsIcon className="w-4 h-4" />
+                                    </div>
+                                    <span className="font-bold text-xs">الإعدادات الشخصية</span>
+                                </Link>
                                 <button
                                     onClick={() => {
                                         handleLogout();

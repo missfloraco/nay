@@ -13,6 +13,8 @@ export interface TenantAuthContextType {
     forgotPassword: (email: string) => Promise<void>;
     completeRegistration: (email: string, code: string) => Promise<void>;
     resendOTP: (email: string) => Promise<void>;
+    verifyResetOTP: (email: string, code: string) => Promise<void>;
+    resetPassword: (email: string, code: string, password: string, password_confirmation: string) => Promise<void>;
     updateProfile: (data: any) => Promise<void>;
     updateLocalUser: (data: any) => void;
     loginWithToken: (token: string) => Promise<void>;
@@ -122,6 +124,14 @@ export const TenantAuthProvider = ({ children }: { children: ReactNode }) => {
         setTenant(res.user);
     };
 
+    const verifyResetOTP = async (email: string, code: string) => {
+        await api.post('/app/forgot-password/verify', { email, code });
+    };
+
+    const resetPasswordLogic = async (email: string, code: string, password: string, password_confirmation: string) => {
+        await api.post('/app/forgot-password/reset', { email, code, password, password_confirmation });
+    };
+
     const loginWithToken = async (token: string) => {
         setLoading(true);
         sessionStorage.setItem('tenant_token', token);
@@ -172,9 +182,13 @@ export const TenantAuthProvider = ({ children }: { children: ReactNode }) => {
             completeRegistration,
             resendOTP,
             verifyProfileEmail,
+            verifyResetOTP,
+            resetPassword: resetPasswordLogic,
             logout,
             loading,
-            forgotPassword: async (email: string) => { await api.post('/app/forgot-password', { email }); },
+            forgotPassword: async (email: string) => {
+                return (await api.post('/app/forgot-password', { email })) as any;
+            },
             refreshUser: async () => { await loadUser(); },
             updateProfile: async (data: any) => {
                 await api.post('/app/profile', data);

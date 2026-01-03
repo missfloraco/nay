@@ -1,6 +1,12 @@
 import axios, { AxiosError } from 'axios';
 import { API_ROOT_URL, API_BASE_URL } from '@/core/config';
-import { logger } from './logger';
+import { logger } from '@/shared/services/logger';
+
+export interface ApiErrorResponse {
+    message?: string;
+    errors?: Record<string, string[]>;
+    error?: string;
+}
 
 // 1. Enforce Global Defaults
 axios.defaults.withCredentials = true;
@@ -108,7 +114,7 @@ api.interceptors.response.use(
     (response) => response.data,
     async (error: AxiosError) => {
         const originalRequest = error.config as any;
-        const responseData = error.response?.data as any;
+        const responseData = error.response?.data as ApiErrorResponse;
 
         // Handle 419 CSRF Token Mismatch
         if (error.response?.status === 419 && !originalRequest._csrfRetry) {

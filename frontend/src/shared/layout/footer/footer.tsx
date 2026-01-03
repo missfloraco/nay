@@ -28,7 +28,7 @@ export interface BottomNavProps {
 export default function BottomNav({ items, user, onLogout, settingsPath = '/settings', onMenuClick }: BottomNavProps) {
     const location = useLocation();
     const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-    const { primaryAction } = useAction();
+    const { primaryAction, extraActions } = useAction();
     const userMenuRef = useRef<HTMLDivElement>(null);
 
     // Close user menu when clicking outside
@@ -73,8 +73,8 @@ export default function BottomNav({ items, user, onLogout, settingsPath = '/sett
                     </button>
                 </div>
 
-                {/* 2. Center: Main Floating Action Button */}
-                <div className="px-2 -translate-y-8 relative z-50">
+                {/* 2. Center: Main Floating Action Button - Hide if extraActions exist (Selection Mode active, actions shown in Toolbar above) */}
+                <div className={`px-2 -translate-y-8 relative z-50 transition-all duration-300 ${extraActions.length > 0 ? 'opacity-0 pointer-events-none scale-0' : 'opacity-100 scale-100'}`}>
                     {primaryAction ? (
                         <button
                             onClick={primaryAction.onClick}

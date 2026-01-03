@@ -313,7 +313,7 @@ const ScriptForm = forwardRef<ScriptFormHandle, ScriptFormProps>(({ initialData,
                             <textarea
                                 value={formData.content}
                                 onChange={handleContentChange}
-                                className="flex-1 bg-transparent text-gray-200 font-mono text-sm p-6 pt-10 outline-none resize-none leading-relaxed selection:bg-primary/20 custom-scrollbar relative z-10"
+                                className="flex-1 bg-transparent text-gray-200 font-mono text-sm p-6 pt-10 outline-none resize-none leading-relaxed selection:bg-primary/20 custom-scrollbar relative z-10 text-left"
                                 placeholder="// ادخل السكربت البرمجي هنا...
 (function() {
     console.log('Script Initialized');

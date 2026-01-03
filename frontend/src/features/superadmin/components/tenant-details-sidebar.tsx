@@ -6,9 +6,9 @@ import {
     Loader2, Upload, Key, Calendar, Sparkles, User, LayoutGrid
 } from 'lucide-react';
 import { formatDate, resolveAssetUrl } from '@/shared/utils/helpers';
-import { useFeedback } from '@/shared/ui/notifications/feedback-context';
+import { useNotifications } from '@/shared/contexts/notification-context';
 import api from '@/shared/services/api';
-import { TenantStatusBadge } from './tenantstatusbadge';
+import { TenantStatusBadge } from '@/features/superadmin/components/tenantstatusbadge';
 import { TEXTS_ADMIN } from '@/shared/locales/texts';
 import { CircularImageUpload } from '@/shared/components/circularimageupload';
 import { COUNTRIES } from '@/shared/constants';
@@ -44,7 +44,7 @@ interface TenantDetailsSidebarProps {
 }
 
 export function TenantDetailsSidebar({ tenant, tenants, onSelect, onUpdate, onNavigateToPayments }: TenantDetailsSidebarProps) {
-    const { showSuccess, showError, showConfirm } = useFeedback();
+    const { showSuccess, showError, showConfirm } = useNotifications();
     // Edit Form State
     const [editForm, setEditForm] = useState({
         name: '',

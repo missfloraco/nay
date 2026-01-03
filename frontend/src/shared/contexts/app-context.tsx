@@ -42,11 +42,7 @@ export const defaultSettings: GlobalSettings = {
 
 export interface AppContextType {
   settings: GlobalSettings;
-  //  // loading: boolean; // Removed duplicate
-  // inherited from above? No, duplicate in interface.
-
-  // darkMode: boolean; // Removed
-  // toggleTheme: () => void; // Removed
+  loading: boolean;
   refreshSettings: () => void;
   updateSettings: (settings: Partial<GlobalSettings>) => Promise<void>;
   updateLocalSettings: (settings: Partial<GlobalSettings>) => void;
@@ -158,9 +154,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       } else if (isAppPath) {
         fetches.push(api.get('/app/user', { _silent: true } as any));
       } else if (isLanding) {
-        // On landing, only try user info to show "Dashboard" button, avoid settings 404
-        // Use silent: true to avoid 401 redirect to login
-        fetches.push(api.get(`/${userType}/user`, { _silent: true } as any));
+        // Only try user info if we have some hint of a session to avoid 401 for guests
+        const hasToken = localStorage.getItem('tenant_token') || localStorage.getItem('admin_token');
+        if (hasToken) {
+          fetches.push(api.get(`/${userType}/user`, { _silent: true } as any));
+        }
       }
 
       const results = await Promise.allSettled(fetches);

@@ -1,11 +1,11 @@
 import { useExport } from '@/shared/contexts/export-context';
-import { useFeedback } from '@/shared/ui/notifications/feedback-context';
+import { useNotifications } from '@/shared/contexts/notification-context';
 import { useSettings } from '@/shared/contexts/app-context';
 import { logger } from '@/shared/services/logger';
 
 export const useExportActions = () => {
     const { exportData, setIsPrinting, closeModal } = useExport();
-    const { showSuccess, showError, showWarning } = useFeedback();
+    const { showSuccess, showError, showWarning } = useNotifications();
     const { settings } = useSettings();
 
     const sanitizeCSV = (val: string | number): string => {

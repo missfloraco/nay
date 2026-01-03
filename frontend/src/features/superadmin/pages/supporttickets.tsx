@@ -2,11 +2,11 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSearchParams } from 'react-router-dom';
 import api from '@/shared/services/api';
-import AdminLayout from './adminlayout';
+import AdminLayout from '@/features/superadmin/pages/adminlayout';
 import { formatDate } from '@/shared/utils/helpers';
 import { convertImageToWebP } from '@/shared/utils/image-helpers';
 import { MessageSquare, ArrowUp, CheckCircle, Clock, Info, Trash2, X, AlertCircle, Archive, Shield, Image as ImageIcon, ShieldCheck, Search, Filter, Loader2 } from 'lucide-react';
-import { useFeedback } from '@/shared/ui/notifications/feedback-context';
+import { useNotifications } from '@/shared/contexts/notification-context';
 import InputField from '@/shared/ui/forms/input-field';
 import Modal from '@/shared/ui/modals/modal';
 import { Toolbar } from '@/shared/components/toolbar';
@@ -27,7 +27,7 @@ export default function SupportTicketsPage() {
     const [previewImage, setPreviewImage] = useState<string | null>(null);
     const [pendingImage, setPendingImage] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
-    const { showSuccess, showError, showConfirm } = useFeedback();
+    const { showSuccess, showError, showConfirm } = useNotifications();
 
     const uploadImageMutation = useMutation({
         mutationFn: async (file: File) => {
@@ -198,14 +198,7 @@ export default function SupportTicketsPage() {
                     secondaryAction: {
                         label: 'حذف نهائياً',
                         variant: 'danger',
-                        onClick: async () => {
-                            const confirmed = await showConfirm({
-                                title: 'حذف نهائي',
-                                message: 'لا يمكن التراجع عن هذا الإجراء، هل أنت متأكد؟',
-                                isDestructive: true
-                            });
-                            if (confirmed) forceDeleteMutation.mutate();
-                        }
+                        onClick: () => forceDeleteMutation.mutate()
                     }
                 });
             } else {
@@ -216,14 +209,7 @@ export default function SupportTicketsPage() {
                     onClick: () => updateStatusMutation.mutate({ status: selectedTicket.status === 'resolved' ? 'closed' : 'resolved' }),
                     secondaryAction: {
                         label: 'أرشفة التذكرة',
-                        onClick: async () => {
-                            const confirmed = await showConfirm({
-                                title: 'أرشفة التذكرة',
-                                message: 'هل تريد نقل هذه التذكرة إلى الأرشيف؟',
-                                isDestructive: true
-                            });
-                            if (confirmed) deleteTicketMutation.mutate();
-                        }
+                        onClick: () => deleteTicketMutation.mutate()
                     }
                 });
             }

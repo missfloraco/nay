@@ -71,12 +71,12 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({ variant = 'header-ce
             <>
                 <button
                     onClick={() => setIsOverlayOpen(true)}
-                    className="text-gray-500 dark:text-gray-400 hover:text-primary dark:hover:text-primary transition-all active:scale-95"
+                    className="flex items-center justify-center text-gray-500 dark:text-gray-400 hover:text-primary dark:hover:text-primary transition-all active:scale-90"
                     aria-label={t('common.search', 'بحث')}
                     aria-haspopup="true"
                     aria-expanded={isOverlayOpen}
                 >
-                    <Search size={20} className="w-5 h-5 transition-transform hover:scale-110" />
+                    <Search size={22} className="w-5.5 h-5.5 transition-transform group-hover:scale-110" />
                 </button>
 
                 {/* Mobile/Tablet Command Palette Modal */}
@@ -84,12 +84,12 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({ variant = 'header-ce
                     <div className="fixed inset-0 z-[10000] flex items-start justify-center p-4 sm:p-6 overflow-hidden">
                         {/* Backdrop */}
                         <div
-                            className="fixed inset-0 bg-gray-900/40 backdrop-blur-md animate-in fade-in duration-300"
+                            className="fixed inset-0 bg-gray-900/60 backdrop-blur-xl animate-in fade-in duration-500"
                             onClick={() => setIsOverlayOpen(false)}
                         />
 
                         {/* Search Window (Command Palette) */}
-                        <div className="relative w-full max-w-2xl bg-white/95 backdrop-blur-xl rounded-[2.5rem] shadow-[0_0_80px_-12px_rgba(0,0,0,0.3)] border border-white/20 flex flex-col overflow-hidden animate-in zoom-in-95 slide-in-from-top-10 duration-300 mt-4 sm:mt-20">
+                        <div className="relative w-full max-w-2xl bg-white/98 dark:bg-dark-900/98 backdrop-blur-2xl rounded-[2.5rem] shadow-[0_0_80px_-12px_rgba(0,0,0,0.4)] border border-white/20 dark:border-white/5 flex flex-col overflow-hidden animate-in zoom-in-95 slide-in-from-top-10 duration-500 mt-2 sm:mt-20">
 
                             {/* Search Box Header */}
                             <div className="relative flex items-center p-4 sm:p-6 border-b border-gray-100/50">

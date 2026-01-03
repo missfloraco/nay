@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Check, X, User, Calendar, MessageSquare, AlertCircle } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/shared/services/api';
-import { useFeedback } from '@/shared/ui/notifications/feedback-context';
+import { useNotifications } from '@/shared/contexts/notification-context';
 import Modal from '@/shared/ui/modals/modal';
 import InputField from '@/shared/ui/forms/input-field';
 import { useAction } from '@/shared/contexts/action-context';
@@ -10,7 +10,7 @@ import { useEffect } from 'react';
 
 export default function SubscriptionRequestsTable() {
     const queryClient = useQueryClient();
-    const { showSuccess } = useFeedback();
+    const { showSuccess } = useNotifications();
     const [selectedRequest, setSelectedRequest] = useState<any>(null);
     const [isApproveModalOpen, setIsApproveModalOpen] = useState(false);
     const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);

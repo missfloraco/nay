@@ -31,11 +31,15 @@ const PaymentMethods = lazy(() => import('@/features/superadmin/pages/payment-me
 const TenantDashboard = lazy(() => import('@/features/tenant/pages/dashboard'));
 const TenantSettings = lazy(() => import('@/features/tenant/pages/settings'));
 const TenantSupportMessages = lazy(() => import('@/features/tenant/pages/supportmessages'));
-const TenantPlans = lazy(() => import('@/features/tenant/pages/plans'));
+const TenantBilling = lazy(() => import('@/features/tenant/pages/billing'));
 const TrialExpired = lazy(() => import('@/features/tenant/trial-expired'));
 const ActivationWaiting = lazy(() => import('@/features/tenant/pages/activation-waiting'));
 
-const Trash = lazy(() => import('@/shared/pages/trash'));
+const AdminTrash = lazy(() => import('@/features/superadmin/pages/trash'));
+const TenantTrash = lazy(() => import('@/features/tenant/pages/trash'));
+
+// ... existing code ...
+
 const WelcomePage = lazy(() => import('@/shared/pages/welcome'));
 const NotificationsPage = lazy(() => import('@/shared/pages/notifications-page'));
 
@@ -66,7 +70,7 @@ function AdminRoutes() {
             <Route path="/scripts" element={<PlatformIdentity />} />
             <Route path="/security" element={<PlatformIdentity />} />
             <Route path="/subscription-requests" element={<OperationsPage />} />
-            <Route path="/trash" element={<Trash />} />
+            <Route path="/trash" element={<AdminTrash />} />
             <Route path="/notifications" element={<NotificationsPage />} />
             <Route path="*" element={<Navigate to="/admin" />} />
         </Routes>
@@ -80,8 +84,9 @@ function AppSubRoutes() {
             <Route path="/dashboard" element={<TenantDashboard />} />
             <Route path="/settings" element={<TenantSettings />} />
             <Route path="/support/messages" element={<TenantSupportMessages />} />
-            <Route path="/plans" element={<TenantPlans />} />
-            <Route path="/trash" element={<Trash />} />
+            <Route path="/billing" element={<TenantBilling />} />
+            <Route path="/plans" element={<Navigate to="/app/billing" replace />} />
+            <Route path="/trash" element={<TenantTrash />} />
             <Route path="/notifications" element={<NotificationsPage />} />
             <Route path="*" element={<Navigate to="/app" />} />
         </Routes>
@@ -102,24 +107,23 @@ function LoginRedirector() {
 }
 
 import { useTrialStatus } from '@/core/hooks/usetrialstatus';
-import { FeedbackProvider } from '@/shared/ui/notifications/feedback-context';
 import { NotificationProvider } from '@/shared/contexts/notification-context';
 
 export default function MainApp() {
     return (
-        <NotificationProvider>
-            <FeedbackProvider>
-                <AdminAuthProvider>
-                    <TenantAuthProvider>
-                        <TextProvider>
-                            <ExportProvider>
+        <ActionProvider>
+            <ExportProvider>
+                <NotificationProvider>
+                    <AdminAuthProvider>
+                        <TenantAuthProvider>
+                            <TextProvider>
                                 <MainAppContent />
-                            </ExportProvider>
-                        </TextProvider>
-                    </TenantAuthProvider>
-                </AdminAuthProvider>
-            </FeedbackProvider>
-        </NotificationProvider>
+                            </TextProvider>
+                        </TenantAuthProvider>
+                    </AdminAuthProvider>
+                </NotificationProvider>
+            </ExportProvider>
+        </ActionProvider>
     );
 }
 
@@ -143,65 +147,67 @@ function MainAppContent() {
     }
 
     if (appUser && tenant && !isImpersonating) {
-        if (tenant.status === 'pending') {
-            return (
-                <HelmetProvider>
-                    <Suspense fallback={<PageLoader />}>
-                        <ActivationWaiting />
-                    </Suspense>
-                </HelmetProvider>
-            );
-        }
+        const isBillingPage = location.pathname.startsWith('/app/billing');
 
-        if (tenant.status === 'expired' || tenant.status === 'disabled' || isTrialExpired) {
-            return (
-                <HelmetProvider>
-                    <Suspense fallback={<PageLoader />}>
-                        <TrialExpired />
-                    </Suspense>
-                </HelmetProvider>
-            );
+        if (!isBillingPage) {
+            if (tenant.status === 'pending') {
+                return (
+                    <HelmetProvider>
+                        <Suspense fallback={<PageLoader />}>
+                            <ActivationWaiting />
+                        </Suspense>
+                    </HelmetProvider>
+                );
+            }
+
+            if (tenant.status === 'expired' || tenant.status === 'disabled' || isTrialExpired) {
+                return (
+                    <HelmetProvider>
+                        <Suspense fallback={<PageLoader />}>
+                            <TrialExpired />
+                        </Suspense>
+                    </HelmetProvider>
+                );
+            }
         }
     }
 
     return (
         <HelmetProvider>
             <AnalyticsProvider>
-                <ActionProvider>
-                    <SearchProvider>
-                        <ScriptInjector />
-                        {!isCheckingAdBlock && isAdBlockActive && <ShieldOverlay />}
-                        <ExportModal />
-                        <Suspense fallback={<PageLoader />}>
-                            <Routes>
-                                <Route path="/" element={<LandingPage />} />
-                                <Route path="/login" element={
-                                    loadingLogoutSuccess ? <AuthScreen initialMode="login" /> : <LoginRedirector />
-                                } />
-                                <Route path="/register" element={<AuthScreen initialMode="register" />} />
-                                <Route path="/forgot-password" element={<AuthScreen initialMode="forgot-password" />} />
-                                <Route path="/reset-password" element={<ResetPassword />} />
-                                <Route path="/403" element={<Forbidden />} />
-                                <Route path="/admin/*" element={
-                                    <ProtectedRoute requiredRole="admin" fallbackPath="/login?role=admin">
-                                        <Suspense fallback={<PageLoader />}>
-                                            <AdminRoutes />
-                                        </Suspense>
-                                    </ProtectedRoute>
-                                } />
-                                <Route path="/app/*" element={
-                                    <ProtectedRoute requiredRole="tenant" fallbackPath="/login">
-                                        <Suspense fallback={<PageLoader />}>
-                                            <AppSubRoutes />
-                                        </Suspense>
-                                    </ProtectedRoute>
-                                } />
-                                <Route path="*" element={<Navigate to="/" />} />
-                            </Routes>
-                        </Suspense>
-                    </SearchProvider>
-                </ActionProvider>
+                <SearchProvider>
+                    <ScriptInjector />
+                    {!isCheckingAdBlock && isAdBlockActive && <ShieldOverlay />}
+                    <ExportModal />
+                    <Suspense fallback={<PageLoader />}>
+                        <Routes>
+                            <Route path="/" element={<LandingPage />} />
+                            <Route path="/login" element={
+                                loadingLogoutSuccess ? <AuthScreen initialMode="login" /> : <LoginRedirector />
+                            } />
+                            <Route path="/register" element={<AuthScreen initialMode="register" />} />
+                            <Route path="/forgot-password" element={<AuthScreen initialMode="forgot-password" />} />
+                            <Route path="/reset-password" element={<ResetPassword />} />
+                            <Route path="/403" element={<Forbidden />} />
+                            <Route path="/admin/*" element={
+                                <ProtectedRoute requiredRole="admin" fallbackPath="/login?role=admin">
+                                    <Suspense fallback={<PageLoader />}>
+                                        <AdminRoutes />
+                                    </Suspense>
+                                </ProtectedRoute>
+                            } />
+                            <Route path="/app/*" element={
+                                <ProtectedRoute requiredRole="tenant" fallbackPath="/login">
+                                    <Suspense fallback={<PageLoader />}>
+                                        <AppSubRoutes />
+                                    </Suspense>
+                                </ProtectedRoute>
+                            } />
+                            <Route path="*" element={<Navigate to="/" />} />
+                        </Routes>
+                    </Suspense>
+                </SearchProvider>
             </AnalyticsProvider>
-        </HelmetProvider >
+        </HelmetProvider>
     );
 }

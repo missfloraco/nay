@@ -44,12 +44,11 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, title, noPadding = fals
 
     const menuItems = React.useMemo(() => [
         { icon: Layers, label: t('tenant.NAV.DASHBOARD', 'لوحة التحكم'), path: '/app/dashboard', color: 'text-blue-600' },
-        { icon: DollarSign, label: t('tenant.NAV.SUBSCRIPTIONS', 'باقات الاشتراك'), path: '/app/plans', color: 'text-emerald-600 font-bold' },
+        { icon: DollarSign, label: t('tenant.NAV.BILLING', 'الاشتراكات والفوترة'), path: '/app/billing', color: 'text-emerald-600 font-bold' },
         { icon: Headset, label: t('tenant.NAV.SUPPORT', 'الدعم الفني'), path: '/app/support/messages', color: 'text-rose-500' },
     ], [t]);
 
     const secondaryItems = React.useMemo(() => [
-        { icon: Settings, label: t('tenant.NAV.SETTINGS', 'الإعدادات العامة'), path: '/app/settings', color: 'text-gray-600' },
         { icon: Trash2, label: t('tenant.NAV.RECYCLE_BIN', 'سلة المحذوفات'), path: '/app/trash', color: 'text-red-600 font-black', badge: trashCount },
     ], [t, trashCount]);
 

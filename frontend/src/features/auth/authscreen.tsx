@@ -11,12 +11,12 @@ import { ThemeToggle } from '@/shared/layout/header/theme-toggle';
 
 import { COUNTRIES } from '@/shared/constants';
 import { LoginSchema, RegisterSchema, ForgotPasswordSchema } from '@/shared/utils/validation';
-import { PasswordStrengthIndicator } from './components/passwordstrengthindicator';
+import { PasswordStrengthIndicator } from '@/features/auth/components/passwordstrengthindicator';
 import { Lock, Mail, User, Globe, AlertCircle, CheckCircle2, Eye, EyeOff, Loader2, ArrowLeft, Home } from 'lucide-react';
 import InputField from '@/shared/ui/forms/input-field';
 import SelectField from '@/shared/ui/forms/select-field';
 
-type AuthMode = 'login' | 'register' | 'forgot-password' | 'verification';
+type AuthMode = 'login' | 'register' | 'forgot-password' | 'verification' | 'reset-otp' | 'reset-password';
 
 export default function AuthScreen({ initialMode = 'login' }: { initialMode?: AuthMode }) {
     const [mode, setMode] = useState<AuthMode>(initialMode);
@@ -39,6 +39,7 @@ export default function AuthScreen({ initialMode = 'login' }: { initialMode?: Au
         email: '',
         password: '',
         country: 'PS',
+        passwordConfirmation: '',
     });
 
     const [passwordStrength, setPasswordStrength] = useState<'weak' | 'medium' | 'strong'>('weak');
@@ -64,7 +65,7 @@ export default function AuthScreen({ initialMode = 'login' }: { initialMode?: Au
     // Auto-submit when code is full
     useEffect(() => {
         const code = verificationCode.join('');
-        if (mode === 'verification' && code.length === 6 && !loading) {
+        if ((mode === 'verification' || mode === 'reset-otp') && code.length === 6 && !loading) {
             handleSubmit({ preventDefault: () => { } } as React.FormEvent);
         }
     }, [verificationCode, mode]);
@@ -151,8 +152,38 @@ export default function AuthScreen({ initialMode = 'login' }: { initialMode?: Au
                 navigate('/app/dashboard');
             } else if (mode === 'forgot-password') {
                 ForgotPasswordSchema.parse({ email: formData.email });
-                await tenantAuth.forgotPassword(formData.email);
-                setSuccess(t('AUTH.FORGOT_PASSWORD.SUCCESS_MESSAGE'));
+                const res = await tenantAuth.forgotPassword(formData.email);
+                if (res?.require_otp) {
+                    setMode('reset-otp');
+                    setSuccess('تم إرسال رمز التحقق إلى بريدك الإلكتروني');
+                } else {
+                    setSuccess(t('AUTH.FORGOT_PASSWORD.SUCCESS_MESSAGE'));
+                }
+            } else if (mode === 'reset-otp') {
+                const code = verificationCode.join('');
+                if (code.length !== 6) {
+                    setError('يرجى إدخال رمز التحقق المكون من 6 أرقام');
+                    return;
+                }
+                await tenantAuth.verifyResetOTP(formData.email, code);
+                setMode('reset-password');
+                setSuccess('تم التحقق بنجاح. يرجى تعيين كلمة مرور جديدة.');
+            } else if (mode === 'reset-password') {
+                if (formData.password.length < 8) {
+                    setError('كلمة المرور يجب أن تكون 8 أحرف على الأقل');
+                    return;
+                }
+                if (formData.password !== formData.passwordConfirmation) {
+                    setError('كلمتا المرور غير متطابقتين');
+                    return;
+                }
+                const code = verificationCode.join('');
+                await tenantAuth.resetPassword(formData.email, code, formData.password, formData.passwordConfirmation);
+                setSuccess('تم تغيير كلمة المرور بنجاح. سيتم تحويلك لصفحة الدخول...');
+                setTimeout(() => {
+                    setMode('login');
+                    setFormData({ ...formData, password: '', passwordConfirmation: '' });
+                }, 2000);
             }
         } catch (err: any) {
             logger.error('Auth error', err);
@@ -162,6 +193,15 @@ export default function AuthScreen({ initialMode = 'login' }: { initialMode?: Au
             } else if (err.response && err.response.data && err.response.data.message) {
                 // API Error - Use specific message from backend
                 setError(err.response.data.message);
+
+                // Professional handling: Auto-switch to login if account exists
+                if (err.response.status === 409 && err.response.data.action === 'login') {
+                    setTimeout(() => {
+                        setMode('login');
+                        setSuccess('تم تحويلك لصفحة الدخول، يرجى كتابة كلمة المرور');
+                        setError('');
+                    }, 2000);
+                }
             } else {
                 // Fallback
                 setError('حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.');
@@ -213,118 +253,43 @@ export default function AuthScreen({ initialMode = 'login' }: { initialMode?: Au
 
                 {/* Form Fields Container */}
                 <div className="space-y-6">
-                    {/* Verification OTP Digits - Professional UI */}
-                    {mode === 'verification' && (
-                        <div className="space-y-8 animate-in fade-in zoom-in-95 duration-500">
-                            <div className="text-center space-y-2">
-                                <div className="inline-flex items-center justify-center p-3 bg-primary/10 rounded-2xl mb-2 text-primary">
-                                    <Mail className="w-8 h-8" />
-                                </div>
-                                <h3 className="text-xl font-black text-gray-900 dark:text-white">رمز التحقق</h3>
-                                <p className="text-sm text-gray-500 dark:text-gray-400">
-                                    أدخل الرمز المكون من 6 أرقام المرسل إلى <br />
-                                    <span className="text-gray-900 dark:text-white font-bold">{formData.email}</span>
-                                </p>
-                            </div>
 
-                            <div className="flex justify-between gap-2" dir="ltr">
-                                {verificationCode.map((digit, idx) => (
-                                    <input
-                                        key={idx}
-                                        id={`otp-${idx}`}
-                                        type="text"
-                                        maxLength={1}
-                                        value={digit}
-                                        onChange={(e) => {
-                                            const val = e.target.value;
-                                            if (/^\d*$/.test(val)) {
-                                                const newCode = [...verificationCode];
-                                                newCode[idx] = val.slice(-1); // Only take last char if somehow more
-                                                setVerificationCode(newCode);
-                                                // Auto focus next
-                                                if (val && idx < 5) {
-                                                    document.getElementById(`otp-${idx + 1}`)?.focus();
-                                                }
-                                            }
-                                        }}
-                                        onKeyDown={(e) => {
-                                            if (e.key === 'Backspace' && !digit && idx > 0) {
-                                                document.getElementById(`otp-${idx - 1}`)?.focus();
-                                            }
-                                        }}
-                                        onPaste={(e) => {
-                                            e.preventDefault();
-                                            const pastedData = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
-                                            if (pastedData) {
-                                                const newCode = [...verificationCode];
-                                                pastedData.split('').forEach((char, i) => {
-                                                    if (i < 6) newCode[i] = char;
-                                                });
-                                                setVerificationCode(newCode);
-                                                // Focus last filled or next empty
-                                                const lastIdx = Math.min(pastedData.length - 1, 5);
-                                                document.getElementById(`otp-${lastIdx}`)?.focus();
-                                            }
-                                        }}
-                                        className="w-12 h-16 text-center text-2xl font-black bg-gray-50 dark:bg-dark-900 border-2 border-transparent focus:border-primary focus:bg-white dark:focus:bg-dark-800 rounded-2xl transition-all outline-none"
-                                        autoFocus={idx === 0}
-                                    />
-                                ))}
-                            </div>
 
-                            <div className="text-center">
-                                <button
-                                    type="button"
-                                    disabled={resendCountdown > 0 || loading}
-                                    onClick={async () => {
-                                        setLoading(true);
-                                        try {
-                                            await tenantAuth.resendOTP(formData.email);
-                                            setSuccess('تم إرسال كود جديد');
-                                            setResendCountdown(60);
-                                        } catch (err: any) {
-                                            setError(err.response?.data?.message || 'فشل إرسال الكود');
-                                        } finally {
-                                            setLoading(false);
-                                        }
-                                    }}
-                                    className="text-sm font-bold text-gray-400 hover:text-primary transition-colors disabled:opacity-50"
-                                >
-                                    {resendCountdown > 0 ? `إعادة الإرسال خلال ${resendCountdown} ثانية` : 'إعادة إرسال الكود؟'}
-                                </button>
-                            </div>
-                        </div>
-                    )}
 
-                    {/* Registration/Login Fields */}
-                    {mode !== 'verification' && (
+
+                    {/* Registration/Login/ResetPassword Fields - Visible in Verification too (as disabled) */}
+                    {(mode !== 'reset-otp' || mode === 'reset-otp') && (
                         <>
-                            {/* Full Name Field - Register Only */}
-                            {mode === 'register' && (
+                            {/* Full Name Field - Register Only (or Verification context) */}
+                            {(mode === 'register' || mode === 'verification') && (
                                 <InputField
                                     label={t('AUTH.REGISTER.FULL_NAME_LABEL')}
                                     id="fullName"
                                     type="text"
                                     required
+                                    disabled={mode === 'verification'}
                                     value={formData.fullName}
                                     onChange={e => setFormData({ ...formData, fullName: e.target.value })}
                                     placeholder={t('AUTH.REGISTER.FULL_NAME_PLACEHOLDER')}
                                     icon={User}
                                     autoComplete="name"
+                                    className={mode === 'verification' ? 'opacity-70 bg-gray-50' : ''}
                                 />
                             )}
 
-                            {/* Email Field - Hide in Verification Mode */}
+                            {/* Email Field - Visible in almost all modes (Disabled in OTP/Reset steps) */}
                             <InputField
-                                label={t(`AUTH.${mode === 'forgot-password' ? 'FORGOT_PASSWORD' : mode.toUpperCase()}.EMAIL_LABEL`)}
+                                label={t(`AUTH.${(mode === 'forgot-password' || mode === 'reset-otp') ? 'FORGOT_PASSWORD' : (mode === 'reset-password' ? 'RESET-PASSWORD' : mode.toUpperCase())}.EMAIL_LABEL`)}
                                 id="email"
                                 type="email"
                                 required
+                                disabled={mode === 'verification' || mode === 'reset-otp' || mode === 'reset-password'}
                                 value={formData.email}
                                 onChange={e => setFormData({ ...formData, email: e.target.value })}
                                 placeholder={t(`AUTH.${mode === 'register' ? 'REGISTER' : 'LOGIN'}.EMAIL_PLACEHOLDER`)}
                                 icon={Mail}
                                 autoComplete="email"
+                                className={mode === 'verification' || mode === 'reset-otp' || mode === 'reset-password' ? 'opacity-70 bg-gray-50' : ''}
                             />
 
                             {/* Password Field - Not for Forgot Password */}
@@ -336,11 +301,12 @@ export default function AuthScreen({ initialMode = 'login' }: { initialMode?: Au
                                             id="password"
                                             type={showPassword ? 'text' : 'password'}
                                             required
+                                            disabled={mode === 'verification'}
                                             value={formData.password}
                                             onChange={e => setFormData({ ...formData, password: e.target.value })}
                                             placeholder={t(`AUTH.${mode.toUpperCase()}.PASSWORD_PLACEHOLDER`)}
                                             autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
-                                            className="!pe-16" // Space for Eye icon
+                                            className={`!pe-16 ${mode === 'verification' ? 'opacity-70 bg-gray-50' : ''}`} // Space for Eye icon
                                             endContent={
                                                 <button
                                                     type="button"
@@ -353,6 +319,22 @@ export default function AuthScreen({ initialMode = 'login' }: { initialMode?: Au
                                             }
                                         />
                                     </div>
+
+                                    {mode === 'reset-password' && (
+                                        <div className="relative group">
+                                            <InputField
+                                                label="تأكيد كلمة المرور"
+                                                id="passwordConfirmation"
+                                                type={showPassword ? 'text' : 'password'}
+                                                required
+                                                value={formData.passwordConfirmation}
+                                                onChange={e => setFormData({ ...formData, passwordConfirmation: e.target.value })}
+                                                placeholder="أعد كتابة كلمة المرور"
+                                                autoComplete="new-password"
+                                                className="!pe-16"
+                                            />
+                                        </div>
+                                    )}
 
                                     {mode === 'login' && (
                                         <div className="flex justify-end">
@@ -376,16 +358,103 @@ export default function AuthScreen({ initialMode = 'login' }: { initialMode?: Au
                                 </div>
                             )}
 
-                            {/* Country Field - Register Only */}
-                            {mode === 'register' && (
+                            {/* Country Field - Register Only (or Verification) */}
+                            {(mode === 'register' || mode === 'verification') && (
                                 <SelectField
                                     label={t('AUTH.REGISTER.COUNTRY_LABEL')}
                                     id="country"
                                     value={formData.country}
+                                    disabled={mode === 'verification'}
                                     onChange={e => setFormData({ ...formData, country: e.target.value })}
                                     options={countryOptions}
                                     icon={Globe}
+                                    className={mode === 'verification' ? 'opacity-70 bg-gray-50' : ''}
                                 />
+                            )}
+
+                            {/* OTP Fields - Inserted visually "inside" the form for progressive flow */}
+                            {(mode === 'verification' || mode === 'reset-otp') && (
+                                <div className="pt-4 space-y-4 animate-in fade-in slide-in-from-top-2 duration-500">
+                                    <div className="flex items-center gap-2">
+                                        <div className="h-px flex-1 bg-gray-200"></div>
+                                        <span className="text-sm font-bold text-gray-400">رمز التحقق</span>
+                                        <div className="h-px flex-1 bg-gray-200"></div>
+                                    </div>
+                                    <p className="text-sm text-center font-medium text-gray-500">
+                                        تم إرسال رمز التحقق إلى <span className="font-bold text-gray-900 dark:text-white">{formData.email}</span>
+                                    </p>
+
+                                    <div className="flex justify-center sm:justify-between gap-2 w-full" dir="ltr">
+                                        {verificationCode.map((digit, idx) => (
+                                            <input
+                                                key={idx}
+                                                id={`otp-${idx}`}
+                                                type="text"
+                                                maxLength={1}
+                                                value={digit}
+                                                onChange={(e) => {
+                                                    const val = e.target.value;
+                                                    if (/^\d*$/.test(val)) {
+                                                        const newCode = [...verificationCode];
+                                                        newCode[idx] = val.slice(-1);
+                                                        setVerificationCode(newCode);
+                                                        if (val && idx < 5) document.getElementById(`otp-${idx + 1}`)?.focus();
+                                                    }
+                                                }}
+                                                onKeyDown={(e) => {
+                                                    if (e.key === 'Backspace' && !digit && idx > 0) {
+                                                        document.getElementById(`otp-${idx - 1}`)?.focus();
+                                                    }
+                                                }}
+                                                onPaste={(e) => {
+                                                    e.preventDefault();
+                                                    const pastedData = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
+                                                    if (pastedData) {
+                                                        const newCode = [...verificationCode];
+                                                        pastedData.split('').forEach((char, i) => { if (i < 6) newCode[i] = char; });
+                                                        setVerificationCode(newCode);
+                                                        const lastIdx = Math.min(pastedData.length - 1, 5);
+                                                        document.getElementById(`otp-${lastIdx}`)?.focus();
+                                                    }
+                                                }}
+                                                className="w-10 h-12 sm:w-12 sm:h-14 text-center text-xl font-bold bg-white dark:bg-dark-900 border-2 border-gray-200 focus:border-primary focus:ring-4 focus:ring-primary/10 rounded-xl transition-all outline-none"
+                                                autoFocus={idx === 0}
+                                            />
+                                        ))}
+                                    </div>
+
+                                    <div className="flex justify-center">
+                                        <button
+                                            type="button"
+                                            disabled={resendCountdown > 0 || loading}
+                                            onClick={async () => {
+                                                setLoading(true);
+                                                try {
+                                                    await tenantAuth.resendOTP(formData.email);
+                                                    setSuccess('تم إرسال كود جديد');
+                                                    setResendCountdown(60);
+                                                } catch (err: any) {
+                                                    setError(err.response?.data?.message || 'فشل إرسال الكود');
+                                                } finally {
+                                                    setLoading(false);
+                                                }
+                                            }}
+                                            className="text-xs font-bold text-gray-500 hover:text-primary transition-colors disabled:opacity-50 flex items-center gap-1"
+                                        >
+                                            {resendCountdown > 0 ? (
+                                                <>
+                                                    <Loader2 className="w-3 h-3 animate-spin" />
+                                                    <span>إعادة الإرسال خلال {resendCountdown} ثانية</span>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <span>لم يصلك الكود؟</span>
+                                                    <span className="text-primary hover:underline">إعادة إرسال</span>
+                                                </>
+                                            )}
+                                        </button>
+                                    </div>
+                                </div>
                             )}
                         </>
                     )}
@@ -403,8 +472,9 @@ export default function AuthScreen({ initialMode = 'login' }: { initialMode?: Au
                             <span>جاري المعالجة...</span>
                         </>
                     ) : (
-                        mode === 'verification' ? 'تأكيد الحساب' :
-                            t(`AUTH.${mode === 'forgot-password' ? 'FORGOT_PASSWORD' : mode.toUpperCase()}.SUBMIT`)
+                        mode === 'verification' || mode === 'reset-otp' ? ((mode === 'verification') ? 'تأكيد الحساب' : 'تحقق من الرمز') :
+                            mode === 'reset-password' ? 'تغيير كلمة المرور' :
+                                t(`AUTH.${mode === 'forgot-password' ? 'FORGOT_PASSWORD' : mode.toUpperCase()}.SUBMIT`)
                     )}
                 </button>
 
@@ -434,7 +504,7 @@ export default function AuthScreen({ initialMode = 'login' }: { initialMode?: Au
                         </button>
                     )}
                 </div>
-            </form>
-        </AuthSplitLayout>
+            </form >
+        </AuthSplitLayout >
     );
 }

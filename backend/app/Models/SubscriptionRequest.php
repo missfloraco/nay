@@ -4,10 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Traits\HasUid;
 
 class SubscriptionRequest extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, HasUid;
+
+    const UID_PREFIX = 'SRQ';
     protected $fillable = [
         'tenant_id',
         'plan_id',

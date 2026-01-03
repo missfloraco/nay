@@ -50,16 +50,19 @@ import { API_ROOT_URL } from '@/core/config';
 
 export const resolveAssetUrl = (url: string | undefined | null) => {
     if (!url || typeof url !== 'string' || url === 'null' || url === '[]') return null;
-    if (url.startsWith('http')) return url;
+    if (url.startsWith('http') || url.startsWith('data:')) return url;
 
     // Remove leading slashes for normalization
     let cleanUrl = url.replace(/^\/+/, '');
 
-    // If it's already a relative path starting with 'storage/' or 'public/', just ensure it has a single leading slash
+    // Get the base API root URL (e.g., http://localhost:8000)
+    const baseUrl = API_ROOT_URL.replace(/\/+$/, '');
+
+    // If it's already a relative path starting with 'storage/' or 'public/', prepend base URL
     if (cleanUrl.startsWith('storage/') || cleanUrl.startsWith('public/')) {
-        return `/${cleanUrl}`;
+        return `${baseUrl}/${cleanUrl}`;
     }
 
-    // Otherwise, prepend 'storage/' and return with leading slash
-    return `/storage/${cleanUrl}`;
+    // Otherwise, assume it's a storage path, prepend 'storage/' and base URL
+    return `${baseUrl}/storage/${cleanUrl}`;
 };

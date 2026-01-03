@@ -3,7 +3,7 @@ import AdminLayout from '@/features/superadmin/pages/adminlayout';
 import { Layout, Save, ImageIcon, Globe, Palette, Type, Link, FileType, Info, ShieldCheck, Fingerprint, Sparkles, Search, Hash, Megaphone, Terminal } from 'lucide-react';
 import InputField from '@/shared/ui/forms/input-field';
 import { useSettings } from '@/shared/contexts/app-context';
-import { useFeedback } from '@/shared/ui/notifications/feedback-context';
+import { useNotifications } from '@/shared/contexts/notification-context';
 import { SettingsService } from '@/shared/services/settingsservice';
 import { CircularImageUpload } from '@/shared/components/circularimageupload';
 import { useAction } from '@/shared/contexts/action-context';
@@ -25,7 +25,7 @@ type TabType = 'identity' | 'css' | 'seo' | 'prefixes' | 'ads' | 'scripts' | 'se
 export default function PlatformIdentity() {
     const [activeTab, setActiveTab] = useState<TabType>('identity');
     const { settings, refreshSettings, updateLocalSettings, loading: contextLoading } = useSettings();
-    const { showSuccess, showError, showToast } = useFeedback();
+    const { showSuccess, showError } = useNotifications();
     const { setPrimaryAction } = useAction();
     const [saving, setSaving] = useState(false);
 
@@ -153,10 +153,10 @@ export default function PlatformIdentity() {
             updateLocalSettings({
                 branding: { ...settings.branding, ...localPrefixes }
             });
-            showToast('تم حفظ إعدادات التسميات بنجاح', 'success');
+            showSuccess('تم حفظ إعدادات التسميات بنجاح');
         } catch (error) {
             console.error('Save failed', error);
-            showToast('حدث خطأ أثناء حفظ الإعدادات', 'error');
+            showError('حدث خطأ أثناء حفظ الإعدادات');
         } finally {
             setSaving(false);
         }
@@ -460,7 +460,7 @@ export default function PlatformIdentity() {
                             />
                         </div>
                     )}
-                    {activeTab === 'ads' && (activeTab === 'ads' && <div className="p-8"><AdsTable /></div>)}
+                    {activeTab === 'ads' && <div className="p-8"><AdsTable /></div>}
                 </div>
             </div>
         </AdminLayout>

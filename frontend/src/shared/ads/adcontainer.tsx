@@ -1,5 +1,6 @@
 import React from 'react';
 import { ExternalLink } from 'lucide-react';
+import { sanitizeHtml } from '@/shared/utils/html-sanitizer';
 
 interface AdContainerProps {
     enabled?: boolean;
@@ -39,7 +40,7 @@ const AdContainer: React.FC<AdContainerProps> = ({
         return (
             <div
                 className="ad-container"
-                dangerouslySetInnerHTML={{ __html: htmlContent }}
+                dangerouslySetInnerHTML={{ __html: sanitizeHtml(htmlContent) }}
             />
         );
     }

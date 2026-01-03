@@ -4,8 +4,8 @@ import { useTenantAuth } from '@/features/auth/tenant-auth-context';
 import { useLocation } from 'react-router-dom';
 import { useUI } from '@/shared/contexts/ui-context';
 import { Menu, Bell, Search, Settings } from 'lucide-react';
-import { GlobalSearch } from './global-search';
-import { ThemeToggle } from './theme-toggle';
+import { GlobalSearch } from '@/shared/layout/header/global-search';
+import { ThemeToggle } from '@/shared/layout/header/theme-toggle';
 import { NotificationBell } from '@/shared/components/notifications/NotificationBell';
 
 interface HeaderProps {
@@ -57,7 +57,9 @@ export const Header: React.FC<HeaderProps> = ({ title, actions }) => {
       <div className="flex items-center gap-2 lg:gap-4">
         {/* Mobile Search Icon only */}
         <div className="lg:hidden">
-          <GlobalSearch variant="header-left" />
+          <div className="p-2 rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/5 shadow-sm">
+            <GlobalSearch variant="header-left" />
+          </div>
         </div>
 
         <div className="hidden sm:block">
@@ -65,8 +67,6 @@ export const Header: React.FC<HeaderProps> = ({ title, actions }) => {
         </div>
 
         <NotificationBell />
-
-        <div className="h-6 w-px bg-gray-100 dark:bg-white/5 mx-1 hidden lg:block" />
       </div>
     </header>
   );

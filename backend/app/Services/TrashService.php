@@ -23,6 +23,7 @@ class TrashService
             'plans' => \App\Models\Plan::class,
             'payments' => \App\Models\Payment::class,
             'subscription_requests' => \App\Models\SubscriptionRequest::class,
+            'subscriptions' => \App\Models\Subscription::class,
             // Add more models as needed
         ];
     }

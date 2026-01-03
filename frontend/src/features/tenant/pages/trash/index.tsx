@@ -1,51 +1,27 @@
 import React, { useState } from 'react';
-import { useLocation } from 'react-router-dom';
-import AdminLayout from '@/features/superadmin/pages/adminlayout';
 import AppLayout from '@/features/tenant/pages/applayout';
 import { useTrash } from '@/shared/hooks/use-trash';
 import { useSettings } from '@/shared/contexts/app-context';
 import { useAction } from '@/shared/contexts/action-context';
 import { formatDate } from '@/shared/utils/helpers';
-import { TEXTS_ADMIN } from '@/shared/locales/texts';
 import Table from '@/shared/table';
-import { Trash2, RotateCcw, CheckSquare, Square, AlertTriangle, Settings2, Download } from 'lucide-react';
+import { Trash2, RotateCcw, CheckSquare, Square, AlertTriangle, Download } from 'lucide-react';
 import { useExport } from '@/shared/contexts/export-context';
 import { IdentityCell, DateCell, ActionCell } from '@/shared/table-cells';
 import type { TrashedItem } from '@/shared/types/trash';
-import Modal from '@/shared/ui/modals/modal';
 
-export default function Trash() {
-    const location = useLocation();
-    const { t } = useSettings();
-    const isAdmin = location.pathname.startsWith('/admin');
-    const endpoint = isAdmin ? '/admin/trash' : '/app/trash';
+export default function TenantTrash() {
+    const endpoint = '/app/trash';
     const trash = useTrash({ endpoint });
-
+    const { t } = useSettings();
 
     const getTypeLabel = (type: string) => {
-        if (isAdmin) {
-            const labels: Record<string, string> = {
-                'tenants': TEXTS_ADMIN?.RECYCLE_BIN?.TYPES?.TENANTS || 'المستأجرين',
-                'fonts': TEXTS_ADMIN?.RECYCLE_BIN?.TYPES?.FONTS || 'الخطوط',
-                'languages': TEXTS_ADMIN?.RECYCLE_BIN?.TYPES?.LANGUAGES || 'اللغات',
-                'translations': TEXTS_ADMIN?.RECYCLE_BIN?.TYPES?.TRANSLATIONS || 'الترجمات',
-                'users': TEXTS_ADMIN?.RECYCLE_BIN?.TYPES?.USERS || 'المستخدمين',
-                'ads': TEXTS_ADMIN?.RECYCLE_BIN?.TYPES?.ADS || 'الإعلانات',
-                'scripts': 'السكربتات',
-                'plans': 'الخطط السعرية',
-                'payments': 'سجل المدفوعات',
-                'subscription_requests': 'طلبات الاشتراك',
-                'support_tickets': TEXTS_ADMIN?.RECYCLE_BIN?.TYPES?.SUPPORT_TICKETS || 'تذاكر الدعم',
-            };
-            return labels[type] || type;
-        } else {
-            const labels: Record<string, string> = {
-                'support_tickets': 'تذاكر الدعم',
-                'messages': 'الرسائل',
-                'files': 'الملفات',
-            };
-            return labels[type] || type;
-        }
+        const labels: Record<string, string> = {
+            'support_tickets': 'تذاكر الدعم',
+            'messages': 'الرسائل',
+            'files': 'الملفات',
+        };
+        return labels[type] || type;
     };
 
     const isSelected = (item: TrashedItem) => {
@@ -74,6 +50,12 @@ export default function Trash() {
                     icon: Trash2,
                     variant: 'danger',
                     disabled: trash.isLoading
+                },
+                {
+                    label: trash.selected.length === trash.items.length ? 'إلغاء تحديد الكل' : 'تحديد الكل',
+                    onClick: trash.selectAll,
+                    icon: trash.selected.length === trash.items.length ? CheckSquare : Square,
+                    variant: 'secondary'
                 }
             ]);
         } else {
@@ -93,6 +75,12 @@ export default function Trash() {
                         label: 'تصدير البيانات',
                         onClick: openModal,
                         icon: Download,
+                        variant: 'secondary'
+                    },
+                    {
+                        label: 'تحديد الكل',
+                        onClick: trash.selectAll,
+                        icon: Square,
                         variant: 'secondary'
                     }
                 ]);
@@ -117,8 +105,6 @@ export default function Trash() {
         setExtraActions,
         openModal
     ]);
-
-
 
     const columns = React.useMemo(() => [
         {
@@ -188,34 +174,12 @@ export default function Trash() {
             ),
             width: '20%'
         }
-    ], [trash.toggleSelect, trash.restore, trash.forceDelete, trash.selected, getTypeLabel]);
+    ], [trash.toggleSelect, trash.restore, trash.forceDelete, trash.selected]);
 
     const tableContent = (
         <div className="space-y-6 animate-in fade-in duration-700 w-full flex flex-col">
             {/* Select All Checkbox */}
-            {trash.items.length > 0 && (
-                <div className="flex items-center gap-3 px-4 py-2">
-                    <button
-                        onClick={trash.selectAll}
-                        className="flex items-center gap-3 px-4 py-2 bg-gray-50 dark:bg-dark-900 rounded-xl border border-gray-100 dark:border-dark-800 text-sm font-bold text-gray-600 dark:text-gray-400 hover:text-primary transition-all active:scale-95"
-                    >
-                        {trash.selected.length === trash.items.length ? (
-                            <CheckSquare className="w-5 h-5 text-primary" />
-                        ) : (
-                            <Square className="w-5 h-5" />
-                        )}
-                        <span>
-                            {trash.selected.length === trash.items.length ? 'إلغاء تحديد الكل' : 'تحديد جميع المعروض'}
-                        </span>
-                    </button>
-                    {trash.selected.length > 0 && (
-                        <div className="flex items-center gap-2 px-3 py-1.5 bg-primary/10 text-primary rounded-lg text-xs font-black">
-                            <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
-                            {trash.selected.length} محدد حالياً
-                        </div>
-                    )}
-                </div>
-            )}
+
 
             {/* Table */}
             <div className="flex-1 flex flex-col bg-transparent">
@@ -232,22 +196,6 @@ export default function Trash() {
         </div>
     );
 
-
-
-    // Render with appropriate layout
-    if (isAdmin) {
-        return (
-            <AdminLayout
-                title={TEXTS_ADMIN?.TITLES?.RECYCLE_BIN || 'سلة المهملات'}
-                icon={Trash2}
-            >
-                <div className="p-8">
-                    {tableContent}
-                </div>
-            </AdminLayout>
-        );
-    }
-
     return (
         <AppLayout
             title={t('trash.title', 'سلة المحذوفات')}
@@ -259,4 +207,3 @@ export default function Trash() {
         </AppLayout>
     );
 }
-

@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { AuthSplitLayout } from './components/auth-split-layout';
+import { AuthSplitLayout } from '@/features/auth/components/auth-split-layout';
 import {
     Lock, Eye, EyeOff, Loader2, CheckCircle2, AlertCircle, KeyRound
 } from 'lucide-react';
 import api, { initializeCsrf } from '@/shared/services/api';
-import { PasswordStrengthIndicator } from './components/passwordstrengthindicator';
+import { PasswordStrengthIndicator } from '@/features/auth/components/passwordstrengthindicator';
 import InputField from '@/shared/ui/forms/input-field';
 
 export default function ResetPassword() {

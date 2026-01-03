@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Save, Globe, Loader2, Image as ImageIcon, Twitter, Facebook, Search, Hash, Link as LinkIcon, BarChart3 } from 'lucide-react';
-import { useFeedback } from '@/shared/ui/notifications/feedback-context';
+import { useNotifications } from '@/shared/contexts/notification-context';
 import { useAction } from '@/shared/contexts/action-context';
 import api from '@/shared/services/api';
 import { useSEO } from '@/shared/hooks/useSEO';
@@ -10,7 +10,7 @@ import SelectField from '@/shared/ui/forms/select-field';
 import TextareaField from '@/shared/ui/forms/textarea-field';
 
 export const SEOSettings: React.FC = () => {
-    const { showSuccess, showError } = useFeedback();
+    const { showSuccess, showError } = useNotifications();
     const queryClient = useQueryClient();
     const { setPrimaryAction } = useAction();
     const { data: seoData, isLoading } = useSEO('landing');

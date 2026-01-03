@@ -23,8 +23,8 @@
 
 /* Mobile Header Base */
 .global-header {
-    @apply h-[70px] px-4 flex items-center justify-between;
-    @apply bg-white/95 backdrop-blur-xl border-b border-gray-100/50;
+    @apply h-[70px] px-4 flex items-center justify-between sticky top-0 z-[60];
+    @apply bg-white/95 dark:bg-dark-900/95 backdrop-blur-xl border-b border-gray-100/50;
 }
 
 /* Mobile Content Area */
@@ -34,7 +34,9 @@
 
 .page-frame-container {
     @apply p-4;
-    /* Tight padding for mobile */
+    width: 100vw;
+    max-width: 100%;
+    overflow-x: hidden;
 }
 
 /* Base Tables (Mobile Stack Mode) */
@@ -78,6 +80,9 @@
         @apply p-8 rounded-3xl;
         margin: 1.5rem;
         border: 1px solid rgba(0, 0, 0, 0.05);
+        width: auto;
+        max-width: none;
+        overflow-x: visible;
     }
 
     .global-header .page-title-heading {

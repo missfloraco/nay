@@ -3,7 +3,7 @@ import { Plus, Edit2, Trash2, Check, Shield, Star, Crown } from 'lucide-react';
 import AdminLayout from '@/features/superadmin/pages/adminlayout';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/shared/services/api';
-import { useFeedback } from '@/shared/ui/notifications/feedback-context';
+import { useNotifications } from '@/shared/contexts/notification-context';
 import Modal from '@/shared/ui/modals/modal';
 import InputField from '@/shared/ui/forms/input-field';
 import { useAction } from '@/shared/contexts/action-context';
@@ -18,7 +18,7 @@ const PLAN_ICONS = {
 
 export default function AdminPlansPage() {
     const queryClient = useQueryClient();
-    const { showSuccess, showError } = useFeedback();
+    const { showSuccess, showError } = useNotifications();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingPlan, setEditingPlan] = useState<any>(null);
     const [discount, setDiscount] = useState<number>(0);

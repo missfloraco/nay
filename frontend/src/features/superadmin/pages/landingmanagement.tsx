@@ -2,7 +2,7 @@
 import AdminLayout from '@/features/superadmin/pages/adminlayout';
 import { Save, Layout, List, MessageSquare, Image as ImageIcon, Plus, Trash2, Home, Type, MousePointer2 } from 'lucide-react';
 import { useSettings } from '@/shared/contexts/app-context';
-import { useToast } from '@/shared/ui/notifications/feedback-context';
+import { useNotifications } from '@/shared/contexts/notification-context';
 import { useAction } from '@/shared/contexts/action-context';
 import { TEXTS_ADMIN } from '@/shared/locales/texts';
 import { SettingsService } from '@/shared/services/settingsservice';
@@ -12,13 +12,21 @@ import TextareaField from '@/shared/ui/forms/textarea-field';
 
 export default function LandingManagement() {
     const { settings, updateSettings } = useSettings();
-    const { showToast } = useToast();
+    const { showSuccess, showError } = useNotifications();
     const { setPrimaryAction } = useAction();
     const [saving, setSaving] = useState(false);
 
-    // Initial State for Features and FAQ
-    const initialFeatures = settings.landing_features ? JSON.parse(settings.landing_features as string) : [];
-    const initialFAQ = settings.landing_faq ? JSON.parse(settings.landing_faq as string) : [];
+    // Initial State for Features and FAQ with safe parsing
+    const parseJSON = (str: any, fallback: any) => {
+        try {
+            if (!str) return fallback;
+            const parsed = typeof str === 'string' ? JSON.parse(str) : str;
+            return Array.isArray(parsed) ? parsed : fallback;
+        } catch (e) {
+            logger.error('JSON Parse error:', e);
+            return fallback;
+        }
+    };
 
     const [formData, setFormData] = useState({
         landing_hero_title: settings.landing_hero_title || '',
@@ -28,8 +36,8 @@ export default function LandingManagement() {
         landing_footer_text: settings.landing_footer_text || '',
     });
 
-    const [features, setFeatures] = useState<any[]>(initialFeatures);
-    const [faqs, setFaqs] = useState<any[]>(initialFAQ);
+    const [features, setFeatures] = useState<any[]>(() => parseJSON(settings.landing_features, []));
+    const [faqs, setFaqs] = useState<any[]>(() => parseJSON(settings.landing_faq, []));
 
     const handleSubmit = async (e?: React.FormEvent) => {
         if (e) e.preventDefault();
@@ -40,12 +48,12 @@ export default function LandingManagement() {
                 landing_features: JSON.stringify(features),
                 landing_faq: JSON.stringify(faqs),
             };
-            await SettingsService.updateSettings('admin', dataToSave);
-            await updateSettings({});
-            showToast(TEXTS_ADMIN.MESSAGES.SUCCESS, 'success');
+            // Directly use updateSettings from useSettings which handles service call and refresh
+            await updateSettings(dataToSave);
+            showSuccess(TEXTS_ADMIN.MESSAGES.SUCCESS);
         } catch (error) {
             logger.error('Error saving landing settings:', error);
-            showToast(TEXTS_ADMIN.MESSAGES.ERROR, 'error');
+            showError(TEXTS_ADMIN.MESSAGES.ERROR);
         } finally {
             setSaving(false);
         }

@@ -1,7 +1,7 @@
-const uuidv4 = () => crypto.randomUUID();
+import api from '@/shared/services/api';
 
 export interface Script {
-    id: string;
+    id: string; // UUID or ID from backend
     name: string;
     type: 'analytics' | 'ads' | 'pixels' | 'chat' | 'custom';
     location: 'head' | 'footer' | 'after_login';
@@ -13,65 +13,43 @@ export interface Script {
     environment: 'production' | 'staging' | 'development';
     content: string;
     isActive: boolean;
-    createdAt: string;
-    updatedAt: string;
+    createdAt?: string;
+    updatedAt?: string;
 }
-
-const STORAGE_KEY = 'nay_scripts_manager';
 
 export const ScriptService = {
     getAll: async (): Promise<Script[]> => {
-        const data = localStorage.getItem(STORAGE_KEY);
-        return data ? JSON.parse(data) : [];
+        // Interceptor returns response.data directly
+        const response = await api.get('/admin/scripts') as unknown as Script[];
+        return response;
     },
 
-    getById: async (id: string): Promise<Script | undefined> => {
-        const scripts = await ScriptService.getAll();
-        return scripts.find(s => s.id === id);
+    getById: async (id: string): Promise<Script> => {
+        const response = await api.get(`/admin/scripts/${id}`) as unknown as Script;
+        return response;
     },
 
     create: async (script: Omit<Script, 'id' | 'createdAt' | 'updatedAt'>): Promise<Script> => {
-        const scripts = await ScriptService.getAll();
-        const newScript: Script = {
-            ...script,
-            id: uuidv4(),
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString()
-        };
-        scripts.push(newScript);
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(scripts));
-        return newScript;
+        const response = await api.post('/admin/scripts', script) as unknown as Script;
+        return response;
     },
 
     update: async (id: string, updates: Partial<Script>): Promise<Script> => {
-        const scripts = await ScriptService.getAll();
-        const index = scripts.findIndex(s => s.id === id);
-        if (index === -1) throw new Error('Script not found');
-
-        const updatedScript = {
-            ...scripts[index],
-            ...updates,
-            updatedAt: new Date().toISOString()
-        };
-        scripts[index] = updatedScript;
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(scripts));
-        return updatedScript;
+        const response = await api.put(`/admin/scripts/${id}`, updates) as unknown as Script;
+        return response;
     },
 
     delete: async (id: string): Promise<void> => {
-        const scripts = await ScriptService.getAll();
-        const filtered = scripts.filter(s => s.id !== id);
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
+        await api.delete(`/admin/scripts/${id}`);
     },
 
     toggleStatus: async (id: string): Promise<Script> => {
-        const scripts = await ScriptService.getAll();
-        const index = scripts.findIndex(s => s.id === id);
-        if (index === -1) throw new Error('Script not found');
+        const response = await api.post(`/admin/scripts/${id}/toggle`) as unknown as Script;
+        return response;
+    },
 
-        scripts[index].isActive = !scripts[index].isActive;
-        scripts[index].updatedAt = new Date().toISOString();
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(scripts));
-        return scripts[index];
+    restore: async (id: string): Promise<Script> => {
+        const response = await api.post(`/admin/scripts/${id}/restore`) as unknown as { script: Script };
+        return response.script;
     }
 };

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Sparkles, Save, RotateCcw, Info, Layout, Code } from 'lucide-react';
 import { useSettings } from '@/shared/contexts/app-context';
 import { SettingsService } from '@/shared/services/settingsservice';
-import { useFeedback } from '@/shared/ui/notifications/feedback-context';
+import { useNotifications } from '@/shared/contexts/notification-context';
 import { useAction } from '@/shared/contexts/action-context';
 
 export const CSSSettings: React.FC = () => {
@@ -10,7 +10,7 @@ export const CSSSettings: React.FC = () => {
     const [customCss, setCustomCss] = useState('');
     const [uiTweaks, setUiTweaks] = useState<Record<string, boolean>>({});
     const [isSaving, setIsSaving] = useState(false);
-    const { showFeedback } = useFeedback();
+    const { showSuccess, showError, showInfo } = useNotifications();
     const { setPrimaryAction } = useAction();
 
     useEffect(() => {
@@ -42,10 +42,10 @@ export const CSSSettings: React.FC = () => {
             });
 
             await refreshSettings();
-            showFeedback('تم حفظ تغييرات المظهر بنجاح', 'success');
+            showSuccess('تم حفظ تغييرات المظهر بنجاح');
         } catch (error) {
             console.error('Save failed:', error);
-            showFeedback('فشل حفظ التغييرات', 'error');
+            showError('فشل حفظ التغييرات');
         } finally {
             setIsSaving(false);
         }
@@ -55,7 +55,7 @@ export const CSSSettings: React.FC = () => {
         if (window.confirm('هل أنت متأكد من استعادة الإعدادات الأصلية؟')) {
             setCustomCss(settings.custom_css || '');
             setUiTweaks(settings.ui_tweaks || {});
-            showFeedback('تمت استعادة الإعدادات الأصلية', 'info');
+            showInfo('تمت استعادة الإعدادات الأصلية');
         }
     };
 
@@ -176,7 +176,8 @@ export const CSSSettings: React.FC = () => {
                             value={customCss}
                             onChange={e => setCustomCss(e.target.value)}
                             placeholder="/* اكتب أكواد CSS هنا... */"
-                            className="w-full min-h-[400px] p-10 pt-16 rounded-[2.5rem] bg-slate-950 text-slate-100 font-mono text-sm border-2 border-slate-900 focus:border-primary/50 focus:outline-none transition-all resize-y shadow-2xl dir-ltr text-left custom-scrollbar"
+                            className="w-full min-h-[400px] p-10 pt-16 rounded-[2.5rem] bg-slate-950 text-slate-100 font-mono text-sm border-2 border-slate-900 focus:border-primary/50 focus:outline-none transition-all resize-y shadow-2xl text-left custom-scrollbar"
+                            dir="ltr"
                             spellCheck={false}
                         />
                     </div>

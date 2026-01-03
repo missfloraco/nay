@@ -1,5 +1,5 @@
 import React, { forwardRef } from 'react';
-import PrintLayout from './PrintLayout';
+import PrintLayout from '@/shared/components/print/PrintLayout';
 
 interface Transaction {
     id: string | number;

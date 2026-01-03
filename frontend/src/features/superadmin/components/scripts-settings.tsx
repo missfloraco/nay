@@ -2,16 +2,16 @@ import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Script, ScriptService } from '@/shared/services/scripts-service';
 import { useAction } from '@/shared/contexts/action-context';
 import Table from '@/shared/table';
-import { useFeedback } from '@/shared/ui/notifications/feedback-context';
+import { useNotifications } from '@/shared/contexts/notification-context';
 import { Plus, Trash2, Terminal, Save } from 'lucide-react';
-import ScriptForm, { ScriptFormHandle } from './script-form';
+import ScriptForm, { ScriptFormHandle } from '@/features/superadmin/components/script-form';
 import { IdentityCell, ActionCell } from '@/shared/table-cells';
 import { EditButton, DeleteButton } from '@/shared/ui/buttons/btn-crud';
 import { formatDate } from '@/shared/utils/helpers';
 import Modal from '@/shared/ui/modals/modal';
 
 export const ScriptsSettings: React.FC = () => {
-    const { showSuccess, showError } = useFeedback();
+    const { showSuccess, showError } = useNotifications();
     const { setPrimaryAction } = useAction();
     const formRef = useRef<ScriptFormHandle>(null);
 

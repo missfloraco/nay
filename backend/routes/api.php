@@ -51,12 +51,28 @@ Route::prefix('public')->group(function () {
                     'TITLE' => 'تأكيد الحساب',
                     'SUBTITLE' => 'يرجى إدخال رمز التحقق الذي تم إرساله إلى بريدك الإلكتروني',
                     'SUBMIT' => 'تأكيد الحساب',
+                    'EMAIL_LABEL' => 'البريد الإلكتروني',
+                    'PASSWORD_LABEL' => 'كلمة المرور',
+                    'FULL_NAME_LABEL' => 'الاسم الكامل',
+                    'COUNTRY_LABEL' => 'الدولة',
                 ],
                 'FORGOT_PASSWORD' => [
                     'TITLE' => 'نسيت كلمة المرور؟',
                     'SUBTITLE' => 'أدخل بريدك الإلكتروني لاستعادة حسابك',
                     'EMAIL_LABEL' => 'البريد الإلكتروني',
                     'SUBMIT' => 'إرسال رابط الاستعادة',
+                ],
+                'RESET-OTP' => [
+                    'TITLE' => 'تأكيد الرمز',
+                    'SUBTITLE' => 'أدخل الرمز الذي وصلك للمتابعة',
+                    'SUBMIT' => 'تحقق من الرمز',
+                ],
+                'RESET-PASSWORD' => [
+                    'TITLE' => 'تعيين كلمة المرور',
+                    'SUBTITLE' => 'أنشئ كلمة مرور قوية لحسابك',
+                    'PASSWORD_LABEL' => 'كلمة المرور الجديدة',
+                    'PASSWORD_PLACEHOLDER' => 'أدخل كلمة المرور الجديدة',
+                    'SUBMIT' => 'تغيير كلمة المرور',
                 ],
             ]
         ]);
@@ -241,6 +257,8 @@ Route::prefix('app')->group(function () {
 
     // Forgot Password
     Route::post('/forgot-password', [App\Http\Controllers\Tenant\AuthController::class, 'forgotPassword'])->middleware('throttle:3,1');
+    Route::post('/forgot-password/verify', [App\Http\Controllers\Tenant\AuthController::class, 'verifyResetCode'])->middleware('throttle:5,1');
+    Route::post('/forgot-password/reset', [App\Http\Controllers\Tenant\AuthController::class, 'resetPasswordWithCode'])->middleware('throttle:5,1');
 
     // Protected Tenant Routes
     Route::middleware(['auth:sanctum,tenant', 'tenant.only', 'subscription.check'])->group(function () {
@@ -285,6 +303,8 @@ Route::prefix('app')->group(function () {
         Route::get('/subscription/plans', [App\Http\Controllers\Tenant\SubscriptionController::class, 'plans']);
         Route::get('/subscription/current', [App\Http\Controllers\Tenant\SubscriptionController::class, 'current']);
         Route::post('/subscription/request', [App\Http\Controllers\Tenant\SubscriptionController::class, 'requestUpgrade']);
+        Route::get('/subscription/payments', [App\Http\Controllers\Tenant\SubscriptionController::class, 'payments']);
+        Route::get('/subscription/requests', [App\Http\Controllers\Tenant\SubscriptionController::class, 'requests']);
 
         // Notification Management
         Route::prefix('notifications')->group(function () {

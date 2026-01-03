@@ -2,7 +2,7 @@
 import AdminLayout from '@/features/superadmin/pages/adminlayout';
 import { Save, CreditCard, Wallet, Landmark, Globe, ToggleLeft, ToggleRight, ShieldCheck, Zap, Plus, X, Search, Calendar, DollarSign, User as UserIcon, Key, Lock, Globe as GlobeIcon } from 'lucide-react';
 import { useSettings } from '@/shared/contexts/app-context';
-import { useToast } from '@/shared/ui/notifications/feedback-context';
+import { useNotifications } from '@/shared/contexts/notification-context';
 import { useAction } from '@/shared/contexts/action-context';
 import { TEXTS_ADMIN } from '@/shared/locales/texts';
 import { SettingsService } from '@/shared/services/settingsservice';
@@ -15,7 +15,7 @@ import SelectField from '@/shared/ui/forms/select-field';
 
 export default function PaymentMethods() {
     const { settings, updateSettings } = useSettings();
-    const { showToast } = useToast();
+    const { showSuccess, showError } = useNotifications();
     const { setPrimaryAction } = useAction();
     const [saving, setSaving] = useState(false);
     const [showPaymentModal, setShowPaymentModal] = useState(false);
@@ -43,10 +43,10 @@ export default function PaymentMethods() {
         try {
             await SettingsService.updateSettings('admin', formData);
             await updateSettings({});
-            showToast(TEXTS_ADMIN.MESSAGES.SUCCESS, 'success');
+            showSuccess(TEXTS_ADMIN.MESSAGES.SUCCESS);
         } catch (error) {
             logger.error(error);
-            showToast(TEXTS_ADMIN.MESSAGES.ERROR, 'error');
+            showError(TEXTS_ADMIN.MESSAGES.ERROR);
         } finally {
             setSaving(false);
         }
