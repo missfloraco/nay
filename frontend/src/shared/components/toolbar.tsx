@@ -15,6 +15,7 @@ interface ToolbarProps {
     onChange: (value: string) => void;
     title?: string;
     variant?: 'pills' | 'sheets';
+    className?: string; // Allow custom classes
 }
 
 export const Toolbar: React.FC<ToolbarProps> = ({
@@ -22,7 +23,8 @@ export const Toolbar: React.FC<ToolbarProps> = ({
     activeValue,
     onChange,
     title = 'تصفية البيانات', // Kept for compatibility
-    variant = 'pills'
+    variant = 'pills',
+    className
 }) => {
     const scrollContainerRef = React.useRef<HTMLDivElement>(null);
     const showScrollButtons = options.length > 5;
@@ -38,7 +40,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
     };
 
     return (
-        <div className="flex items-center gap-2 w-full animate-in fade-in slide-in-from-bottom-2 duration-300">
+        <div className={`flex items-center gap-2 w-full animate-in fade-in slide-in-from-bottom-2 duration-300 ${className || ''}`}>
             {/* Scroll Button (Right/Next in RTL context) */}
             {showScrollButtons && (
                 <button

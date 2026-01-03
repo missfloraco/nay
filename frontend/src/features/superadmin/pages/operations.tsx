@@ -67,7 +67,7 @@ export default function OperationsPage() {
             icon={activeTab === 'tenants' ? Users : activeTab === 'payments' ? Wallet : AlertCircle}
             noPadding={true}
             toolbar={
-                <>
+                <div className="flex items-center w-full gap-2 overflow-hidden">
                     <Toolbar
                         activeValue={activeTab}
                         onChange={(val) => handleTabChange(val as 'tenants' | 'payments' | 'requests')}
@@ -77,17 +77,18 @@ export default function OperationsPage() {
                             { id: 'payments', label: 'سجل المدفوعات', icon: Wallet },
                             { id: 'requests', label: 'طلبات الاشتراك', icon: AlertCircle }
                         ]}
+                        className="flex-1 w-auto min-w-0"
                     />
 
                     {/* Conditional select for payments tab */}
                     {activeTab === 'payments' && (
-                        <div className="flex items-center gap-3 w-full lg:w-auto lg:min-w-[300px] animate-in fade-in slide-in-from-left-4 duration-300 px-2 lg:px-0">
+                        <div className="flex items-center gap-3 shrink-0 w-[160px] lg:w-auto lg:min-w-[300px] animate-in fade-in slide-in-from-left-4 duration-300">
                             <div className="relative w-full">
-                                <User className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 z-10" />
+                                <User className="absolute right-3 lg:right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 z-10" />
                                 <select
                                     value={selectedTenantId}
                                     onChange={(e) => handleTenantChange(e.target.value)}
-                                    className="w-full h-[46px] pr-12 pl-12 rounded-xl border border-gray-100 dark:border-dark-700 bg-white dark:bg-dark-800 text-sm font-bold focus:ring-2 focus:ring-primary/20 focus:border-primary appearance-none transition-all shadow-sm"
+                                    className="w-full h-[46px] pr-9 pl-9 lg:pr-12 lg:pl-12 rounded-xl border border-gray-100 dark:border-dark-700 bg-white dark:bg-dark-800 text-xs lg:text-sm font-bold focus:ring-2 focus:ring-primary/20 focus:border-primary appearance-none transition-all shadow-sm"
                                 >
                                     <option value="">جميع المشتركين</option>
                                     {tenantsList.map(t => (
@@ -97,7 +98,7 @@ export default function OperationsPage() {
                                 {selectedTenantId && (
                                     <button
                                         onClick={() => handleTenantChange('')}
-                                        className="absolute left-3 top-1/2 -translate-y-1/2 p-1.5 text-gray-400 hover:text-red-500 rounded-full hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                                        className="absolute left-2 lg:left-3 top-1/2 -translate-y-1/2 p-1.5 text-gray-400 hover:text-red-500 rounded-full hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
                                     >
                                         <X className="w-4 h-4" />
                                     </button>
@@ -105,7 +106,7 @@ export default function OperationsPage() {
                             </div>
                         </div>
                     )}
-                </>
+                </div>
             }
         >
             <div className="flex flex-col h-full w-full bg-white dark:bg-dark-950 shadow-sm border-x border-gray-100/50 dark:border-white/5">

@@ -37,6 +37,8 @@
     width: 100vw;
     max-width: 100%;
     overflow-x: hidden;
+    padding-bottom: 90px;
+    /* Add extra bottom padding for mobile to prevent content being hidden behind bottom nav */
 }
 
 /* Base Tables (Mobile Stack Mode) */
@@ -61,13 +63,13 @@
 }
 
 .standard-table td {
-    @apply flex justify-between items-center py-2.5 px-0 border-0;
+    @apply flex flex-col items-start py-2.5 px-0 border-0 gap-1;
     @apply text-sm font-bold text-gray-800;
 }
 
 .standard-table td::before {
     content: attr(data-label);
-    @apply font-black text-gray-400 uppercase text-[9px] tracking-wider;
+    @apply font-black text-gray-400 uppercase text-[9px] tracking-wider mb-1;
 }
 
 

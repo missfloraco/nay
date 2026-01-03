@@ -36,14 +36,14 @@ export const Drawer: React.FC<DrawerProps> = ({
         <>
             {/* Backdrop */}
             <div
-                className={`fixed inset-0 bg-black/50 backdrop-blur-sm z-[60] transition-opacity duration-300 ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
+                className={`fixed inset-0 bg-black/50 backdrop-blur-sm z-[80] transition-opacity duration-300 ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
                     }`}
                 onClick={onClose}
             />
 
             {/* Drawer Panel */}
             <aside
-                className={`fixed top-0 bottom-0 bg-white dark:bg-dark-900 z-[70] shadow-2xl transition-transform duration-300 ease-in-out ${side === 'right'
+                className={`fixed top-0 bottom-0 bg-white dark:bg-dark-900 z-[90] shadow-2xl transition-transform duration-300 ease-in-out ${side === 'right'
                     ? (isOpen ? 'translate-x-0' : 'translate-x-[100%]')
                     : (isOpen ? 'translate-x-0' : '-translate-x-[100%]')
                     } ${side === 'right' ? 'right-0' : 'left-0'}`}

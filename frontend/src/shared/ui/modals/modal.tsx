@@ -112,7 +112,7 @@ const Modal: React.FC<ModalProps> = ({
                         top: 140px !important; /* Header (70px) + Top Toolbar (70px) */
                         left: 0 !important;
                         right: 0 !important;
-                        bottom: 70px !important; /* Bottom Toolbar height */
+                        bottom: 90px !important; /* Bottom Toolbar height + extra padding */
                         display: flex !important;
                         flex-direction: column !important;
                         pointer-events: auto;
@@ -123,6 +123,7 @@ const Modal: React.FC<ModalProps> = ({
                         border: 1.5px solid #000000 !important;
                         box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
                         z-index: 60;
+                        margin: 0 1rem 1rem 1rem !important; /* Add side and bottom margins for mobile */
                     }
 
                     @media (min-width: 1024px) {
@@ -132,6 +133,7 @@ const Modal: React.FC<ModalProps> = ({
                             left: 0 !important;
                             bottom: 90px !important; /* Desktop bottom toolbar height */
                             border: 1.5px solid #000000 !important;
+                            margin: 0 !important; /* Remove margins on desktop */
                         }
                     }
 
