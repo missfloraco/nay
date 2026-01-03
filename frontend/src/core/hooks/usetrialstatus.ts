@@ -12,6 +12,8 @@ export interface TrialStatus {
     subDaysRemaining: number;
     trialExpiresAt: string | null;
     subscriptionEndsAt: string | null;
+    noticeDate: string | null;
+    noticeType: 'trial' | 'subscription' | 'none';
 }
 
 /**
@@ -28,6 +30,17 @@ export function useTrialStatus(): TrialStatus {
     const isDisabled = status === 'disabled';
     const isPending = status === 'pending';
     const isActive = status === 'active';
+
+    // Determine which date is the primary focus for notifications/notices
+    const noticeType = useMemo(() => {
+        if (!status) return 'none';
+        if (status === 'trial') return 'trial';
+        if (subscriptionEndsAt) return 'subscription';
+        if (trialExpiresAt) return 'trial';
+        return 'none';
+    }, [status, subscriptionEndsAt, trialExpiresAt]);
+
+    const noticeDate = noticeType === 'subscription' ? subscriptionEndsAt : trialExpiresAt;
 
     // A trial is active if status is 'trial' and trial_expires_at is in the future
     const isTrialActive = status === 'trial' && trialExpiresAt !== null && new Date(trialExpiresAt) > new Date();
@@ -59,5 +72,7 @@ export function useTrialStatus(): TrialStatus {
         subDaysRemaining,
         trialExpiresAt,
         subscriptionEndsAt,
+        noticeDate,
+        noticeType,
     };
 }

@@ -31,7 +31,7 @@ export const Header: React.FC<HeaderProps> = ({ title, actions }) => {
   };
 
   return (
-    <header className="h-[70px] lg:h-[90px] px-4 lg:px-8 bg-white/80 dark:bg-dark-900/80 backdrop-blur-md border-b border-gray-100 dark:border-white/5 flex items-center justify-between sticky top-0 z-50">
+    <header className="h-[70px] lg:h-[90px] px-6 lg:px-12 bg-white/80 dark:bg-dark-900/80 backdrop-blur-md border-b border-gray-100 dark:border-white/5 flex items-center justify-between sticky top-0 z-50">
       {/* Left: Mobile Toggle & Page Title */}
       <div className="flex items-center gap-4">
         <button

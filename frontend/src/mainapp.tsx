@@ -32,7 +32,7 @@ const TenantDashboard = lazy(() => import('@/features/tenant/pages/dashboard'));
 const TenantSettings = lazy(() => import('@/features/tenant/pages/settings'));
 const TenantSupportMessages = lazy(() => import('@/features/tenant/pages/supportmessages'));
 const TenantBilling = lazy(() => import('@/features/tenant/pages/billing'));
-const TrialExpired = lazy(() => import('@/features/tenant/trial-expired'));
+const AccountStatusNotice = lazy(() => import('@/features/tenant/account-status-notice'));
 const ActivationWaiting = lazy(() => import('@/features/tenant/pages/activation-waiting'));
 
 const AdminTrash = lazy(() => import('@/features/superadmin/pages/trash'));
@@ -116,13 +116,15 @@ export default function MainApp() {
             <ActionProvider>
                 <ExportProvider>
                     <NotificationProvider>
-                        <AdminAuthProvider>
-                            <TenantAuthProvider>
-                                <TextProvider>
-                                    <MainAppContent />
-                                </TextProvider>
-                            </TenantAuthProvider>
-                        </AdminAuthProvider>
+                        <SearchProvider>
+                            <AdminAuthProvider>
+                                <TenantAuthProvider>
+                                    <TextProvider>
+                                        <MainAppContent />
+                                    </TextProvider>
+                                </TenantAuthProvider>
+                            </AdminAuthProvider>
+                        </SearchProvider>
                     </NotificationProvider>
                 </ExportProvider>
             </ActionProvider>
@@ -151,8 +153,9 @@ function MainAppContent() {
 
     if (appUser && tenant && !isImpersonating) {
         const isBillingPage = location.pathname.startsWith('/app/billing');
+        const isSupportPage = location.pathname.startsWith('/app/support');
 
-        if (!isBillingPage) {
+        if (!isBillingPage && !isSupportPage) {
             if (tenant.status === 'pending') {
                 return (
                     <AppLayout title="بانتظار التفعيل">
@@ -164,10 +167,11 @@ function MainAppContent() {
             }
 
             if (tenant.status === 'expired' || tenant.status === 'disabled' || isTrialExpired) {
+                const title = tenant.status === 'disabled' ? 'حساب معطل' : (isTrialExpired ? 'انتهت التجربة' : 'انتهى الاشتراك');
                 return (
-                    <AppLayout title="انتهت فترة التجربة">
+                    <AppLayout title={title}>
                         <Suspense fallback={<PageLoader />}>
-                            <TrialExpired />
+                            <AccountStatusNotice />
                         </Suspense>
                     </AppLayout>
                 );
@@ -177,38 +181,36 @@ function MainAppContent() {
 
     return (
         <AnalyticsProvider>
-            <SearchProvider>
-                <ScriptInjector />
-                {!isCheckingAdBlock && isAdBlockActive && <ShieldOverlay />}
-                <ExportModal />
-                <Suspense fallback={<PageLoader />}>
-                    <Routes>
-                        <Route path="/" element={<LandingPage />} />
-                        <Route path="/login" element={
-                            loadingLogoutSuccess ? <AuthScreen initialMode="login" /> : <LoginRedirector />
-                        } />
-                        <Route path="/register" element={<AuthScreen initialMode="register" />} />
-                        <Route path="/forgot-password" element={<AuthScreen initialMode="forgot-password" />} />
-                        <Route path="/reset-password" element={<ResetPassword />} />
-                        <Route path="/403" element={<Forbidden />} />
-                        <Route path="/admin/*" element={
-                            <ProtectedRoute requiredRole="admin" fallbackPath="/login?role=admin">
-                                <Suspense fallback={<PageLoader />}>
-                                    <AdminRoutes />
-                                </Suspense>
-                            </ProtectedRoute>
-                        } />
-                        <Route path="/app/*" element={
-                            <ProtectedRoute requiredRole="tenant" fallbackPath="/login">
-                                <Suspense fallback={<PageLoader />}>
-                                    <AppSubRoutes />
-                                </Suspense>
-                            </ProtectedRoute>
-                        } />
-                        <Route path="*" element={<Navigate to="/" />} />
-                    </Routes>
-                </Suspense>
-            </SearchProvider>
+            <ScriptInjector />
+            {!isCheckingAdBlock && isAdBlockActive && <ShieldOverlay />}
+            <ExportModal />
+            <Suspense fallback={<PageLoader />}>
+                <Routes>
+                    <Route path="/" element={<LandingPage />} />
+                    <Route path="/login" element={
+                        loadingLogoutSuccess ? <AuthScreen initialMode="login" /> : <LoginRedirector />
+                    } />
+                    <Route path="/register" element={<AuthScreen initialMode="register" />} />
+                    <Route path="/forgot-password" element={<AuthScreen initialMode="forgot-password" />} />
+                    <Route path="/reset-password" element={<ResetPassword />} />
+                    <Route path="/403" element={<Forbidden />} />
+                    <Route path="/admin/*" element={
+                        <ProtectedRoute requiredRole="admin" fallbackPath="/login?role=admin">
+                            <Suspense fallback={<PageLoader />}>
+                                <AdminRoutes />
+                            </Suspense>
+                        </ProtectedRoute>
+                    } />
+                    <Route path="/app/*" element={
+                        <ProtectedRoute requiredRole="tenant" fallbackPath="/login">
+                            <Suspense fallback={<PageLoader />}>
+                                <AppSubRoutes />
+                            </Suspense>
+                        </ProtectedRoute>
+                    } />
+                    <Route path="*" element={<Navigate to="/" />} />
+                </Routes>
+            </Suspense>
         </AnalyticsProvider>
     );
 }

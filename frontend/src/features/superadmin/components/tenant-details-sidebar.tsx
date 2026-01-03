@@ -420,7 +420,7 @@ export function TenantDetailsSidebar({ tenant, tenants, onSelect, onUpdate, onNa
                         <div className="grid grid-cols-2 gap-3">
                             <button
                                 type="button"
-                                onClick={() => setEditForm({ ...editForm, status: 'trial' })}
+                                onClick={() => setEditForm({ ...editForm, status: 'trial', subscription_ends_at: '' })}
                                 className={`py-3 rounded-xl border-2 transition-all font-bold text-sm flex items-center justify-center gap-2 ${editForm.status === 'trial' ? 'border-primary bg-primary/5 text-primary' : 'border-gray-50 bg-gray-50/50 text-gray-400 opacity-60'}`}
                             >
                                 <Clock className="w-4 h-4" />
@@ -428,7 +428,7 @@ export function TenantDetailsSidebar({ tenant, tenants, onSelect, onUpdate, onNa
                             </button>
                             <button
                                 type="button"
-                                onClick={() => setEditForm({ ...editForm, status: 'active' })}
+                                onClick={() => setEditForm({ ...editForm, status: 'active', trial_expires_at: '' })}
                                 className={`py-3 rounded-xl border-2 transition-all font-bold text-sm flex items-center justify-center gap-2 ${editForm.status === 'active' ? 'border-emerald-600 bg-emerald-50 text-emerald-600' : 'border-gray-50 bg-gray-50/50 text-gray-400 opacity-60'}`}
                             >
                                 <CheckCircle className="w-4 h-4" />

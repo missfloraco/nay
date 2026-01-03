@@ -12,6 +12,7 @@ import { logger } from '@/shared/services/logger';
 import { useLocation } from 'react-router-dom';
 import { TrialFooter } from '@/features/tenant/components/trial-footer';
 import { TopStatusToolbar } from '@/features/tenant/components/top-status-toolbar';
+import { SubscriptionExpiryFooter } from '@/features/tenant/components/subscription-expiry-footer';
 
 interface AppLayoutProps {
     children: ReactNode;
@@ -58,10 +59,22 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, title, noPadding = fals
     ], [t, trashCount]);
 
     const isDashboard = location.pathname === '/app' || location.pathname === '/app/dashboard';
+
     const showTrialFooter = isDashboard && tenant?.status === 'trial';
+
+    const showExpiryFooter = React.useMemo(() => {
+        if (!tenant || tenant.status !== 'active' || !tenant.subscription_ends_at) return false;
+        const expirationDate = new Date(tenant.subscription_ends_at);
+        const now = new Date();
+        const diffDays = Math.ceil((expirationDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+        // Only show warning if within 30 days
+        return diffDays >= 0 && diffDays <= 30;
+    }, [tenant]);
 
     // logic: if page provides toolbar, use it. otherwise if dashboard, try to show TopStatusToolbar
     const effectiveToolbar = toolbar || (isDashboard ? <TopStatusToolbar /> : undefined);
+
+    const footerElement = showTrialFooter ? <TrialFooter /> : (showExpiryFooter ? <SubscriptionExpiryFooter /> : undefined);
 
     return (
         <DashboardLayout
@@ -76,7 +89,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, title, noPadding = fals
             banners={
                 <ImpersonationBanner tenantName={tenant?.name || '...'} onExit={handleExitImpersonation} />
             }
-            footerContent={showTrialFooter ? <TrialFooter /> : undefined}
+            footerContent={footerElement}
         >
             {children}
         </DashboardLayout>

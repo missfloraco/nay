@@ -164,8 +164,8 @@ export default function TenantsTable() {
     };
 
     const getExpiryLabel = (tenant: Tenant) => {
-        const isTrial = !tenant.subscription_ends_at && tenant.trial_expires_at;
-        const date = tenant.subscription_ends_at || tenant.trial_expires_at;
+        const isTrial = tenant.status === 'trial';
+        const date = isTrial ? tenant.trial_expires_at : (tenant.subscription_ends_at || tenant.trial_expires_at);
 
         if (!date) return undefined;
 
@@ -174,7 +174,10 @@ export default function TenantsTable() {
         const diffTime = expirationDate.getTime() - now.getTime();
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-        if (diffDays < 0) return isTrial ? 'تجربة منتهية' : 'اشتراك منتهٍ';
+        if (diffDays < 0 || tenant.status === 'expired') {
+            if (isTrial || (!tenant.subscription_ends_at && tenant.trial_expires_at)) return 'تجربة منتهية';
+            return 'اشتراك منتهٍ';
+        }
 
         const getDayLabel = (days: number) => {
             if (days === 0) return 'اليوم';
@@ -184,7 +187,9 @@ export default function TenantsTable() {
             return `بقي ${days} يوماً`;
         };
 
-        return isTrial ? `تجربة (${getDayLabel(diffDays)})` : `نشط (${getDayLabel(diffDays)})`;
+        const isActuallySubscription = !!tenant.subscription_ends_at;
+
+        return isActuallySubscription ? `نشط (${getDayLabel(diffDays)})` : `تجربة (${getDayLabel(diffDays)})`;
     };
 
     const handleNavigateToPayments = (tenant: Tenant) => {
@@ -273,15 +278,33 @@ export default function TenantsTable() {
             sortKey: 'created_at'
         },
         {
-            header: 'تاريخ انتهاء الاشتراك',
-            accessor: (tenant: Tenant) => (
-                <DateCell
-                    date={tenant.subscription_ends_at || tenant.trial_expires_at || ''}
-                    label={getExpiryLabel(tenant)}
-                    isUrgent={!tenant.subscription_ends_at || (tenant.subscription_ends_at && new Date(tenant.subscription_ends_at).getTime() < new Date().getTime() + (7 * 24 * 60 * 60 * 1000))}
-                />
-            ),
-            exportValue: (tenant: Tenant) => formatDate(tenant.subscription_ends_at || tenant.trial_expires_at || ''),
+            header: 'تاريخ الصلاحية',
+            accessor: (tenant: Tenant) => {
+                const isTrial = tenant.status === 'trial';
+                const date = isTrial ? tenant.trial_expires_at : (tenant.subscription_ends_at || tenant.trial_expires_at);
+                const isActuallySubscription = !!tenant.subscription_ends_at;
+                const isUrgent = isTrial || (tenant.subscription_ends_at && new Date(tenant.subscription_ends_at).getTime() < new Date().getTime() + (7 * 24 * 60 * 60 * 1000));
+
+                return (
+                    <div className="flex flex-col gap-0.5">
+                        <DateCell
+                            date={date || ''}
+                            label={getExpiryLabel(tenant)}
+                            isUrgent={!!isUrgent}
+                        />
+                        {date && (
+                            <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest px-1">
+                                {isActuallySubscription ? 'موعد التجديد' : 'نهاية التجربة'}
+                            </span>
+                        )}
+                    </div>
+                );
+            },
+            exportValue: (tenant: Tenant) => {
+                const isTrial = tenant.status === 'trial';
+                const date = isTrial ? tenant.trial_expires_at : (tenant.subscription_ends_at || tenant.trial_expires_at);
+                return formatDate(date || '');
+            },
             width: '15%'
         },
         {
@@ -405,7 +428,7 @@ export default function TenantsTable() {
                                     <div className="grid grid-cols-2 gap-4">
                                         <button
                                             type="button"
-                                            onClick={() => setFormData({ ...formData, status: 'trial' })}
+                                            onClick={() => setFormData({ ...formData, status: 'trial', subscription_ends_at: '' })}
                                             className={`p-5 rounded-[var(--radius-inner)] border-2 transition-all flex flex-col gap-2 items-start text-right group ${formData.status === 'trial' ? 'border-primary bg-primary/5' : 'border-gray-100 dark:border-white/5 bg-gray-50/50 hover:border-primary/30'}`}
                                         >
                                             <div className={`p-2 rounded-2xl transition-colors ${formData.status === 'trial' ? 'bg-primary text-white' : 'bg-gray-200 dark:bg-dark-800 text-gray-500 group-hover:bg-primary/20 group-hover:text-primary'}`}>
@@ -418,7 +441,7 @@ export default function TenantsTable() {
                                         </button>
                                         <button
                                             type="button"
-                                            onClick={() => setFormData({ ...formData, status: 'active' })}
+                                            onClick={() => setFormData({ ...formData, status: 'active', trial_expires_at: '' })}
                                             className={`p-5 rounded-[var(--radius-inner)] border-2 transition-all flex flex-col gap-2 items-start text-right group ${formData.status === 'active' ? 'border-emerald-500 bg-emerald-500/5' : 'border-gray-100 dark:border-white/5 bg-gray-50/50 hover:border-emerald-500/30'}`}
                                         >
                                             <div className={`p-2 rounded-xl transition-colors ${formData.status === 'active' ? 'bg-emerald-500 text-white' : 'bg-gray-200 dark:bg-dark-800 text-gray-500 group-hover:bg-emerald-500/20 group-hover:text-emerald-500'}`}>

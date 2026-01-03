@@ -90,6 +90,7 @@ export interface GlobalSettings {
   ad_footer_leaderboard?: string;
   custom_css?: string;
   ui_tweaks?: Record<string, boolean>;
+  trial_period_days?: number;
   // Allow dynamic settings for ads and other future properties
   [key: string]: any;
 }

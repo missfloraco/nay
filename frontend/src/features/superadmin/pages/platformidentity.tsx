@@ -39,6 +39,7 @@ export default function PlatformIdentity() {
         company_link: settings.companyLink || '',
         accent_color1: settings.accentColor1 || '#02aa94',
         accent_color2: settings.accentColor2 || '#fb005e',
+        trial_period_days: settings.trial_period_days || 7,
         custom_font_url: settings.customFontUrl || '',
         custom_heading_font_url: settings.customHeadingFontUrl || '',
     });
@@ -69,6 +70,7 @@ export default function PlatformIdentity() {
                 company_link: settings.companyLink || '',
                 accent_color1: settings.accentColor1 || '#02aa94',
                 accent_color2: settings.accentColor2 || '#fb005e',
+                trial_period_days: settings.trial_period_days || 7,
                 custom_font_url: settings.customFontUrl || '',
                 custom_heading_font_url: settings.customHeadingFontUrl || '',
             });
@@ -284,6 +286,18 @@ export default function PlatformIdentity() {
                             </div>
                         </div>
                     </div>
+                    <div className="pt-8 border-t border-gray-50 dark:border-white/5">
+                        <InputField
+                            label="الفترة التجريبية للمشتركين (بالأيام)"
+                            type="number"
+                            value={formData.trial_period_days}
+                            onChange={e => setFormData({ ...formData, trial_period_days: parseInt(e.target.value) || 0 })}
+                            placeholder="7"
+                            hint="عدد الأيام التي سيحصل عليها المشترك الجديد تلقائياً عند التسجيل"
+                            min={0}
+                            max={365}
+                        />
+                    </div>
                 </div>
 
                 <div className="bg-white dark:bg-dark-900 rounded-2xl border border-gray-100 dark:border-dark-800 shadow-premium p-8 lg:p-12 space-y-8">
@@ -313,7 +327,7 @@ export default function PlatformIdentity() {
                         />
                     </div>
                 </div>
-            </div>
+            </div >
 
             <div className="space-y-8">
                 <div className="bg-white dark:bg-dark-900 rounded-2xl border border-gray-100 dark:border-dark-800 shadow-premium overflow-hidden">
@@ -420,7 +434,7 @@ export default function PlatformIdentity() {
                     </div>
                 </div>
             </div>
-        </div>
+        </div >
     );
 
     return (

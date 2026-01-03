@@ -104,15 +104,15 @@ Route::post('/login', function (Request $request) {
     // 2. Try Tenant (Token-based)
     $tenant = Tenant::where('email', $request->email)->first();
     if ($tenant && Hash::check($request->password, $tenant->password)) {
-        if ($tenant->status === 'disabled') {
+        $status = $tenant->status; // Uses the accessor in Tenant model which checks dates
+
+        if ($status === 'disabled') {
             return response()->json(['message' => 'حسابك معطل. يرجى الاتصال بالدعم.'], 403);
         }
 
-        // Allow login even if unverified? Check requirement.
-        // Previous verification logic was: register -> verify -> DB. 
-        // So if they are in DB, they are verified (or trial).
-        // But checking email_verified_at might be good if we have old data.
-        // For now, consistent with DB existence = verified.
+        if ($status === 'expired') {
+            return response()->json(['message' => 'انتهت صلاحية حسابك. يرجى تجديد الاشتراك للمتابعة.'], 403);
+        }
 
         Auth::guard('tenant')->login($tenant);
         $token = $tenant->createToken('tenant_token')->plainTextToken;
@@ -261,7 +261,7 @@ Route::prefix('app')->group(function () {
     Route::post('/forgot-password/reset', [App\Http\Controllers\Tenant\AuthController::class, 'resetPasswordWithCode'])->middleware('throttle:5,1');
 
     // Protected Tenant Routes
-    Route::middleware(['auth:sanctum,tenant', 'tenant.only', 'subscription.check'])->group(function () {
+    Route::middleware(['auth:sanctum,tenant', 'tenant.only', 'tenant.status', 'subscription.check'])->group(function () {
 
 
         Route::get('/user', function (Request $request) {

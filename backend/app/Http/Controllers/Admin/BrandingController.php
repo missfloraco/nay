@@ -46,6 +46,7 @@ class BrandingController extends Controller
             'custom_heading_font_url' => Setting::get('custom_heading_font_url'),
             'company_name' => Setting::get('company_name', 'MissFlora'),
             'company_link' => Setting::get('company_link'),
+            'trial_period_days' => (int) Setting::get('trial_period_days', '7'),
             'custom_css' => Setting::get('custom_css'),
             'ui_tweaks' => Setting::get('ui_tweaks'),
             'translations' => [

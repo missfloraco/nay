@@ -23,7 +23,7 @@ export const STATUS_CONFIGS = {
     },
     expired: {
         icon: AlertTriangle,
-        label: 'منتهية',
+        label: 'بحاجة لتجديد',
         className: 'bg-orange-100 dark:bg-orange-900/20 text-orange-700 dark:text-orange-300 border-orange-200 dark:border-orange-800'
     },
     disabled: {

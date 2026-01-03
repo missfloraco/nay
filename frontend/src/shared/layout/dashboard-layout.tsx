@@ -84,12 +84,12 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
                 <main className="flex-1 overflow-y-auto overflow-x-hidden no-scrollbar bg-gray-50 dark:bg-dark-950 relative scroll-smooth">
                     <div className="flex flex-col min-h-full">
                         {/* 1. Top Filter Toolbar (Sticky) - Always Visible */}
-                        <div className="sticky top-0 z-40 min-h-[70px] lg:h-[90px] px-0 bg-white/95 dark:bg-dark-900/95 backdrop-blur-2xl border-b border-emerald-500/20 dark:border-emerald-500/10 shadow-[0_10px_40px_rgba(0,0,0,0.08)] flex items-center shrink-0 transition-all duration-500 overflow-hidden relative group">
+                        <div className="sticky top-0 z-40 h-[70px] lg:h-[90px] px-0 bg-white/95 dark:bg-dark-900/95 backdrop-blur-2xl border-b border-emerald-500/20 dark:border-emerald-500/10 shadow-[0_10px_40px_rgba(0,0,0,0.08)] flex items-stretch shrink-0 transition-all duration-500 overflow-hidden relative group">
                             {/* Decorative Accent Lines */}
                             <div className="absolute top-0 right-1/4 w-32 h-px bg-gradient-to-r from-transparent via-emerald-500/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
                             <div className="absolute bottom-[-1px] left-1/3 w-64 h-px bg-gradient-to-r from-transparent via-emerald-500/20 to-transparent" />
 
-                            <div className="flex-1 w-full relative z-10 px-4 lg:px-8 max-w-full overflow-x-hidden min-h-[70px] lg:h-full flex items-center">
+                            <div className="flex-1 w-full relative z-10 h-full flex items-stretch px-6 lg:px-12">
                                 {toolbar || (
                                     <div className="flex items-center justify-between opacity-20">
                                         <div className="h-4 w-32 bg-emerald-500/20 rounded-full" />
@@ -104,12 +104,13 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
 
 
                         {/* 2. Bottom Action Toolbar (Sticky) - Always Visible */}
-                        <div className="layout-footer-toolbar sticky bottom-0 z-40 min-h-[70px] lg:h-[90px] px-0 bg-white/80 dark:bg-dark-900/80 backdrop-blur-2xl border-t border-emerald-500/20 dark:border-emerald-500/10 shadow-[0_-10px_40px_rgba(16,185,129,0.08)] flex items-center shrink-0 transition-all duration-500 overflow-hidden relative group">
+                        <div className="layout-footer-toolbar sticky bottom-0 z-40 h-[70px] lg:h-[90px] px-0 bg-white/80 dark:bg-dark-900/80 backdrop-blur-2xl border-t border-emerald-500/20 dark:border-emerald-500/10 shadow-[0_-10px_40px_rgba(16,185,129,0.08)] flex items-stretch shrink-0 transition-all duration-500 overflow-hidden relative group">
                             {/* Decorative Accent Lines (Mirrored) */}
                             <div className="absolute bottom-0 right-1/4 w-32 h-px bg-gradient-to-r from-transparent via-emerald-500/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
                             <div className="absolute top-[-1px] left-1/3 w-64 h-px bg-gradient-to-r from-transparent via-emerald-500/20 to-transparent" />
 
                             {/* Notification Overlay */}
+                            {/* ... (keep existing notification logic) ... */}
                             {activeToasts.length > 0 && (() => {
                                 const latestNotification = activeToasts[activeToasts.length - 1];
                                 const { level, message, action } = latestNotification;
@@ -150,11 +151,11 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
                             })()}
 
                             {footerContent ? (
-                                <div className="w-full h-full relative z-10">
+                                <div className="w-full h-full relative z-10 flex items-stretch px-6 lg:px-12">
                                     {footerContent}
                                 </div>
                             ) : (
-                                <div className="flex items-center justify-center lg:justify-end gap-3 shrink-0 w-full relative z-10 px-4 lg:px-8">
+                                <div className="flex items-center justify-center lg:justify-end gap-3 shrink-0 w-full relative z-10 px-6 lg:px-12">
                                     {/* Right Side: Actions */}
                                     <div className="flex items-center gap-3">
                                         {(!primaryAction && extraActions.length === 0) && (

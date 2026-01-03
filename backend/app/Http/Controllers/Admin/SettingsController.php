@@ -186,9 +186,15 @@ class SettingsController extends Controller
             'prefix_ticket',
             'prefix_payment',
             'prefix_ad',
+            'trial_period_days',
             'custom_css',
             'ui_tweaks',
         ];
+
+        // Add validation for trial_period_days if present
+        if ($request->has('trial_period_days')) {
+            $rules['trial_period_days'] = 'nullable|integer|min:0|max:365';
+        }
 
         $data = $request->only($allowedKeys);
 

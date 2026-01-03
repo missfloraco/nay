@@ -258,6 +258,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           customHeadingFontUrl: systemBranding.custom_heading_font_url,
           custom_css: systemBranding.custom_css || '',
           ui_tweaks: typeof systemBranding.ui_tweaks === 'string' ? JSON.parse(systemBranding.ui_tweaks) : (systemBranding.ui_tweaks || {}),
+          trial_period_days: systemBranding.trial_period_days !== undefined ? Number(systemBranding.trial_period_days) : prev.trial_period_days,
 
           // ADS & TRACKING: Global Super Admin control
           ...Object.keys(systemBranding).filter(k => k.startsWith('ad_') || k.startsWith('adblock') || k.startsWith('protect_')).reduce((acc, k) => {

@@ -1,11 +1,13 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTenantAuth } from '@/features/auth/tenant-auth-context';
 import { useSettings } from '@/shared/contexts/app-context';
-import { Clock, ShieldAlert, LogOut, MessageCircle } from 'lucide-react';
+import { Clock, ShieldAlert, LogOut, MessageCircle, Headset } from 'lucide-react';
 
 export default function ActivationWaiting() {
     const { tenant, logout } = useTenantAuth();
     const { settings } = useSettings();
+    const navigate = useNavigate();
 
     return (
         <div className="flex-1 flex items-center justify-center py-10" dir="rtl">
@@ -34,23 +36,30 @@ export default function ActivationWaiting() {
                         </div>
                         <div className="space-y-1">
                             <h4 className="text-sm font-black text-amber-900 dark:text-amber-400">تحتاج مساعدة؟</h4>
-                            <p className="text-xs font-bold text-amber-700/80 dark:text-amber-500/80">تواصل مع الدعم الفني لتسريع عملية التفعيل عبر الواتساب.</p>
+                            <p className="text-xs font-bold text-amber-700/80 dark:text-amber-500/80">تواصل مع الدعم الفني لتسريع عملية التفعيل.</p>
                         </div>
                     </div>
                 </div>
 
                 <div className="flex flex-col gap-3">
                     <button
+                        onClick={() => navigate('/app/support/messages')}
+                        className="w-full py-4 bg-primary text-white rounded-2xl font-black shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3"
+                    >
+                        <Headset className="w-5 h-5" />
+                        فتح تذكرة دعم فني
+                    </button>
+                    <button
                         onClick={() => window.location.href = `https://wa.me/${settings?.supportWhatsapp || ''}`}
-                        className="w-full py-4 bg-[#25D366] text-white rounded-2xl font-black shadow-lg shadow-green-500/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3"
+                        className="w-full py-4 bg-[#25D366]/10 text-[#25D366] rounded-2xl font-black hover:bg-[#25D366]/20 transition-all flex items-center justify-center gap-3 border border-[#25D366]/20"
                     >
                         تواصل عبر واتساب
                     </button>
                     <button
                         onClick={logout}
-                        className="w-full py-4 bg-gray-100 dark:bg-dark-800 text-gray-700 dark:text-gray-300 rounded-2xl font-black hover:bg-gray-200 dark:hover:bg-dark-700 transition-all flex items-center justify-center gap-3"
+                        className="w-full py-4 bg-gray-50 dark:bg-dark-800 text-gray-500 dark:text-gray-400 rounded-2xl font-bold hover:bg-gray-100 dark:hover:bg-dark-700 transition-all flex items-center justify-center gap-2"
                     >
-                        <LogOut className="w-5 h-5" />
+                        <LogOut className="w-4 h-4" />
                         تسجيل الخروج
                     </button>
                 </div>

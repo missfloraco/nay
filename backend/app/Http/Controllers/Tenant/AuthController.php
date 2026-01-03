@@ -92,13 +92,15 @@ class AuthController extends Controller
         while ($attempt < $maxRetries) {
             try {
                 // Create actual Tenant record
+                $trialDays = (int) \App\Models\Setting::get('trial_period_days', 7);
+
                 $tenant = Tenant::create([
                     'name' => $cachedData['name'],
                     'email' => $cachedData['email'],
                     'password' => Hash::make($cachedData['password']),
                     'country_code' => $cachedData['country'] ?? 'PS',
                     'status' => 'trial',
-                    'trial_expires_at' => now()->addDays(7),
+                    'trial_expires_at' => now()->addDays($trialDays),
                     'ads_enabled' => true,
                     'email_verified_at' => now(),
                 ]);
@@ -109,7 +111,7 @@ class AuthController extends Controller
                     'plan_id' => 1, // Default to lowest plan
                     'status' => 'trial',
                     'started_at' => now(),
-                    'trial_ends_at' => now()->addDays(7),
+                    'trial_ends_at' => now()->addDays($trialDays),
                 ]);
 
                 // Clear cache
