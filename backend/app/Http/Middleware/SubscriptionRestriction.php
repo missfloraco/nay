@@ -20,8 +20,7 @@ class SubscriptionRestriction
             return $next($request);
         }
 
-        $subscription = $tenant->currentSubscription;
-        $status = $subscription ? $subscription->status : $tenant->status;
+        $status = $tenant->status;
 
         // 1. Suspended -> Block all except vital routes
         if ($status === 'suspended') {

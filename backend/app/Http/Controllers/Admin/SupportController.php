@@ -24,13 +24,14 @@ class SupportController extends Controller
         $filters = $request->only(['status']);
         $tickets = $this->service->getTickets($request->user(), 'admin', $filters);
 
-        // Auto-mark support notifications as read when visiting this page
+        // Auto-mark ALL support notifications as read when visiting the support center
+        // This clears the sidebar badge for "Support"
         $request->user()->unreadNotifications()
-            ->where('type', 'App\Notifications\TicketNotification')
-            ->get()
-            ->each(function ($n) {
-                $n->markAsRead();
-            });
+            ->where(function ($q) {
+                $q->whereJsonContains('data->notification_type', 'new_support_ticket')
+                    ->orWhereJsonContains('data->notification_type', 'ticket_reply');
+            })
+            ->update(['read_at' => now()]);
 
         return response()->json(['data' => $tickets]);
     }
@@ -78,37 +79,17 @@ class SupportController extends Controller
     {
         $ticket = SupportTicket::withTrashed()->findOrFail($id);
 
-        // Delete related messages first if no cascade
+        // Delete related messages and notifications first
         $ticket->messages()->delete();
+        \App\Models\Notification::whereJsonContains('data->ticket_id', $ticket->id)
+            ->orWhereJsonContains('data->action_url', "/admin/support?ticket_id={$ticket->id}")
+            ->delete();
+
         $ticket->forceDelete();
 
         return response()->json(['message' => 'Ticket deleted permanently']);
     }
 
-    public function notifications()
-    {
-        // Count tickets where the last message is from the tenant (waiting for admin)
-        // We filter for active statuses only
-        $tickets = SupportTicket::whereIn('status', ['open', 'in_progress', 'resolved'])
-            ->whereHas('messages', function ($q) {
-                // Optimize: check if the VERY LAST message is NOT admin reply
-                // This is hard to do purely in SQL efficiently without window functions or join logic
-                // For now, fetching recent tickets and filtering in collection is acceptable for reasonable volume
-            })
-            ->with([
-                'messages' => function ($q) {
-                    $q->latest()->limit(1);
-                }
-            ])
-            ->get();
-
-        $count = $tickets->filter(function ($ticket) {
-            $lastMsg = $ticket->messages->first();
-            return $lastMsg && !$lastMsg->is_admin_reply;
-        })->count();
-
-        return response()->json(['count' => $count]);
-    }
 
     public function uploadImage(Request $request)
     {

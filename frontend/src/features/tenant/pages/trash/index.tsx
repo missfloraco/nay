@@ -20,6 +20,7 @@ export default function TenantTrash() {
             'support_tickets': 'تذاكر الدعم',
             'messages': 'الرسائل',
             'files': 'الملفات',
+            'notifications': 'تنبيهات النظام',
         };
         return labels[type] || type;
     };

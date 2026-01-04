@@ -182,7 +182,6 @@ Route::prefix('admin')->group(function () {
         Route::post('/settings', [App\Http\Controllers\Admin\SettingsController::class, 'update']);
         Route::post('/profile', [App\Http\Controllers\Admin\ProfileController::class, 'update'])->middleware('throttle:5,1');
         Route::delete('support/tickets/{id}/force', [App\Http\Controllers\Admin\SupportController::class, 'forceDelete']);
-        Route::get('/notifications/support', [App\Http\Controllers\Admin\SupportController::class, 'notifications']);
 
         // SEO Management Routes
         Route::get('/seo', [App\Http\Controllers\Admin\SeoSettingController::class, 'index']);
@@ -293,7 +292,6 @@ Route::prefix('app')->group(function () {
             Route::get('/tickets/{id}', [App\Http\Controllers\Tenant\SupportController::class, 'show']);
             Route::post('/tickets/{id}/reply', [App\Http\Controllers\Tenant\SupportController::class, 'reply']);
             Route::delete('/tickets/{id}', [App\Http\Controllers\Tenant\SupportController::class, 'destroy']);
-            Route::get('/notifications/support', [App\Http\Controllers\Tenant\SupportController::class, 'notifications']);
             Route::post('/upload', [App\Http\Controllers\Tenant\SupportController::class, 'uploadImage'])->middleware('throttle:10,1');
         });
 

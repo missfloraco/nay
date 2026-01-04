@@ -38,6 +38,7 @@ interface TableProps<T> {
     onDelete?: (item: T) => void;
     onEdit?: (item: T) => void;
     onView?: (item: T) => void;
+    onRowClick?: (item: T) => void;
 }
 
 // --- Sub-Components ---
@@ -99,7 +100,8 @@ export default function Table<T>({
     onSortChange,
     onDelete,
     onEdit,
-    onView
+    onView,
+    onRowClick
 }: TableProps<T>) {
     const { setExportData, isPrinting, setIsPrinting, isAnyModalOpen, openModal } = useExport();
     const { registerExtraAction, unregisterExtraAction } = useAction();
@@ -252,7 +254,11 @@ export default function Table<T>({
                         <TableHeader columns={columns} currentSort={currentSort} onSortChange={onSortChange} sticky={true} />
                         <tbody className="divide-y divide-gray-50/50 dark:divide-white/[0.02]">
                             {data.map((item, rowIdx) => (
-                                <tr key={rowIdx} className="group/row hover:bg-primary/[0.02] dark:hover:bg-primary/[0.04] transition-colors duration-300">
+                                <tr
+                                    key={rowIdx}
+                                    onClick={() => onRowClick?.(item)}
+                                    className={`group/row hover:bg-primary/[0.02] dark:hover:bg-primary/[0.04] transition-colors duration-300 ${onRowClick ? 'cursor-pointer' : ''}`}
+                                >
                                     {columns.map((column, colIdx) => (
                                         <td key={colIdx} className={`px-6 py-5 border-l border-gray-100/30 dark:border-white/[0.02] last:border-l-0 ${column.className || ''}`}>
                                             <div className="relative z-10 group-hover/row:scale-[1.01] transition-transform duration-300 origin-right">
@@ -275,7 +281,16 @@ export default function Table<T>({
                         const subCol = columns[1];
 
                         return (
-                            <div key={idx} className="p-5 active:bg-gray-50 dark:active:bg-white/[0.02] transition-colors">
+                            <div
+                                key={idx}
+                                onClick={(e) => {
+                                    // If mobile action button clicked, don't trigger row click
+                                    if ((e.target as HTMLElement).closest('.mobile-action-trigger')) return;
+                                    if (onRowClick) onRowClick(item);
+                                    else toggleRow(idx);
+                                }}
+                                className={`p-5 active:bg-gray-50 dark:active:bg-white/[0.02] transition-colors ${onRowClick ? 'cursor-pointer' : ''}`}
+                            >
                                 <div className="flex items-start justify-between gap-4">
                                     {/* Primary Context */}
                                     <div className="flex-1 min-w-0" onClick={() => toggleRow(idx)}>
@@ -297,9 +312,9 @@ export default function Table<T>({
                                     {/* Quick Mobile Action Toggle */}
                                     <button
                                         onClick={() => handleActionClick(item)}
-                                        className="w-12 h-12 rounded-2xl bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 flex items-center justify-center text-gray-400 shadow-sm shrink-0"
+                                        className="mobile-action-trigger w-12 h-12 rounded-2xl bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 flex items-center justify-center text-gray-400 shadow-sm shrink-0"
                                     >
-                                        <MoreHorizontal className="w-6 h-6" />
+                                        <MoreHorizontal className="w-6 h-6 pointer-events-none" />
                                     </button>
                                 </div>
 

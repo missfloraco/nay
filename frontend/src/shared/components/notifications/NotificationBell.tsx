@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { Bell, Check, Trash2, ExternalLink, X, Info, CheckCircle, AlertCircle, AlertTriangle } from 'lucide-react';
+import { Bell, Check, Trash2, ExternalLink, X, Info, CheckCircle, AlertCircle, AlertTriangle, MessageSquare, DollarSign, Users, Shield, Tag, HelpCircle, Archive, UserPlus, XCircle } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useNotifications, AppNotification } from '@/shared/contexts/notification-context';
+import { useNotifications } from '@/shared/contexts/notification-context';
 import { useText } from '@/shared/contexts/text-context';
 
 export const NotificationBell: React.FC = () => {
@@ -13,7 +13,8 @@ export const NotificationBell: React.FC = () => {
         markAsRead,
         markAllAsRead,
         deleteNotification,
-        fetchNotifications
+        fetchNotifications,
+        handleNotificationClick
     } = useNotifications();
     const { t } = useText();
     const navigate = useNavigate();
@@ -27,16 +28,40 @@ export const NotificationBell: React.FC = () => {
         }
     }, [isOpen, fetchNotifications]);
 
-    // Close on click outside
+    // Close on click outside - account for Portals
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
-            if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-                setIsOpen(false);
+            const target = event.target as HTMLElement;
+
+            // Check if click is inside the bell trigger
+            if (menuRef.current && menuRef.current.contains(target)) {
+                return;
             }
+
+            // Check if click is inside the portaled panel
+            const panel = document.getElementById('notification-panel');
+            if (panel && panel.contains(target)) {
+                return;
+            }
+
+            setIsOpen(false);
         };
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
+
+    // Listen for global navigation events from context
+    useEffect(() => {
+        const handleNavigate = (e: any) => {
+            const { path } = e.detail;
+            if (path) {
+                navigate(path);
+                setIsOpen(false);
+            }
+        };
+        window.addEventListener('app:navigate', handleNavigate as any);
+        return () => window.removeEventListener('app:navigate', handleNavigate as any);
+    }, [navigate]);
 
     const icons = {
         success: <CheckCircle className="w-5 h-5 text-emerald-500" />,
@@ -76,7 +101,10 @@ export const NotificationBell: React.FC = () => {
                     />
 
                     {/* Panel - Bounded between Main Header and Footer toolbar */}
-                    <div className="fixed left-0 top-[70px] lg:top-[90px] bottom-[70px] lg:bottom-[90px] w-full lg:w-[320px] bg-white dark:bg-dark-950 shadow-[20px_0_60px_-15px_rgba(0,0,0,0.4)] border-r border-gray-200 dark:border-white/10 z-[1000] animate-in slide-in-from-left duration-300 flex flex-col">
+                    <div
+                        id="notification-panel"
+                        className="fixed left-0 top-[70px] lg:top-[90px] bottom-[70px] lg:bottom-[90px] w-full lg:w-[320px] bg-white dark:bg-dark-950 shadow-[20px_0_60px_-15px_rgba(0,0,0,0.4)] border-r border-gray-200 dark:border-white/10 z-[1000] animate-in slide-in-from-left duration-300 flex flex-col"
+                    >
                         {/* Header - Consolidated Quick Actions */}
                         <div className="px-5 py-5 border-b border-gray-100 dark:border-white/10 flex items-center justify-between bg-white dark:bg-dark-950 shrink-0">
                             <h3 className="font-black text-gray-900 dark:text-white flex items-center gap-2 text-[14px] uppercase tracking-tighter">
@@ -111,8 +139,12 @@ export const NotificationBell: React.FC = () => {
                                     {notifications.map((notif) => (
                                         <div
                                             key={notif.id}
+                                            onClick={() => {
+                                                handleNotificationClick(notif);
+                                                setIsOpen(false);
+                                            }}
                                             className={`
-                                                p-4 flex flex-col gap-3 transition-all relative group rounded-[20px] border shadow-sm
+                                                p-4 flex flex-col gap-3 transition-all relative group rounded-[20px] border shadow-sm cursor-pointer
                                                 ${!notif.is_read
                                                     ? 'bg-white dark:bg-dark-950 border-primary/30 ring-1 ring-primary/5'
                                                     : 'bg-white/80 dark:bg-white/[0.02] border-gray-100 dark:border-white/5 opacity-80 hover:opacity-100'
@@ -127,7 +159,16 @@ export const NotificationBell: React.FC = () => {
                                                             notif.level === 'warning' ? 'bg-amber-50 dark:bg-amber-900/20' :
                                                                 'bg-primary/5 dark:bg-primary/20'
                                                         }`}>
-                                                        {icons[notif.level as keyof typeof icons] || icons.info}
+                                                        {(() => {
+                                                            if (notif.icon) {
+                                                                const IconComponent = {
+                                                                    MessageSquare, DollarSign, Users, Shield, Tag, HelpCircle, Archive, UserPlus, XCircle, Bell,
+                                                                    CheckCircle, AlertCircle, AlertTriangle, Info
+                                                                }[notif.icon as string];
+                                                                if (IconComponent) return <IconComponent className="w-5 h-5" />;
+                                                            }
+                                                            return icons[notif.level as keyof typeof icons] || icons.info;
+                                                        })()}
                                                     </div>
                                                 </div>
                                                 <div className="flex-1 min-w-0">
@@ -147,27 +188,28 @@ export const NotificationBell: React.FC = () => {
 
                                             <div className="flex items-center justify-end gap-3 mt-1 pl-1">
                                                 {notif.action_url && (
-                                                    <Link
-                                                        to={notif.action_url}
-                                                        onClick={() => setIsOpen(false)}
-                                                        className="px-3 py-1.5 bg-primary/5 hover:bg-primary/10 text-[10px] font-black text-primary rounded-lg transition-colors flex items-center gap-1.5"
-                                                    >
+                                                    <span className="px-3 py-1.5 bg-primary/5 hover:bg-primary/10 text-[10px] font-black text-primary rounded-lg transition-colors flex items-center gap-1.5">
                                                         {t('notifications.VIEW', 'فتح التفاصيل')}
                                                         <ExternalLink className="w-3 h-3" />
-                                                    </Link>
+                                                    </span>
                                                 )}
                                                 {!notif.is_read && (
                                                     <button
-                                                        onClick={() => markAsRead(notif.id)}
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            markAsRead(notif.id);
+                                                        }}
                                                         className="px-3 py-1.5 bg-emerald-50 dark:bg-emerald-900/20 hover:bg-emerald-100 text-[10px] font-black text-emerald-600 dark:text-emerald-400 rounded-lg transition-colors"
                                                     >
                                                         {t('notifications.MARK_READ', 'تمت القراءة')}
                                                     </button>
                                                 )}
 
-                                                {/* Delete Button always available but discreet */}
                                                 <button
-                                                    onClick={() => deleteNotification(notif.id)}
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        deleteNotification(notif.id);
+                                                    }}
                                                     className="p-1.5 text-gray-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all"
                                                 >
                                                     <Trash2 className="w-3.5 h-3.5" />

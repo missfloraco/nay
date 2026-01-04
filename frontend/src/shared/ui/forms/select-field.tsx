@@ -56,10 +56,7 @@ const SelectField = React.forwardRef<HTMLSelectElement, SelectFieldProps>(({
                     id={selectId}
                     className={`
                         w-full h-16 bg-gray-50/50 dark:bg-dark-900/50 border border-gray-100 dark:border-white/5 px-6 text-[15px] font-bold outline-none transition-all duration-500 text-start appearance-none
-                        rounded-[1.25rem] hover:bg-white dark:hover:bg-dark-800 hover:border-gray-200 dark:hover:border-white/10
-                        focus:bg-white dark:focus:bg-dark-800 focus:border-primary focus:shadow-[0_0_0_1px_var(--primary)] focus:ring-8 focus:ring-primary/5
-                        ps-14
-                        ${Icon ? 'pe-14' : 'pe-6'} 
+                        ps-14 pe-14
                         ${error ? 'border-red-500/50 focus:border-red-500 focus:ring-red-500/5 bg-red-50/10' : ''} 
                         ${success ? 'border-emerald-500/50 focus:border-emerald-500 focus:ring-emerald-500/5 bg-emerald-50/10' : ''} 
                         ${className}
@@ -75,14 +72,8 @@ const SelectField = React.forwardRef<HTMLSelectElement, SelectFieldProps>(({
                     ))}
                 </select>
 
-                {/* Left Aligned Icon */}
-                <div className={`absolute top-1/2 -translate-y-1/2 transition-transform duration-500 group-focus-within:scale-110 group-focus-within:rotate-3 
-                    ${Icon ? 'end-6 text-gray-400 group-focus-within:text-primary' : 'hidden'}`}>
-                    {Icon && <Icon size={20} />}
-                </div>
-
-                {/* Left Aligned Arrow (for Select) */}
-                <div className="absolute start-6 top-1/2 -translate-y-1/2 pointer-events-none text-gray-300">
+                {/* End Aligned Arrow (for Select) - Standard for RTL visual left */}
+                <div className="absolute end-6 top-1/2 -translate-y-1/2 pointer-events-none text-gray-300">
                     <ChevronDown size={20} />
                 </div>
             </div>

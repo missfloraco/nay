@@ -64,10 +64,12 @@ class PaymentController extends Controller
 
         // Notify Tenant about status/extension
         $tenant->notify(new \App\Notifications\SystemNotification([
+            'notification_type' => 'payment_extension',
+            'payment_id' => $payment->id,
             'title' => 'تحديث الاشتراك',
             'message' => 'تم تسجيل دفعة جديدة وتمديد اشتراكك بنجاح حتى تاريخ: ' . $newEnd->format('Y-m-d'),
             'level' => 'success',
-            'action_url' => '/app/settings',
+            'action_url' => '/app/billing?tab=payments',
             'icon' => 'CheckCircle'
         ]));
 
@@ -120,6 +122,10 @@ class PaymentController extends Controller
         $payment = Payment::withTrashed()->findOrFail($id);
 
         if ($payment->trashed()) {
+            // Clean up related notifications before permanent deletion
+            \Illuminate\Support\Facades\DB::table('notifications')
+                ->whereJsonContains('data->payment_id', $payment->id)
+                ->delete();
             $payment->forceDelete();
             return response()->json(['message' => 'Payment permanently deleted']);
         }

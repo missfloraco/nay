@@ -41,6 +41,7 @@ class TicketNotification extends Notification
     public function toArray(object $notifiable): array
     {
         return [
+            'notification_type' => $this->options['notification_type'] ?? 'ticket_default',
             'ticket_id' => $this->options['ticket_id'] ?? null,
             'title' => $this->options['title'] ?? 'تحديث التذكرة',
             'message' => $this->options['message'],

@@ -37,7 +37,7 @@
     width: 100%;
     max-width: 100%;
     overflow-x: hidden;
-    padding-bottom: 90px;
+    padding-bottom: 100px;
     /* Add extra bottom padding for mobile to prevent content being hidden behind bottom nav */
 }
 

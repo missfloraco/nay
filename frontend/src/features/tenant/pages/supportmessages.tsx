@@ -241,6 +241,18 @@ const SupportMessages = () => {
 
     const currentTicket = ((ticketDetails as any)?.data || (ticketDetails as any));
 
+    const highlightedRef = useRef<HTMLDivElement>(null);
+
+    // Handle scroll to highlighted
+    useEffect(() => {
+        if ((ticketsData as any)?.data?.length > 0 && selectedTicketId && !isLoadingTickets) {
+            const timer = setTimeout(() => {
+                highlightedRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 800);
+            return () => clearTimeout(timer);
+        }
+    }, [(ticketsData as any)?.data?.length, selectedTicketId, isLoadingTickets]);
+
     return (
         <AppLayout
             title="مركز الدعم الفني"
@@ -285,42 +297,50 @@ const SupportMessages = () => {
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {(ticketsData as any)?.data?.map((ticket: any) => (
-                            <div
-                                key={ticket.id}
-                                onClick={() => setSelectedTicketId(ticket.id)}
-                                className="group relative bg-white dark:bg-dark-900 p-8 rounded-[2.5rem] border border-gray-100 dark:border-white/5 shadow-sm hover:shadow-2xl hover:shadow-primary/5 hover:-translate-y-2 transition-all duration-500 cursor-pointer overflow-hidden"
-                            >
-                                <div className="flex justify-between items-center mb-6">
-                                    <span className="px-3 py-1 rounded-full bg-gray-50 dark:bg-dark-800 text-[10px] font-black text-gray-400 uppercase tracking-widest border border-gray-100 dark:border-white/5">
-                                        #{ticket.id}
-                                    </span>
-                                    <div className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider border shadow-sm ${getStatusColor(ticket.status, !!ticket.deleted_at)}`}>
-                                        {getStatusLabel(ticket.status, !!ticket.deleted_at)}
-                                    </div>
-                                </div>
+                        {(ticketsData as any)?.data?.map((ticket: any) => {
+                            const isHighlighted = selectedTicketId === ticket.id;
+                            return (
+                                <div
+                                    key={ticket.id}
+                                    ref={isHighlighted ? highlightedRef : null}
+                                    onClick={() => setSelectedTicketId(ticket.id)}
+                                    className={`group relative bg-white dark:bg-dark-900 p-8 rounded-[2.5rem] border ${isHighlighted ? 'border-primary shadow-2xl shadow-primary/20 scale-[1.02] ring-2 ring-primary/5' : 'border-gray-100 dark:border-white/5 shadow-sm'} hover:shadow-2xl hover:shadow-primary/5 hover:-translate-y-2 transition-all duration-500 cursor-pointer overflow-hidden`}
+                                >
+                                    {isHighlighted && (
+                                        <div className="absolute top-0 right-0 w-2 h-full bg-primary" />
+                                    )}
 
-                                <div className="space-y-4 mb-8">
-                                    <h4 className="text-lg font-black text-gray-900 dark:text-white line-clamp-2 leading-tight group-hover:text-primary transition-colors">
-                                        {ticket.subject}
-                                    </h4>
-                                    <div className="flex items-center gap-2 text-gray-400">
-                                        <Clock className="w-4 h-4" />
-                                        <span className="text-[10px] font-black tracking-wider uppercase">{formatDate(ticket.created_at).split('|')[1]?.trim()}</span>
+                                    <div className="flex justify-between items-center mb-6">
+                                        <span className="px-3 py-1 rounded-full bg-gray-50 dark:bg-dark-800 text-[10px] font-black text-gray-400 uppercase tracking-widest border border-gray-100 dark:border-white/5">
+                                            #{ticket.id}
+                                        </span>
+                                        <div className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider border shadow-sm ${getStatusColor(ticket.status, !!ticket.deleted_at)}`}>
+                                            {getStatusLabel(ticket.status, !!ticket.deleted_at)}
+                                        </div>
                                     </div>
-                                </div>
 
-                                <div className="flex items-center justify-between pt-6 border-t border-gray-50 dark:border-white/5">
-                                    <div className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-tighter ${ticket.priority === 'urgent' ? 'bg-red-50 text-red-600' : 'bg-gray-100 text-gray-500'}`}>
-                                        <AlertCircle className="w-3 h-3" />
-                                        {getPriorityLabel(ticket.priority)}
+                                    <div className="space-y-4 mb-8">
+                                        <h4 className="text-lg font-black text-gray-900 dark:text-white line-clamp-2 leading-tight group-hover:text-primary transition-colors">
+                                            {ticket.subject}
+                                        </h4>
+                                        <div className="flex items-center gap-2 text-gray-400">
+                                            <Clock className="w-4 h-4" />
+                                            <span className="text-[10px] font-black tracking-wider uppercase">{formatDate(ticket.created_at).split('|')[1]?.trim()}</span>
+                                        </div>
                                     </div>
-                                    <div className="text-[10px] font-black text-primary opacity-0 group-hover:opacity-100 transition-opacity translate-x-4 group-hover:translate-x-0 transition-transform">
-                                        عرض المحادثة ←
+
+                                    <div className="flex items-center justify-between pt-6 border-t border-gray-50 dark:border-white/5">
+                                        <div className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-tighter ${ticket.priority === 'urgent' ? 'bg-red-50 text-red-600' : 'bg-gray-100 text-gray-500'}`}>
+                                            <AlertCircle className="w-3 h-3" />
+                                            {getPriorityLabel(ticket.priority)}
+                                        </div>
+                                        <div className="text-[10px] font-black text-primary opacity-0 group-hover:opacity-100 transition-opacity translate-x-4 group-hover:translate-x-0 transition-transform">
+                                            عرض المحادثة ←
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
                 )}
             </div>

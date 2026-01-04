@@ -1,5 +1,6 @@
 import { resolveAssetUrl } from '@/shared/utils/helpers';
 import { useState, useEffect, useMemo } from 'react';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { formatDate } from '@/shared/utils/helpers';
 import { Users, User, Lock, Globe, Sparkles, Search, Filter, Plus, Mail, CheckCircle, XCircle, Trash2, Edit, ExternalLink, Shield, Loader2, MoreVertical, LayoutGrid, List as ListIcon, Calendar, Check, X, AlertTriangle, AlertCircle, Info, Database, HardDrive, Eye, Save, Clock } from 'lucide-react';
 import { useNotifications } from '@/shared/contexts/notification-context';
@@ -39,12 +40,14 @@ interface Tenant {
 export default function TenantsTable() {
     const { showSuccess, showError } = useNotifications();
     const { setPrimaryAction } = useAction();
+    const navigate = useNavigate();
 
+    const [searchParams] = useSearchParams();
     const [tenants, setTenants] = useState<Tenant[]>([]);
     const [loading, setLoading] = useState(true);
     const [paginationMeta, setPaginationMeta] = useState<any>(null);
     const [currentPage, setCurrentPage] = useState(1);
-    const [searchQuery, setSearchQuery] = useState('');
+    const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
     const [sortConfig, setSortConfig] = useState<{ column: string; order: 'asc' | 'desc' }>({ column: 'created_at', order: 'desc' });
 
     // Create Modal State
@@ -194,7 +197,7 @@ export default function TenantsTable() {
 
     const handleNavigateToPayments = (tenant: Tenant) => {
         // Navigate to payments page with tenant ID in URL
-        window.location.href = `/admin/payments?tenant=${tenant.id}&highlight=true`;
+        navigate(`/admin/payments?tenant=${tenant.id}&highlight=true`);
     };
 
     const columns = useMemo(() => [
@@ -339,6 +342,7 @@ export default function TenantsTable() {
                         onPageChange={handlePageChange}
                         currentSort={sortConfig}
                         onSortChange={handleSortChange}
+                        onRowClick={(tenant) => handleSelectTenant(tenant)}
                     />
                 </div>
             </div>

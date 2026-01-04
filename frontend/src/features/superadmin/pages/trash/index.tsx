@@ -27,6 +27,7 @@ export default function AdminTrash() {
             'payments': 'سجل المدفوعات',
             'subscription_requests': 'طلبات الاشتراك',
             'support_tickets': TEXTS_ADMIN?.RECYCLE_BIN?.TYPES?.SUPPORT_TICKETS || 'تذاكر الدعم',
+            'notifications': 'التنبيهات والإشعارات',
         };
         return labels[type] || type;
     }, []);

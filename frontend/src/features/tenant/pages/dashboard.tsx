@@ -9,17 +9,16 @@ import { useTenantAuth } from '@/features/auth/tenant-auth-context';
 import { formatDate } from '@/shared/utils/helpers';
 import { useQuery } from '@tanstack/react-query';
 import api from '@/shared/services/api';
+import { useNotifications } from '@/shared/contexts/notification-context';
+import { useNavigate } from 'react-router-dom';
 
 const Dashboard: React.FC = () => {
     const { tenant } = useTenantAuth();
 
-    const { data: notificationData } = useQuery({
-        queryKey: ['support-notifications-count'],
-        queryFn: () => api.get('/app/support/notifications/support'),
-        refetchInterval: 5000,
-    });
+    const { unreadCounts } = useNotifications();
+    const navigate = useNavigate();
 
-    const unreadCount = (notificationData as unknown as { count: number })?.count || 0;
+    const unreadCount = unreadCounts.support || 0;
 
     return (
         <AppLayout title="لوحة التحكم" icon={Layout} noPadding={true}>
@@ -43,7 +42,7 @@ const Dashboard: React.FC = () => {
                                         <div className="p-3 bg-emerald-500/10 rounded-2xl text-emerald-500 group-hover:scale-110 transition-transform">
                                             <ShieldCheck className="w-8 h-8" />
                                         </div>
-                                        <div className="text-left">
+                                        <div className="text-start">
                                             <div className="flex items-center gap-2 mb-1 justify-end">
                                                 <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                                                 <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest">متصل ومؤمن</span>
@@ -85,7 +84,7 @@ const Dashboard: React.FC = () => {
                                     <div className="p-3 bg-white/10 rounded-xl backdrop-blur-md text-rose-400">
                                         <MessageSquare className="w-6 h-6" />
                                     </div>
-                                    <div className="text-left py-1 px-3 bg-rose-500/20 rounded-full border border-rose-500/30">
+                                    <div className="text-start py-1 px-3 bg-rose-500/20 rounded-full border border-rose-500/30">
                                         <span className="text-[10px] font-black text-rose-400 uppercase">مركز الدعم</span>
                                     </div>
                                 </div>
@@ -94,7 +93,12 @@ const Dashboard: React.FC = () => {
                                         <h4 className="text-5xl font-black text-white leading-none mb-1">{unreadCount}</h4>
                                         <p className="text-[10px] font-black text-rose-400 uppercase tracking-widest">تذاكر معلقة الآن</p>
                                     </div>
-                                    <button className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-xl text-xs font-black text-white border border-white/10 transition-all">متابعة التذاكر</button>
+                                    <button
+                                        onClick={() => navigate('/app/support/messages')}
+                                        className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-xl text-xs font-black text-white border border-white/10 transition-all"
+                                    >
+                                        متابعة التذاكر
+                                    </button>
                                 </div>
                             </div>
                         </div>

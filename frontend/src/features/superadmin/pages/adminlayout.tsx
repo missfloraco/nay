@@ -6,6 +6,7 @@ import { useText } from '@/shared/contexts/text-context';
 import { useAction } from '@/shared/contexts/action-context';
 import { DashboardLayout } from '@/shared/layout/dashboard-layout';
 import api from '@/shared/services/api';
+import { useNotifications } from '@/shared/contexts/notification-context';
 
 interface AdminLayoutProps {
     children: ReactNode;
@@ -30,9 +31,16 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title, noPadding = 
 
     const trashCount = (trashData as any)?.stats?.total || 0;
 
+    const { unreadCounts } = useNotifications();
+
     const navItems = React.useMemo(() => [
         { icon: LayoutDashboard, label: t('admin.NAV.DASHBOARD', 'لوحة التحكم'), path: '/admin/dashboard', color: 'text-blue-600' },
-        { icon: Users, label: t('admin.NAV.TENANTS', 'إدارة المشتركين'), path: '/admin/tenants', color: 'text-[#02aa94]' },
+        {
+            icon: Users,
+            label: t('admin.NAV.TENANTS', 'إدارة المشتركين'),
+            path: '/admin/tenants',
+            color: 'text-[#02aa94]'
+        },
         { icon: Crown, label: t('admin.NAV.PLANS', 'الخطط السعرية'), path: '/admin/plans', color: 'text-orange-500' },
 
         { icon: Layout, label: t('admin.NAV.IDENTITY', 'هوية المنصة'), path: '/admin/identity', color: 'text-indigo-600' },

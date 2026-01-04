@@ -12,6 +12,14 @@ class Admin extends Authenticatable
 {
     use HasApiTokens, Notifiable, HasUid;
 
+    /**
+     * Override the notifications relationship to use the custom class.
+     */
+    public function notifications()
+    {
+        return $this->morphMany(Notification::class, 'notifiable')->latest();
+    }
+
     const UID_PREFIX = 'ADM';
 
     protected $fillable = [

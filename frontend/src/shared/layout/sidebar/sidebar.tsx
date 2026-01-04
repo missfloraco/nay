@@ -195,7 +195,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                             {/* Fixed Icon Anchor - Same as Logo and Avatar */}
                             <div className="w-[88px] flex items-center justify-center shrink-0">
                                 <div className="w-10 h-10 rounded-full bg-primary/10 dark:bg-primary/20 flex items-center justify-center transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] group-hover:scale-110 group-hover:bg-primary/20 dark:group-hover:bg-primary/30 group-hover:shadow-lg group-hover:shadow-primary/20">
-                                    {isSidebarCollapsed ? <ChevronLeft className="w-5 h-5 text-primary" /> : <ChevronRight className="w-5 h-5 text-primary" />}
+                                    {isSidebarCollapsed ? <ChevronRight className="w-5 h-5 text-primary" /> : <ChevronLeft className="w-5 h-5 text-primary" />}
                                 </div>
                             </div>
 

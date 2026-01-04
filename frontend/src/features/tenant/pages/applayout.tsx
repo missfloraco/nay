@@ -7,6 +7,7 @@ import { useAction } from '@/shared/contexts/action-context';
 import { DashboardLayout } from '@/shared/layout/dashboard-layout';
 import { ImpersonationBanner } from '@/shared/components/impersonationbanner';
 import api from '@/shared/services/api';
+import { useNotifications } from '@/shared/contexts/notification-context';
 import { logger } from '@/shared/services/logger';
 
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -54,6 +55,8 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, title, noPadding = fals
 
     // Backend handles all expiration logic via getStatusAttribute accessor
     const isExpired = tenant?.status === 'expired';
+
+    const { unreadCounts } = useNotifications();
 
     const menuItems = React.useMemo(() => {
         const baseItems = [

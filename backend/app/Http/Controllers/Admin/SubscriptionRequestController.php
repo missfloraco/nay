@@ -11,11 +11,17 @@ use Illuminate\Support\Facades\DB;
 
 class SubscriptionRequestController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $requests = SubscriptionRequest::with(['tenant', 'plan'])
             ->latest()
             ->get();
+
+        // Auto-mark notifications as read
+        $request->user()->unreadNotifications()
+            ->whereJsonContains('data->notification_type', 'new_subscription_request')
+            ->update(['read_at' => now()]);
+
         return response()->json(['requests' => $requests]);
     }
 
@@ -68,15 +74,18 @@ class SubscriptionRequestController extends Controller
 
             // Notify Tenant about approval
             $tenant->notify(new \App\Notifications\SystemNotification([
+                'notification_type' => 'subscription_approved',
+                'subscription_request_id' => $subRequest->id,
+                'plan_id' => $plan->id ?? null,
                 'title' => 'تم تفعيل اشتراكك',
                 'message' => 'تهانينا! تم الموافقة على طلب اشتراكك في باقة ' . ($plan->name ?? '') . ' بنجاح.',
                 'level' => 'success',
-                'action_url' => '/app/settings',
+                'action_url' => '/app/billing?tab=overview',
                 'icon' => 'CheckCircle'
             ]));
 
             DB::commit();
-            return response()->json(['message' => 'تم الموافقة على الاشتراك بنجاح']);
+            return response()->json(['message' => 'تم الموافقة على الاشتراك بنجاح'], 200);
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json(['message' => 'حدث خطأ أثناء الموافقة'], 500);
@@ -93,13 +102,15 @@ class SubscriptionRequestController extends Controller
         // Notify Tenant about rejection
         $tenant = $subRequest->tenant;
         $tenant->notify(new \App\Notifications\SystemNotification([
+            'notification_type' => 'subscription_rejected',
+            'subscription_request_id' => $subRequest->id,
             'title' => 'تم رفض طلب الاشتراك',
             'message' => 'نعتذر، لقد تم رفض طلب اشتراكك. السبب: ' . ($request->admin_notes ?? 'غير محدد'),
             'level' => 'error',
-            'action_url' => '/app/plans',
+            'action_url' => '/app/billing?tab=requests',
             'icon' => 'XCircle'
         ]));
 
-        return response()->json(['message' => 'تم رفض الطلب']);
+        return response()->json(['message' => 'تم رفض الطلب'], 200);
     }
 }

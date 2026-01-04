@@ -13,15 +13,22 @@ class CheckTenantStatus
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $user = $request->user();
-        if (!$user || !$user->tenant) {
+        $tenant = $request->user();
+
+        // If not a tenant model (e.g. admin or guest), skip
+        if (!$tenant || !($tenant instanceof \App\Models\Tenant)) {
             return $next($request);
         }
 
-        $tenant = $user->tenant;
+        $status = $tenant->status;
 
         // 1. Check Activation Gate
-        if ($tenant->status === 'pending') {
+        if ($status === 'pending') {
+            // Allow vital routes (logout, etc.)
+            if ($this->isVitalRoute($request)) {
+                return $next($request);
+            }
+
             return response()->json([
                 'message' => 'بانتظار تفعيل الحساب من قبل الإدارة',
                 'status' => 'pending'
@@ -29,15 +36,15 @@ class CheckTenantStatus
         }
 
         // 2. Check Trial/Status Lock
-        if (in_array($tenant->status, ['expired', 'disabled'])) {
+        if (in_array($status, ['expired', 'disabled'])) {
             // Allow vital routes (logout, billing, etc.)
             if ($this->isVitalRoute($request)) {
                 return $next($request);
             }
 
             return response()->json([
-                'message' => $tenant->status === 'disabled' ? 'الحساب معطل من قبل الإدارة' : 'انتهت صلاحية الحساب. يرجى التجديد للمتابعة.',
-                'status' => $tenant->status
+                'message' => $status === 'disabled' ? 'الحساب معطل من قبل الإدارة' : 'انتهت صلاحية الحساب. يرجى التجديد للمتابعة.',
+                'status' => $status
             ], 403);
         }
 

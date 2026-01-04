@@ -5,7 +5,7 @@ import { logger } from '@/shared/services/logger';
 import Table from '@/shared/table';
 import { formatDate } from '@/shared/utils/helpers';
 import { useNotifications } from '@/shared/contexts/notification-context';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { IdentityCell, DateCell, CurrencyCell, ActionCell } from '@/shared/table-cells';
 import { RecordPaymentModal } from '@/features/superadmin/components/record-payment-modal';
 import { useAction } from '@/shared/contexts/action-context';
@@ -34,6 +34,7 @@ export default function PaymentsTable({ selectedTenantId: propSelectedTenantId, 
     const { showSuccess, showError, showConfirm } = useNotifications();
     const { setPrimaryAction } = useAction();
     const [searchParams, setSearchParams] = useSearchParams();
+    const navigate = useNavigate();
 
     const [payments, setPayments] = useState<Payment[]>([]);
     const [tenants, setTenants] = useState<any[]>(propTenants || []);
@@ -249,6 +250,7 @@ export default function PaymentsTable({ selectedTenantId: propSelectedTenantId, 
                     isLoading={loading}
                     emptyMessage={selectedTenantId ? "لا توجد دفعات لهذا المشترك" : "لا توجد عمليات دفع مسجلة"}
                     exportFileName="سجل_المدفوعات"
+                    onRowClick={(row) => row.tenant?.id && navigate(`/admin/tenants?search=${row.tenant.email}`)}
                 />
             </div>
 

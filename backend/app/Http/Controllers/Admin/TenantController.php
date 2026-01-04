@@ -14,7 +14,8 @@ class TenantController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Tenant::applyFilters($request)
+        $query = Tenant::with('activeSubscription')
+            ->applyFilters($request)
             ->applySort($request);
 
         if ($request->has('trashed')) {
@@ -22,6 +23,11 @@ class TenantController extends Controller
         }
 
         $result = $query->paginateData($request);
+
+        // Auto-mark new registration notifications as read
+        $request->user()->unreadNotifications()
+            ->whereJsonContains('data->notification_type', 'new_registration')
+            ->update(['read_at' => now()]);
 
         return response()->json($result);
     }
@@ -57,7 +63,7 @@ class TenantController extends Controller
         return response()->json([
             'message' => 'Tenant created successfully',
             'data' => $tenant
-        ]);
+        ], 201);
     }
 
     /**
@@ -121,6 +127,8 @@ class TenantController extends Controller
         if (array_key_exists('status', $data) && $data['status'] !== $tenant->getOriginal('status')) {
             if ($data['status'] === 'active') {
                 $tenant->notify(new \App\Notifications\SystemNotification([
+                    'notification_type' => 'account_activated',
+                    'tenant_id' => $tenant->id,
                     'title' => 'تم تفعيل الحساب',
                     'message' => 'لقد قام المسؤول بتفعيل حسابك بنجاح. يمكنك الآن استخدام كافة المميزات.',
                     'level' => 'success',
@@ -129,6 +137,8 @@ class TenantController extends Controller
                 ]));
             } elseif ($data['status'] === 'disabled') {
                 $tenant->notify(new \App\Notifications\SystemNotification([
+                    'notification_type' => 'account_disabled',
+                    'tenant_id' => $tenant->id,
                     'title' => 'تعطيل الحساب',
                     'message' => 'نأسف لإبلاغك بأنه تم تعطيل حسابك من قبل المسؤول. يرجى التواصل مع الدعم للمزيد من التفاصيل.',
                     'level' => 'error',
@@ -152,6 +162,8 @@ class TenantController extends Controller
         $tenant = Tenant::withTrashed()->findOrFail($id);
 
         if ($tenant->trashed()) {
+            // Clean up notifications before permanent deletion
+            $tenant->notifications()->delete();
             $tenant->forceDelete();
             return response()->json(['message' => 'Tenant permanently deleted']);
         }
@@ -211,6 +223,8 @@ class TenantController extends Controller
         // Notify Tenant on specialized actions
         if ($action === 'activate' || $action === 'enable') {
             $tenant->notify(new \App\Notifications\SystemNotification([
+                'notification_type' => 'account_activated',
+                'tenant_id' => $tenant->id,
                 'title' => 'تم تفعيل الحساب',
                 'message' => 'لقد قام المسؤول بتفعيل حسابك بنجاح. يمكنك الآن استخدام كافة المميزات.',
                 'level' => 'success',
@@ -219,6 +233,8 @@ class TenantController extends Controller
             ]));
         } elseif ($action === 'disable') {
             $tenant->notify(new \App\Notifications\SystemNotification([
+                'notification_type' => 'account_disabled',
+                'tenant_id' => $tenant->id,
                 'title' => 'تعطيل الحساب',
                 'message' => 'نأسف لإبلاغك بأنه تم تعطيل حسابك من قبل المسؤول. يرجى التواصل مع الدعم للمزيد من التفاصيل.',
                 'level' => 'error',

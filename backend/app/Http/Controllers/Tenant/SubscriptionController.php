@@ -27,6 +27,15 @@ class SubscriptionController extends Controller
         $tenant = $request->user();
         $subscription = $tenant->currentSubscription()->with('plan')->first();
 
+        // Auto-mark billing notifications as read
+        $tenant->unreadNotifications()
+            ->where(function ($q) {
+                $q->whereJsonContains('data->notification_type', 'subscription_approved')
+                    ->orWhereJsonContains('data->notification_type', 'subscription_rejected')
+                    ->orWhereJsonContains('data->notification_type', 'payment_extension');
+            })
+            ->update(['read_at' => now()]);
+
         return response()->json([
             'subscription' => $subscription,
             'pending_request' => SubscriptionRequest::where('tenant_id', $tenant->id)
@@ -71,10 +80,11 @@ class SubscriptionController extends Controller
         $plan = \App\Models\Plan::find($request->plan_id);
         foreach ($admins as $admin) {
             $admin->notify(new \App\Notifications\SystemNotification([
+                'notification_type' => 'new_subscription_request',
                 'title' => 'طلب اشتراك جديد',
                 'message' => 'طلب ' . $tenant->name . ' الترقية إلى باقة: ' . ($plan->name ?? 'غير معروف'),
                 'level' => 'warning',
-                'action_url' => '/admin/subscription-requests',
+                'action_url' => '/admin/subscription-requests?request_id=' . $subRequest->id,
                 'icon' => 'Zap'
             ]));
         }

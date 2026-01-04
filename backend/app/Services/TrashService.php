@@ -24,6 +24,7 @@ class TrashService
             'payments' => \App\Models\Payment::class,
             'subscription_requests' => \App\Models\SubscriptionRequest::class,
             'subscriptions' => \App\Models\Subscription::class,
+            'notifications' => \App\Models\Notification::class,
             // Add more models as needed
         ];
     }
@@ -93,6 +94,11 @@ class TrashService
         }
         if (isset($model->email)) {
             return $model->email;
+        }
+
+        // Specific for Notifications (nested in data)
+        if ($type === 'notifications' && isset($model->data['title'])) {
+            return $model->data['title'];
         }
 
         // Fallback

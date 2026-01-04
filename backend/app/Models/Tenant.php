@@ -14,7 +14,35 @@ class Tenant extends Authenticatable
 {
     use HasApiTokens, Notifiable, SoftDeletes, HasUid, Filterable;
 
+    /**
+     * Override the notifications relationship to use the custom class.
+     */
+    public function notifications()
+    {
+        return $this->morphMany(Notification::class, 'notifiable')->latest();
+    }
+
     const UID_PREFIX = 'TNT';
+
+    /**
+     * Boot the model.
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::deleting(function ($tenant) {
+            if ($tenant->isForceDeleting()) {
+                // Cascading deletion for notifications
+                $tenant->notifications()->delete();
+                // Also clean up related payments and subscriptions
+                if ($tenant->payments())
+                    $tenant->payments()->forceDelete();
+                if ($tenant->subscriptions())
+                    $tenant->subscriptions()->forceDelete();
+            }
+        });
+    }
 
     // Filterable trait configuration
     protected $searchable = ['name', 'email', 'phone', 'whatsapp'];
@@ -88,32 +116,35 @@ class Tenant extends Authenticatable
 
     /**
      * Get the tenant status dynamically.
+     * 
+     * WARNING: This accessor queries the activeSubscription relationship.
+     * To avoid N+1 queries when loading multiple tenants, use:
+     * Tenant::with('activeSubscription')->get()
      */
     public function getStatusAttribute($value)
     {
-        // 1. Check active subscription first - this takes priority
+        // 1. Critical overrides (Suspended/Restricted) from database value take priority
+        if (in_array($value, ['suspended', 'restricted', 'archived'])) {
+            return $value;
+        }
+
+        // 2. Check active subscription relation
         $activeSub = $this->activeSubscription;
         if ($activeSub && $activeSub->status === 'active') {
-            if ($activeSub->ends_at === null || $activeSub->ends_at->isFuture()) {
-                return 'active';
-            }
-        }
-
-        // 2. Check if subscription expired based on tenant's subscription_ends_at
-        if ($value === 'active' && $this->subscription_ends_at && $this->subscription_ends_at->isPast()) {
-            return 'expired';
-        }
-
-        // 3. Return active if value is active and no expiration detected
-        if ($value === 'active') {
             return 'active';
         }
 
-        // 4. Check trial expiration
+        // 3. Check Trial state
         if ($value === 'trial' || $value === 'pending') {
             if ($this->trial_expires_at && $this->trial_expires_at->isPast()) {
                 return 'expired';
             }
+            return $value;
+        }
+
+        // 4. Default to expired if no active subscription and it was previously active
+        if ($value === 'active') {
+            return 'expired';
         }
 
         return $value;

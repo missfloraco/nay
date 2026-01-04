@@ -13,6 +13,24 @@ class Payment extends Model
 
     const UID_PREFIX = 'INV';
 
+    /**
+     * Boot the model.
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::deleting(function ($payment) {
+            if ($payment->isForceDeleting()) {
+                // Clean up associated notifications
+                \App\Models\Notification::whereJsonContains('data->payment_id', $payment->id)
+                    ->orWhereJsonContains('data->action_url', "/admin/payments?id={$payment->id}")
+                    ->orWhereJsonContains('data->action_url', "/app/billing?tab=payments&id={$payment->id}")
+                    ->delete();
+            }
+        });
+    }
+
     // Filterable trait configuration
     protected $searchable = ['transaction_id', 'notes'];
     protected $sortable = ['id', 'amount', 'paid_at', 'created_at', 'status'];

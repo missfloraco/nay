@@ -309,6 +309,18 @@ export default function SupportTicketsPage() {
         );
     };
 
+    const highlightedRef = useRef<HTMLDivElement>(null);
+
+    // Handle initial scroll to selected ticket
+    useEffect(() => {
+        if (ticketsData?.data?.length > 0 && selectedTicketId && !isLoadingList) {
+            const timer = setTimeout(() => {
+                highlightedRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 800);
+            return () => clearTimeout(timer);
+        }
+    }, [ticketsData?.data?.length, selectedTicketId, isLoadingList]);
+
     return (
         <AdminLayout
             title="إدارة رسائل الدعم"
@@ -352,54 +364,62 @@ export default function SupportTicketsPage() {
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {ticketsData?.data?.map((ticket: any) => (
-                            <div
-                                key={ticket.id}
-                                onClick={() => setSelectedTicketId(ticket.id)}
-                                className="group relative bg-white dark:bg-dark-900 p-8 rounded-[2.5rem] border border-gray-100 dark:border-white/5 shadow-sm hover:shadow-2xl hover:shadow-primary/5 hover:-translate-y-2 transition-all duration-500 cursor-pointer overflow-hidden"
-                            >
-                                {/* Ticket Status & ID */}
-                                <div className="flex justify-between items-center mb-6">
-                                    <span className="px-3 py-1 rounded-full bg-gray-50 dark:bg-dark-800 text-[10px] font-black text-gray-400 uppercase tracking-widest border border-gray-100 dark:border-white/5">
-                                        #{ticket.id}
-                                    </span>
-                                    <div className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider border shadow-sm ${getStatusColor(ticket.status, !!ticket.deleted_at)}`}>
-                                        {getStatusLabel(ticket.status, !!ticket.deleted_at)}
-                                    </div>
-                                </div>
+                        {ticketsData?.data?.map((ticket: any) => {
+                            const isHighlighted = selectedTicketId === ticket.id;
+                            return (
+                                <div
+                                    key={ticket.id}
+                                    ref={isHighlighted ? highlightedRef : null}
+                                    onClick={() => setSelectedTicketId(ticket.id)}
+                                    className={`group relative bg-white dark:bg-dark-900 p-8 rounded-[2.5rem] border ${isHighlighted ? 'border-primary shadow-2xl shadow-primary/20 scale-[1.02] ring-2 ring-primary/5' : 'border-gray-100 dark:border-white/5 shadow-sm'} hover:shadow-2xl hover:shadow-primary/5 hover:-translate-y-2 transition-all duration-500 cursor-pointer overflow-hidden`}
+                                >
+                                    {isHighlighted && (
+                                        <div className="absolute top-0 right-0 w-2 h-full bg-primary" />
+                                    )}
 
-                                {/* Subject & Info */}
-                                <div className="space-y-4 mb-8">
-                                    <h4 className="text-lg font-black text-gray-900 dark:text-white line-clamp-2 leading-tight group-hover:text-primary transition-colors">
-                                        {ticket.subject}
-                                    </h4>
-                                    <div className="flex items-center gap-3 p-3 bg-gray-50/50 dark:bg-dark-800/30 rounded-2xl border border-gray-100/50 dark:border-white/5">
-                                        <div className="w-10 h-10 rounded-xl bg-white dark:bg-dark-800 border-2 border-primary/10 flex items-center justify-center font-black text-xs text-primary shadow-sm group-hover:scale-110 transition-transform">
-                                            {ticket.tenant?.name?.substring(0, 2).toUpperCase()}
-                                        </div>
-                                        <div className="flex flex-col">
-                                            <span className="text-[11px] font-black text-gray-900 dark:text-white">{ticket.tenant?.name}</span>
-                                            <span className="text-[9px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">{ticket.tenant?.uid}</span>
+                                    {/* Ticket Status & ID */}
+                                    <div className="flex justify-between items-center mb-6">
+                                        <span className="px-3 py-1 rounded-full bg-gray-50 dark:bg-dark-800 text-[10px] font-black text-gray-400 uppercase tracking-widest border border-gray-100 dark:border-white/5">
+                                            #{ticket.id}
+                                        </span>
+                                        <div className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider border shadow-sm ${getStatusColor(ticket.status, !!ticket.deleted_at)}`}>
+                                            {getStatusLabel(ticket.status, !!ticket.deleted_at)}
                                         </div>
                                     </div>
-                                </div>
 
-                                {/* Footer Info */}
-                                <div className="flex items-center justify-between pt-6 border-t border-gray-50 dark:border-white/5">
-                                    <div className="flex items-center gap-2 text-gray-400">
-                                        <Clock className="w-4 h-4" />
-                                        <span className="text-[10px] font-black">{formatDate(ticket.created_at).split('|')[1]?.trim()}</span>
+                                    {/* Subject & Info */}
+                                    <div className="space-y-4 mb-8">
+                                        <h4 className="text-lg font-black text-gray-900 dark:text-white line-clamp-2 leading-tight group-hover:text-primary transition-colors">
+                                            {ticket.subject}
+                                        </h4>
+                                        <div className="flex items-center gap-3 p-3 bg-gray-50/50 dark:bg-dark-800/30 rounded-2xl border border-gray-100/50 dark:border-white/5">
+                                            <div className="w-10 h-10 rounded-xl bg-white dark:bg-dark-800 border-2 border-primary/10 flex items-center justify-center font-black text-xs text-primary shadow-sm group-hover:scale-110 transition-transform">
+                                                {ticket.tenant?.name?.substring(0, 2).toUpperCase()}
+                                            </div>
+                                            <div className="flex flex-col">
+                                                <span className="text-[11px] font-black text-gray-900 dark:text-white">{ticket.tenant?.name}</span>
+                                                <span className="text-[9px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">{ticket.tenant?.uid}</span>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-tighter ${ticket.priority === 'urgent' ? 'bg-red-50 text-red-600' : 'bg-gray-100 text-gray-500'}`}>
-                                        <AlertCircle className="w-3 h-3" />
-                                        {getPriorityLabel(ticket.priority)}
-                                    </div>
-                                </div>
 
-                                {/* Hover Glow */}
-                                <div className="absolute inset-0 bg-gradient-to-tr from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
-                            </div>
-                        ))}
+                                    {/* Footer Info */}
+                                    <div className="flex items-center justify-between pt-6 border-t border-gray-50 dark:border-white/5">
+                                        <div className="flex items-center gap-2 text-gray-400">
+                                            <Clock className="w-4 h-4" />
+                                            <span className="text-[10px] font-black">{formatDate(ticket.created_at).split('|')[1]?.trim()}</span>
+                                        </div>
+                                        <div className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-tighter ${ticket.priority === 'urgent' ? 'bg-red-50 text-red-600' : 'bg-gray-100 text-gray-500'}`}>
+                                            <AlertCircle className="w-3 h-3" />
+                                            {getPriorityLabel(ticket.priority)}
+                                        </div>
+                                    </div>
+
+                                    {/* Hover Glow */}
+                                    <div className="absolute inset-0 bg-gradient-to-tr from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+                                </div>
+                            );
+                        })}
                     </div>
                 )}
             </div>
@@ -414,7 +434,6 @@ export default function SupportTicketsPage() {
                 <div className="flex flex-col lg:flex-row gap-8 bg-gray-50/20 dark:bg-dark-950/20 min-h-full">
 
                     {/* Chat Content (Left/Center) */}
-                    {/* Chat Content (Left/Center) - 2026 Redesign */}
                     <div className="flex-1 flex flex-col bg-white/60 dark:bg-dark-900/60 backdrop-blur-xl rounded-2xl md:rounded-[2.5rem] border border-white/20 shadow-2xl overflow-hidden min-h-0 relative">
                         {/* Decorative Background Elements */}
                         <div className="absolute top-0 right-0 w-full h-full overflow-hidden pointer-events-none opacity-30">

@@ -24,13 +24,14 @@ class SupportController extends Controller
         $filters = $request->only(['status']);
         $tickets = $this->service->getTickets($request->user(), 'tenant', $filters);
 
-        // Auto-mark support notifications as read when visiting this page
+        // Auto-mark ALL support notifications as read when visiting the support center
+        // This clears the sidebar badge for "Support"
         $request->user()->unreadNotifications()
-            ->where('type', 'App\Notifications\TicketNotification')
-            ->get()
-            ->each(function ($n) {
-                $n->markAsRead();
-            });
+            ->where(function ($q) {
+                $q->whereJsonContains('data->notification_type', 'ticket_reply')
+                    ->orWhereJsonContains('data->notification_type', 'ticket_resolved');
+            })
+            ->update(['read_at' => now()]);
 
         return response()->json(['data' => $tickets]);
     }
@@ -87,26 +88,6 @@ class SupportController extends Controller
         return response()->json(['message' => 'Ticket deleted successfully']);
     }
 
-    public function notifications()
-    {
-        // For Tenant: Count tickets where the last message is from Admin (waiting for user/action required)
-        $tickets = SupportTicket::where('tenant_id', auth()->id())
-            ->whereIn('status', ['open', 'in_progress', 'resolved'])
-            ->with([
-                'messages' => function ($q) {
-                    $q->latest()->limit(1);
-                }
-            ])
-            ->get();
-
-        $count = $tickets->filter(function ($ticket) {
-            $lastMsg = $ticket->messages->first();
-            // User needs to see it if the last message was from Admin OR status is resolved
-            return ($lastMsg && $lastMsg->is_admin_reply) || $ticket->status === 'resolved';
-        })->count();
-
-        return response()->json(['count' => $count]);
-    }
 
     public function uploadImage(Request $request)
     {

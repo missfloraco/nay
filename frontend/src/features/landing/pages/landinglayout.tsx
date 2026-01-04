@@ -284,28 +284,19 @@ export default function LandingLayout({ children }: LandingLayoutProps) {
                         </div>
 
                         {/* Footer Link Grid */}
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-12 lg:gap-16 mb-20 text-center">
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-12 lg:gap-16 mb-20 text-center">
                             <div className="space-y-6">
                                 <h3 className="text-xl font-black text-gray-900">الدعم الفني</h3>
                                 <ul className="space-y-4 text-gray-600 font-bold text-base">
                                     <li><a href="#" className="hover:text-primary transition-colors">سياسة الخصوصية</a></li>
-                                    <li><a href="#" className="hover:text-primary transition-colors">سياسة الخصوصية</a></li>
-                                    <li><a href="#" className="hover:text-primary transition-colors">طرق الدفع</a></li>
-                                </ul>
-                            </div>
-
-                            <div className="space-y-6">
-                                <h3 className="text-xl font-black text-gray-900 dark:text-white">الدعم الفني</h3>
-                                <ul className="space-y-4 text-gray-600 dark:text-gray-400 font-bold text-base">
-                                    <li><a href="#" className="hover:text-primary transition-colors">سياسة الخصوصية</a></li>
-                                    <li><a href="#" className="hover:text-primary transition-colors">سياسة الخصوصية</a></li>
+                                    <li><a href="#" className="hover:text-primary transition-colors">الشروط والأحكام</a></li>
                                     <li><a href="#" className="hover:text-primary transition-colors">طرق الدفع</a></li>
                                 </ul>
                             </div>
 
                             <div className="space-y-6">
                                 <h3 className="text-xl font-black text-gray-900">المنتجات</h3>
-                                <ul className="space-y-4 text-gray-600 dark:text-gray-400 font-bold text-base">
+                                <ul className="space-y-4 text-gray-600 font-bold text-base">
                                     <li><a href="#" className="hover:text-primary transition-colors">أكاديمية مسلفورا</a></li>
                                     <li><a href="#" className="hover:text-primary transition-colors">{finalAppName}</a></li>
                                     <li><a href="#" className="hover:text-primary transition-colors">تسجيل الشركات</a></li>
@@ -314,7 +305,7 @@ export default function LandingLayout({ children }: LandingLayoutProps) {
 
                             <div className="space-y-6">
                                 <h3 className="text-xl font-black text-gray-900">الشركة</h3>
-                                <ul className="space-y-4 text-gray-600 dark:text-gray-400 font-bold text-base">
+                                <ul className="space-y-4 text-gray-600 font-bold text-base">
                                     <li><a href="#" className="hover:text-primary transition-colors">الباقات والأسعار</a></li>
                                     <li><a href="#" className="hover:text-primary transition-colors">المدونة</a></li>
                                     <li><a href="#" className="hover:text-primary transition-colors">من نحن</a></li>

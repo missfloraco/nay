@@ -35,6 +35,7 @@ class SystemNotification extends Notification
     public function toArray(object $notifiable): array
     {
         return [
+            'notification_type' => $this->options['notification_type'] ?? 'system_default',
             'title' => $this->options['title'] ?? 'تنبيه النظام',
             'message' => $this->options['message'],
             'level' => $this->options['level'] ?? 'info',

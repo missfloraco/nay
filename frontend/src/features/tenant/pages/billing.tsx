@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useNavigate } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import api from '@/shared/services/api';
 import { useNotifications } from '@/shared/contexts/notification-context';
 import Modal from '@/shared/ui/modals/modal';
@@ -26,11 +26,22 @@ import { Toolbar } from '@/shared/components/toolbar';
 
 export default function BillingPage() {
     const navigate = useNavigate();
+    const [searchParams, setSearchParams] = useSearchParams();
     const queryClient = useQueryClient();
     const { showSuccess } = useNotifications();
-    const [activeTab, setActiveTab] = useState<'overview' | 'payments' | 'requests'>('overview');
+    const [activeTab, setActiveTab] = useState<'overview' | 'payments' | 'requests'>(() => {
+        const tab = searchParams.get('tab');
+        if (tab === 'payments' || tab === 'requests') return tab;
+        return 'overview';
+    });
     const [selectedPlan, setSelectedPlan] = useState<any>(null);
     const [notes, setNotes] = useState('');
+
+    // Update URL when tab changes
+    const handleTabChange = (tab: 'overview' | 'payments' | 'requests') => {
+        setActiveTab(tab);
+        setSearchParams({ tab }, { replace: true });
+    };
 
     const { data: currentSubData, isLoading: isSubLoading } = useQuery({
         queryKey: ['current-subscription'],
@@ -138,7 +149,7 @@ export default function BillingPage() {
             toolbar={
                 <Toolbar
                     activeValue={activeTab}
-                    onChange={(val) => setActiveTab(val as any)}
+                    onChange={(val) => handleTabChange(val as any)}
                     variant="pills"
                     options={[
                         { id: 'overview', label: 'نظرة عامة', icon: LayoutDashboard },

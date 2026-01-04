@@ -41,7 +41,7 @@ class AuthController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'phone' => $request->phone,
-            'password' => $request->password, // Raw password, will hash on create
+            'password' => Hash::make($request->password), // Hashed before caching for security 
             'country' => $request->country ?? 'PS',
             'code' => $code
         ];
@@ -78,11 +78,15 @@ class AuthController extends Controller
             return response()->json(['message' => 'رمز التحقق غير صحيح أو منتهي الصلاحية.'], 400);
         }
 
-        // Check if user already exists independently of cache to prevent duplicates
-        if (Tenant::where('email', $cachedData['email'])->exists()) {
+        // Check if user already exists (email or phone) independently of cache to prevent duplicates
+        $exists = Tenant::where('email', $cachedData['email'])
+            ->orWhere('phone', $cachedData['phone'])
+            ->exists();
+
+        if ($exists) {
             \Illuminate\Support\Facades\Cache::forget('temp_reg_' . $request->email);
             return response()->json([
-                'message' => 'هذا الحساب مسجل بالفعل. يمكنك تسجيل الدخول مباشرة.',
+                'message' => 'هذا الحساب مسجل بالفعل (البريد أو الهاتف). يمكنك تسجيل الدخول مباشرة.',
                 'action' => 'login'
             ], 409); // Conflict
         }
@@ -100,7 +104,7 @@ class AuthController extends Controller
                     'name' => $cachedData['name'],
                     'email' => $cachedData['email'],
                     'phone' => $cachedData['phone'],
-                    'password' => Hash::make($cachedData['password']),
+                    'password' => $cachedData['password'], // Already hashed in cache
                     'country_code' => $cachedData['country'] ?? 'PS',
                     'status' => 'trial',
                     'trial_expires_at' => now()->addDays($trialDays),
@@ -151,6 +155,8 @@ class AuthController extends Controller
         $admins = \App\Models\Admin::all();
         foreach ($admins as $admin) {
             $admin->notify(new \App\Notifications\SystemNotification([
+                'notification_type' => 'new_registration',
+                'tenant_id' => $tenant->id,
                 'title' => 'مستخدم جديد',
                 'message' => 'قام ' . $tenant->name . ' بإنشاء حساب جديد على المنصة.',
                 'level' => 'info',
@@ -309,6 +315,7 @@ class AuthController extends Controller
 
         $tenant = Tenant::where('email', $request->email)->first();
         if (!$tenant) {
+            \Illuminate\Support\Facades\Cache::forget('password_reset_OTP_' . $request->email);
             return response()->json(['message' => 'المستخدم غير موجود.'], 404);
         }
 

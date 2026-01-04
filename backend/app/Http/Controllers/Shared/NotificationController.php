@@ -14,31 +14,41 @@ class NotificationController extends Controller
     {
         $user = $request->user();
 
-        // Auto-check for Trial Expiry (Notify 24h before) - moved to a more controlled check
-        $this->checkForTrialExpiry($user);
+        // 1. Logic-driven notifications (Trial, etc.) - Only for Tenants
+        if ($user instanceof \App\Models\Tenant) {
+            $this->checkForTrialExpiry($user);
+        }
 
         $notifications = $user->notifications()
             ->latest()
             ->paginate(20);
 
-        return response()->json([
-            'notifications' => $notifications->map(function ($notif) {
-                $payload = is_string($notif->data) ? json_decode($notif->data, true) : $notif->data;
+        // Granular counts for sidebar badges
+        $unreadCounts = [
+            'total' => $user->unreadNotifications()->count(),
+            'support' => $user->unreadNotifications()
+                ->where(fn($q) => $q->whereJsonContains('data->notification_type', 'new_support_ticket')
+                    ->orWhereJsonContains('data->notification_type', 'ticket_reply')
+                    ->orWhereJsonContains('data->notification_type', 'ticket_resolved'))
+                ->count(),
+            'billing' => $user->unreadNotifications()
+                ->where(fn($q) => $q->whereJsonContains('data->notification_type', 'payment_extension')
+                    ->orWhereJsonContains('data->notification_type', 'subscription_approved')
+                    ->orWhereJsonContains('data->notification_type', 'subscription_rejected')
+                    ->orWhereJsonContains('data->notification_type', 'new_subscription_request')
+                    ->orWhereJsonContains('data->notification_type', 'trial_expiry'))
+                ->count(),
+            'tenants' => $user->unreadNotifications()
+                ->where(fn($q) => $q->whereJsonContains('data->notification_type', 'new_registration')
+                    ->orWhereJsonContains('data->notification_type', 'account_activated')
+                    ->orWhereJsonContains('data->notification_type', 'account_disabled'))
+                ->count(),
+        ];
 
-                return [
-                    'id' => $notif->id,
-                    'type' => $notif->type,
-                    'title' => $payload['title'] ?? null,
-                    'message' => $payload['message'] ?? null,
-                    'level' => $payload['level'] ?? 'info', // success, error, info, warning
-                    'action_url' => $payload['action_url'] ?? null,
-                    'icon' => $payload['icon'] ?? null,
-                    'is_read' => !is_null($notif->read_at),
-                    'created_at' => $notif->created_at,
-                    'created_human' => $notif->created_at->diffForHumans(),
-                ];
-            }),
-            'unread_count' => $user->unreadNotifications()->count(),
+        return response()->json([
+            'notifications' => $notifications->items(),
+            'unread_count' => $unreadCounts['total'],
+            'unread_counts' => $unreadCounts,
             'pagination' => [
                 'current_page' => $notifications->currentPage(),
                 'last_page' => $notifications->lastPage(),
@@ -66,7 +76,7 @@ class NotificationController extends Controller
     public function markAllAsRead(Request $request)
     {
         $user = $request->user();
-        $user->unreadNotifications->markAsRead();
+        $user->unreadNotifications()->update(['read_at' => now()]);
 
         return response()->json(['success' => true]);
     }
@@ -84,11 +94,22 @@ class NotificationController extends Controller
     }
 
     /**
+     * Remove all notifications from storage.
+     */
+    public function deleteAll(Request $request)
+    {
+        $user = $request->user();
+        $user->notifications()->delete();
+
+        return response()->json(['success' => true]);
+    }
+
+    /**
      * Check for trial expiry and notify user.
      */
     private function checkForTrialExpiry($user)
     {
-        if (!($user instanceof \App\Models\Tenant) || $user->status !== 'trial' || !$user->trial_expires_at) {
+        if ($user->status !== 'trial' || !$user->trial_expires_at) {
             return;
         }
 
@@ -97,20 +118,20 @@ class NotificationController extends Controller
             return;
         }
 
-        // Use cache to prevent hammering the DB every few seconds
+        // Use cache for high-frequency preventions
         $cacheKey = "trial_expiry_notified_{$user->id}";
         if (\Cache::has($cacheKey)) {
             return;
         }
 
-        // Robust check in DB too
+        // Robust DB check using metadata instead of fragile text matching
         $exists = $user->notifications()
-            ->where('type', \App\Notifications\SystemNotification::class)
-            ->where('data', 'like', '%ينتهي الاشتراك التجريبي قريباً%')
+            ->whereJsonContains('data->notification_type', 'trial_expiry')
             ->exists();
 
         if (!$exists) {
             $user->notify(new \App\Notifications\SystemNotification([
+                'notification_type' => 'trial_expiry',
                 'title' => 'ينتهي الاشتراك التجريبي قريباً',
                 'message' => 'باقي أقل من 24 ساعة على انتهاء الفترة التجريبية. اشترك الآن للمتابعة.',
                 'level' => 'warning',

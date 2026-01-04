@@ -74,11 +74,6 @@ const InputField = React.forwardRef<HTMLInputElement, InputFieldProps>(({
                     aria-describedby={error ? `${inputId}-error` : hint ? `${inputId}-hint` : undefined}
                     {...props}
                 />
-                {endContent && (
-                    <div className="absolute top-1/2 -translate-y-1/2 end-5 z-20 flex items-center justify-center opacity-60 hover:opacity-100 transition-opacity">
-                        {endContent}
-                    </div>
-                )}
             </div>
 
             {error ? (

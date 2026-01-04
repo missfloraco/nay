@@ -1,19 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Check, X, User, Calendar, MessageSquare, AlertCircle } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useSearchParams } from 'react-router-dom';
 import api from '@/shared/services/api';
 import { useNotifications } from '@/shared/contexts/notification-context';
 import Modal from '@/shared/ui/modals/modal';
 import InputField from '@/shared/ui/forms/input-field';
 import { useAction } from '@/shared/contexts/action-context';
-import { useEffect } from 'react';
 
 export default function SubscriptionRequestsTable() {
     const queryClient = useQueryClient();
     const { showSuccess } = useNotifications();
+    const [searchParams] = useSearchParams();
     const [selectedRequest, setSelectedRequest] = useState<any>(null);
     const [isApproveModalOpen, setIsApproveModalOpen] = useState(false);
     const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
+    const highlightedId = searchParams.get('request_id');
+    const highlightedRef = useRef<HTMLDivElement>(null);
 
     const { data: requestsData, isLoading } = useQuery({
         queryKey: ['admin-subscription-requests'],
@@ -21,6 +24,16 @@ export default function SubscriptionRequestsTable() {
     });
 
     const requests = (requestsData as any)?.requests || [];
+
+    // Handle scroll to highlighted
+    useEffect(() => {
+        if (requests.length > 0 && highlightedId && highlightedRef.current) {
+            const timer = setTimeout(() => {
+                highlightedRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 600);
+            return () => clearTimeout(timer);
+        }
+    }, [requests.length, highlightedId]);
 
     const approveMutation = useMutation({
         mutationFn: (data: any) => api.post(`/admin/subscription-requests/${selectedRequest.id}/approve`, data),
@@ -100,61 +113,71 @@ export default function SubscriptionRequestsTable() {
                     </div>
                 )}
 
-                {requests.map((request: any) => (
-                    <div key={request.id} className="bg-white dark:bg-dark-900 p-8 rounded-[2.5rem] border border-gray-100 dark:border-white/5 shadow-sm hover:shadow-md transition-all flex flex-col md:flex-row md:items-center justify-between gap-8 animate-in fade-in slide-in-from-bottom-4">
-                        <div className="flex items-center gap-6">
-                            <div className="w-16 h-16 bg-gray-50 dark:bg-white/5 rounded-2xl flex items-center justify-center shrink-0">
-                                <User className="w-8 h-8 text-gray-400" />
-                            </div>
-                            <div>
-                                <h3 className="text-lg font-black text-gray-900 dark:text-white">{request.tenant?.name}</h3>
-                                <p className="text-sm text-gray-400 font-bold">{request.tenant?.email}</p>
-                                <div className="flex items-center gap-3 mt-2">
-                                    <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${request.status === 'pending' ? 'bg-amber-100 text-amber-600' : request.status === 'approved' ? 'bg-emerald-100 text-emerald-600' : 'bg-red-100 text-red-600'}`}>
-                                        {request.status === 'pending' ? 'قيد المراجعة' : request.status === 'approved' ? 'تمت الموافقة' : 'مرفوض'}
-                                    </span>
-                                    <span className="text-xs text-primary font-black">يطلب: {request.plan?.name}</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 flex-1 max-w-xl">
-                            <div className="space-y-1">
-                                <div className="flex items-center gap-2 text-xs font-black text-gray-400 uppercase tracking-widest">
-                                    <MessageSquare className="w-3 h-3" />
-                                    <span>ملاحظات العميل</span>
-                                </div>
-                                <p className="text-sm text-gray-600 dark:text-gray-300 font-bold line-clamp-2">{request.notes || 'لا يوجد ملاحظات'}</p>
-                            </div>
-                            <div className="space-y-1">
-                                <div className="flex items-center gap-2 text-xs font-black text-gray-400 uppercase tracking-widest">
-                                    <Calendar className="w-3 h-3" />
-                                    <span>تاريخ الطلب</span>
-                                </div>
-                                <p className="text-sm text-gray-600 dark:text-gray-300 font-bold">{new Date(request.created_at).toLocaleDateString('ar-SA')}</p>
-                            </div>
-                        </div>
-
-                        <div className="flex items-center gap-3">
-                            {request.status === 'pending' && (
-                                <>
-                                    <button
-                                        onClick={() => { setSelectedRequest(request); setIsApproveModalOpen(true); }}
-                                        className="px-6 py-3 bg-emerald-500 text-white rounded-2xl font-black text-sm hover:scale-105 transition-all shadow-lg shadow-emerald-500/20"
-                                    >
-                                        موافقة وتفعيل
-                                    </button>
-                                    <button
-                                        onClick={() => { setSelectedRequest(request); setIsRejectModalOpen(true); }}
-                                        className="px-6 py-3 bg-red-50 text-red-600 rounded-2xl font-black text-sm hover:bg-red-600 hover:text-white transition-all"
-                                    >
-                                        رفض
-                                    </button>
-                                </>
+                {requests.map((request: any) => {
+                    const isHighlighted = highlightedId === String(request.id);
+                    return (
+                        <div
+                            key={request.id}
+                            ref={isHighlighted ? highlightedRef : null}
+                            className={`bg-white dark:bg-dark-900 p-8 rounded-[2.5rem] border ${isHighlighted ? 'border-primary shadow-2xl shadow-primary/20 scale-[1.01]' : 'border-gray-100 dark:border-white/5 shadow-sm'} hover:shadow-md transition-all flex flex-col md:flex-row md:items-center justify-between gap-8 animate-in fade-in slide-in-from-bottom-4 relative overflow-hidden`}
+                        >
+                            {isHighlighted && (
+                                <div className="absolute top-0 right-0 w-2 h-full bg-primary" />
                             )}
+                            <div className="flex items-center gap-6">
+                                <div className="w-16 h-16 bg-gray-50 dark:bg-white/5 rounded-2xl flex items-center justify-center shrink-0">
+                                    <User className="w-8 h-8 text-gray-400" />
+                                </div>
+                                <div>
+                                    <h3 className="text-lg font-black text-gray-900 dark:text-white">{request.tenant?.name}</h3>
+                                    <p className="text-sm text-gray-400 font-bold">{request.tenant?.email}</p>
+                                    <div className="flex items-center gap-3 mt-2">
+                                        <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${request.status === 'pending' ? 'bg-amber-100 text-amber-600' : request.status === 'approved' ? 'bg-emerald-100 text-emerald-600' : 'bg-red-100 text-red-600'}`}>
+                                            {request.status === 'pending' ? 'قيد المراجعة' : request.status === 'approved' ? 'تمت الموافقة' : 'مرفوض'}
+                                        </span>
+                                        <span className="text-xs text-primary font-black">يطلب: {request.plan?.name}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 flex-1 max-w-xl">
+                                <div className="space-y-1">
+                                    <div className="flex items-center gap-2 text-xs font-black text-gray-400 uppercase tracking-widest">
+                                        <MessageSquare className="w-3 h-3" />
+                                        <span>ملاحظات العميل</span>
+                                    </div>
+                                    <p className="text-sm text-gray-600 dark:text-gray-300 font-bold line-clamp-2">{request.notes || 'لا يوجد ملاحظات'}</p>
+                                </div>
+                                <div className="space-y-1">
+                                    <div className="flex items-center gap-2 text-xs font-black text-gray-400 uppercase tracking-widest">
+                                        <Calendar className="w-3 h-3" />
+                                        <span>تاريخ الطلب</span>
+                                    </div>
+                                    <p className="text-sm text-gray-600 dark:text-gray-300 font-bold">{new Date(request.created_at).toLocaleDateString('ar-SA')}</p>
+                                </div>
+                            </div>
+
+                            <div className="flex items-center gap-3">
+                                {request.status === 'pending' && (
+                                    <>
+                                        <button
+                                            onClick={() => { setSelectedRequest(request); setIsApproveModalOpen(true); }}
+                                            className="px-6 py-3 bg-emerald-500 text-white rounded-2xl font-black text-sm hover:scale-105 transition-all shadow-lg shadow-emerald-500/20"
+                                        >
+                                            موافقة وتفعيل
+                                        </button>
+                                        <button
+                                            onClick={() => { setSelectedRequest(request); setIsRejectModalOpen(true); }}
+                                            className="px-6 py-3 bg-red-50 text-red-600 rounded-2xl font-black text-sm hover:bg-red-600 hover:text-white transition-all"
+                                        >
+                                            رفض
+                                        </button>
+                                    </>
+                                )}
+                            </div>
                         </div>
-                    </div>
-                ))}
+                    );
+                })}
             </div>
 
             {/* Approval Modal */}
@@ -211,8 +234,6 @@ export default function SubscriptionRequestsTable() {
                             ></textarea>
                         </div>
                     </div>
-
-                    {/* Local footer removed - Actions are now in global toolbar */}
                 </form>
             </Modal>
 
@@ -258,8 +279,6 @@ export default function SubscriptionRequestsTable() {
                             ></textarea>
                         </div>
                     </div>
-
-                    {/* Local footer removed - Actions are now in global toolbar */}
                 </form>
             </Modal>
         </div>

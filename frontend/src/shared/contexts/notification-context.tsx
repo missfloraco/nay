@@ -6,6 +6,7 @@ export type NotificationLevel = 'success' | 'error' | 'info' | 'warning';
 
 export interface AppNotification {
     id: string | number;
+    uid?: string;
     level: NotificationLevel;
     title?: string;
     message: string;
@@ -34,6 +35,12 @@ interface NotificationContextType {
     notifications: AppNotification[];
     activeToasts: AppNotification[];
     unreadCount: number;
+    unreadCounts: {
+        total: number;
+        support: number;
+        billing: number;
+        tenants: number;
+    };
     loading: boolean;
     notify: (options: {
         message: string;
@@ -49,7 +56,9 @@ interface NotificationContextType {
     markAsRead: (id: string | number) => Promise<void>;
     markAllAsRead: () => Promise<void>;
     deleteNotification: (id: string | number) => Promise<void>;
+    deleteNotifications: () => Promise<void>;
     fetchNotifications: () => Promise<void>;
+    handleNotificationClick: (notification: AppNotification) => Promise<void>;
     showConfirm: (options: ConfirmOptions) => Promise<boolean>;
     // Compatibility aliases
     showSuccess: (message: string) => void;
@@ -63,6 +72,7 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ childr
     const [notifications, setNotifications] = useState<AppNotification[]>([]);
     const [activeToasts, setActiveToasts] = useState<AppNotification[]>([]);
     const [unreadCount, setUnreadCount] = useState(0);
+    const [unreadCounts, setUnreadCounts] = useState({ total: 0, support: 0, billing: 0, tenants: 0 });
     const lastUnreadCountRef = React.useRef(0);
     const [loading, setLoading] = useState(false);
     const hasInitialFetchRef = React.useRef(false);
@@ -100,8 +110,6 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ childr
 
             const response = await api.get(`${prefix}/notifications`) as any;
 
-            // The api service interceptor already returns response.data directly
-            // Handle both flat arrays and paginated responses (LengthAwarePaginator)
             let notificationsList = [];
             if (response?.notifications) {
                 notificationsList = Array.isArray(response.notifications)
@@ -110,10 +118,9 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ childr
             }
 
             const newUnreadCount = response?.unread_count ?? 0;
+            const newUnreadCounts = response?.unread_counts ?? { total: newUnreadCount, support: 0, billing: 0 };
 
-            // If unread count increased and it's not the first load, play sound
             if (hasInitialFetchRef.current && newUnreadCount > lastUnreadCountRef.current) {
-                // Determine level of newest notification to play appropriate sound
                 const newest = notificationsList[0];
                 playSound(newest?.level || 'info');
             }
@@ -121,6 +128,7 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ childr
             lastUnreadCountRef.current = newUnreadCount;
             setNotifications(notificationsList);
             setUnreadCount(newUnreadCount);
+            setUnreadCounts(newUnreadCounts);
             hasInitialFetchRef.current = true;
         } catch (error) {
             logger.error('Failed to fetch notifications', error);
@@ -138,7 +146,7 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ childr
             onClick: () => void;
         };
     }) => {
-        const { message, title, level = 'info', persistent = false, action_url, action } = options;
+        const { message, title, level = 'info', action_url, action } = options;
         const id = Math.random().toString(36).substring(2, 9);
 
         const newNotification: AppNotification = {
@@ -148,30 +156,18 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ childr
             level,
             action_url,
             action,
-            persistent: false, // This is current instance ephemeral representation
+            persistent: false,
             created_at: new Date().toISOString(),
             created_human: 'الآن'
         };
 
-        // Add to toasts (ephemeral)
         setActiveToasts(prev => [...prev, newNotification]);
-
-        // Force play sound for manual notifications
         playSound(level);
 
-        // Auto-remove toast after duration
         setTimeout(() => {
             setActiveToasts(prev => prev.filter(t => t.id !== id));
         }, 5000);
-
-        // If persistent was requested, we assume backend already handled it or we trigger it?
-        // Usually, persistent notifications are triggered by backend events.
-        // But if the frontend wants to "store" something, it can hit an endpoint.
-        // For this unified system, persistent usually means "show in the list".
-        if (persistent) {
-            fetchNotifications(); // Refresh list to see the new one
-        }
-    }, [fetchNotifications]);
+    }, [playSound]);
 
     // Convenience methods
     const showSuccess = useCallback((message: string) => notify({ message, level: 'success' }), [notify]);
@@ -185,11 +181,12 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ childr
             const prefix = isAdmin ? 'admin' : 'app';
             await api.post(`${prefix}/notifications/${id}/read`);
             setNotifications(prev => prev.map(n => n.id === id ? { ...n, is_read: true } : n));
-            setUnreadCount(prev => Math.max(0, prev - 1));
+            // Trigger a re-fetch of totals to be safe, or local update
+            fetchNotifications();
         } catch (error) {
             logger.error('Failed to mark notification as read', error);
         }
-    }, [notifications]);
+    }, [fetchNotifications]);
 
     const markAllAsRead = useCallback(async () => {
         try {
@@ -199,10 +196,11 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ childr
             await api.post(`${prefix}/notifications/read-all`);
             setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
             setUnreadCount(0);
+            fetchNotifications();
         } catch (error) {
             logger.error('Failed to mark all as read', error);
         }
-    }, []);
+    }, [fetchNotifications]);
 
     const deleteNotification = useCallback(async (id: string | number) => {
         try {
@@ -211,16 +209,14 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ childr
             const prefix = isAdmin ? 'admin' : 'app';
             await api.delete(`${prefix}/notifications/${id}`);
 
-            // Success path
             setNotifications(prev => prev.filter(n => n.id !== id));
 
             const deleted = notifications.find(n => n.id === id);
             if (deleted && !deleted.is_read) {
                 setUnreadCount(prev => Math.max(0, prev - 1));
             }
+            fetchNotifications();
         } catch (error: any) {
-            // If 404, it means it's already gone from server (ghost notification)
-            // So we should remove it from UI as well
             if (error?.response?.status === 404 || error?.status === 404) {
                 setNotifications(prev => prev.filter(n => n.id !== id));
                 const deleted = notifications.find(n => n.id === id);
@@ -231,7 +227,40 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ childr
             }
             logger.error('Failed to delete notification', error);
         }
-    }, [notifications]);
+    }, [notifications, fetchNotifications]);
+
+    const deleteNotifications = useCallback(async () => {
+        try {
+            const pathname = window.location.pathname;
+            const isAdmin = pathname.includes('/admin') || pathname.startsWith('admin');
+            const prefix = isAdmin ? 'admin' : 'app';
+            await api.delete(`${prefix}/notifications/delete-all`);
+            setNotifications([]);
+            setUnreadCount(0);
+            setUnreadCounts({ total: 0, support: 0, billing: 0, tenants: 0 });
+            fetchNotifications();
+        } catch (error) {
+            logger.error('Failed to delete all notifications', error);
+        }
+    }, [fetchNotifications]);
+
+    const handleNotificationClick = useCallback(async (notif: AppNotification) => {
+        if (!notif.is_read) {
+            markAsRead(notif.id);
+        }
+
+        if (notif.action_url) {
+            if (notif.action_url.startsWith('http')) {
+                window.open(notif.action_url, '_blank');
+            } else {
+                window.dispatchEvent(new CustomEvent('app:navigate', { detail: { path: notif.action_url } }));
+            }
+        }
+
+        if (notif.action?.onClick) {
+            notif.action.onClick();
+        }
+    }, [markAsRead]);
 
     const showConfirm = useCallback((options: ConfirmOptions) => {
         return new Promise<boolean>((resolve) => {
@@ -239,18 +268,15 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ childr
         });
     }, []);
 
-    // Listen for global custom events (e.g. from api.ts or other non-react files)
     useEffect(() => {
         const handleGlobalToast = (e: any) => {
             const { message, level, type } = e.detail;
             notify({ message, level: level || type || 'info' });
         };
-
         window.addEventListener('app:toast', handleGlobalToast as any);
         return () => window.removeEventListener('app:toast', handleGlobalToast as any);
     }, [notify]);
 
-    // Fetch notifications on mount if user is logged in
     useEffect(() => {
         const isAuthPage = window.location.pathname.includes('/login') ||
             window.location.pathname.includes('/register') ||
@@ -259,31 +285,28 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ childr
 
         if (!isAuthPage) {
             fetchNotifications();
-
-            // Polling for new notifications every 10 seconds
             const interval = setInterval(fetchNotifications, 10000);
-
-            // Fetch when window regained focus
             const handleFocus = () => fetchNotifications();
             window.addEventListener('focus', handleFocus);
-
             return () => {
                 clearInterval(interval);
                 window.removeEventListener('focus', handleFocus);
             };
         }
-    }, [fetchNotifications, window.location.pathname]);
+    }, [fetchNotifications]);
 
     const contextValue = useMemo(() => ({
         notifications,
         activeToasts,
         unreadCount,
+        unreadCounts,
         loading,
         notify,
         markAsRead,
         markAllAsRead,
         deleteNotification,
         fetchNotifications,
+        handleNotificationClick,
         showConfirm,
         showSuccess,
         showError,
@@ -292,12 +315,14 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ childr
         notifications,
         activeToasts,
         unreadCount,
+        unreadCounts,
         loading,
         notify,
         markAsRead,
         markAllAsRead,
         deleteNotification,
         fetchNotifications,
+        handleNotificationClick,
         showConfirm,
         showSuccess,
         showError,
@@ -308,18 +333,17 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ childr
         <NotificationContext.Provider value={contextValue}>
             {children}
 
-            {/* Toasts Rendering - MOVED TO DASHBOARD LAYOUT FOOTER */}
-            {/* <div className="fixed bottom-0 right-0 z-[9999] flex flex-col gap-2 p-4 pointer-events-none">
+            <div className="fixed bottom-0 right-0 z-[9999] flex flex-col gap-2 p-4 pointer-events-none">
                 {activeToasts.map(toast => (
                     <ToastComponent
                         key={toast.id}
                         notification={toast}
+                        handleNotificationClick={handleNotificationClick}
                         onClose={() => setActiveToasts(prev => prev.filter(t => t.id !== toast.id))}
                     />
                 ))}
-            </div> */}
+            </div>
 
-            {/* Confirmation Modal Placeholder */}
             {confirmState && (
                 <ConfirmationModalPortal
                     options={confirmState.options}
@@ -343,10 +367,13 @@ export const useNotifications = () => {
     return context;
 };
 
-// Internal sub-components (can be moved to separate files later)
 import { X, CheckCircle, AlertCircle, Info, AlertTriangle } from 'lucide-react';
 
-const ToastComponent: React.FC<{ notification: AppNotification, onClose: () => void }> = ({ notification, onClose }) => {
+const ToastComponent: React.FC<{
+    notification: AppNotification,
+    handleNotificationClick: (n: AppNotification) => void,
+    onClose: () => void
+}> = ({ notification, handleNotificationClick, onClose }) => {
     const { level, message, title } = notification;
 
     const icons = {
@@ -364,12 +391,18 @@ const ToastComponent: React.FC<{ notification: AppNotification, onClose: () => v
     };
 
     return (
-        <div className={`
-            w-[320px] pointer-events-auto animate-in slide-in-from-right-full duration-500
-            rounded-2xl border p-4 shadow-xl backdrop-blur-md flex gap-3
-            ${bgColors[level]}
-        `}>
-            <div className="shrink-0">{icons[level]}</div>
+        <div
+            onClick={() => {
+                handleNotificationClick(notification);
+                onClose();
+            }}
+            className={`
+                w-[320px] pointer-events-auto animate-in slide-in-from-right-full duration-500
+                rounded-2xl border p-4 shadow-xl backdrop-blur-md flex gap-3 cursor-pointer group/toast
+                ${bgColors[level]}
+            `}
+        >
+            <div className="shrink-0 group-hover/toast:scale-110 transition-transform">{icons[level]}</div>
             <div className="flex-1 min-w-0">
                 {title && <p className="text-sm font-bold text-gray-900 dark:text-white mb-0.5">{title}</p>}
                 <p className="text-sm text-gray-600 dark:text-gray-300 leading-tight">{message}</p>
@@ -386,14 +419,19 @@ const ToastComponent: React.FC<{ notification: AppNotification, onClose: () => v
                     </button>
                 )}
             </div>
-            <button onClick={onClose} className="shrink-0 p-1 hover:bg-black/5 rounded-lg transition-colors h-fit">
+            <button
+                onClick={(e) => {
+                    e.stopPropagation();
+                    onClose();
+                }}
+                className="shrink-0 p-1 hover:bg-black/5 rounded-lg transition-colors h-fit"
+            >
                 <X className="w-4 h-4 text-gray-400" />
             </button>
         </div>
     );
 };
 
-// Portal/Modal shim
 import ConfirmationModal from '@/shared/ui/modals/confirmation-modal';
 const ConfirmationModalPortal = ({ options, onConfirm, onCancel }: { options: ConfirmOptions, onConfirm: () => void, onCancel: () => void }) => {
     return (

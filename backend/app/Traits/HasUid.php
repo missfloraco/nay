@@ -43,6 +43,8 @@ trait HasUid
             $settingKey = 'prefix_script';
         if ($model instanceof \App\Models\Ad)
             $settingKey = 'prefix_ad';
+        if ($model instanceof \App\Models\Notification)
+            $settingKey = 'prefix_notification';
 
         $prefix = null;
         if ($settingKey) {
