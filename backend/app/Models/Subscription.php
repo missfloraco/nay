@@ -12,6 +12,7 @@ class Subscription extends Model
 
     const UID_PREFIX = 'SUB';
     protected $fillable = [
+        'uid',
         'tenant_id',
         'plan_id',
         'status',

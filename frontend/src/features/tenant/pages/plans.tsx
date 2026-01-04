@@ -40,7 +40,11 @@ export default function TenantPlansPage() {
                 label: requestMutation.isPending ? 'جاري الإرسال...' : 'إرسال طلب التفعيل والمتابعة',
                 icon: ArrowRight,
                 loading: requestMutation.isPending,
-                onClick: () => requestMutation.mutate({ plan_id: selectedPlan.id, notes }),
+                onClick: () => requestMutation.mutate({
+                    plan_id: selectedPlan.id,
+                    billing_cycle: selectedPlan.billing_cycle,
+                    notes
+                }),
                 secondaryAction: {
                     label: 'إلغاء',
                     onClick: () => setSelectedPlan(null)
@@ -57,9 +61,11 @@ export default function TenantPlansPage() {
                 {/* Header Section */}
                 <div className="text-center space-y-6">
                     <h1 className="text-4xl md:text-6xl font-black text-gray-900 dark:text-white tracking-tight">
-                        ابدأ بـ 7 أيام تجريبية مجانية أو قم <span className="text-primary">بالترقية الآن</span>
+                        وصول كامل لكافة ميزات النظام، <span className="text-primary">اختر ما يناسبك</span>
                     </h1>
-
+                    <p className="text-xl text-gray-500 dark:text-gray-400 font-bold max-w-3xl mx-auto">
+                        كافة الباقات تمنحك وصولاً غير محدود لجميع أدوات النظام. الفروقات تكمن فقط في السعر، مدة الاشتراك، ومستوى الدعم الفني المختار.
+                    </p>
                     <PricingGrid
                         onSelectPlan={setSelectedPlan}
                         currentSub={currentSub}

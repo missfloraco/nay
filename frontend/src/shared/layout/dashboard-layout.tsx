@@ -10,6 +10,7 @@ import Button from '@/shared/ui/buttons/btn-base';
 import { useAdminAuth } from '@/features/auth/admin-auth-context';
 import { useTenantAuth } from '@/features/auth/tenant-auth-context';
 import { useLocation } from 'react-router-dom';
+import { DefaultToolbar } from '@/shared/layout/toolbar/default-toolbar';
 
 interface DashboardAction {
     label: string;
@@ -90,11 +91,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
                             <div className="absolute bottom-[-1px] left-1/3 w-64 h-px bg-gradient-to-r from-transparent via-emerald-500/20 to-transparent" />
 
                             <div className="flex-1 w-full relative z-10 h-full flex items-stretch px-6 lg:px-12">
-                                {toolbar || (
-                                    <div className="flex items-center justify-between opacity-20">
-                                        <div className="h-4 w-32 bg-emerald-500/20 rounded-full" />
-                                    </div>
-                                )}
+                                {toolbar || <DefaultToolbar user={currentUser} />}
                             </div>
                         </div>
 
@@ -150,63 +147,77 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
                                 );
                             })()}
 
-                            {footerContent ? (
-                                <div className="w-full h-full relative z-10 flex items-stretch px-6 lg:px-12">
+                            {/* Footer Content Overlay (Banners) */}
+                            {footerContent && (
+                                <div className="absolute inset-0 z-10 flex items-stretch px-6 lg:px-12">
                                     {footerContent}
                                 </div>
-                            ) : (
-                                <div className="flex items-center justify-center lg:justify-end gap-3 shrink-0 w-full relative z-10 px-6 lg:px-12">
-                                    {/* Right Side: Actions */}
-                                    <div className="flex items-center gap-3">
-                                        {(!primaryAction && extraActions.length === 0) && (
-                                            <div className="h-10 w-32 bg-gray-100 dark:bg-white/5 rounded-2xl animate-pulse-subtle opacity-20" />
-                                        )}
-                                        <div className="flex items-center gap-3">
-                                            {extraActions.map((action, idx) => (
-                                                <Button
-                                                    key={idx}
-                                                    onClick={action.onClick}
-                                                    disabled={action.disabled || action.loading}
-                                                    variant={action.variant || 'secondary'}
-                                                    icon={action.icon || Plus}
-                                                    isLoading={action.loading}
-                                                    type={action.type}
-                                                    form={action.form}
-                                                    className="animate-in fade-in slide-in-from-bottom-2 duration-300 transform hover:translate-y-[-2px] transition-all"
-                                                >
-                                                    {action.label}
-                                                </Button>
-                                            ))}
-                                        </div>
+                            )}
 
-                                        <div className="flex items-center gap-3">
-                                            {primaryAction?.secondaryAction && (
-                                                <Button
-                                                    onClick={primaryAction.secondaryAction.onClick}
-                                                    variant={(primaryAction.secondaryAction as any).variant || "secondary"}
-                                                    className="transform hover:translate-y-[-2px] transition-all"
-                                                >
-                                                    {primaryAction.secondaryAction.label}
-                                                </Button>
-                                            )}
-                                            {primaryAction && (
-                                                <Button
-                                                    onClick={primaryAction.onClick}
-                                                    disabled={primaryAction.disabled || primaryAction.loading}
-                                                    variant={primaryAction.variant === 'danger' ? 'danger' : 'primary'}
-                                                    icon={primaryAction.icon || Plus}
-                                                    isLoading={primaryAction.loading}
-                                                    type={primaryAction.type}
-                                                    form={primaryAction.form}
-                                                    className="min-w-[120px] shadow-lg shadow-emerald-500/20 transform hover:translate-y-[-2px] hover:shadow-emerald-500/30 transition-all"
-                                                >
-                                                    {primaryAction.label}
-                                                </Button>
-                                            )}
-                                        </div>
+                            {/* Standard Actions Layer */}
+                            <div className="flex items-center justify-between gap-3 shrink-0 w-full relative z-20 px-6 lg:px-12 pointer-events-none">
+                                {/* Left Side: Copyright (Hidden on mobile if needed, or small text) */}
+                                <div className="hidden lg:flex items-center gap-1 text-[11px] font-bold text-gray-400 dark:text-gray-500 pointer-events-auto">
+                                    {settings.copyright_text ? (
+                                        <span>{settings.copyright_text}</span>
+                                    ) : (
+                                        <>
+                                            <span>منصة {settings.appName} © {currentYear} أحد مشاريع</span>
+                                            <a href={settings.companyUrl || '#'} className="hover:text-primary transition-colors">{settings.companyName || 'اسم الشركة'}</a>
+                                        </>
+                                    )}
+                                </div>
+                                {/* Right Side: Actions */}
+                                <div className="flex items-center gap-3 pointer-events-auto">
+                                    {(!primaryAction && extraActions.length === 0 && !footerContent) && (
+                                        <div className="h-10 w-32 bg-gray-100 dark:bg-white/5 rounded-2xl animate-pulse-subtle opacity-20" />
+                                    )}
+
+                                    <div className="flex items-center gap-3">
+                                        {extraActions.map((action, idx) => (
+                                            <Button
+                                                key={idx}
+                                                onClick={action.onClick}
+                                                disabled={action.disabled || action.loading}
+                                                variant={action.variant || 'secondary'}
+                                                icon={action.icon || Plus}
+                                                isLoading={action.loading}
+                                                type={action.type}
+                                                form={action.form}
+                                                className="animate-in fade-in slide-in-from-bottom-2 duration-300 transform hover:translate-y-[-2px] transition-all"
+                                            >
+                                                {action.label}
+                                            </Button>
+                                        ))}
+                                    </div>
+
+                                    <div className="flex items-center gap-3">
+                                        {primaryAction?.secondaryAction && (
+                                            <Button
+                                                onClick={primaryAction.secondaryAction.onClick}
+                                                variant={(primaryAction.secondaryAction as any).variant || "secondary"}
+                                                className="transform hover:translate-y-[-2px] transition-all"
+                                            >
+                                                {primaryAction.secondaryAction.label}
+                                            </Button>
+                                        )}
+                                        {primaryAction && (
+                                            <Button
+                                                onClick={primaryAction.onClick}
+                                                disabled={primaryAction.disabled || primaryAction.loading}
+                                                variant={primaryAction.variant === 'danger' ? 'danger' : 'primary'}
+                                                icon={primaryAction.icon || Plus}
+                                                isLoading={primaryAction.loading}
+                                                type={primaryAction.type}
+                                                form={primaryAction.form}
+                                                className="min-w-[120px] shadow-lg shadow-emerald-500/20 transform hover:translate-y-[-2px] hover:shadow-emerald-500/30 transition-all"
+                                            >
+                                                {primaryAction.label}
+                                            </Button>
+                                        )}
                                     </div>
                                 </div>
-                            )}
+                            </div>
                         </div>
                     </div>
                 </main>

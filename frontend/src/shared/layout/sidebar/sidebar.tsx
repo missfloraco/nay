@@ -75,9 +75,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 key={item.path}
                 to={item.path!}
                 onClick={() => {
-                    if (isSidebarCollapsed) {
-                        setSidebarCollapsed(false);
-                    }
                     if (window.innerWidth < 1024) closeMobileMenu();
                 }}
                 className={`flex items-center group relative h-14 transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] rounded-2xl
@@ -100,7 +97,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 {/* 2. Label Zone - Dynamic push/expand */}
                 <span
                     className={`text-sm font-bold truncate transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] whitespace-nowrap overflow-hidden
-                        ${isSidebarCollapsed ? 'max-w-0 opacity-0 pointer-events-none' : 'max-w-full opacity-100'}
+                        ${isSidebarCollapsed ? 'lg:max-w-0 lg:opacity-0 lg:pointer-events-none max-w-full opacity-100' : 'max-w-full opacity-100'}
                     `}
                 >
                     {item.label}
@@ -119,7 +116,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
                 {/* Tooltip for collapsed state */}
                 {isSidebarCollapsed && (
-                    <div className="absolute right-full mr-4 px-3 py-2 bg-gray-900 text-white text-xs rounded-2xl opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50 shadow-xl">
+                    <div className="hidden lg:block absolute right-full mr-4 px-3 py-2 bg-gray-900 text-white text-xs rounded-2xl opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50 shadow-xl">
                         {item.label}
                         <div className="absolute top-1/2 -translate-y-1/2 left-full border-4 border-transparent border-l-gray-900" />
                     </div>
@@ -138,14 +135,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
             {/* Sidebar Content */}
             <aside
-                className={`fixed lg:static inset-y-0 right-0 z-[70] flex flex-col bg-white dark:bg-dark-900 border-l border-black transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]
+                className={`fixed lg:static inset-y-0 right-0 z-[70] flex flex-col bg-white dark:bg-dark-900 border-l border-gray-100 dark:border-white/10 transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]
                     ${isMobileMenuOpen ? 'translate-x-0 w-[250px]' : 'translate-x-full lg:translate-x-0'}
                     ${isSidebarCollapsed ? 'lg:w-[88px]' : 'lg:w-[250px]'}
                 `}
             >
 
                 {/* 1. Top Section: Branding */}
-                <div className="h-[70px] lg:h-[90px] flex items-center shrink-0 border-b border-black transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]">
+                <div className="h-[70px] lg:h-[90px] flex items-center shrink-0 border-b border-gray-100 dark:border-white/10 transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]">
                     <Link to={homePath} className="flex items-center group overflow-hidden transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]">
                         {/* Fixed Logo Anchor */}
                         <div className="w-[88px] flex items-center justify-center shrink-0">
@@ -159,7 +156,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                         </div>
 
                         {/* Dynamic App Name */}
-                        <span className={`text-lg lg:text-xl font-black text-gray-900 dark:text-white truncate transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] whitespace-nowrap overflow-hidden tracking-tight ${isSidebarCollapsed ? 'max-w-0 opacity-0 invisible' : 'max-w-full opacity-100 visible'}`}>
+                        <span className={`text-lg lg:text-xl font-black text-gray-900 dark:text-white truncate transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] whitespace-nowrap overflow-hidden tracking-tight ${isSidebarCollapsed ? 'lg:max-w-0 lg:opacity-0 lg:invisible max-w-full opacity-100 visible' : 'max-w-full opacity-100 visible'}`}>
                             {settings.appName}
                         </span>
                     </Link>
@@ -172,7 +169,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 </div>
 
                 {/* Sidebar Ad Slot */}
-                {!isSidebarCollapsed && (
+                {(!isSidebarCollapsed || isMobileMenuOpen) && (
                     <div className="w-full shrink-0 bg-white dark:bg-dark-900">
                         <AdSlot placement="ad_sidebar" className="w-full aspect-[250/250]" showPlaceholder={false} />
                     </div>
@@ -182,7 +179,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 <div className="shrink-0">
                     {/* Optional Banners (Fixed in Sidebar) */}
                     {banners && (
-                        <div className={`p-4 transition-all duration-500 ${isSidebarCollapsed ? 'opacity-0 invisible' : 'opacity-100 visible'}`}>
+                        <div className={`p-4 transition-all duration-500 ${isSidebarCollapsed ? 'lg:opacity-0 lg:invisible opacity-100 visible' : 'opacity-100 visible'}`}>
                             {banners}
                         </div>
                     )}
@@ -203,7 +200,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                             </div>
 
                             {isSidebarCollapsed && (
-                                <div className="absolute right-full mr-4 px-3 py-2 bg-gray-900 text-white text-xs rounded-2xl opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50 shadow-xl">
+                                <div className="hidden lg:block absolute right-full mr-4 px-3 py-2 bg-gray-900 text-white text-xs rounded-2xl opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50 shadow-xl">
                                     توسيع القائمة
                                     <div className="absolute top-1/2 -translate-y-1/2 left-full border-4 border-transparent border-l-gray-900" />
                                 </div>
@@ -212,7 +209,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     </div>
 
                     {/* User Profile Section - Now at Bottom (Mirrors Branding Height) */}
-                    <div className="sidebar-user-profile relative border-t border-black h-[70px] lg:h-[90px] flex items-center backdrop-blur-sm" ref={userMenuRef}>
+                    <div className="sidebar-user-profile relative border-t border-gray-100 dark:border-white/10 h-[70px] lg:h-[90px] flex items-center backdrop-blur-sm" ref={userMenuRef}>
                         <button
                             onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
                             className="flex items-center w-full h-full transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] group hover:bg-gray-50 dark:hover:bg-white/5"
@@ -229,7 +226,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                             {/* Dynamic User Info */}
                             <div
                                 className={`flex-1 flex flex-col items-start leading-tight overflow-hidden text-right transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] whitespace-nowrap
-                                    ${isSidebarCollapsed ? 'max-w-0 opacity-0 invisible' : 'max-w-full opacity-100 visible'}
+                                    ${isSidebarCollapsed ? 'lg:max-w-0 lg:opacity-0 lg:invisible max-w-full opacity-100 visible' : 'max-w-full opacity-100 visible'}
                                 `}
                             >
                                 <span className="text-sm font-black text-gray-900 dark:text-white truncate w-full">
@@ -246,28 +243,34 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
                         {/* Dropdown Menu - Always Opens Upwards */}
                         {isUserMenuOpen && (
-                            <div className="absolute bottom-full mb-2 left-4 right-4 lg:left-0 lg:right-0 bg-white dark:bg-dark-800 rounded-2xl shadow-xl border border-gray-100 dark:border-white/10 p-1.5 z-[100] animate-in fade-in zoom-in-95 duration-200">
+                            <div className={`absolute bottom-full mb-2 bg-white dark:bg-dark-800 rounded-2xl shadow-xl border border-gray-100 dark:border-white/10 p-1.5 z-[100] animate-in fade-in zoom-in-95 duration-200
+                                ${isSidebarCollapsed ? 'lg:left-1/2 lg:-translate-x-1/2 lg:w-fit lg:min-w-[56px] left-4 right-4' : 'left-4 right-4 lg:left-0 lg:right-0'}
+                            `}>
                                 <Link
                                     to={isAdmin ? '/admin/settings' : '/app/settings'}
                                     onClick={() => setIsUserMenuOpen(false)}
-                                    className="flex items-center gap-3 w-full px-3 py-2.5 rounded-2xl hover:bg-gray-50 dark:hover:bg-white/5 text-gray-700 dark:text-gray-300 transition-colors group mb-1"
+                                    className={`flex items-center gap-3 w-full rounded-2xl hover:bg-gray-50 dark:hover:bg-white/5 text-gray-700 dark:text-gray-300 transition-colors group mb-1
+                                        ${isSidebarCollapsed ? 'justify-center p-2' : 'px-3 py-2.5'}
+                                    `}
                                 >
                                     <div className="p-1.5 rounded-2xl bg-gray-50 dark:bg-white/5 text-gray-500 group-hover:bg-gray-100 dark:group-hover:bg-white/10 transition-colors">
                                         <SettingsIcon className="w-4 h-4" />
                                     </div>
-                                    <span className="font-bold text-xs">الإعدادات الشخصية</span>
+                                    {!isSidebarCollapsed && <span className="font-bold text-xs">الإعدادات الشخصية</span>}
                                 </Link>
                                 <button
                                     onClick={() => {
                                         handleLogout();
                                         setIsUserMenuOpen(false);
                                     }}
-                                    className="flex items-center gap-3 w-full px-3 py-2.5 rounded-2xl hover:bg-red-50 dark:hover:bg-red-500/10 text-red-600 transition-colors group"
+                                    className={`flex items-center gap-3 w-full rounded-2xl hover:bg-red-50 dark:hover:bg-red-500/10 text-red-600 transition-colors group
+                                        ${isSidebarCollapsed ? 'justify-center p-2' : 'px-3 py-2.5'}
+                                    `}
                                 >
                                     <div className="p-1.5 rounded-2xl bg-red-50 dark:bg-red-500/10 text-red-500 group-hover:bg-red-100 dark:group-hover:bg-red-500/20 transition-colors">
                                         <LogOut className="w-4 h-4" />
                                     </div>
-                                    <span className="font-bold text-xs">تسجيل الخروج</span>
+                                    {!isSidebarCollapsed && <span className="font-bold text-xs">تسجيل الخروج</span>}
                                 </button>
                             </div>
                         )}

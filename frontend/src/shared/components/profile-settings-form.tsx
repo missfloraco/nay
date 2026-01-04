@@ -7,7 +7,14 @@ import api from '@/shared/services/api';
 import InputField from '@/shared/ui/forms/input-field';
 import SelectField from '@/shared/ui/forms/select-field';
 import { CircularImageUpload } from '@/shared/components/circularimageupload';
-import { COUNTRIES } from '@/shared/constants';
+import ar from 'react-phone-number-input/locale/ar.json';
+import PhoneInput from 'react-phone-number-input';
+import 'react-phone-number-input/style.css';
+const ALLOWED_COUNTRIES = [
+    'SA', 'AE', 'EG', 'JO', 'MA', 'KW', 'BH', 'QA', 'OM', 'PS',
+    'LB', 'SY', 'IQ', 'DZ', 'TN', 'LY', 'SD', 'YE', 'SO', 'MR',
+    'DJ', 'KM'
+];
 import { useNotifications } from '@/shared/contexts/notification-context';
 import { useTrialStatus } from '@/core/hooks/usetrialstatus';
 import { useTenantAuth } from '@/features/auth/tenant-auth-context';
@@ -194,10 +201,36 @@ export default function ProfileSettingsForm({
         }
     };
 
-    const countryOptions = COUNTRIES.map(c => ({ value: c.code, label: c.name }));
+    const countryOptions = Object.entries(ar).map(([code, name]) => ({
+        value: code,
+        label: name
+    })).sort((a, b) => a.label.localeCompare(b.label, 'ar'));
 
     return (
         <form ref={formRef} onSubmit={handleSubmit(onSubmit)} className="space-y-10 w-full">
+            <style>{`
+                .phone-input-inline-settings {
+                    display: flex;
+                    align-items: center;
+                    width: 100%;
+                    direction: ltr;
+                }
+                .phone-input-inline-settings .PhoneInputInput {
+                    flex: 1;
+                    height: 56px;
+                    background: transparent;
+                    border: none;
+                    outline: none;
+                    font-size: 14px;
+                    font-weight: 700;
+                    padding: 0 16px;
+                    color: inherit;
+                }
+                .phone-input-inline-settings .PhoneInputCountry {
+                    margin-left: 10px;
+                    order: 2;
+                }
+            `}</style>
             {/* 
                 ==========================================================================
                 SECTION 1: Identity & Profile Photo
@@ -262,22 +295,30 @@ export default function ProfileSettingsForm({
                         {/* Tenant-specific Advanced Details */}
                         {isTenant && (
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-10 pt-10 border-t border-gray-50 dark:border-white/5">
-                                <InputField
-                                    label="رقم الواتساب للتواصل"
-                                    type="tel"
-                                    {...register('whatsapp')}
-                                    className="ltr bg-gray-50/50 dark:bg-dark-950/50 border-gray-100 dark:border-white/5 rounded-[1.5rem]"
-                                    placeholder="05xxxxxxx"
-                                    icon={Phone}
-                                    hint="يستخدم للتواصل البرمجي وأتمتة الطلبات"
-                                />
-                                <SelectField
-                                    label="الدولة / المنطقة الزمنية"
-                                    {...register('country_code')}
-                                    options={[{ value: '', label: 'اختر الدولة' }, ...countryOptions]}
-                                    icon={Globe}
-                                    className="bg-gray-50/50 dark:bg-dark-950/50 border-gray-100 dark:border-white/5 rounded-[1.5rem]"
-                                />
+                                <div className="space-y-4">
+                                    <label className="form-label px-1">رقم الواتساب (الدولة)</label>
+                                    <div className="relative">
+                                        <div className="input-field p-0 flex overflow-hidden border-gray-100 dark:border-white/5 focus-within:ring-2 focus-within:ring-primary/20 transition-all rounded-[1.5rem] bg-gray-50/50 dark:bg-dark-950/50">
+                                            <PhoneInput
+                                                international
+                                                labels={ar}
+                                                country={watch('country_code') as any}
+                                                onCountryChange={(v) => {
+                                                    if (v) setValue('country_code', v);
+                                                }}
+                                                countries={ALLOWED_COUNTRIES as any}
+                                                value={watch('whatsapp')}
+                                                onChange={(val) => setValue('whatsapp', val || '')}
+                                                className="phone-input-inline-settings w-full"
+                                                placeholder="05xxxxxxx"
+                                            />
+                                        </div>
+                                    </div>
+                                    <p className="text-[10px] text-gray-400 font-bold px-1">يستخدم للتواصل البرمجي وأتمتة الطلبات</p>
+                                </div>
+                                <div className="hidden"> {/* Keep value in form but hide extra selector if we want to follow reg flow */}
+                                    <input type="hidden" {...register('country_code')} />
+                                </div>
                             </div>
                         )}
 

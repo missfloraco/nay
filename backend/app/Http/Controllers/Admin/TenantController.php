@@ -48,7 +48,7 @@ class TenantController extends Controller
             'email' => $data['admin_email'],
             'password' => Hash::make($data['admin_password']),
             'status' => $status,
-            'trial_expires_at' => $data['trial_expires_at'] ?? ($status === 'trial' ? now()->addDays(7) : null),
+            'trial_expires_at' => $data['trial_expires_at'] ?? ($status === 'trial' ? now()->addDays((int) \App\Models\Setting::get('trial_period_days', 7)) : null),
             'subscription_started_at' => $status === 'active' ? now() : null,
             'subscription_ends_at' => $data['subscription_ends_at'] ?? ($status === 'active' ? now()->addMonth() : null),
             'ads_enabled' => $data['ads_enabled'] ?? true,
@@ -117,6 +117,26 @@ class TenantController extends Controller
         }
 
         $tenant->save();
+
+        if (array_key_exists('status', $data) && $data['status'] !== $tenant->getOriginal('status')) {
+            if ($data['status'] === 'active') {
+                $tenant->notify(new \App\Notifications\SystemNotification([
+                    'title' => 'تم تفعيل الحساب',
+                    'message' => 'لقد قام المسؤول بتفعيل حسابك بنجاح. يمكنك الآن استخدام كافة المميزات.',
+                    'level' => 'success',
+                    'action_url' => '/app/dashboard',
+                    'icon' => 'CheckCircle'
+                ]));
+            } elseif ($data['status'] === 'disabled') {
+                $tenant->notify(new \App\Notifications\SystemNotification([
+                    'title' => 'تعطيل الحساب',
+                    'message' => 'نأسف لإبلاغك بأنه تم تعطيل حسابك من قبل المسؤول. يرجى التواصل مع الدعم للمزيد من التفاصيل.',
+                    'level' => 'error',
+                    'action_url' => '/app/support',
+                    'icon' => 'XCircle'
+                ]));
+            }
+        }
 
         return response()->json([
             'message' => 'Tenant updated successfully',
@@ -187,6 +207,26 @@ class TenantController extends Controller
         }
 
         $tenant->save();
+
+        // Notify Tenant on specialized actions
+        if ($action === 'activate' || $action === 'enable') {
+            $tenant->notify(new \App\Notifications\SystemNotification([
+                'title' => 'تم تفعيل الحساب',
+                'message' => 'لقد قام المسؤول بتفعيل حسابك بنجاح. يمكنك الآن استخدام كافة المميزات.',
+                'level' => 'success',
+                'action_url' => '/app/dashboard',
+                'icon' => 'CheckCircle'
+            ]));
+        } elseif ($action === 'disable') {
+            $tenant->notify(new \App\Notifications\SystemNotification([
+                'title' => 'تعطيل الحساب',
+                'message' => 'نأسف لإبلاغك بأنه تم تعطيل حسابك من قبل المسؤول. يرجى التواصل مع الدعم للمزيد من التفاصيل.',
+                'level' => 'error',
+                'action_url' => '/app/support',
+                'icon' => 'XCircle'
+            ]));
+        }
+
         return response()->json([
             'message' => "Tenant action {$action} successful",
             'data' => $tenant

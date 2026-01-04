@@ -34,9 +34,9 @@ class SubscriptionRestriction
             ], 403);
         }
 
-        // 2. Expired / Restricted -> Read-only
+        // 2. Expired / Restricted -> Read-only (Now limited to Vital only)
         if (in_array($status, ['expired', 'restricted', 'archived'])) {
-            if ($request->isMethod('GET') || $this->isVitalRoute($request)) {
+            if ($this->isVitalRoute($request)) {
                 return $next($request);
             }
             return response()->json([
@@ -54,11 +54,13 @@ class SubscriptionRestriction
     private function isVitalRoute(Request $request): bool
     {
         $allowedPatterns = [
-            'app/user',
-            'app/logout',
-            'app/settings',
-            'app/support*',
-            'app/preferences'
+            'api/app/user',
+            'api/app/logout',
+            'api/app/subscription/*',
+            'api/app/billing*',
+            'api/app/support*',
+            'api/app/preferences',
+            'api/public/*'
         ];
 
         foreach ($allowedPatterns as $pattern) {

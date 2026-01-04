@@ -185,7 +185,7 @@ export default function SubscriptionRequestsTable() {
                                 <div>
                                     <h4 className="text-lg font-black text-emerald-900 dark:text-emerald-400">تأكيد التفعيل</h4>
                                     <p className="text-xs text-emerald-700/70 dark:text-emerald-500/60 font-bold leading-relaxed mt-2">
-                                        سيتم ترقية حساب المشترك إلى خطة <span className="text-emerald-900 dark:text-white font-black">"{selectedRequest?.plan?.name}"</span> فور الموافقة، وسيتمكن من الوصول لكافة مميزات الباقة.
+                                        سيتم تفعيل حساب المشترك فوراً. تذكر أن كافة مميزات النظام مفتوحة لجميع المشتركين، والفروقات تكمن فقط في مستوى الخدمة المختار (<span className="text-emerald-900 dark:text-white font-black">"{selectedRequest?.plan?.name}"</span>).
                                     </p>
                                 </div>
                             </div>

@@ -79,34 +79,22 @@ export default function WelcomePage() {
 
                                     <div className="space-y-1">
                                         <h1 className="text-4xl lg:text-6xl font-black text-gray-900 dark:text-white leading-[1.1]">
-                                            مرحباً بك، <br />
+                                            مركز التحكم <br />
                                             <span className="text-transparent bg-clip-text bg-gradient-to-l from-primary to-emerald-500">
-                                                {currentUser?.name}
+                                                وإدارة العمليات
                                             </span>
                                         </h1>
                                         <p className="text-lg lg:text-xl font-bold text-gray-500 dark:text-gray-400 leading-relaxed max-w-md">
                                             {isAdmin
-                                                ? `أنت الآن في مركز التحكم الرئيسي لـ ${settings.appName}. وجهتك لإدارة المنصة بالكامل.`
-                                                : `سعداء برؤيتك مرة أخرى. إليك نظرة سريعة على ما يمكنك فعله اليوم في متجرك الخاص.`
+                                                ? `مرحباً بك في مركز التحكم الرئيسي لـ ${settings.appName}. وجهتك لإدارة المنصة بالكامل ومتابعة الأداء بموثوقية.`
+                                                : `مرحباً بك في لوحة تحكم متجرك الموحدة. تابع أداء أعمالك، تواصل مع الدعم، وقم بإدارة إعداداتك بكل سهولة.`
                                             }
                                         </p>
                                     </div>
                                 </div>
 
-                                {/* Avatar Presence with Premium Border */}
-                                <div className="relative inline-block group">
-                                    <div className="absolute -inset-1 bg-gradient-to-br from-primary via-emerald-500 to-blue-500 rounded-[var(--radius-card)] blur-md opacity-25 group-hover:opacity-60 transition duration-1000 group-hover:duration-200"></div>
-                                    <div className="relative w-32 h-32 lg:w-48 lg:h-48 rounded-[var(--radius-card)] overflow-hidden border-8 border-white dark:border-dark-900 bg-white dark:bg-dark-800 shadow-2xl">
-                                        <img
-                                            src={resolveAssetUrl(tenant?.avatar_url || currentUser?.avatar_url) || `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser?.name || '')}&background=02aa94&color=fff&size=512`}
-                                            alt={currentUser?.name}
-                                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                                        />
-                                        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none" />
-                                    </div>
-                                    <div className="absolute -bottom-3 -right-3 w-12 h-12 bg-white dark:bg-dark-800 rounded-2xl shadow-xl border-4 border-gray-50 dark:border-dark-900 flex items-center justify-center text-emerald-500">
-                                        <CheckCircle className="w-6 h-6 fill-current animate-in zoom-in-50 duration-500 delay-300" />
-                                    </div>
+                                <div className="p-1 max-w-xs">
+                                    <div className="h-1 w-full bg-gradient-to-r from-primary/30 to-transparent rounded-full" />
                                 </div>
                             </div>
 
@@ -204,6 +192,7 @@ export default function WelcomePage() {
                         </div>
 
                     </div>
+
 
 
                 </div>

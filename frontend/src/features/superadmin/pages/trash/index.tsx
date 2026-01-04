@@ -107,10 +107,11 @@ export default function AdminTrash() {
         trash.isLoading,
         setPrimaryAction,
         setExtraActions,
-        openModal
-        // Note: actions like trash.selectAll are intentionally omitted 
-        // if they are not stable enough, but here they should be fine 
-        // since we check lengths in dependencies.
+        openModal,
+        trash.bulkRestore,
+        trash.bulkForceDelete,
+        trash.emptyTrash,
+        trash.selectAll
     ]);
 
     const columns = React.useMemo(() => [

@@ -12,7 +12,7 @@ import api from '@/shared/services/api';
 import { TenantStatusBadge } from '@/features/superadmin/components/tenantstatusbadge';
 import { TEXTS_ADMIN } from '@/shared/locales/texts';
 import { CircularImageUpload } from '@/shared/components/circularimageupload';
-import { COUNTRIES } from '@/shared/constants';
+import ar from 'react-phone-number-input/locale/ar.json';
 import InputField from '@/shared/ui/forms/input-field';
 import SelectField from '@/shared/ui/forms/select-field';
 
@@ -245,7 +245,10 @@ export function TenantDetailsSidebar({ tenant, tenants, onSelect, onUpdate, onNa
     };
 
     const countryOptions = [
-        ...COUNTRIES.map(c => ({ value: c.code, label: c.name })),
+        ...Object.entries(ar).map(([code, name]) => ({
+            value: code,
+            label: name
+        })).sort((a, b) => a.label.localeCompare(b.label, 'ar')),
         { value: 'other', label: 'أخرى' }
     ];
 

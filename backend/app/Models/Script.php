@@ -15,6 +15,7 @@ class Script extends Model
     const UID_PREFIX = 'SCR';
 
     protected $fillable = [
+        'uid',
         'name',
         'type',
         'location',

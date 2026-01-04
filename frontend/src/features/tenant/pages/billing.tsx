@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 import api from '@/shared/services/api';
 import { useNotifications } from '@/shared/contexts/notification-context';
 import Modal from '@/shared/ui/modals/modal';
@@ -15,7 +16,8 @@ import {
     CheckCircle2,
     AlertCircle,
     Download,
-    LayoutDashboard
+    LayoutDashboard,
+    Sparkles
 } from 'lucide-react';
 import { useAction } from '@/shared/contexts/action-context';
 import { formatDate } from '@/shared/utils/helpers';
@@ -23,6 +25,7 @@ import Table from '@/shared/table';
 import { Toolbar } from '@/shared/components/toolbar';
 
 export default function BillingPage() {
+    const navigate = useNavigate();
     const queryClient = useQueryClient();
     const { showSuccess } = useNotifications();
     const [activeTab, setActiveTab] = useState<'overview' | 'payments' | 'requests'>('overview');
@@ -71,7 +74,11 @@ export default function BillingPage() {
                 label: requestMutation.isPending ? 'جاري الإرسال...' : 'إرسال طلب التفعيل والمتابعة',
                 icon: ArrowRight,
                 loading: requestMutation.isPending,
-                onClick: () => requestMutation.mutate({ plan_id: selectedPlan.id, notes }),
+                onClick: () => requestMutation.mutate({
+                    plan_id: selectedPlan.id,
+                    billing_cycle: selectedPlan.billing_cycle,
+                    notes
+                }),
                 secondaryAction: {
                     label: 'إلغاء',
                     onClick: () => setSelectedPlan(null)
@@ -164,13 +171,73 @@ export default function BillingPage() {
                                 />
 
                                 {pendingRequest && (
-                                    <div className="p-8 bg-amber-50 dark:bg-amber-900/10 border-2 border-dashed border-amber-200 dark:border-amber-900/30 rounded-[var(--radius-card)] flex items-center gap-8 shadow-inner">
-                                        <div className="w-20 h-20 bg-amber-100 dark:bg-amber-900/20 rounded-3xl flex items-center justify-center shrink-0">
-                                            <span className="text-4xl animate-pulse">⏳</span>
-                                        </div>
-                                        <div>
-                                            <h3 className="text-xl font-black text-amber-900 dark:text-amber-500 mb-1">طلبك قيد المراجعة</h3>
-                                            <p className="text-sm text-amber-700/70 dark:text-amber-500/60 font-medium">لقد طلبت الاشتراك في "{pendingRequest.plan?.name}". سيقوم فريقنا بالمراجعة والتواصل معك فوراً.</p>
+                                    <div className="relative overflow-hidden group">
+                                        {/* Background with Gradient and Blur */}
+                                        <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-800 opacity-95 rounded-[2.5rem]" />
+
+                                        {/* Animated Glow Effects */}
+                                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-[3000ms] ease-in-out" />
+
+                                        {/* Decorative Circles */}
+                                        <div className="absolute -top-12 -left-12 w-48 h-48 bg-white/5 rounded-full blur-3xl animate-pulse" />
+                                        <div className="absolute -bottom-12 -right-12 w-48 h-48 bg-white/5 rounded-full blur-3xl animate-pulse delay-700" />
+
+                                        <div className="relative z-10 p-8 md:p-12 flex flex-col md:flex-row items-center gap-8 md:gap-12">
+                                            {/* Icon Section */}
+                                            <div className="relative shrink-0">
+                                                <div className="w-24 h-24 bg-white/10 backdrop-blur-md rounded-3xl flex items-center justify-center shadow-2xl border border-white/20 ring-8 ring-white/5">
+                                                    <Sparkles className="w-12 h-12 text-white animate-pulse" />
+                                                </div>
+                                                <div className="absolute -top-2 -right-2 w-8 h-8 bg-amber-400 rounded-full flex items-center justify-center shadow-lg animate-bounce">
+                                                    <Clock className="w-4 h-4 text-amber-900" />
+                                                </div>
+                                            </div>
+
+                                            {/* Content Section */}
+                                            <div className="flex-1 text-center md:text-right space-y-4">
+                                                <div className="space-y-1">
+                                                    <div className="flex items-center justify-center md:justify-start gap-3">
+                                                        <h3 className="text-2xl md:text-3xl font-black text-white drop-shadow-md">طلبك نشط وقيد المراجعة</h3>
+                                                        <div className="hidden md:block h-px flex-1 bg-gradient-to-r from-white/20 to-transparent" />
+                                                    </div>
+                                                    <p className="text-blue-100/80 font-bold text-lg md:text-xl">
+                                                        أهلاً بك! لقد اخترت باقة <span className="text-white underline decoration-amber-400 decoration-2 underline-offset-4 font-black">"{pendingRequest.plan?.name}"</span>
+                                                        <span className="mr-2 opacity-80 text-sm">
+                                                            ({pendingRequest.billing_cycle === 'lifetime' ? 'مدى الحياة' :
+                                                                pendingRequest.billing_cycle === 'fixed_term' ? `لمرة واحدة - ${pendingRequest.plan?.fixed_term_duration} ${pendingRequest.plan?.fixed_term_unit === 'years' ? 'سنة' : 'شهر'}` :
+                                                                    pendingRequest.billing_cycle === 'monthly' ? 'باشتراك شهري' : 'باشتراك سنوي'})
+                                                        </span>
+                                                    </p>
+                                                </div>
+
+                                                <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 shadow-inner mt-4">
+                                                    <p className="text-sm md:text-base text-white/90 font-medium leading-relaxed">
+                                                        نحن نعمل حالياً على التحقق من تفاصيل طلبك. سيقوم فريق العمليات لدينا بإتمام التفعيل وتزويدك بكافة الصلاحيات المخصصة لهذه الباقة خلال وقت قصير جداً.
+                                                    </p>
+                                                </div>
+
+                                                <div className="pt-4 flex flex-wrap items-center justify-center md:justify-start gap-4">
+                                                    <div className="flex items-center gap-2 px-4 py-2 bg-white/10 rounded-full border border-white/10 backdrop-blur-md">
+                                                        <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                                                        <span className="text-white text-xs font-black uppercase tracking-widest">الطلب مستلم</span>
+                                                    </div>
+                                                    <div className="flex items-center gap-2 px-4 py-2 bg-white/10 rounded-full border border-white/10 backdrop-blur-md">
+                                                        <div className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />
+                                                        <span className="text-white text-xs font-black uppercase tracking-widest">جاري التحقق</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {/* Action Button */}
+                                            <div className="shrink-0 w-full md:w-auto">
+                                                <button
+                                                    onClick={() => navigate('/app/support/messages')}
+                                                    className="w-full md:w-auto px-8 h-14 bg-white text-blue-700 hover:bg-blue-50 rounded-2xl font-black text-base shadow-xl shadow-blue-900/20 transition-all active:scale-95 flex items-center justify-center gap-3"
+                                                >
+                                                    <MessageSquare className="w-5 h-5" />
+                                                    تواصل مع العمليات
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                 )}
@@ -224,12 +291,23 @@ export default function BillingPage() {
                                 columns={[
                                     {
                                         header: 'الخطة المطلوبة',
-                                        accessor: (r: any) => (
-                                            <div className="flex flex-col">
-                                                <span className="text-sm font-black text-gray-900 dark:text-white">باقة {r.plan?.name}</span>
-                                                <span className="text-[10px] text-gray-400 font-bold">{r.plan?.price > 0 ? `$${r.plan.price}` : 'مجانية'}</span>
-                                            </div>
-                                        )
+                                        accessor: (r: any) => {
+                                            const cycle = r.billing_cycle;
+                                            const plan = r.plan;
+                                            let displayPrice = 0;
+
+                                            if (cycle === 'lifetime') displayPrice = plan?.lifetime_price;
+                                            else if (cycle === 'fixed_term') displayPrice = plan?.fixed_term_price;
+                                            else if (cycle === 'yearly') displayPrice = plan?.yearly_price;
+                                            else displayPrice = plan?.monthly_price;
+
+                                            return (
+                                                <div className="flex flex-col">
+                                                    <span className="text-sm font-black text-gray-900 dark:text-white">باقة {plan?.name}</span>
+                                                    <span className="text-[10px] text-gray-400 font-bold">{displayPrice > 0 ? `$${Math.round(displayPrice)}` : 'مجانية'}</span>
+                                                </div>
+                                            );
+                                        }
                                     },
                                     { header: 'تاريخ الطلب', accessor: (r: any) => formatDate(r.created_at) },
                                     {
@@ -241,6 +319,18 @@ export default function BillingPage() {
                                                 </span>
                                             </div>
                                         )
+                                    },
+                                    {
+                                        header: 'نوع الاشتراك',
+                                        accessor: (r: any) => {
+                                            const cycle = r.billing_cycle;
+                                            const plan = r.plan;
+                                            if (cycle === 'lifetime') return 'مدى الحياة';
+                                            if (cycle === 'fixed_term') return `مدة محددة (${plan?.fixed_term_duration} ${plan?.fixed_term_unit === 'years' ? 'سنة' : 'شهر'})`;
+                                            if (cycle === 'monthly') return 'شهرياً';
+                                            if (cycle === 'yearly') return 'سنوياً';
+                                            return cycle;
+                                        }
                                     },
                                     {
                                         header: 'ملاحظات',
@@ -283,7 +373,11 @@ export default function BillingPage() {
                                     <div className="space-y-1">
                                         <div className="flex items-baseline gap-2">
                                             <span className="text-6xl font-black text-gray-900 dark:text-white">${Math.round(selectedPlan?.price)}</span>
-                                            <span className="text-sm font-bold text-gray-400">/{selectedPlan?.billing_cycle === 'monthly' ? 'شهرياً' : 'سنوياً'}</span>
+                                            <span className="text-sm font-bold text-gray-400">
+                                                {selectedPlan?.billing_cycle === 'lifetime' ? '/ لمرة واحدة (مدى الحياة)' :
+                                                    selectedPlan?.billing_cycle === 'fixed_term' ? `/ لمرة واحدة (${selectedPlan?.fixed_term_duration} ${selectedPlan?.fixed_term_unit === 'years' ? 'سنة' : 'شهر'})` :
+                                                        selectedPlan?.billing_cycle === 'monthly' ? '/ شهرياً' : '/ سنوياً'}
+                                            </span>
                                         </div>
                                         <p className="text-xs text-primary font-black uppercase tracking-widest">باقة {selectedPlan?.name}</p>
                                     </div>

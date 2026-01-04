@@ -8,6 +8,7 @@ export const LoginSchema = z.object({
 export const RegisterSchema = z.object({
     fullName: z.string().min(3, { message: "الاسم الكامل يجب أن يكون 3 أحرف على الأقل" }),
     email: z.string().email({ message: "البريد الإلكتروني غير صالح" }),
+    phone: z.string().min(1, { message: "رقم الهاتف مطلوب" }),
     password: z.string().min(6, { message: "كلمة المرور يجب أن تكون 6 أحرف على الأقل" }),
     country: z.string().min(2, { message: "الرجاء اختيار الدولة" }),
 });

@@ -37,9 +37,8 @@ export default function PlatformIdentity() {
         font_family: settings.fontFamily || 'Default',
         company_name: settings.companyName || '',
         company_link: settings.companyLink || '',
-        accent_color1: settings.accentColor1 || '#02aa94',
+        copyright_text: settings.copyright_text || '',
         accent_color2: settings.accentColor2 || '#fb005e',
-        trial_period_days: settings.trial_period_days || 7,
         custom_font_url: settings.customFontUrl || '',
         custom_heading_font_url: settings.customHeadingFontUrl || '',
     });
@@ -68,9 +67,8 @@ export default function PlatformIdentity() {
                 font_family: settings.fontFamily || 'Default',
                 company_name: settings.companyName || '',
                 company_link: settings.companyLink || '',
-                accent_color1: settings.accentColor1 || '#02aa94',
+                copyright_text: settings.copyright_text || '',
                 accent_color2: settings.accentColor2 || '#fb005e',
-                trial_period_days: settings.trial_period_days || 7,
                 custom_font_url: settings.customFontUrl || '',
                 custom_heading_font_url: settings.customHeadingFontUrl || '',
             });
@@ -286,18 +284,6 @@ export default function PlatformIdentity() {
                             </div>
                         </div>
                     </div>
-                    <div className="pt-8 border-t border-gray-50 dark:border-white/5">
-                        <InputField
-                            label="الفترة التجريبية للمشتركين (بالأيام)"
-                            type="number"
-                            value={formData.trial_period_days}
-                            onChange={e => setFormData({ ...formData, trial_period_days: parseInt(e.target.value) || 0 })}
-                            placeholder="7"
-                            hint="عدد الأيام التي سيحصل عليها المشترك الجديد تلقائياً عند التسجيل"
-                            min={0}
-                            max={365}
-                        />
-                    </div>
                 </div>
 
                 <div className="bg-white dark:bg-dark-900 rounded-2xl border border-gray-100 dark:border-dark-800 shadow-premium p-8 lg:p-12 space-y-8">
@@ -324,6 +310,13 @@ export default function PlatformIdentity() {
                             onChange={e => setFormData({ ...formData, company_link: e.target.value })}
                             placeholder="https://example.com"
                             className="ltr"
+                        />
+                        <InputField
+                            label="نص حقوق النشر المخصص (اختياري)"
+                            value={formData.copyright_text}
+                            onChange={e => setFormData({ ...formData, copyright_text: e.target.value })}
+                            placeholder="مثال: جميع الحقوق محفوظة لشركة ناي 2026"
+                            hint="اتركه فارغاً لاستخدام الصيغة الافتراضية: منصة [الاسم] © [السنة] أحد مشاريع [الشركة]"
                         />
                     </div>
                 </div>

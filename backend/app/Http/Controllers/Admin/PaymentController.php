@@ -62,6 +62,15 @@ class PaymentController extends Controller
         $tenant->status = 'active'; // Reactivate
         $tenant->save();
 
+        // Notify Tenant about status/extension
+        $tenant->notify(new \App\Notifications\SystemNotification([
+            'title' => 'تحديث الاشتراك',
+            'message' => 'تم تسجيل دفعة جديدة وتمديد اشتراكك بنجاح حتى تاريخ: ' . $newEnd->format('Y-m-d'),
+            'level' => 'success',
+            'action_url' => '/app/settings',
+            'icon' => 'CheckCircle'
+        ]));
+
         return response()->json([
             'message' => 'Payment recorded and subscription extended successfully.',
             'data' => [

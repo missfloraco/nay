@@ -159,7 +159,7 @@ api.interceptors.response.use(
             // 1. Already on /403 page
             // 2. On public pages (/, /login, /register)
             // 3. The request itself was for CSRF or login/me (let the context handle it)
-            const publicPaths = ['/', '/login', '/register', '/forgot-password', '/reset-password', '/403'];
+            const publicPaths = ['/', '/login', '/register', '/forgot-password', '/reset-password', '/403', '/app/billing', '/app/support'];
             const isPublicPath = publicPaths.some(path => currentPath === path || currentPath.startsWith(path));
 
             const isAuthRequest = requestUrl.includes('csrf-cookie') ||

@@ -12,8 +12,10 @@ class SubscriptionRequest extends Model
 
     const UID_PREFIX = 'SRQ';
     protected $fillable = [
+        'uid',
         'tenant_id',
         'plan_id',
+        'billing_cycle',
         'status',
         'notes',
         'admin_notes',

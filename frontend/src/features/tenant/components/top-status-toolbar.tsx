@@ -7,7 +7,13 @@ import { formatDate } from '@/shared/utils/helpers';
 import Button from '@/shared/ui/buttons/btn-base';
 import { useSettings } from '@/shared/contexts/app-context';
 
-export const TopStatusToolbar: React.FC = () => {
+import { DefaultToolbar } from '@/shared/layout/toolbar/default-toolbar';
+
+interface TopStatusToolbarProps {
+    user: any;
+}
+
+export const TopStatusToolbar: React.FC<TopStatusToolbarProps> = ({ user }) => {
     const navigate = useNavigate();
     const { isActive } = useTrialStatus(); // We only care about active or bonus here
     const { tenant } = useTenantAuth();
@@ -128,5 +134,5 @@ export const TopStatusToolbar: React.FC = () => {
         );
     }
 
-    return null;
+    return <DefaultToolbar user={user} />;
 };

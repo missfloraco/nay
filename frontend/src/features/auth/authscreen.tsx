@@ -1,5 +1,6 @@
 ﻿import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { useAdminAuth } from '@/features/auth/admin-auth-context';
 import { useTenantAuth } from '@/features/auth/tenant-auth-context';
 import api, { initializeCsrf } from '@/shared/services/api';
@@ -7,16 +8,108 @@ import { logger } from '@/shared/services/logger';
 import { useText } from '@/shared/contexts/text-context';
 import { AuthSplitLayout } from '@/features/auth/components/auth-split-layout';
 import { Link } from 'react-router-dom';
-import { ThemeToggle } from '@/shared/layout/header/theme-toggle';
+import {
+    Lock, Mail, User, Globe, AlertCircle, CheckCircle2,
+    Eye, EyeOff, Loader2, ArrowLeft
+} from 'lucide-react';
 
-import { COUNTRIES } from '@/shared/constants';
 import { LoginSchema, RegisterSchema, ForgotPasswordSchema } from '@/shared/utils/validation';
-import { PasswordStrengthIndicator } from '@/features/auth/components/passwordstrengthindicator';
-import { Lock, Mail, User, Globe, AlertCircle, CheckCircle2, Eye, EyeOff, Loader2, ArrowLeft, Home } from 'lucide-react';
 import InputField from '@/shared/ui/forms/input-field';
 import SelectField from '@/shared/ui/forms/select-field';
+import PhoneInput, { isValidPhoneNumber } from 'react-phone-number-input';
+import ar from 'react-phone-number-input/locale/ar.json';
+import 'react-phone-number-input/style.css';
+import { getCountries, getCountryCallingCode } from 'react-phone-number-input';
+
+const ALLOWED_COUNTRIES = [
+    'PS', 'SA', 'AE', 'EG', 'JO', 'MA', 'KW', 'BH', 'QA', 'OM',
+    'LB', 'SY', 'IQ', 'DZ', 'TN', 'LY', 'SD', 'YE', 'SO', 'MR',
+    'DJ', 'KM'
+];
 
 type AuthMode = 'login' | 'register' | 'forgot-password' | 'verification' | 'reset-otp' | 'reset-password';
+
+// --- Custom Elite Country Selector ---
+const CountrySelect = ({ value, onChange, labels }: any) => {
+    const [open, setOpen] = useState(false);
+    const [search, setSearch] = useState('');
+    const dropdownRef = React.useRef<HTMLDivElement>(null);
+
+    const countries = ALLOWED_COUNTRIES.map(c => {
+        const countryLabels = labels || ar || {};
+        return {
+            code: c,
+            name: countryLabels[c] || c,
+            dialCode: getCountryCallingCode(c as any)
+        };
+    }).filter(c => c.name.toLowerCase().includes(search.toLowerCase()));
+
+    // Close on click outside
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+                setOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
+    const SelectedFlag = ({ country }: { country: string }) => (
+        <div className="w-7 h-5 rounded-sm overflow-hidden shadow-sm border border-gray-100 dark:border-white/10 shrink-0">
+            <img
+                src={`https://purecatamphetamine.github.io/country-flag-icons/3x2/${country}.svg`}
+                alt={country}
+                className="w-full h-full object-cover"
+            />
+        </div>
+    );
+
+    return (
+        <div className="h-full flex items-center" ref={dropdownRef}>
+            <button
+                type="button"
+                onClick={(e) => {
+                    e.stopPropagation();
+                    setOpen(!open);
+                }}
+                className="h-full px-6 flex items-center gap-2 transition-all outline-none relative z-10"
+            >
+                <SelectedFlag country={value || 'PS'} />
+            </button>
+
+            {open && (
+                <div className="absolute top-[calc(100%+8px)] left-0 w-full bg-white dark:bg-dark-900 border border-gray-100 dark:border-white/10 rounded-2xl shadow-2xl shadow-black/20 z-[100] overflow-hidden animate-in fade-in slide-in-from-top-2 duration-300">
+                    <div className="max-h-[280px] overflow-y-auto custom-scrollbar p-1">
+                        {countries.map((c) => (
+                            <button
+                                key={c.code}
+                                type="button"
+                                onClick={() => {
+                                    onChange(c.code);
+                                    setOpen(false);
+                                }}
+                                className={`w-full flex items-center justify-between p-3 rounded-xl transition-all duration-200 group ${value === c.code ? 'bg-primary/10 text-primary' : 'hover:bg-gray-50 dark:hover:bg-white/5 text-gray-700 dark:text-gray-300'}`}
+                            >
+                                <div className="flex items-center gap-3">
+                                    <div className="w-8 h-6 rounded-sm overflow-hidden shadow-sm border border-gray-100 dark:border-white/10 shrink-0">
+                                        <img
+                                            src={`https://purecatamphetamine.github.io/country-flag-icons/3x2/${c.code}.svg`}
+                                            alt={c.name}
+                                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                                        />
+                                    </div>
+                                    <span className="text-sm font-bold">{c.name}</span>
+                                </div>
+                                <span className={`text-xs font-black ${value === c.code ? 'text-primary' : 'text-gray-400'}`}>+{c.dialCode}</span>
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+};
 
 export default function AuthScreen({ initialMode = 'login' }: { initialMode?: AuthMode }) {
     const [mode, setMode] = useState<AuthMode>(initialMode);
@@ -37,35 +130,18 @@ export default function AuthScreen({ initialMode = 'login' }: { initialMode?: Au
     const [formData, setFormData] = useState({
         fullName: '',
         email: '',
+        phone: '',
         password: '',
         country: 'PS',
         passwordConfirmation: '',
     });
 
-    const [passwordStrength, setPasswordStrength] = useState<'weak' | 'medium' | 'strong'>('weak');
-    const [verificationCode, setVerificationCode] = useState(['', '', '', '', '', '']);
+    const [verificationCode, setVerificationCode] = useState('');
     const [resendCountdown, setResendCountdown] = useState(0);
-
-    useEffect(() => {
-        const pass = formData.password;
-        if (pass.length === 0) setPasswordStrength('weak');
-        else if (pass.length < 6) setPasswordStrength('weak');
-        else if (pass.length < 10) setPasswordStrength('medium');
-        else setPasswordStrength('strong');
-    }, [formData.password]);
-
-    // Check for Impersonation Token
-    useEffect(() => {
-        if (resendCountdown > 0) {
-            const timer = setTimeout(() => setResendCountdown(resendCountdown - 1), 1000);
-            return () => clearTimeout(timer);
-        }
-    }, [resendCountdown]);
 
     // Auto-submit when code is full
     useEffect(() => {
-        const code = verificationCode.join('');
-        if ((mode === 'verification' || mode === 'reset-otp') && code.length === 6 && !loading) {
+        if ((mode === 'verification' || mode === 'reset-otp') && verificationCode.length === 6 && !loading) {
             handleSubmit({ preventDefault: () => { } } as React.FormEvent);
         }
     }, [verificationCode, mode]);
@@ -119,23 +195,27 @@ export default function AuthScreen({ initialMode = 'login' }: { initialMode?: Au
         setSuccess('');
         setLoading(true);
 
-        // Logic handled by handleUnifiedLogin or registration logic below
-
         try {
             // Validation
             if (mode === 'login') {
                 LoginSchema.parse({ email: formData.email, password: formData.password });
                 await handleUnifiedLogin();
             } else if (mode === 'register') {
-                RegisterSchema.parse(formData);
-                const data = new FormData();
-                data.append('name', formData.fullName);
-                data.append('email', formData.email);
-                data.append('password', formData.password);
-                data.append('country', formData.country);
-                data.append('currency', 'ILS');
+                if (!isValidPhoneNumber(formData.phone)) {
+                    setError('رقم الهاتف غير صالح');
+                    setLoading(false);
+                    return;
+                }
 
-                const res = await tenantAuth.register(data);
+                const registerData = {
+                    name: formData.fullName,
+                    email: formData.email,
+                    phone: formData.phone,
+                    password: formData.password,
+                    country: formData.country,
+                };
+
+                const res = await tenantAuth.register(registerData) as any;
                 if (res?.require_verification) {
                     setMode('verification');
                     setSuccess('تم إرسال رمز التحقق إلى بريدك الإلكتروني');
@@ -143,11 +223,11 @@ export default function AuthScreen({ initialMode = 'login' }: { initialMode?: Au
                 }
                 navigate('/app/dashboard');
             } else if (mode === 'verification') {
-                const code = verificationCode.join('');
-                if (code.length !== 6) {
+                if (verificationCode.length !== 6) {
                     setError('يرجى إدخال رمز التحقق المكون من 6 أرقام');
                     return;
                 }
+                const code = verificationCode; // It's already a string now
                 await tenantAuth.completeRegistration(formData.email, code);
                 navigate('/app/dashboard');
             } else if (mode === 'forgot-password') {
@@ -160,11 +240,11 @@ export default function AuthScreen({ initialMode = 'login' }: { initialMode?: Au
                     setSuccess(t('AUTH.FORGOT_PASSWORD.SUCCESS_MESSAGE'));
                 }
             } else if (mode === 'reset-otp') {
-                const code = verificationCode.join('');
-                if (code.length !== 6) {
-                    setError('يرجى إدخال رمز التحقق المكون من 6 أرقام');
+                if (verificationCode.length !== 6) {
+                    setError('يرجى إدخال رمز التحقق');
                     return;
                 }
+                const code = verificationCode;
                 await tenantAuth.verifyResetOTP(formData.email, code);
                 setMode('reset-password');
                 setSuccess('تم التحقق بنجاح. يرجى تعيين كلمة مرور جديدة.');
@@ -177,7 +257,7 @@ export default function AuthScreen({ initialMode = 'login' }: { initialMode?: Au
                     setError('كلمتا المرور غير متطابقتين');
                     return;
                 }
-                const code = verificationCode.join('');
+                const code = verificationCode;
                 await tenantAuth.resetPassword(formData.email, code, formData.password, formData.passwordConfirmation);
                 setSuccess('تم تغيير كلمة المرور بنجاح. سيتم تحويلك لصفحة الدخول...');
                 setTimeout(() => {
@@ -211,300 +291,307 @@ export default function AuthScreen({ initialMode = 'login' }: { initialMode?: Au
         }
     };
 
-    const toggleMode = (newMode: AuthMode) => {
+    const handleModeChange = (newMode: AuthMode) => {
         setMode(newMode);
         setError('');
         setSuccess('');
     };
 
-    const countryOptions = COUNTRIES.map(c => ({ value: c.code, label: c.name }));
+    const handleOtpChange = (idx: number, val: string) => {
+        const cleanVal = val.replace(/\D/g, '').slice(-1);
+        const newCode = [...verificationCode];
+        newCode[idx] = cleanVal;
+        setVerificationCode(newCode);
+
+        // Auto focus next
+        if (cleanVal && idx < 5) {
+            document.getElementById(`otp-${idx + 1}`)?.focus();
+        }
+    };
+
+    const handleOtpKeyDown = (idx: number, e: React.KeyboardEvent) => {
+        if (e.key === 'Backspace' && !verificationCode[idx] && idx > 0) {
+            document.getElementById(`otp-${idx - 1}`)?.focus();
+        }
+    };
 
     return (
         <AuthSplitLayout
             title={t(`AUTH.${mode === 'forgot-password' ? 'FORGOT_PASSWORD' : mode.toUpperCase()}.TITLE`)}
             subtitle={t(`AUTH.${mode === 'forgot-password' ? 'FORGOT_PASSWORD' : mode.toUpperCase()}.SUBTITLE`)}
         >
-            {/* Top Toolbar: Home & Theme Toggle (Aligned Right for RTL) */}
-            <div className="absolute top-4 right-4 z-50 flex items-center gap-3 flex-row-reverse">
-                <Link
-                    to="/"
-                    className="flex items-center gap-2 py-2.5 px-5 rounded-2xl bg-gray-50 text-gray-400 hover:text-primary hover:bg-white border border-transparent hover:border-gray-100 transition-all active:scale-95 group shadow-sm hover:shadow-md font-bold text-sm"
-                    title="العودة للرئيسية"
-                >
-                    <span className="hidden sm:inline">الرئيسية</span>
-                    <Home size={18} className="transition-transform group-hover:translate-x-1" />
-                </Link>
-                <ThemeToggle />
-            </div>
+            <Helmet>
+                <title>{t(`AUTH.${mode.toUpperCase()}.TITLE`)} | {t('APP.NAME')}</title>
+                <meta name="description" content={t(`AUTH.${mode.toUpperCase()}.SUBTITLE`)} />
+            </Helmet>
 
-            <form onSubmit={handleSubmit} className="space-y-8 animate-in fade-in slide-in-from-bottom-5 duration-500">
+            <style>{`
+                @keyframes fadeInUp {
+                    from { opacity: 0; transform: translateY(20px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+                .animate-fade-in-up {
+                    animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+                }
+                .phone-input-inline {
+                    display: flex;
+                    align-items: center;
+                    width: 100%;
+                    direction: ltr; /* Control order via flex properties */
+                }
+                .phone-input-inline .PhoneInputInput {
+                    flex: 1;
+                    height: 64px;
+                    background: transparent;
+                    border: none;
+                    outline: none;
+                    font-size: 15px;
+                    font-weight: 700;
+                    padding: 0 20px;
+                    color: inherit;
+                    order: 2;
+                    text-align: right; /* Text typed from right to left */
+                }
+                .phone-input-inline .PhoneInputCountry {
+                    order: 1;
+                    margin-left: 0;
+                    margin-right: 0;
+                }
+                .custom-scrollbar::-webkit-scrollbar {
+                    width: 5px;
+                }
+                .custom-scrollbar::-webkit-scrollbar-track {
+                    background: transparent;
+                }
+                .custom-scrollbar::-webkit-scrollbar-thumb {
+                    background: rgba(0,0,0,0.1);
+                    border-radius: 10px;
+                }
+                .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+                    background: rgba(255,255,255,0.1);
+                }
+            `}</style>
 
-                {/* Status Messages */}
-                {(error || success) && (
-                    <div
-                        role="alert"
-                        className={`p-4 border rounded-xl text-sm font-bold flex items-center gap-3 animate-in slide-in-from-top-2 duration-300 ${error ? 'bg-red-50 border-red-100 text-red-600' : 'bg-emerald-50 border-emerald-100 text-emerald-600'
-                            }`}
-                    >
-                        {error ? <AlertCircle className="w-5 h-5 shrink-0" /> : <CheckCircle2 className="w-5 h-5 shrink-0" />}
-                        <span>{error || success}</span>
-                    </div>
-                )}
+            <div className="animate-fade-in-up">
+                <form onSubmit={handleSubmit} className="space-y-8">
+                    {/* Status Messages */}
+                    {(error || success) && (
+                        <div
+                            role="alert"
+                            className={`p-4 border rounded-2xl text-sm font-bold flex items-center gap-3 animate-in slide-in-from-top-2 duration-300 ${error ? 'bg-red-50 border-red-100 text-red-600' : 'bg-emerald-50 border-emerald-100 text-emerald-600'
+                                }`}
+                        >
+                            {error ? <AlertCircle className="w-5 h-5 shrink-0" /> : <CheckCircle2 className="w-5 h-5 shrink-0" />}
+                            <span>{error || success}</span>
+                        </div>
+                    )}
 
-                {/* Form Fields Container */}
-                <div className="space-y-6">
-
-
-
-
-                    {/* Registration/Login/ResetPassword Fields - Visible in Verification too (as disabled) */}
-                    {(mode !== 'reset-otp' || mode === 'reset-otp') && (
-                        <>
-                            {/* Full Name Field - Register Only (or Verification context) */}
-                            {(mode === 'register' || mode === 'verification') && (
-                                <InputField
-                                    label={t('AUTH.REGISTER.FULL_NAME_LABEL')}
-                                    id="fullName"
-                                    type="text"
-                                    required
-                                    disabled={mode === 'verification'}
-                                    value={formData.fullName}
-                                    onChange={e => setFormData({ ...formData, fullName: e.target.value })}
-                                    placeholder={t('AUTH.REGISTER.FULL_NAME_PLACEHOLDER')}
-                                    icon={User}
-                                    autoComplete="name"
-                                    className={mode === 'verification' ? 'opacity-70 bg-gray-50' : ''}
-                                />
-                            )}
-
-                            {/* Email Field - Visible in almost all modes (Disabled in OTP/Reset steps) */}
+                    <div className="space-y-6">
+                        {/* Primary Stack: Name -> Email -> Phone -> Password */}
+                        {mode === 'register' && (
                             <InputField
-                                label={t(`AUTH.${(mode === 'forgot-password' || mode === 'reset-otp') ? 'FORGOT_PASSWORD' : (mode === 'reset-password' ? 'RESET-PASSWORD' : mode.toUpperCase())}.EMAIL_LABEL`)}
-                                id="email"
-                                type="email"
+                                id="fullName"
+                                type="text"
                                 required
-                                disabled={mode === 'verification' || mode === 'reset-otp' || mode === 'reset-password'}
-                                value={formData.email}
-                                onChange={e => setFormData({ ...formData, email: e.target.value })}
-                                placeholder={t(`AUTH.${mode === 'register' ? 'REGISTER' : 'LOGIN'}.EMAIL_PLACEHOLDER`)}
-                                icon={Mail}
-                                autoComplete="email"
-                                className={mode === 'verification' || mode === 'reset-otp' || mode === 'reset-password' ? 'opacity-70 bg-gray-50' : ''}
+                                value={formData.fullName}
+                                onChange={e => setFormData({ ...formData, fullName: e.target.value })}
+                                placeholder={t('AUTH.REGISTER.FULL_NAME_LABEL')}
+                                icon={User}
+                                autoComplete="name"
                             />
+                        )}
 
-                            {/* Password Field - Not for Forgot Password */}
-                            {mode !== 'forgot-password' && (
-                                <div className="space-y-4">
-                                    <div className="relative group">
-                                        <InputField
-                                            label={t(`AUTH.${mode.toUpperCase()}.PASSWORD_LABEL`)}
-                                            id="password"
-                                            type={showPassword ? 'text' : 'password'}
-                                            required
-                                            disabled={mode === 'verification'}
-                                            value={formData.password}
-                                            onChange={e => setFormData({ ...formData, password: e.target.value })}
-                                            placeholder={t(`AUTH.${mode.toUpperCase()}.PASSWORD_PLACEHOLDER`)}
-                                            autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
-                                            className={`!pe-16 ${mode === 'verification' ? 'opacity-70 bg-gray-50' : ''}`} // Space for Eye icon
-                                            endContent={
-                                                <button
-                                                    type="button"
-                                                    onClick={() => setShowPassword(!showPassword)}
-                                                    className="text-gray-400 hover:text-primary transition-colors h-5 w-5 flex items-center justify-center p-0"
-                                                    title={showPassword ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور'}
-                                                >
-                                                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                                                </button>
-                                            }
-                                        />
-                                    </div>
+                        <InputField
+                            id="email"
+                            type="email"
+                            required
+                            disabled={mode === 'verification' || mode === 'reset-otp' || mode === 'reset-password'}
+                            value={formData.email}
+                            onChange={e => setFormData({ ...formData, email: e.target.value })}
+                            placeholder={t('AUTH.LOGIN.EMAIL_LABEL')}
+                            icon={Mail}
+                            autoComplete="email"
+                            className={mode === 'verification' || mode === 'reset-otp' || mode === 'reset-password' ? 'opacity-70 bg-gray-50' : ''}
+                        />
 
-                                    {mode === 'reset-password' && (
-                                        <div className="relative group">
-                                            <InputField
-                                                label="تأكيد كلمة المرور"
-                                                id="passwordConfirmation"
-                                                type={showPassword ? 'text' : 'password'}
-                                                required
-                                                value={formData.passwordConfirmation}
-                                                onChange={e => setFormData({ ...formData, passwordConfirmation: e.target.value })}
-                                                placeholder="أعد كتابة كلمة المرور"
-                                                autoComplete="new-password"
-                                                className="!pe-16"
-                                            />
-                                        </div>
-                                    )}
-
-                                    {mode === 'login' && (
-                                        <div className="flex justify-end">
-                                            <button
-                                                type="button"
-                                                onClick={() => toggleMode('forgot-password')}
-                                                className="text-sm font-bold text-gray-500 hover:text-primary transition-colors"
-                                            >
-                                                {t('AUTH.LOGIN.FORGOT_PASSWORD')}
-                                            </button>
-                                        </div>
-                                    )}
-
-                                    {/* Password Strength Indicator */}
-                                    {mode === 'register' && (
-                                        <PasswordStrengthIndicator
-                                            strength={passwordStrength}
-                                            passwordLength={formData.password.length}
-                                        />
-                                    )}
+                        {mode === 'register' && (
+                            <div className="relative group/phone">
+                                <div className="w-full h-16 bg-gray-50/50 dark:bg-dark-900/50 border border-gray-100 dark:border-white/5 rounded-[1.25rem] transition-all duration-500 hover:bg-white dark:hover:bg-dark-800 hover:border-gray-200 focus-within:bg-white dark:focus-within:bg-dark-800 focus-within:border-primary focus-within:shadow-[0_0_0_1px_var(--primary)] focus-within:ring-8 focus-within:ring-primary/5 flex items-center relative z-[40]">
+                                    <PhoneInput
+                                        international
+                                        addInternationalOption={false}
+                                        labels={ar}
+                                        country={formData.country as any}
+                                        onCountryChange={(v) => {
+                                            if (v) setFormData(prev => ({ ...prev, country: v }));
+                                        }}
+                                        countries={ALLOWED_COUNTRIES as any}
+                                        value={formData.phone}
+                                        onChange={(val) => setFormData(prev => ({ ...prev, phone: val || '' }))}
+                                        className="phone-input-inline"
+                                        placeholder="رقم الهاتف (الدولة)"
+                                        countrySelectComponent={CountrySelect}
+                                        countryCallingCodeEditable={false}
+                                    />
                                 </div>
-                            )}
+                            </div>
+                        )}
 
-                            {/* Country Field - Register Only (or Verification) */}
-                            {(mode === 'register' || mode === 'verification') && (
-                                <SelectField
-                                    label={t('AUTH.REGISTER.COUNTRY_LABEL')}
-                                    id="country"
-                                    value={formData.country}
-                                    disabled={mode === 'verification'}
-                                    onChange={e => setFormData({ ...formData, country: e.target.value })}
-                                    options={countryOptions}
-                                    icon={Globe}
-                                    className={mode === 'verification' ? 'opacity-70 bg-gray-50' : ''}
+                        {/* Password Section */}
+                        {(mode === 'login' || mode === 'register' || mode === 'reset-password') && (
+                            <div className="space-y-5">
+                                <InputField
+                                    id="password"
+                                    type={showPassword ? 'text' : 'password'}
+                                    required
+                                    value={formData.password}
+                                    onChange={e => setFormData({ ...formData, password: e.target.value })}
+                                    placeholder={t('AUTH.LOGIN.PASSWORD_LABEL')}
+                                    autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
+                                    icon={Lock}
                                 />
-                            )}
 
-                            {/* OTP Fields - Inserted visually "inside" the form for progressive flow */}
-                            {(mode === 'verification' || mode === 'reset-otp') && (
-                                <div className="pt-4 space-y-4 animate-in fade-in slide-in-from-top-2 duration-500">
-                                    <div className="flex items-center gap-2">
-                                        <div className="h-px flex-1 bg-gray-200"></div>
-                                        <span className="text-sm font-bold text-gray-400">رمز التحقق</span>
-                                        <div className="h-px flex-1 bg-gray-200"></div>
-                                    </div>
-                                    <p className="text-sm text-center font-medium text-gray-500">
-                                        تم إرسال رمز التحقق إلى <span className="font-bold text-gray-900 dark:text-white">{formData.email}</span>
-                                    </p>
+                                {mode === 'reset-password' && (
+                                    <InputField
+                                        id="passwordConfirmation"
+                                        type={showPassword ? 'text' : 'password'}
+                                        required
+                                        value={formData.passwordConfirmation}
+                                        onChange={e => setFormData({ ...formData, passwordConfirmation: e.target.value })}
+                                        placeholder="تأكيد كلمة المرور"
+                                        icon={Lock}
+                                    />
+                                )}
 
-                                    <div className="flex justify-center sm:justify-between gap-2 w-full" dir="ltr">
-                                        {verificationCode.map((digit, idx) => (
-                                            <input
-                                                key={idx}
-                                                id={`otp-${idx}`}
-                                                type="text"
-                                                maxLength={1}
-                                                value={digit}
-                                                onChange={(e) => {
-                                                    const val = e.target.value;
-                                                    if (/^\d*$/.test(val)) {
-                                                        const newCode = [...verificationCode];
-                                                        newCode[idx] = val.slice(-1);
-                                                        setVerificationCode(newCode);
-                                                        if (val && idx < 5) document.getElementById(`otp-${idx + 1}`)?.focus();
-                                                    }
-                                                }}
-                                                onKeyDown={(e) => {
-                                                    if (e.key === 'Backspace' && !digit && idx > 0) {
-                                                        document.getElementById(`otp-${idx - 1}`)?.focus();
-                                                    }
-                                                }}
-                                                onPaste={(e) => {
-                                                    e.preventDefault();
-                                                    const pastedData = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
-                                                    if (pastedData) {
-                                                        const newCode = [...verificationCode];
-                                                        pastedData.split('').forEach((char, i) => { if (i < 6) newCode[i] = char; });
-                                                        setVerificationCode(newCode);
-                                                        const lastIdx = Math.min(pastedData.length - 1, 5);
-                                                        document.getElementById(`otp-${lastIdx}`)?.focus();
-                                                    }
-                                                }}
-                                                className="w-10 h-12 sm:w-12 sm:h-14 text-center text-xl font-bold bg-white dark:bg-dark-900 border-2 border-gray-200 focus:border-primary focus:ring-4 focus:ring-primary/10 rounded-xl transition-all outline-none"
-                                                autoFocus={idx === 0}
-                                            />
-                                        ))}
-                                    </div>
-
-                                    <div className="flex justify-center">
+                                {mode === 'login' && (
+                                    <div className="flex justify-end px-1">
                                         <button
                                             type="button"
-                                            disabled={resendCountdown > 0 || loading}
-                                            onClick={async () => {
-                                                setLoading(true);
-                                                try {
-                                                    await tenantAuth.resendOTP(formData.email);
-                                                    setSuccess('تم إرسال كود جديد');
-                                                    setResendCountdown(60);
-                                                } catch (err: any) {
-                                                    setError(err.response?.data?.message || 'فشل إرسال الكود');
-                                                } finally {
-                                                    setLoading(false);
-                                                }
-                                            }}
-                                            className="text-xs font-bold text-gray-500 hover:text-primary transition-colors disabled:opacity-50 flex items-center gap-1"
+                                            onClick={() => handleModeChange('forgot-password')}
+                                            className="text-sm font-bold text-gray-500 hover:text-primary transition-colors"
                                         >
-                                            {resendCountdown > 0 ? (
-                                                <>
-                                                    <Loader2 className="w-3 h-3 animate-spin" />
-                                                    <span>إعادة الإرسال خلال {resendCountdown} ثانية</span>
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <span>لم يصلك الكود؟</span>
-                                                    <span className="text-primary hover:underline">إعادة إرسال</span>
-                                                </>
-                                            )}
+                                            {t('AUTH.LOGIN.FORGOT_PASSWORD')}
                                         </button>
                                     </div>
+                                )}
+                            </div>
+                        )}
+
+                        {/* OTP Verification / Reset OTP Section */}
+                        {(mode === 'verification' || mode === 'reset-otp') && (
+                            <div className="pt-4 space-y-6 animate-in fade-in slide-in-from-top-4 duration-500">
+                                <div className="space-y-4">
+                                    <div className="w-full">
+                                        <InputField
+                                            type="text"
+                                            placeholder="أدخل رمز التحقق (رمز من 6 أرقام)"
+                                            value={verificationCode}
+                                            onChange={(e) => {
+                                                const val = e.target.value.replace(/[^0-9]/g, '').slice(0, 6);
+                                                setVerificationCode(val);
+                                            }}
+                                            className="text-center text-2xl tracking-[0.5em] font-black placeholder:tracking-normal placeholder:text-base placeholder:font-bold"
+                                            icon={CheckCircle2}
+                                            autoFocus
+                                            inputMode="numeric"
+                                        />
+                                    </div>
+                                    <p className="text-xs text-center font-bold text-gray-500 leading-relaxed px-4">
+                                        تم إرسال الرمز إلى <span className="text-primary">{formData.email}</span>
+                                    </p>
                                 </div>
-                            )}
-                        </>
-                    )}
-                </div>
 
-                {/* Submit Button */}
-                <button
-                    type="submit"
-                    disabled={loading}
-                    className="w-full h-14 bg-primary text-white rounded-xl font-black text-lg shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 hover:-translate-y-1 active:translate-y-0 transition-all disabled:opacity-50 flex items-center justify-center gap-3 border border-transparent"
-                >
-                    {loading ? (
-                        <>
-                            <Loader2 className="w-5 h-5 animate-spin" />
-                            <span>جاري المعالجة...</span>
-                        </>
-                    ) : (
-                        mode === 'verification' || mode === 'reset-otp' ? ((mode === 'verification') ? 'تأكيد الحساب' : 'تحقق من الرمز') :
-                            mode === 'reset-password' ? 'تغيير كلمة المرور' :
-                                t(`AUTH.${mode === 'forgot-password' ? 'FORGOT_PASSWORD' : mode.toUpperCase()}.SUBMIT`)
-                    )}
-                </button>
+                                <div className="flex justify-center">
+                                    <button
+                                        type="button"
+                                        disabled={resendCountdown > 0 || loading}
+                                        onClick={async () => {
+                                            setLoading(true);
+                                            try {
+                                                await tenantAuth.resendOTP(formData.email);
+                                                setSuccess('تم إعادة إرسال الرمز بنجاح');
+                                                setResendCountdown(60);
+                                            } catch (err: any) {
+                                                setError(err.response?.data?.message || 'فشل إعادة الإرسال');
+                                            } finally {
+                                                setLoading(false);
+                                            }
+                                        }}
+                                        className="text-xs font-black text-gray-400 hover:text-primary disabled:opacity-50 transition-colors py-2 px-4 rounded-xl hover:bg-primary/5 flex items-center gap-2"
+                                    >
+                                        {resendCountdown > 0 ? (
+                                            <>
+                                                <Loader2 className="w-3 h-3 animate-spin" />
+                                                <span>إعادة الإرسال خلال {resendCountdown} ثانية</span>
+                                            </>
+                                        ) : (
+                                            <span>إعادة إرسال الرمز</span>
+                                        )}
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+                    </div>
 
-
-
-                {/* Mode Toggle Links */}
-                <div className="pt-8 text-center">
-                    {mode === 'login' ? (
-                        <p className="text-gray-500 dark:text-gray-400 font-bold">
-                            {t('AUTH.LOGIN.NO_ACCOUNT')}{' '}
-                            <button
-                                type="button"
-                                onClick={() => toggleMode('register')}
-                                className="text-primary hover:text-primary-dark font-black hover:underline transition-all"
-                            >
-                                {t('AUTH.LOGIN.REGISTER_NOW')}
-                            </button>
-                        </p>
-                    ) : (
+                    {/* Submit and Navigation */}
+                    <div className="space-y-6 pt-6 border-t border-gray-50 dark:border-white/5">
                         <button
-                            type="button"
-                            onClick={() => toggleMode('login')}
-                            className="inline-flex items-center gap-2 text-gray-500 dark:text-gray-400 font-bold hover:text-primary hover:bg-gray-50 dark:hover:bg-white/5 py-2 px-4 rounded-xl transition-all"
+                            type="submit"
+                            disabled={loading}
+                            className="w-full h-16 bg-primary text-white rounded-2xl font-black text-lg shadow-xl shadow-primary/20 hover:shadow-2xl hover:shadow-primary/30 hover:-translate-y-1 active:translate-y-0 transition-all disabled:opacity-50 flex items-center justify-center gap-3 active:scale-[0.98]"
                         >
-                            <ArrowLeft className="w-4 h-4" />
-                            {t('AUTH.LOGIN.BACK_TO_LOGIN')}
+                            {loading ? (
+                                <Loader2 className="w-6 h-6 animate-spin" />
+                            ) : (
+                                <span>
+                                    {mode === 'verification' || mode === 'reset-otp' ? 'تحقق ومتابعة' :
+                                        mode === 'reset-password' ? 'تغيير كلمة المرور' :
+                                            t(`AUTH.${mode === 'forgot-password' ? 'FORGOT_PASSWORD' : mode.toUpperCase()}.SUBMIT`)}
+                                </span>
+                            )}
                         </button>
-                    )}
-                </div>
-            </form >
-        </AuthSplitLayout >
+
+                        <div className="space-y-4">
+                            {mode === 'login' && (
+                                <p className="text-center text-sm font-bold text-gray-400">
+                                    ليس لديك حساب بعد؟{' '}
+                                    <button
+                                        type="button"
+                                        onClick={() => handleModeChange('register')}
+                                        className="text-primary hover:underline font-black"
+                                    >
+                                        إنشاء حساب جديد مجاناً
+                                    </button>
+                                </p>
+                            )}
+
+                            {mode === 'register' && (
+                                <p className="text-center text-sm font-bold text-gray-400">
+                                    لديك حساب بالفعل؟{' '}
+                                    <button
+                                        type="button"
+                                        onClick={() => handleModeChange('login')}
+                                        className="text-primary hover:underline font-black"
+                                    >
+                                        تسجيل الدخول
+                                    </button>
+                                </p>
+                            )}
+
+                            {(mode === 'forgot-password' || mode === 'verification' || mode === 'reset-otp' || mode === 'reset-password') && (
+                                <button
+                                    type="button"
+                                    onClick={() => handleModeChange('login')}
+                                    className="w-full flex items-center justify-center gap-2 text-sm font-black text-gray-400 hover:text-primary transition-all group"
+                                >
+                                    <span>العودة لتسجيل الدخول</span>
+                                    <ArrowLeft size={16} className="transition-transform group-hover:translate-x-1 rotate-180" />
+                                </button>
+                            )}
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </AuthSplitLayout>
     );
 }

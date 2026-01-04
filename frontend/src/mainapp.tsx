@@ -167,14 +167,20 @@ function MainAppContent() {
             }
 
             if (tenant.status === 'expired' || tenant.status === 'disabled' || isTrialExpired) {
-                const title = tenant.status === 'disabled' ? 'حساب معطل' : (isTrialExpired ? 'انتهت التجربة' : 'انتهى الاشتراك');
-                return (
-                    <AppLayout title={title}>
-                        <Suspense fallback={<PageLoader />}>
-                            <AccountStatusNotice />
-                        </Suspense>
-                    </AppLayout>
-                );
+                // We no longer return the full-page AccountStatusNotice here.
+                // Instead, we allow the app to render, and AppLayout will show a banner.
+                // However, 'disabled' should probably still be blocked? 
+                // The user request said "لما مستخدم ينتهي حسابه" (when a user's account expires).
+                // It didn't mention 'disabled'. I will keep 'disabled' blocked if it's currently blocked.
+                if (tenant.status === 'disabled') {
+                    return (
+                        <AppLayout title="حساب معطل">
+                            <Suspense fallback={<PageLoader />}>
+                                <AccountStatusNotice />
+                            </Suspense>
+                        </AppLayout>
+                    );
+                }
             }
         }
     }

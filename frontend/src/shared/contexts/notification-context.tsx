@@ -94,15 +94,22 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ childr
 
     const fetchNotifications = useCallback(async () => {
         try {
-            // Determine prefix based on current path
-            const isAdmin = window.location.pathname.startsWith('/admin');
-            const prefix = isAdmin ? '/admin' : '/app';
+            const pathname = window.location.pathname;
+            const isAdmin = pathname.includes('/admin') || pathname.startsWith('admin');
+            const prefix = isAdmin ? 'admin' : 'app';
 
             const response = await api.get(`${prefix}/notifications`) as any;
 
             // The api service interceptor already returns response.data directly
-            const notificationsList = response?.notifications || [];
-            const newUnreadCount = response?.unread_count || 0;
+            // Handle both flat arrays and paginated responses (LengthAwarePaginator)
+            let notificationsList = [];
+            if (response?.notifications) {
+                notificationsList = Array.isArray(response.notifications)
+                    ? response.notifications
+                    : (response.notifications.data || []);
+            }
+
+            const newUnreadCount = response?.unread_count ?? 0;
 
             // If unread count increased and it's not the first load, play sound
             if (hasInitialFetchRef.current && newUnreadCount > lastUnreadCountRef.current) {
@@ -171,34 +178,37 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ childr
     const showError = useCallback((message: string) => notify({ message, level: 'error' }), [notify]);
     const showInfo = useCallback((message: string) => notify({ message, level: 'info' }), [notify]);
 
-    const markAsRead = async (id: string | number) => {
+    const markAsRead = useCallback(async (id: string | number) => {
         try {
-            const isAdmin = window.location.pathname.startsWith('/admin');
-            const prefix = isAdmin ? '/admin' : '/app';
+            const pathname = window.location.pathname;
+            const isAdmin = pathname.includes('/admin') || pathname.startsWith('admin');
+            const prefix = isAdmin ? 'admin' : 'app';
             await api.post(`${prefix}/notifications/${id}/read`);
             setNotifications(prev => prev.map(n => n.id === id ? { ...n, is_read: true } : n));
             setUnreadCount(prev => Math.max(0, prev - 1));
         } catch (error) {
             logger.error('Failed to mark notification as read', error);
         }
-    };
+    }, [notifications]);
 
-    const markAllAsRead = async () => {
+    const markAllAsRead = useCallback(async () => {
         try {
-            const isAdmin = window.location.pathname.startsWith('/admin');
-            const prefix = isAdmin ? '/admin' : '/app';
+            const pathname = window.location.pathname;
+            const isAdmin = pathname.includes('/admin') || pathname.startsWith('admin');
+            const prefix = isAdmin ? 'admin' : 'app';
             await api.post(`${prefix}/notifications/read-all`);
             setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
             setUnreadCount(0);
         } catch (error) {
             logger.error('Failed to mark all as read', error);
         }
-    };
+    }, []);
 
-    const deleteNotification = async (id: string | number) => {
+    const deleteNotification = useCallback(async (id: string | number) => {
         try {
-            const isAdmin = window.location.pathname.startsWith('/admin');
-            const prefix = isAdmin ? '/admin' : '/app';
+            const pathname = window.location.pathname;
+            const isAdmin = pathname.includes('/admin') || pathname.startsWith('admin');
+            const prefix = isAdmin ? 'admin' : 'app';
             await api.delete(`${prefix}/notifications/${id}`);
 
             // Success path
@@ -221,7 +231,7 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ childr
             }
             logger.error('Failed to delete notification', error);
         }
-    };
+    }, [notifications]);
 
     const showConfirm = useCallback((options: ConfirmOptions) => {
         return new Promise<boolean>((resolve) => {
@@ -249,11 +259,18 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ childr
 
         if (!isAuthPage) {
             fetchNotifications();
-            // Polling for new notifications every 20 seconds (improved for better responsiveness)
-            const interval = setInterval(() => {
-                fetchNotifications();
-            }, 20000);
-            return () => clearInterval(interval);
+
+            // Polling for new notifications every 10 seconds
+            const interval = setInterval(fetchNotifications, 10000);
+
+            // Fetch when window regained focus
+            const handleFocus = () => fetchNotifications();
+            window.addEventListener('focus', handleFocus);
+
+            return () => {
+                clearInterval(interval);
+                window.removeEventListener('focus', handleFocus);
+            };
         }
     }, [fetchNotifications, window.location.pathname]);
 

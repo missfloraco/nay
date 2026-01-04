@@ -39,6 +39,7 @@ class SettingsController extends Controller
             'secondary_color' => 'nullable|string|max:20',
             'custom_font_url' => 'nullable|url|max:2048',
             'custom_heading_font_url' => 'nullable|url|max:2048',
+            'copyright_text' => 'nullable|string|max:255',
         ];
 
         if ($request->hasFile('logo_url')) {
@@ -153,6 +154,8 @@ class SettingsController extends Controller
             'app_name',
             'company_name',
             'company_link',
+            'copyright_text',
+            'primary_color',
             'primary_color',
             'secondary_color',
             'accent_color1',
@@ -186,6 +189,10 @@ class SettingsController extends Controller
             'prefix_ticket',
             'prefix_payment',
             'prefix_ad',
+            'prefix_subscription',
+            'prefix_plan',
+            'prefix_subscription_request',
+            'prefix_script',
             'trial_period_days',
             'custom_css',
             'ui_tweaks',

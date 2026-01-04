@@ -29,7 +29,8 @@ class SupportController extends Controller
             ->where('type', 'App\Notifications\TicketNotification')
             ->get()
             ->each(function ($n) {
-                $n->markAsRead(); });
+                $n->markAsRead();
+            });
 
         return response()->json(['data' => $tickets]);
     }
@@ -116,7 +117,7 @@ class SupportController extends Controller
         ]);
 
         if ($request->hasFile('image')) {
-            $path = $this->imageService->storeOptimized($request->file('image'), 'support-uploads');
+            $path = $this->imageService->storeOptimized($request->file('image'), "admins/{$request->user()->uid}/support");
             return response()->json([
                 'url' => asset('storage/' . $path)
             ]);

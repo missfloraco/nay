@@ -221,20 +221,20 @@ export default function LandingLayout({ children }: LandingLayoutProps) {
                     <div className="pointer-events-auto">
                         <button
                             onClick={() => {
-                                if (window.scrollY > 300) {
+                                if (lastScrollY > 300) {
                                     window.scrollTo({ top: 0, behavior: 'smooth' });
                                 } else {
-                                    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+                                    window.scrollTo({ top: window.innerHeight, behavior: 'smooth' });
                                 }
                             }}
-                            className={`w-14 h-14 rounded-full bg-primary text-white shadow-2xl shadow-primary/30 flex items-center justify-center transition-all duration-500 hover:scale-110 active:scale-95 group ${window.scrollY > 300 || window.scrollY < 100 ? 'translate-y-0 opacity-100' : 'translate-y-20 opacity-0 pointer-events-none'}`}
-                            title={window.scrollY > 300 ? 'للأعلى' : 'للأسفل'}
+                            className="w-14 h-14 rounded-full bg-primary text-white shadow-2xl shadow-primary/30 flex items-center justify-center transition-all duration-500 hover:scale-110 active:scale-95 group translate-y-0 opacity-100"
+                            title={lastScrollY > 300 ? 'للأعلى' : 'اكتشف المزيد'}
                         >
                             <div className="flex items-center justify-center w-7 h-7">
-                                {window.scrollY > 300 ? (
+                                {lastScrollY > 300 ? (
                                     <ChevronUp className="w-full h-full" />
                                 ) : (
-                                    <ChevronDown className="w-full h-full" />
+                                    <ChevronDown className="w-full h-full animate-bounce" />
                                 )}
                             </div>
                         </button>

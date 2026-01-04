@@ -31,6 +31,7 @@ class AuthController extends Controller
             ],
             'password' => ['required', 'string', 'min:8'],
             'country' => ['nullable', 'string', 'size:2'],
+            'phone' => ['required', 'string', 'unique:tenants,phone', 'regex:/^\+[1-9]\d{1,14}$/'],
         ]);
 
         $code = random_int(100000, 999999);
@@ -39,6 +40,7 @@ class AuthController extends Controller
         $registrationData = [
             'name' => $request->name,
             'email' => $request->email,
+            'phone' => $request->phone,
             'password' => $request->password, // Raw password, will hash on create
             'country' => $request->country ?? 'PS',
             'code' => $code
@@ -97,6 +99,7 @@ class AuthController extends Controller
                 $tenant = Tenant::create([
                     'name' => $cachedData['name'],
                     'email' => $cachedData['email'],
+                    'phone' => $cachedData['phone'],
                     'password' => Hash::make($cachedData['password']),
                     'country_code' => $cachedData['country'] ?? 'PS',
                     'status' => 'trial',

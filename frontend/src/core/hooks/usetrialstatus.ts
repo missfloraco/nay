@@ -20,11 +20,12 @@ export interface TrialStatus {
  * Hook to get tenant trial status information
  */
 export function useTrialStatus(): TrialStatus {
-    const { user } = useTenantAuth();
+    const { user, tenant } = useTenantAuth();
 
-    const status = user?.status ?? null;
-    const trialExpiresAt = user?.trial_expires_at ?? null;
-    const subscriptionEndsAt = (user as any)?.subscription_ends_at ?? null;
+    // Use tenant object for accurate status - it's updated after subscription changes
+    const status = tenant?.status ?? null;
+    const trialExpiresAt = tenant?.trial_expires_at ?? null;
+    const subscriptionEndsAt = tenant?.subscription_ends_at ?? null;
 
     const isTrialExpired = status === 'expired' || (trialExpiresAt !== null && new Date(trialExpiresAt) < new Date());
     const isDisabled = status === 'disabled';

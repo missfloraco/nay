@@ -110,10 +110,6 @@ Route::post('/login', function (Request $request) {
             return response()->json(['message' => 'حسابك معطل. يرجى الاتصال بالدعم.'], 403);
         }
 
-        if ($status === 'expired') {
-            return response()->json(['message' => 'انتهت صلاحية حسابك. يرجى تجديد الاشتراك للمتابعة.'], 403);
-        }
-
         Auth::guard('tenant')->login($tenant);
         $token = $tenant->createToken('tenant_token')->plainTextToken;
 
@@ -259,6 +255,10 @@ Route::prefix('app')->group(function () {
     Route::post('/forgot-password', [App\Http\Controllers\Tenant\AuthController::class, 'forgotPassword'])->middleware('throttle:3,1');
     Route::post('/forgot-password/verify', [App\Http\Controllers\Tenant\AuthController::class, 'verifyResetCode'])->middleware('throttle:5,1');
     Route::post('/forgot-password/reset', [App\Http\Controllers\Tenant\AuthController::class, 'resetPasswordWithCode'])->middleware('throttle:5,1');
+
+    // Phone Registration Flow
+    Route::post('/register/phone', [App\Http\Controllers\Tenant\PhoneAuthController::class, 'register'])->middleware('throttle:5,1');
+    Route::post('/register/phone/check', [App\Http\Controllers\Tenant\PhoneAuthController::class, 'checkPhoneAvailability'])->middleware('throttle:10,1');
 
     // Protected Tenant Routes
     Route::middleware(['auth:sanctum,tenant', 'tenant.only', 'tenant.status', 'subscription.check'])->group(function () {

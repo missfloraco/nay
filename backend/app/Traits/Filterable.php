@@ -26,8 +26,10 @@ trait Filterable
         // Handle specific column filters (e.g., status=active)
         $filters = $request->query('filters', []);
         if (!empty($filters) && is_array($filters)) {
+            $allowedFilters = property_exists($this, 'filterable') ? $this->filterable : (property_exists($this, 'sortable') ? $this->sortable : ['status', 'type', 'id']);
+
             foreach ($filters as $column => $value) {
-                if ($value !== null && $value !== '') {
+                if (in_array($column, $allowedFilters) && $value !== null && $value !== '') {
                     $query->where($column, $value);
                 }
             }

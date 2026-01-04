@@ -31,6 +31,18 @@ trait HasUid
             $settingKey = 'prefix_tenant';
         if ($model instanceof \App\Models\SupportTicket)
             $settingKey = 'prefix_ticket';
+        if ($model instanceof \App\Models\Subscription)
+            $settingKey = 'prefix_subscription';
+        if ($model instanceof \App\Models\Payment)
+            $settingKey = 'prefix_payment';
+        if ($model instanceof \App\Models\Plan)
+            $settingKey = 'prefix_plan';
+        if ($model instanceof \App\Models\SubscriptionRequest)
+            $settingKey = 'prefix_subscription_request';
+        if ($model instanceof \App\Models\Script)
+            $settingKey = 'prefix_script';
+        if ($model instanceof \App\Models\Ad)
+            $settingKey = 'prefix_ad';
 
         $prefix = null;
         if ($settingKey) {
@@ -51,9 +63,13 @@ trait HasUid
 
             // Check if this specific UID already exists
             $existsQuery = static::query();
-            if (method_exists(static::class, 'withTrashed')) {
-                $existsQuery = static::withTrashed();
+
+            // Check for SoftDeletes trait the right way
+            $traits = class_uses_recursive(static::class);
+            if (in_array('Illuminate\Database\Eloquent\SoftDeletes', $traits)) {
+                $existsQuery = $existsQuery->withTrashed();
             }
+
             $exists = $existsQuery->where('uid', $uid)->exists();
 
         } while ($exists);

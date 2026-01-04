@@ -103,7 +103,8 @@ export default function TenantTrash() {
         trash.emptyTrash,
         setPrimaryAction,
         setExtraActions,
-        openModal
+        openModal,
+        trash.selectAll
     ]);
 
     const columns = React.useMemo(() => [

@@ -31,6 +31,19 @@ class SubscriptionRequestController extends Controller
             $tenant = $subRequest->tenant;
             $plan = $subRequest->plan;
 
+            $endsAt = null;
+            if ($subRequest->billing_cycle === 'monthly') {
+                $endsAt = now()->addMonth();
+            } else if ($subRequest->billing_cycle === 'yearly') {
+                $endsAt = now()->addYear();
+            } else if ($subRequest->billing_cycle === 'fixed_term') {
+                $duration = $plan->fixed_term_duration ?: 1;
+                $unit = $plan->fixed_term_unit === 'years' ? 'addYears' : 'addMonths';
+                $endsAt = now()->$unit($duration);
+            } else if ($subRequest->billing_cycle === 'lifetime') {
+                $endsAt = null; // Lifetime means no expiration
+            }
+
             // Create or update subscription
             Subscription::updateOrCreate(
                 ['tenant_id' => $tenant->id],
@@ -38,14 +51,20 @@ class SubscriptionRequestController extends Controller
                     'plan_id' => $plan->id,
                     'status' => 'active',
                     'started_at' => now(),
-                    'ends_at' => $plan->billing_cycle === 'monthly' ? now()->addMonth() : now()->addYear(),
+                    'ends_at' => $endsAt,
+                    'trial_ends_at' => null, // Clear trial period
                     'payment_method' => 'manual',
                     'payment_reference' => $request->payment_reference
                 ]
             );
 
-            // Update tenant status if needed
-            $tenant->update(['status' => 'active']);
+            // Update tenant status and dates - clear trial period
+            $tenant->update([
+                'status' => 'active',
+                'subscription_started_at' => now(),
+                'subscription_ends_at' => $endsAt,
+                'trial_expires_at' => null // Clear trial expiration
+            ]);
 
             // Notify Tenant about approval
             $tenant->notify(new \App\Notifications\SystemNotification([

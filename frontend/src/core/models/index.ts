@@ -66,6 +66,7 @@ export interface GlobalSettings {
   // DYNAMIC FOOTER
   companyName?: string;
   companyLink?: string;
+  copyright_text?: string;
   translations: {
     dashboard: string;
     users: string;

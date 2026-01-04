@@ -43,6 +43,7 @@ class SubscriptionController extends Controller
     {
         $request->validate([
             'plan_id' => 'required|exists:plans,id',
+            'billing_cycle' => 'required|in:monthly,yearly,lifetime,fixed_term',
             'notes' => 'nullable|string|max:1000',
         ]);
 
@@ -60,6 +61,7 @@ class SubscriptionController extends Controller
         $subRequest = SubscriptionRequest::create([
             'tenant_id' => $tenant->id,
             'plan_id' => $request->plan_id,
+            'billing_cycle' => $request->billing_cycle,
             'notes' => $request->notes,
             'status' => 'pending',
         ]);

@@ -27,8 +27,15 @@ class SanitizeInput
                 'script_code'
             ];
 
-            array_walk_recursive($input, function (&$value, $key) use ($except) {
-                if (is_string($value) && !in_array($key, $except)) {
+            $isAdmin = auth()->guard('admin')->check();
+
+            array_walk_recursive($input, function (&$value, $key) use ($except, $isAdmin) {
+                if (is_string($value)) {
+                    // Only allow raw HTML/Scripts if the user is an ADMIN
+                    if ($isAdmin && in_array($key, $except)) {
+                        return; // Skip sanitization for these specific admin-only fields
+                    }
+
                     // Remove null bytes
                     $value = str_replace(chr(0), '', $value);
                     // Trim

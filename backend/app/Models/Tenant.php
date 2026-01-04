@@ -17,28 +17,29 @@ class Tenant extends Authenticatable
     const UID_PREFIX = 'TNT';
 
     // Filterable trait configuration
-    protected $searchable = ['name', 'email', 'whatsapp'];
+    protected $searchable = ['name', 'email', 'phone', 'whatsapp'];
     protected $sortable = ['id', 'name', 'email', 'created_at', 'status'];
 
     protected $fillable = [
         'uid',
         'name',
         'email',
+        'phone',
         'password',
         'whatsapp',
         'avatar_url',
         'country_code',
         'currency_code',
-        'status',
-        'trial_expires_at',
         'settings',
         'subscription_started_at',
         'subscription_ends_at',
+        'trial_expires_at',
         'ads_enabled',
         'trial_bonus_applied',
         'verification_code',
         'verification_code_expires_at',
         'email_verified_at',
+        'status',
     ];
 
     protected $hidden = [
@@ -63,6 +64,17 @@ class Tenant extends Authenticatable
         return $this->hasOne(Subscription::class)->latestOfMany();
     }
 
+    public function activeSubscription()
+    {
+        return $this->hasOne(Subscription::class)
+            ->where('status', 'active')
+            ->where(function ($query) {
+                $query->whereNull('ends_at')
+                    ->orWhere('ends_at', '>', now());
+            })
+            ->latestOfMany();
+    }
+
     protected $casts = [
         'password' => 'hashed',
         'trial_expires_at' => 'datetime',
@@ -79,14 +91,25 @@ class Tenant extends Authenticatable
      */
     public function getStatusAttribute($value)
     {
+        // 1. Check active subscription first - this takes priority
+        $activeSub = $this->activeSubscription;
+        if ($activeSub && $activeSub->status === 'active') {
+            if ($activeSub->ends_at === null || $activeSub->ends_at->isFuture()) {
+                return 'active';
+            }
+        }
+
+        // 2. Check if subscription expired based on tenant's subscription_ends_at
         if ($value === 'active' && $this->subscription_ends_at && $this->subscription_ends_at->isPast()) {
             return 'expired';
         }
 
+        // 3. Return active if value is active and no expiration detected
         if ($value === 'active') {
             return 'active';
         }
 
+        // 4. Check trial expiration
         if ($value === 'trial' || $value === 'pending') {
             if ($this->trial_expires_at && $this->trial_expires_at->isPast()) {
                 return 'expired';
